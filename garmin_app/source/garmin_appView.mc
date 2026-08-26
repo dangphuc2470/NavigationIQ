@@ -135,23 +135,23 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // Theme Palette Selector (Milky Desaturated Pastel Badge + Harmonic Glow)
+    // Theme Palette Selector (Bright Milky Desaturated Pastel Badge + Glow)
     // -------------------------------------------------------------------------
     private function _getTheme(dir as Number) as Array<Object> {
         if (dir == DIR_STRAIGHT || dir == DIR_ROUNDABOUT_3) {
-            // Straight Ahead: Milky Desaturated Cyan/Slate Badge (0x466E76)
-            return [0x00E5FF, 0x466E76, [0x00, 0x99, 0xBB], 0x1E363B] as Array<Object>;
+            // Straight Ahead: Bright Milky Pastel Teal/Cyan Badge (0x5C8E98)
+            return [0x00E5FF, 0x5C8E98, [0x00, 0x99, 0xBB], 0x243E45] as Array<Object>;
         } else if (dir == DIR_LEFT || dir == DIR_SLIGHT_LEFT || dir == DIR_SHARP_LEFT ||
                    dir == DIR_ROUNDABOUT_4 || dir == DIR_ROUNDABOUT_5 || dir == DIR_UTURN) {
-            // Turn Left / U-turn: Milky Desaturated Amber/Taupe Badge (0x6E5646)
-            return [0xF59E0B, 0x6E5646, [0xCC, 0x60, 0x05], 0x36281E] as Array<Object>;
+            // Turn Left / U-turn: Bright Milky Pastel Amber/Taupe Badge (0x9E806C)
+            return [0xF59E0B, 0x9E806C, [0xCC, 0x60, 0x05], 0x423226] as Array<Object>;
         } else if (dir == DIR_RIGHT || dir == DIR_SLIGHT_RIGHT || dir == DIR_SHARP_RIGHT ||
                    dir == DIR_ROUNDABOUT_1 || dir == DIR_ROUNDABOUT_2) {
-            // Turn Right: Milky Desaturated Jade/Sage Badge (0x466E58)
-            return [0x10B981, 0x466E58, [0x10, 0x90, 0x55], 0x1E362A] as Array<Object>;
+            // Turn Right: Bright Milky Pastel Jade/Sage Badge (0x5C8E74)
+            return [0x10B981, 0x5C8E74, [0x10, 0x90, 0x55], 0x243E30] as Array<Object>;
         } else {
             // Default Cyan Theme
-            return [0x00E5FF, 0x466E76, [0x00, 0x99, 0xBB], 0x1E363B] as Array<Object>;
+            return [0x00E5FF, 0x5C8E98, [0x00, 0x99, 0xBB], 0x243E45] as Array<Object>;
         }
     }
 
@@ -205,34 +205,39 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // Razor-Sharp Micro Vector Digital Clock (Height: 12px)
+    // Razor-Sharp Micro Vector Typography Engine (Supports Letters & Digits)
     // -------------------------------------------------------------------------
-    private function _drawMicroClock(dc as Dc, rightX as Number, centerY as Number, timeStr as String, color as Number) as Void {
+    private function _drawMicroText(dc as Dc, targetX as Number, centerY as Number, text as String, color as Number, isCentered as Boolean) as Void {
         var digitW = 7;
         var digitH = 12;
         var spacing = 3;
         var colonW = 3;
+        var spaceW = 4;
 
         var totalW = 0;
-        for (var i = 0; i < timeStr.length(); i++) {
-            var ch = timeStr.substring(i, i + 1);
+        for (var i = 0; i < text.length(); i++) {
+            var ch = text.substring(i, i + 1);
             if (ch.equals(":")) {
                 totalW += colonW + spacing;
+            } else if (ch.equals(" ")) {
+                totalW += spaceW + spacing;
             } else {
                 totalW += digitW + spacing;
             }
         }
-        totalW -= spacing;
+        if (totalW > 0) {
+            totalW -= spacing;
+        }
 
-        var startX = rightX - totalW;
+        var startX = isCentered ? (targetX - (totalW / 2)) : (targetX - totalW);
         var topY = centerY - (digitH / 2);
 
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(2);
 
         var curX = startX;
-        for (var i = 0; i < timeStr.length(); i++) {
-            var ch = timeStr.substring(i, i + 1);
+        for (var i = 0; i < text.length(); i++) {
+            var ch = text.substring(i, i + 1);
             var x = curX;
             var y = topY;
             var w = digitW;
@@ -242,6 +247,31 @@ class NavigationIQView extends WatchUi.View {
                 dc.fillCircle(x + 1, y + 3, 1);
                 dc.fillCircle(x + 1, y + 8, 1);
                 curX += colonW + spacing;
+                continue;
+            } else if (ch.equals(" ")) {
+                curX += spaceW + spacing;
+                continue;
+            } else if (ch.equals("-")) {
+                dc.drawLine(x + 1, y + (h / 2), x + w - 2, y + (h / 2));
+                curX += w + spacing;
+                continue;
+            } else if (ch.equals("E") || ch.equals("e")) {
+                dc.drawLine(x, y, x + w - 1, y);
+                dc.drawLine(x, y, x, y + h - 1);
+                dc.drawLine(x, y + (h / 2), x + w - 2, y + (h / 2));
+                dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
+                curX += w + spacing;
+                continue;
+            } else if (ch.equals("T") || ch.equals("t")) {
+                dc.drawLine(x, y, x + w - 1, y);
+                dc.drawLine(x + (w / 2), y, x + (w / 2), y + h - 1);
+                curX += w + spacing;
+                continue;
+            } else if (ch.equals("A") || ch.equals("a")) {
+                dc.drawLine(x, y + h - 1, x + (w / 2), y);
+                dc.drawLine(x + (w / 2), y, x + w - 1, y + h - 1);
+                dc.drawLine(x + 1, y + 7, x + w - 2, y + 7);
+                curX += w + spacing;
                 continue;
             }
 
@@ -332,7 +362,7 @@ class NavigationIQView extends WatchUi.View {
         // 3. Clear outer corner leak to maintain perfect round curves
         _maskCardCorners(dc, cardX, cardY, cardW, cardH, cardR);
 
-        // 4. Left Circular Turn Badge (Solid milky desaturated pastel theme badge, NO outline border)
+        // 4. Left Circular Turn Badge (Solid bright milky pastel theme badge, NO outline border)
         var badgeR = 36;
         dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(badgeCx, badgeCy, badgeR);
@@ -412,7 +442,7 @@ class NavigationIQView extends WatchUi.View {
 
         // Left: Tinted ETA Outlined Pill Badge
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        var etaBadgeW = 120;
+        var etaBadgeW = 116;
         var etaBadgeH = 30;
         var etaBadgeX = cardX + 14;
         var etaBadgeY = barY + (barH - etaBadgeH) / 2;
@@ -426,15 +456,8 @@ class NavigationIQView extends WatchUi.View {
         dc.setPenWidth(1);
         dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, 15);
 
-        // Crisp White ETA Text with compact size
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(
-            etaBadgeX + (etaBadgeW / 2),
-            etaBadgeY + (etaBadgeH / 2),
-            Graphics.FONT_XTINY,
-            etaStr,
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-        );
+        // Crisp White Micro Vector Typography for ETA
+        _drawMicroText(dc, etaBadgeX + (etaBadgeW / 2), etaBadgeY + (etaBadgeH / 2), etaStr, Graphics.COLOR_WHITE, true);
 
         // Center: Subtle Bullet Dot
         var dotX = etaBadgeX + etaBadgeW + 16;
@@ -445,7 +468,7 @@ class NavigationIQView extends WatchUi.View {
         // Right: Razor-Sharp Micro Vector Digital Clock Time
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
-        _drawMicroClock(dc, cardX + cardW - 20, dotY, timeStr, 0xE4E4E7);
+        _drawMicroText(dc, cardX + cardW - 20, dotY, timeStr, 0xE4E4E7, false);
     }
 
     // -------------------------------------------------------------------------
