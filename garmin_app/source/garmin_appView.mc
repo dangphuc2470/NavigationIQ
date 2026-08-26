@@ -474,19 +474,19 @@ class NavigationIQView extends WatchUi.View {
 
         // Left: Tinted ETA Outlined Pill Badge
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        var etaBadgeW = 116;
-        var etaBadgeH = 30;
+        var etaBadgeW = 120;
+        var etaBadgeH = 32;
         var etaBadgeX = cardX + 14;
         var etaBadgeY = barY + (barH - etaBadgeH) / 2;
 
         // Subtle tinted theme background
         dc.setColor(etaBgColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, 15);
+        dc.fillRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, 16);
 
         // Outlined border with theme accent
         dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, 15);
+        dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, 16);
 
         // Crisp White SF Pro Font for ETA
         var microFont = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;

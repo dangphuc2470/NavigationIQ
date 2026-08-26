@@ -108,15 +108,18 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
             f.write(f"char id={g['id']:<5} x={g['x']:<4} y={g['y']:<4} width={g['w']:<3} height={g['h']:<3} xoffset={g['xoff']:<3} yoffset={g['yoff']:<3} xadvance={g['xadv']:<3} page=0 chnl=15\n")
 
 if __name__ == "__main__":
-    # Use Apple SF Pro Display Semibold for premium thickness and weight
-    font_path = "app/src/main/res/font/sf_pro_display_semibold.otf"
+    # Street fonts use Apple SF Pro Display Semibold
+    font_semibold = "app/src/main/res/font/sf_pro_display_semibold.otf"
+    # Micro Pill font uses Apple SF Pro Rounded Bold (18px) for thicker, bold legibility
+    font_bold = "app/src/main/res/font/sf_pro_rounded_bold.otf"
+    
     os.makedirs("garmin_app/resources/fonts", exist_ok=True)
     
     # 1. Large Street Text Font (Size: 25px, Semibold)
-    generate_bmfont(font_path, 25, "garmin_app/resources/fonts/sf_pro_street.fnt", "garmin_app/resources/fonts/sf_pro_street_0.png", "SF Pro Street")
+    generate_bmfont(font_semibold, 25, "garmin_app/resources/fonts/sf_pro_street.fnt", "garmin_app/resources/fonts/sf_pro_street_0.png", "SF Pro Street")
     # 2. Compact Street Text Font (Size: 20px, Semibold)
-    generate_bmfont(font_path, 20, "garmin_app/resources/fonts/sf_pro_compact.fnt", "garmin_app/resources/fonts/sf_pro_compact_0.png", "SF Pro Compact")
-    # 3. Micro Pill Font (Size: 16px, Semibold)
-    generate_bmfont(font_path, 16, "garmin_app/resources/fonts/sf_pro_micro.fnt", "garmin_app/resources/fonts/sf_pro_micro_0.png", "SF Pro Micro")
+    generate_bmfont(font_semibold, 20, "garmin_app/resources/fonts/sf_pro_compact.fnt", "garmin_app/resources/fonts/sf_pro_compact_0.png", "SF Pro Compact")
+    # 3. Micro Pill Font (Size: 18px, Rounded Bold)
+    generate_bmfont(font_bold, 18, "garmin_app/resources/fonts/sf_pro_micro.fnt", "garmin_app/resources/fonts/sf_pro_micro_0.png", "SF Pro Micro")
     
-    print("Apple SF Pro Semibold BMFonts successfully generated with exact baseline alignment!")
+    print("Apple SF Pro Semibold & Rounded Bold 18px BMFonts successfully generated!")
