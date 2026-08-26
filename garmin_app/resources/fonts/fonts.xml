@@ -1,5 +1,7 @@
 <fonts>
+    <font id="SfStreetBold" filename="sf_pro_street_bold.fnt" antialias="true" />
     <font id="SfStreet" filename="sf_pro_street.fnt" antialias="true" />
+    <font id="SfCompactBold" filename="sf_pro_compact_bold.fnt" antialias="true" />
     <font id="SfCompact" filename="sf_pro_compact.fnt" antialias="true" />
     <font id="SfMicro" filename="sf_pro_micro.fnt" antialias="true" />
 </fonts>
