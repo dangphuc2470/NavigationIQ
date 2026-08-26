@@ -682,41 +682,22 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // Capitalize First Character Helper
+    // Capitalize First Character Helper (ASCII & Unicode Code Point Offset)
     // -------------------------------------------------------------------------
     private function _capitalize(str as String) as String {
         if (str.length() == 0) {
             return str;
         }
-        var first = str.substring(0, 1);
+        var chars = str.toCharArray();
+        var code = chars[0].toNumber();
         var rest = str.substring(1, str.length());
-        if (first.equals("a")) { return "A" + rest; }
-        if (first.equals("b")) { return "B" + rest; }
-        if (first.equals("c")) { return "C" + rest; }
-        if (first.equals("d")) { return "D" + rest; }
-        if (first.equals("e")) { return "E" + rest; }
-        if (first.equals("f")) { return "F" + rest; }
-        if (first.equals("g")) { return "G" + rest; }
-        if (first.equals("h")) { return "H" + rest; }
-        if (first.equals("i")) { return "I" + rest; }
-        if (first.equals("j")) { return "J" + rest; }
-        if (first.equals("k")) { return "K" + rest; }
-        if (first.equals("l")) { return "L" + rest; }
-        if (first.equals("m")) { return "M" + rest; }
-        if (first.equals("n")) { return "N" + rest; }
-        if (first.equals("o")) { return "O" + rest; }
-        if (first.equals("p")) { return "P" + rest; }
-        if (first.equals("q")) { return "Q" + rest; }
-        if (first.equals("r")) { return "R" + rest; }
-        if (first.equals("s")) { return "S" + rest; }
-        if (first.equals("t")) { return "T" + rest; }
-        if (first.equals("u")) { return "U" + rest; }
-        if (first.equals("v")) { return "V" + rest; }
-        if (first.equals("w")) { return "W" + rest; }
-        if (first.equals("x")) { return "X" + rest; }
-        if (first.equals("y")) { return "Y" + rest; }
-        if (first.equals("z")) { return "Z" + rest; }
-        if (first.equals("đ")) { return "Đ" + rest; }
+
+        if (code >= 97 && code <= 122) { // 'a'..'z' -> 'A'..'Z' (ASCII offset -32)
+            var upperChar = (code - 32).toChar();
+            return upperChar.toString() + rest;
+        } else if (code == 273) { // 'đ' (0x0111) -> 'Đ' (0x0110)
+            return "Đ" + rest;
+        }
         return str;
     }
 
