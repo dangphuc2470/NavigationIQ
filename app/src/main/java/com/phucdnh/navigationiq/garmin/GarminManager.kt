@@ -22,11 +22,8 @@ object GarminManager {
 
     private const val TAG = "GarminManager"
 
-    // Supported Watch App IDs:
-    // 1. Original HeadUpNav watch app on Garmin IQ Store
-    const val HEADUPNAV_APP_ID = "37618bc537a04c81b2ebef246f9da6f7"
-    // 2. Custom NavigationIQ watch app
-    const val NAVIQ_APP_ID     = "e24767ea-b254-4f25-9391-ff4c409a037c"
+    // NavigationIQ Watch App ID (Unique Custom UUID)
+    const val NAVIQ_APP_ID = "e24767ea-b254-4f25-9391-ff4c409a037c"
 
     val SUPPORTED_APP_IDS = listOf(
         NAVIQ_APP_ID
@@ -230,7 +227,7 @@ object GarminManager {
                     if (app != null) {
                         registeredApps[appId] = app
                         isAppFound = true
-                        val label = if (appId == HEADUPNAV_APP_ID) "HeadUpNav (Store)" else "NavIQ (Custom)"
+                        val label = "NavigationIQ"
                         addLog("Found $label: ${app.status}")
                         registerAppEvents(device, app)
                     }
