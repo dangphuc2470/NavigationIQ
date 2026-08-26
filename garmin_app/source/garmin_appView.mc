@@ -13,41 +13,41 @@ import Toybox.Math;
 const SCREEN_W = 320;
 const SCREEN_H = 360;
 
-// 2. Main Navigation Card Layout
-const CARD_X = 10;
-const CARD_Y = 12;
-const CARD_W = 300;
-const CARD_H = 260;
-const CARD_RADIUS = 32;
+// 2. Main Navigation Card Layout (Maximized Screen Real Estate)
+const CARD_X = 8;
+const CARD_Y = 8;
+const CARD_W = 304;
+const CARD_H = 276;
+const CARD_RADIUS = 30;
 
 // 3. Turn Badge Geometry
-const BADGE_OFFSET_X = 54;
-const BADGE_OFFSET_Y = 54;
+const BADGE_OFFSET_X = 52;
+const BADGE_OFFSET_Y = 52;
 const BADGE_RADIUS = 36;
 const BADGE_SPINNER_PEN_WIDTH = 6;
 
 // 4. Distance Row Layout
-const DIST_OFFSET_X = 104;
+const DIST_OFFSET_X = 102;
 const DIST_UNIT_GAP = 6;
 
 // 5. Divider Line
-const DIVIDER_OFFSET_Y = 108;
-const DIVIDER_PADDING_X = 18;
+const DIVIDER_OFFSET_Y = 106;
+const DIVIDER_PADDING_X = 16;
 
 // 6. Navigation Text Box Geometry
-const NAV_TEXT_PADDING_X = 18;
-const NAV_TEXT_OFFSET_Y = 12;
-const NAV_TEXT_BOTTOM_PADDING = 24;
+const NAV_TEXT_PADDING_X = 16;
+const NAV_TEXT_OFFSET_Y = 10;
+const NAV_TEXT_BOTTOM_PADDING = 14;
 
-// 7. Bottom Pill Bar Layout
-const BAR_Y = 286;
-const BAR_H = 52;
-const BAR_RADIUS = 26;
+// 7. Bottom Pill Bar Layout (Flush to bottom edge)
+const BAR_Y = 290;
+const BAR_H = 62;
+const BAR_RADIUS = 28;
 
 // 8. ETA Capsule Badge
-const ETA_BADGE_W = 120;
-const ETA_BADGE_H = 32;
-const ETA_BADGE_RADIUS = 16;
+const ETA_BADGE_W = 124;
+const ETA_BADGE_H = 38;
+const ETA_BADGE_RADIUS = 19;
 const ETA_BADGE_PADDING_X = 14;
 
 // 9. Ambient Glow Radial Gradient
@@ -693,30 +693,94 @@ class NavigationIQView extends WatchUi.View {
             return [act, str] as Array<String>;
         }
 
-        // 2. Keyword delimiters to separate maneuver action from target street
-        var keywords = [
-            " onto ",
-            " to continue on ",
-            " toward ",
-            " towards ",
-            " after ",
-            " at ",
-            " on ",
-            " vào ",
-            " về hướng ",
-            " trên ",
-            " tại "
-        ];
-
-        for (var i = 0; i < keywords.size(); i++) {
-            var kw = keywords[i];
-            var idx = text.find(kw);
-            // Don't split if delimiter is at the very beginning (e.g. "At Ngã sáu...")
-            if (idx != null && idx > 2) {
-                var act = text.substring(0, idx);
-                var str = text.substring(idx + 1, text.length());
-                return [act, str] as Array<String>;
+        // 2. Special Roundabout Pattern: "At ..., take the Nth exit onto ..." or "take the Nth exit"
+        var takeIdx = text.find("take the ");
+        if (takeIdx == null) {
+            takeIdx = text.find("Take the ");
+        }
+        if (takeIdx != null) {
+            var afterTake = text.substring(takeIdx, text.length());
+            // Capitalize first letter if needed
+            var actStr = "Take the " + afterTake.substring(9, afterTake.length());
+            var exitOntoIdx = actStr.find(" onto ");
+            var strTarget = "";
+            if (exitOntoIdx != null) {
+                strTarget = "onto " + actStr.substring(exitOntoIdx + 6, actStr.length());
+                actStr = actStr.substring(0, exitOntoIdx);
+            } else {
+                var exitOnIdx = actStr.find(" on ");
+                if (exitOnIdx != null) {
+                    strTarget = actStr.substring(exitOnIdx + 4, actStr.length());
+                    actStr = actStr.substring(0, exitOnIdx);
+                }
             }
+            return [actStr, strTarget] as Array<String>;
+        }
+
+        // 3. Keyword delimiters to separate maneuver action from target road (Priority Order)
+        // Strips " at " / " to continue on " to keep target road clean
+        var atIdx = text.find(" at ");
+        if (atIdx != null && atIdx > 2) {
+            var act = text.substring(0, atIdx);
+            var str = text.substring(atIdx + 4, text.length()); // removes "at "
+            return [act, str] as Array<String>;
+        }
+
+        var contIdx = text.find(" to continue on ");
+        if (contIdx != null && contIdx > 2) {
+            var act = text.substring(0, contIdx);
+            var str = text.substring(contIdx + 16, text.length());
+            return [act, str] as Array<String>;
+        }
+
+        var ontoIdx = text.find(" onto ");
+        if (ontoIdx != null && ontoIdx > 2) {
+            var act = text.substring(0, ontoIdx);
+            var str = text.substring(ontoIdx + 1, text.length()); // "onto ..."
+            return [act, str] as Array<String>;
+        }
+
+        var onIdx = text.find(" on ");
+        if (onIdx != null && onIdx > 2) {
+            var act = text.substring(0, onIdx);
+            var str = text.substring(onIdx + 4, text.length());
+            return [act, str] as Array<String>;
+        }
+
+        var afterIdx = text.find(" after ");
+        if (afterIdx != null && afterIdx > 2) {
+            var act = text.substring(0, afterIdx);
+            var str = text.substring(afterIdx + 1, text.length());
+            return [act, str] as Array<String>;
+        }
+
+        var towardIdx = text.find(" toward ");
+        if (towardIdx != null && towardIdx > 2) {
+            var act = text.substring(0, towardIdx);
+            var str = text.substring(towardIdx + 1, text.length());
+            return [act, str] as Array<String>;
+        }
+
+        // Vietnamese keywords
+        var vaoIdx = text.find(" vào ");
+        if (vaoIdx != null && vaoIdx > 2) {
+            var act = text.substring(0, vaoIdx);
+            var str = text.substring(vaoIdx + 5, text.length());
+            return [act, str] as Array<String>;
+        }
+
+        var taiIdx = text.find(" tại ");
+        if (taiIdx != null && taiIdx > 2) {
+            var act = text.substring(0, taiIdx);
+            var str = text.substring(taiIdx + 5, text.length());
+            return [act, str] as Array<String>;
+        }
+
+        var trenIdx = text.find(" trên ");
+        if (trenIdx != null && trenIdx > 2) {
+            var act = text.substring(0, trenIdx);
+            var str = text.substring(trenIdx + 6, text.length());
+            return [act, str] as Array<String>;
         }
 
         return [text, ""] as Array<String>;
