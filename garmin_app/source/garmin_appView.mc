@@ -365,19 +365,17 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // Smooth Loading Spinner when waiting for new maneuver
+    // Smooth Loading Spinner when waiting for new maneuver (Bold 6px, No Center Dot)
     // -------------------------------------------------------------------------
     private function _drawLoadingSpinner(dc as Dc, cx as Number, cy as Number, radius as Number, accent as Number) as Void {
         var startDeg = (_animTick * 25) % 360;
         dc.setColor(accent, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(3);
+        dc.setPenWidth(6);
         if (dc has :drawArc) {
-            dc.drawArc(cx, cy, radius - 8, Graphics.ARC_CLOCKWISE, startDeg, (startDeg + 100) % 360);
+            dc.drawArc(cx, cy, radius - 10, Graphics.ARC_CLOCKWISE, startDeg, (startDeg + 110) % 360);
         } else {
-            dc.drawCircle(cx, cy, 6);
+            dc.drawCircle(cx, cy, radius - 10);
         }
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(cx, cy, 4);
     }
 
     // -------------------------------------------------------------------------
@@ -650,16 +648,6 @@ class NavigationIQView extends WatchUi.View {
                     [cx - 8, cy + 19]
                 ];
                 dc.fillPolygon(head);
-            }
-
-            if (exitNum > 0) {
-                dc.setColor(arrowAccent, Graphics.COLOR_TRANSPARENT);
-                dc.drawText(
-                    cx, cy - 2,
-                    Graphics.FONT_XTINY,
-                    "" + exitNum,
-                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-                );
             }
             return;
         }
