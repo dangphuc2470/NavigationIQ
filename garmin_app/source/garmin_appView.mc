@@ -682,7 +682,7 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // Capitalize First Character Helper (ASCII & Unicode Code Point Offset)
+    // Capitalize First Character Helper (Full ASCII & 100% Vietnamese Accents)
     // -------------------------------------------------------------------------
     private function _capitalize(str as String) as String {
         if (str.length() == 0) {
@@ -692,12 +692,21 @@ class NavigationIQView extends WatchUi.View {
         var code = chars[0].toNumber();
         var rest = str.substring(1, str.length());
 
-        if (code >= 97 && code <= 122) { // 'a'..'z' -> 'A'..'Z' (ASCII offset -32)
+        // 1. Standard Latin 'a'..'z' -> 'A'..'Z' (Instant O(1) ASCII math)
+        if (code >= 97 && code <= 122) {
             var upperChar = (code - 32).toChar();
             return upperChar.toString() + rest;
-        } else if (code == 273) { // 'đ' (0x0111) -> 'Đ' (0x0110)
-            return "Đ" + rest;
         }
+
+        // 2. Full Vietnamese Unicode Accented Characters Mapping
+        var lowerVn = "aáàảãạăắằẳẵặâấầẩẫậeéèẻẽẹêếềểễệiíìỉĩịoóòỏõọôốồổỗộơớờởỡợuúùủũụưứừửữựyýỳỷỹỵđ";
+        var upperVn = "AÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬEÉÈẺẼẸÊẾỀỂỄỆIÍÌỈĨỊOÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢUÚÙỦŨỤƯỨỪỬỮỰYÝỲỶỸỴĐ";
+        var firstChar = str.substring(0, 1);
+        var idx = lowerVn.find(firstChar);
+        if (idx != null && idx >= 0) {
+            return upperVn.substring(idx, idx + 1) + rest;
+        }
+
         return str;
     }
 
