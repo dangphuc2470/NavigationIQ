@@ -50,9 +50,9 @@ const ETA_BADGE_H = 38;
 const ETA_BADGE_RADIUS = 19;
 const ETA_BADGE_PADDING_X = 14;
 
-// 9. Ambient Glow Radial Gradient
-const GLOW_STEPS = 70;
-const GLOW_RADIUS_FACTOR = 2.0;
+// 9. Ambient Glow Radial Gradient (Ultra-Smooth 120-Step Diffusion)
+const GLOW_STEPS = 120;
+const GLOW_RADIUS_FACTOR = 1.3;
 
 // 10. Color Tokens
 const COLOR_BG_AMOLED = 0x000000;
@@ -248,7 +248,7 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // Ultra-Smooth 70-Step RGB Concentric Ambient Glow Renderer (No Banding)
+    // Ultra-Smooth 120-Step RGB Concentric Ambient Glow Renderer (Zero Color Banding)
     // -------------------------------------------------------------------------
     private function _drawAmbientGlow(dc as Dc, cx as Number, cy as Number, srcRGB as Array<Number>) as Void {
         var bgR = 0x18;
@@ -258,11 +258,11 @@ class NavigationIQView extends WatchUi.View {
         var srcG = srcRGB[1];
         var srcB = srcRGB[2];
 
-        // 70 fine concentric steps (radius step 2px for butter-smooth gradient)
+        // 120 ultra-fine concentric steps (radius step 1.3px for butter-smooth diffusion)
         for (var step = GLOW_STEPS; step >= 1; step--) {
             var r = (step * GLOW_RADIUS_FACTOR).toNumber();
             var t = (1.0 - (step.toFloat() / GLOW_STEPS.toFloat()));
-            var factor = t * t * 0.95; // Quadratic ease-out
+            var factor = Math.pow(t, 2.6) * 0.98; // Cubic-Exponential ease-out falloff
 
             var curR = (bgR + (srcR - bgR) * factor).toNumber();
             var curG = (bgG + (srcG - bgG) * factor).toNumber();
