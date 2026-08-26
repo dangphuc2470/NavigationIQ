@@ -3,6 +3,7 @@ import Toybox.WatchUi;
 import Toybox.Lang;
 import Toybox.System;
 import Toybox.Timer;
+import Toybox.Math;
 
 // Screen dimensions for Venu Sq 2: 320 x 360 px
 const SCREEN_W = 320;
@@ -58,28 +59,6 @@ class NavigationIQView extends WatchUi.View {
     function onHide() as Void {
         if (_pageTimer != null) {
             _pageTimer.stop();
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Theme Palette Selector (Apple Watch Style Harmonic Ambient Glow)
-    // -------------------------------------------------------------------------
-    private function _getTheme(dir as Number) as Array<Number> {
-        if (dir == DIR_STRAIGHT || dir == DIR_ROUNDABOUT_3) {
-            // Straight Ahead: Oceanic Teal / Cyan Ambient Glow
-            // [Accent, BadgeBg, Glow1, Glow2, Glow3]
-            return [0x00E5FF, 0x164E5A, 0x134D58, 0x0E3B44, 0x071F24] as Array<Number>;
-        } else if (dir == DIR_LEFT || dir == DIR_SLIGHT_LEFT || dir == DIR_SHARP_LEFT ||
-                   dir == DIR_ROUNDABOUT_4 || dir == DIR_ROUNDABOUT_5 || dir == DIR_UTURN) {
-            // Turn Left / U-turn: Warm Amber / Orange Ambient Glow
-            return [0xF59E0B, 0x5C2F0A, 0x482507, 0x331A05, 0x1F0F03] as Array<Number>;
-        } else if (dir == DIR_RIGHT || dir == DIR_SLIGHT_RIGHT || dir == DIR_SHARP_RIGHT ||
-                   dir == DIR_ROUNDABOUT_1 || dir == DIR_ROUNDABOUT_2) {
-            // Turn Right: Emerald Green Ambient Glow
-            return [0x10B981, 0x0D4E33, 0x093C27, 0x062B1C, 0x03170E] as Array<Number>;
-        } else {
-            // Default Cyan Theme
-            return [0x00E5FF, 0x164E5A, 0x134D58, 0x0E3B44, 0x071F24] as Array<Number>;
         }
     }
 
@@ -156,21 +135,89 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
+    // Theme Palette Selector
+    // -------------------------------------------------------------------------
+    private function _getTheme(dir as Number) as Array<Object> {
+        if (dir == DIR_STRAIGHT || dir == DIR_ROUNDABOUT_3) {
+            // Straight Ahead: Cyan / Teal Glow
+            return [0x00E5FF, 0x164E5A, [0x00, 0x88, 0xAA]] as Array<Object>;
+        } else if (dir == DIR_LEFT || dir == DIR_SLIGHT_LEFT || dir == DIR_SHARP_LEFT ||
+                   dir == DIR_ROUNDABOUT_4 || dir == DIR_ROUNDABOUT_5 || dir == DIR_UTURN) {
+            // Turn Left / U-turn: Amber Glow
+            return [0xF59E0B, 0x5C2F0A, [0xAA, 0x50, 0x05]] as Array<Object>;
+        } else if (dir == DIR_RIGHT || dir == DIR_SLIGHT_RIGHT || dir == DIR_SHARP_RIGHT ||
+                   dir == DIR_ROUNDABOUT_1 || dir == DIR_ROUNDABOUT_2) {
+            // Turn Right: Emerald Green Glow
+            return [0x10B981, 0x0D4E33, [0x0A, 0x75, 0x45]] as Array<Object>;
+        } else {
+            // Default Cyan Theme
+            return [0x00E5FF, 0x164E5A, [0x00, 0x88, 0xAA]] as Array<Object>;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Smooth Multi-Layer RGB Concentric Ambient Glow Renderer
+    // -------------------------------------------------------------------------
+    private function _drawAmbientGlow(dc as Dc, cx as Number, cy as Number, srcRGB as Array<Number>) as Void {
+        var bgR = 0x18;
+        var bgG = 0x18;
+        var bgB = 0x1B;
+        var srcR = srcRGB[0];
+        var srcG = srcRGB[1];
+        var srcB = srcRGB[2];
+
+        // 20 finely interpolated concentric steps
+        for (var step = 20; step >= 1; step--) {
+            var r = step * 7;
+            var t = (1.0 - (step.toFloat() / 20.0));
+            var factor = t * t * 0.95; // Quadratic ease-out
+
+            var curR = (bgR + (srcR - bgR) * factor).toNumber();
+            var curG = (bgG + (srcG - bgG) * factor).toNumber();
+            var curB = (bgB + (srcB - bgB) * factor).toNumber();
+            var col = (curR << 16) | (curG << 8) | curB;
+
+            dc.setColor(col, Graphics.COLOR_TRANSPARENT);
+            dc.fillCircle(cx, cy, r);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Mask Card Outer Corners to Pure AMOLED Black
+    // -------------------------------------------------------------------------
+    private function _maskCardCorners(dc as Dc, x as Number, y as Number, w as Number, h as Number, r as Number) as Void {
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+        var r2 = (r * r).toFloat();
+        for (var i = 0; i < r; i++) {
+            var dy = (r - i).toFloat();
+            var dx = (r - Math.sqrt(r2 - (dy * dy))).toNumber();
+            if (dx > 0) {
+                // Top-Left corner mask
+                dc.drawLine(x, y + i, x + dx, y + i);
+                // Top-Right corner mask
+                dc.drawLine(x + w - 1 - dx, y + i, x + w - 1, y + i);
+                // Bottom-Left corner mask
+                dc.drawLine(x, y + h - 1 - i, x + dx, y + h - 1 - i);
+                // Bottom-Right corner mask
+                dc.drawLine(x + w - 1 - dx, y + h - 1 - i, x + w - 1, y + h - 1 - i);
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // Unified Apple Watch Style Aero HUD with Ambient Glow Gradient
     // -------------------------------------------------------------------------
     private function _drawUnifiedAppleHUD(dc as Dc) as Void {
         var theme = _getTheme(CommManager.direction);
-        var accentColor = theme[0];
-        var badgeBgColor = theme[1];
-        var glow1 = theme[2];
-        var glow2 = theme[3];
-        var glow3 = theme[4];
+        var accentColor = theme[0] as Number;
+        var badgeBgColor = theme[1] as Number;
+        var glowRGB = theme[2] as Array<Number>;
 
-        var cardX = 8;
-        var cardY = 10;
-        var cardW = 304;
-        var cardH = 264;
-        var cardR = 22;
+        var cardX = 10;
+        var cardY = 12;
+        var cardW = 300;
+        var cardH = 260;
+        var cardR = 32; // Deep, elegant corner curvature
 
         // 1. Draw Base Dark Card (Charcoal/Graphite)
         dc.setColor(0x18181B, Graphics.COLOR_TRANSPARENT);
@@ -184,21 +231,16 @@ class NavigationIQView extends WatchUi.View {
             dc.setClip(cardX, cardY, cardW, cardH);
         }
 
-        // Concentric ambient light rings expanding outward
-        dc.setColor(glow3, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(badgeCx, badgeCy, 130);
-
-        dc.setColor(glow2, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(badgeCx, badgeCy, 95);
-
-        dc.setColor(glow1, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(badgeCx, badgeCy, 68);
+        _drawAmbientGlow(dc, badgeCx, badgeCy, glowRGB);
 
         if (dc has :clearClip) {
             dc.clearClip();
         }
 
-        // 3. Left Circular Turn Badge (Center: 62, 64 - Radius: 36)
+        // 3. Clear outer corner leak to maintain perfect round curves
+        _maskCardCorners(dc, cardX, cardY, cardW, cardH, cardR);
+
+        // 4. Left Circular Turn Badge (Center: 64, 66 - Radius: 36)
         var badgeR = 36;
         dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(badgeCx, badgeCy, badgeR);
@@ -217,7 +259,7 @@ class NavigationIQView extends WatchUi.View {
             _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor);
         }
 
-        // 4. Distance Row on Top Right (Huge Bold Pure White + Muted Grey Unit)
+        // 5. Distance Row on Top Right (Huge Bold Pure White + Muted Grey Unit)
         var distFull = CommManager.distText;
         if (distFull.length() > 0) {
             var parts = _splitDist(distFull);
@@ -254,42 +296,47 @@ class NavigationIQView extends WatchUi.View {
             }
         }
 
-        // 5. Subtle Horizontal Divider Line
+        // 6. Subtle Horizontal Divider Line
         var divY = cardY + 108;
         dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawLine(cardX + 16, divY, cardX + cardW - 16, divY);
+        dc.drawLine(cardX + 18, divY, cardX + cardW - 18, divY);
 
-        // 6. Bottom Row of Main Card: Instruction & Street Name
+        // 7. Bottom Row of Main Card: Instruction & Street Name
         var streetText = CommManager.navText;
         if (streetText.length() > 0) {
-            _drawDynamicWrappedText(dc, cardX + 16, divY + 12, cardW - 32, cardH - (divY - cardY) - 24, streetText, accentColor);
+            _drawDynamicWrappedText(dc, cardX + 18, divY + 12, cardW - 36, cardH - (divY - cardY) - 24, streetText, accentColor);
         }
 
         // ---------------------------------------------------------------------
-        // 7. Bottom Pill Bar: ETA Capsule + Dot + Current Time (Y: 284 to 344)
+        // 8. Bottom Pill Bar: Tinted ETA Capsule + Dot + Current Time (Y: 284 to 340)
         // ---------------------------------------------------------------------
         var barY = 284;
         var barH = 56;
+        var barR = 28;
         dc.setColor(0x18181B, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(cardX, barY, cardW, barH, 28);
+        dc.fillRoundedRectangle(cardX, barY, cardW, barH, barR);
         dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawRoundedRectangle(cardX, barY, cardW, barH, 28);
+        dc.drawRoundedRectangle(cardX, barY, cardW, barH, barR);
 
-        // Left: ETA Outlined Pill Badge
+        // Left: Tinted ETA Outlined Pill Badge
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        var etaBadgeW = 126;
+        var etaBadgeW = 120;
         var etaBadgeH = 34;
         var etaBadgeX = cardX + 14;
         var etaBadgeY = barY + (barH - etaBadgeH) / 2;
 
+        // Subtle tinted background
+        dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, 17);
+
         // Outlined border with theme accent
         dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(2);
+        dc.setPenWidth(1);
         dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, 17);
 
-        // ETA Text
+        // Crisp White ETA Text with compact size
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
             etaBadgeX + (etaBadgeW / 2),
@@ -303,16 +350,16 @@ class NavigationIQView extends WatchUi.View {
         var dotX = etaBadgeX + etaBadgeW + 18;
         var dotY = barY + (barH / 2);
         dc.setColor(0x71717A, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(dotX, dotY, 3);
+        dc.fillCircle(dotX, dotY, 2.5);
 
-        // Right: Crisp White Live Clock Time
+        // Right: Crisp White Live Clock Time (Compact font)
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
-            cardX + cardW - 18,
+            cardX + cardW - 20,
             dotY,
-            Graphics.FONT_TINY,
+            Graphics.FONT_XTINY,
             timeStr,
             Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER
         );
