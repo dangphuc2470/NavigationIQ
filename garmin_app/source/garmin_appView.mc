@@ -139,19 +139,19 @@ class NavigationIQView extends WatchUi.View {
     // -------------------------------------------------------------------------
     private function _getTheme(dir as Number) as Array<Object> {
         if (dir == DIR_STRAIGHT || dir == DIR_ROUNDABOUT_3) {
-            // Straight Ahead: Cyan / Teal Glow
-            return [0x00E5FF, 0x164E5A, [0x00, 0x88, 0xAA]] as Array<Object>;
+            // Straight Ahead: Vibrant Teal/Cyan Badge & Glow
+            return [0x00E5FF, 0x2D7A86, [0x00, 0x99, 0xBB], 0x164E5A] as Array<Object>;
         } else if (dir == DIR_LEFT || dir == DIR_SLIGHT_LEFT || dir == DIR_SHARP_LEFT ||
                    dir == DIR_ROUNDABOUT_4 || dir == DIR_ROUNDABOUT_5 || dir == DIR_UTURN) {
-            // Turn Left / U-turn: Amber Glow
-            return [0xF59E0B, 0x5C2F0A, [0xAA, 0x50, 0x05]] as Array<Object>;
+            // Turn Left / U-turn: Vibrant Warm Amber Badge & Glow
+            return [0xF59E0B, 0x92400E, [0xCC, 0x60, 0x05], 0x4D2005] as Array<Object>;
         } else if (dir == DIR_RIGHT || dir == DIR_SLIGHT_RIGHT || dir == DIR_SHARP_RIGHT ||
                    dir == DIR_ROUNDABOUT_1 || dir == DIR_ROUNDABOUT_2) {
-            // Turn Right: Emerald Green Glow
-            return [0x10B981, 0x0D4E33, [0x0A, 0x75, 0x45]] as Array<Object>;
+            // Turn Right: Vibrant Jade/Emerald Badge & Glow
+            return [0x10B981, 0x1B7A52, [0x10, 0x90, 0x55], 0x0C3E28] as Array<Object>;
         } else {
             // Default Cyan Theme
-            return [0x00E5FF, 0x164E5A, [0x00, 0x88, 0xAA]] as Array<Object>;
+            return [0x00E5FF, 0x2D7A86, [0x00, 0x99, 0xBB], 0x164E5A] as Array<Object>;
         }
     }
 
@@ -212,6 +212,7 @@ class NavigationIQView extends WatchUi.View {
         var accentColor = theme[0] as Number;
         var badgeBgColor = theme[1] as Number;
         var glowRGB = theme[2] as Array<Number>;
+        var etaBgColor = theme[3] as Number;
 
         var cardX = 10;
         var cardY = 12;
@@ -240,7 +241,7 @@ class NavigationIQView extends WatchUi.View {
         // 3. Clear outer corner leak to maintain perfect round curves
         _maskCardCorners(dc, cardX, cardY, cardW, cardH, cardR);
 
-        // 4. Left Circular Turn Badge (Solid theme-colored badge, NO outline border)
+        // 4. Left Circular Turn Badge (Solid vibrant pastel theme-colored badge, NO outline border)
         var badgeR = 36;
         dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(badgeCx, badgeCy, badgeR);
@@ -307,11 +308,11 @@ class NavigationIQView extends WatchUi.View {
         }
 
         // ---------------------------------------------------------------------
-        // 8. Bottom Pill Bar: Tinted ETA Capsule + Dot + Current Time (Y: 284 to 340)
+        // 8. Bottom Pill Bar: Tinted ETA Capsule + Dot + Current Time (Y: 286 to 338)
         // ---------------------------------------------------------------------
-        var barY = 284;
-        var barH = 56;
-        var barR = 28;
+        var barY = 286;
+        var barH = 52;
+        var barR = 26;
         dc.setColor(0x18181B, Graphics.COLOR_TRANSPARENT);
         dc.fillRoundedRectangle(cardX, barY, cardW, barH, barR);
         dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
@@ -320,19 +321,19 @@ class NavigationIQView extends WatchUi.View {
 
         // Left: Tinted ETA Outlined Pill Badge
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        var etaBadgeW = 126;
-        var etaBadgeH = 34;
-        var etaBadgeX = cardX + 12;
+        var etaBadgeW = 120;
+        var etaBadgeH = 30;
+        var etaBadgeX = cardX + 14;
         var etaBadgeY = barY + (barH - etaBadgeH) / 2;
 
         // Subtle tinted theme background
-        dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, 17);
+        dc.setColor(etaBgColor, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, 15);
 
         // Outlined border with theme accent
         dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, 17);
+        dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, 15);
 
         // Crisp White ETA Text with compact size
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
@@ -355,7 +356,7 @@ class NavigationIQView extends WatchUi.View {
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
-            cardX + cardW - 16,
+            cardX + cardW - 18,
             dotY,
             Graphics.FONT_XTINY,
             timeStr,
