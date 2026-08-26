@@ -36,7 +36,7 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
             advance = font.getlength(ch)
             glyphs.append({
                 'id': code, 'char': ch, 'w': w, 'h': h,
-                'xoff': left, 'yoff': top + base,
+                'xoff': left, 'yoff': top,
                 'xadv': int(round(advance)),
                 'bbox': bbox
             })

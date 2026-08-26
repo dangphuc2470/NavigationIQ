@@ -150,16 +150,16 @@ class NavigationIQView extends WatchUi.View {
     // Theme Palette Selector (Bright Milky Desaturated Pastel Badge + Glow)
     // -------------------------------------------------------------------------
     private function _getTheme(dir as Number) as Array<Object> {
-        if (dir == DIR_STRAIGHT || dir == DIR_ROUNDABOUT_3) {
-            // Straight Ahead: Bright Milky Pastel Teal/Cyan Badge (0x5C8E98)
+        if (dir == DIR_STRAIGHT || dir == DIR_ROUNDABOUT_2 || dir == DIR_ROUNDABOUT_3) {
+            // Straight Ahead / 2nd-3rd Exit: Bright Milky Pastel Teal/Cyan Badge (0x5C8E98)
             return [0x00E5FF, 0x5C8E98, [0x00, 0x99, 0xBB], 0x243E45] as Array<Object>;
         } else if (dir == DIR_LEFT || dir == DIR_SLIGHT_LEFT || dir == DIR_SHARP_LEFT ||
                    dir == DIR_ROUNDABOUT_4 || dir == DIR_ROUNDABOUT_5 || dir == DIR_UTURN) {
             // Turn Left / U-turn: Bright Milky Pastel Amber/Taupe Badge (0x9E806C)
             return [0xF59E0B, 0x9E806C, [0xCC, 0x60, 0x05], 0x423226] as Array<Object>;
         } else if (dir == DIR_RIGHT || dir == DIR_SLIGHT_RIGHT || dir == DIR_SHARP_RIGHT ||
-                   dir == DIR_ROUNDABOUT_1 || dir == DIR_ROUNDABOUT_2) {
-            // Turn Right: Bright Milky Pastel Jade/Sage Badge (0x5C8E74)
+                   dir == DIR_ROUNDABOUT_1) {
+            // Turn Right / 1st Exit: Bright Milky Pastel Jade/Sage Badge (0x5C8E74)
             return [0x10B981, 0x5C8E74, [0x10, 0x90, 0x55], 0x243E30] as Array<Object>;
         } else {
             // Default Cyan Theme
@@ -168,7 +168,7 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // Smooth Multi-Layer RGB Concentric Ambient Glow Renderer
+    // Ultra-Smooth 70-Step RGB Concentric Ambient Glow Renderer (No Banding)
     // -------------------------------------------------------------------------
     private function _drawAmbientGlow(dc as Dc, cx as Number, cy as Number, srcRGB as Array<Number>) as Void {
         var bgR = 0x18;
@@ -178,10 +178,10 @@ class NavigationIQView extends WatchUi.View {
         var srcG = srcRGB[1];
         var srcB = srcRGB[2];
 
-        // 20 finely interpolated concentric steps
-        for (var step = 20; step >= 1; step--) {
-            var r = step * 7;
-            var t = (1.0 - (step.toFloat() / 20.0));
+        // 70 fine concentric steps (radius step 2px for butter-smooth gradient)
+        for (var step = 70; step >= 1; step--) {
+            var r = (step * 2.0).toNumber();
+            var t = (1.0 - (step.toFloat() / 70.0));
             var factor = t * t * 0.95; // Quadratic ease-out
 
             var curR = (bgR + (srcR - bgR) * factor).toNumber();
@@ -440,7 +440,7 @@ class NavigationIQView extends WatchUi.View {
                 dc.setColor(0x9CA3AF, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(
                     numX + numWidth + 6,
-                    badgeCy + 6,
+                    badgeCy,
                     Graphics.FONT_MEDIUM,
                     distUnit,
                     Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
