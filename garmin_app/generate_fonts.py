@@ -3,49 +3,78 @@ import sys
 from PIL import Image, ImageDraw, ImageFont
 
 def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_name):
-    # Load TrueType / OpenType font
-    font = ImageFont.truetype(font_path, font_size)
+    # 4x Supersampling for ultra-smooth anti-aliased text rendering
+    scale = 4
+    high_res_font = ImageFont.truetype(font_path, font_size * scale)
+    base_font = ImageFont.truetype(font_path, font_size)
     
-    # Charset
+    # Complete ASCII and Vietnamese Charset
     ascii_chars = "".join(chr(i) for i in range(32, 127))
     vn_chars = "àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ•–—’“”…"
     unique_chars = list(dict.fromkeys(ascii_chars + vn_chars))
     
-    # Measure line metrics
-    ascent, descent = font.getmetrics()
+    # Metrics
+    ascent, descent = base_font.getmetrics()
     line_height = ascent + descent + 2
     base = ascent
     
-    # First pass: measure all glyphs
     glyphs = []
     for ch in unique_chars:
         code = ord(ch)
-        bbox = font.getbbox(ch) # (left, top, right, bottom)
+        bbox = base_font.getbbox(ch)
         if bbox is None or bbox[2] <= bbox[0] or bbox[3] <= bbox[1]:
-            # Space or invisible char
-            advance = font.getlength(ch)
+            advance = base_font.getlength(ch)
             glyphs.append({
                 'id': code, 'char': ch, 'w': 0, 'h': 0,
                 'xoff': 0, 'yoff': 0, 'xadv': int(round(advance)),
-                'bbox': (0,0,0,0)
+                'img': None
             })
         else:
             left, top, right, bottom = bbox
             w = right - left
             h = bottom - top
-            advance = font.getlength(ch)
+            advance = base_font.getlength(ch)
+            
+            # Render glyph at 4x scale
+            high_bbox = high_res_font.getbbox(ch)
+            hl, ht, hr, hb = high_bbox
+            hw = hr - hl
+            hh = hb - ht
+            
+            # Create high-res image with padding
+            high_img = Image.new("RGBA", (hw + 16, hh + 16), (0, 0, 0, 0))
+            high_draw = ImageDraw.Draw(high_img)
+            high_draw.text((8 - hl, 8 - ht), ch, font=high_res_font, fill=(255, 255, 255, 255))
+            
+            # Target 1x size (scaled down with Lanczos)
+            target_w = max(1, int(round((hw + 16) / scale)))
+            target_h = max(1, int(round((hh + 16) / scale)))
+            low_img = high_img.resize((target_w, target_h), Image.Resampling.LANCZOS)
+            
+            # Crop to non-empty bounding box in low_img
+            low_bbox = low_img.getbbox()
+            if low_bbox:
+                glyph_img = low_img.crop(low_bbox)
+                gw, gh = glyph_img.size
+                actual_xoff = left + low_bbox[0] - int(round(8 / scale))
+                actual_yoff = top + low_bbox[1] - int(round(8 / scale))
+            else:
+                glyph_img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+                gw, gh = w, h
+                actual_xoff = left
+                actual_yoff = top
+            
             glyphs.append({
-                'id': code, 'char': ch, 'w': w, 'h': h,
-                'xoff': left, 'yoff': top,
+                'id': code, 'char': ch, 'w': gw, 'h': gh,
+                'xoff': actual_xoff, 'yoff': actual_yoff,
                 'xadv': int(round(advance)),
-                'bbox': bbox
+                'img': glyph_img
             })
             
-    # Pack into texture sheet (512x512 or 256x256)
+    # Pack into texture sheet (512x512)
     sheet_w = 512
     sheet_h = 512
     img = Image.new("RGBA", (sheet_w, sheet_h), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img)
     
     cur_x = 2
     cur_y = 2
@@ -53,7 +82,7 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
     
     packed_glyphs = []
     for g in glyphs:
-        if g['w'] == 0 or g['h'] == 0:
+        if g['w'] == 0 or g['h'] == 0 or g['img'] is None:
             packed_glyphs.append(dict(g, x=0, y=0))
             continue
             
@@ -66,11 +95,8 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
             print(f"Warning: Texture sheet full for {font_face_name}")
             break
             
-        # Draw glyph: offset to place bbox inside (cur_x, cur_y)
-        draw_x = cur_x - g['bbox'][0]
-        draw_y = cur_y - g['bbox'][1]
-        draw.text((draw_x, draw_y), g['char'], font=font, fill=(255, 255, 255, 255))
-        
+        # Paste glyph image onto sheet
+        img.paste(g['img'], (cur_x, cur_y), g['img'])
         packed_glyphs.append(dict(g, x=cur_x, y=cur_y))
         
         cur_x += g['w'] + 2
@@ -99,11 +125,11 @@ if __name__ == "__main__":
     font_path = "garmin_app/resources/fonts/SF-Pro.ttf"
     os.makedirs("garmin_app/resources/fonts", exist_ok=True)
     
-    # 1. Medium Street Text Font (Size: 22px)
+    # 1. Medium Street Text Font (Size: 22px) with 4x Lanczos Antialiasing
     generate_bmfont(font_path, 22, "garmin_app/resources/fonts/sf_pro_street.fnt", "garmin_app/resources/fonts/sf_pro_street_0.png", "SF Pro Street")
-    # 2. Compact Street Text Font (Size: 18px)
+    # 2. Compact Street Text Font (Size: 18px) with 4x Lanczos Antialiasing
     generate_bmfont(font_path, 18, "garmin_app/resources/fonts/sf_pro_compact.fnt", "garmin_app/resources/fonts/sf_pro_compact_0.png", "SF Pro Compact")
-    # 3. Micro Pill Font (Size: 14px)
+    # 3. Micro Pill Font (Size: 14px) with 4x Lanczos Antialiasing
     generate_bmfont(font_path, 14, "garmin_app/resources/fonts/sf_pro_micro.fnt", "garmin_app/resources/fonts/sf_pro_micro_0.png", "SF Pro Micro")
     
-    print("BMFonts successfully generated!")
+    print("Ultra-smooth Antialiased BMFonts successfully generated!")
