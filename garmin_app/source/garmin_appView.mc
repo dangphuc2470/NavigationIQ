@@ -31,7 +31,7 @@ class NavigationIQView extends WatchUi.View {
 
     function onTimerTick() as Void {
         _animTick++;
-        if (_animTick % 12 == 0) { // Every 2.4s advance page
+        if (_animTick % 12 == 0) {
             _pageIndex++;
         }
         WatchUi.requestUpdate();
@@ -44,14 +44,14 @@ class NavigationIQView extends WatchUi.View {
 
         CommManager.checkHapticUpdate();
 
-        // Clear background - True AMOLED Pure Black
+        // True AMOLED Pure Black Background
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
 
         if (!CommManager.isActive) {
             _drawIdleScreen(dc);
         } else {
-            _drawNavScreen(dc);
+            _drawUnifiedAppleHUD(dc);
         }
     }
 
@@ -62,58 +62,59 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // Theme Palette Selector:
-    // Straight = Xanh biển (Cyan), Turn Left = Cam (Amber), Turn Right = Xanh lá (Emerald)
+    // Theme Palette Selector (Apple Watch Style Harmonic Ambient Glow)
     // -------------------------------------------------------------------------
     private function _getTheme(dir as Number) as Array<Number> {
         if (dir == DIR_STRAIGHT || dir == DIR_ROUNDABOUT_3) {
-            // Straight Ahead / Straight Roundabout: Xanh biển (Cyan/Blue)
-            return [0x00E5FF, 0x0C4A6E, 0x38BDF8, 0x0369A1] as Array<Number>;
+            // Straight Ahead: Oceanic Teal / Cyan Ambient Glow
+            // [Accent, BadgeBg, Glow1, Glow2, Glow3]
+            return [0x00E5FF, 0x164E5A, 0x134D58, 0x0E3B44, 0x071F24] as Array<Number>;
         } else if (dir == DIR_LEFT || dir == DIR_SLIGHT_LEFT || dir == DIR_SHARP_LEFT ||
                    dir == DIR_ROUNDABOUT_4 || dir == DIR_ROUNDABOUT_5 || dir == DIR_UTURN) {
-            // Turn Left / U-turn / Left Roundabout: Cam (Amber/Orange)
-            return [0xF59E0B, 0x451A03, 0xFCD34D, 0x78350F] as Array<Number>;
+            // Turn Left / U-turn: Warm Amber / Orange Ambient Glow
+            return [0xF59E0B, 0x5C2F0A, 0x482507, 0x331A05, 0x1F0F03] as Array<Number>;
         } else if (dir == DIR_RIGHT || dir == DIR_SLIGHT_RIGHT || dir == DIR_SHARP_RIGHT ||
                    dir == DIR_ROUNDABOUT_1 || dir == DIR_ROUNDABOUT_2) {
-            // Turn Right / Right Roundabout: Xanh lá (Emerald Green)
-            return [0x10B981, 0x064E3B, 0x6EE7B7, 0x065F46] as Array<Number>;
+            // Turn Right: Emerald Green Ambient Glow
+            return [0x10B981, 0x0D4E33, 0x093C27, 0x062B1C, 0x03170E] as Array<Number>;
         } else {
-            // Default: Xanh biển
-            return [0x00E5FF, 0x0C4A6E, 0x38BDF8, 0x0369A1] as Array<Number>;
+            // Default Cyan Theme
+            return [0x00E5FF, 0x164E5A, 0x134D58, 0x0E3B44, 0x071F24] as Array<Number>;
         }
     }
 
     // -------------------------------------------------------------------------
-    // Idle Screen - Modern Standby HUD
+    // Idle Standby Screen
     // -------------------------------------------------------------------------
     private function _drawIdleScreen(dc as Dc) as Void {
-        // Top status pill badge
-        dc.setColor(0x064E3B, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(50, 24, 220, 30, 15);
+        // Status Pill
+        dc.setColor(0x18181B, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(40, 24, 240, 32, 16);
+        dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(40, 24, 240, 32, 16);
+
         dc.setColor(0x10B981, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(68, 39, 4);
-        dc.setColor(0xA7F3D0, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(58, 40, 4);
+        dc.setColor(0xE4E4E7, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
-            165, 39,
+            165, 40,
             Graphics.FONT_XTINY,
-            "Garmin Link: Ready",
+            "Garmin Link: Connected",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
         );
 
-        // Center Radar / Compass Graphic
+        // Center Compass HUD
         var cx = 160;
         var cy = 165;
-        dc.setColor(0x0F172A, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(cx, cy, 64);
-
-        dc.setColor(0x1E293B, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(0x18181B, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(cx, cy, 60);
+        dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(2);
-        dc.drawCircle(cx, cy, 64);
-        dc.drawCircle(cx, cy, 40);
+        dc.drawCircle(cx, cy, 60);
 
-        // Center vector arrow
         var arrowPts = [
-            [cx, cy - 38],
+            [cx, cy - 36],
             [cx + 18, cy + 16],
             [cx, cy + 6],
             [cx - 18, cy + 16]
@@ -121,7 +122,7 @@ class NavigationIQView extends WatchUi.View {
         dc.setColor(0x00E5FF, Graphics.COLOR_TRANSPARENT);
         dc.fillPolygon(arrowPts);
 
-        // App Title
+        // Title
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
             160, 248,
@@ -130,8 +131,8 @@ class NavigationIQView extends WatchUi.View {
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
         );
 
-        // Subtitle status
-        dc.setColor(0x94A3B8, Graphics.COLOR_TRANSPARENT);
+        // Subtitle
+        dc.setColor(0x71717A, Graphics.COLOR_TRANSPARENT);
         var subText = (CommManager.rxCount > 0) ? ("Packets: " + CommManager.rxCount) : "Waiting for Google Maps...";
         dc.drawText(
             160, 280,
@@ -140,12 +141,12 @@ class NavigationIQView extends WatchUi.View {
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
         );
 
-        // Bottom clock pill
+        // Bottom Clock Pill
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
-        dc.setColor(0x1E293B, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(0x18181B, Graphics.COLOR_TRANSPARENT);
         dc.fillRoundedRectangle(110, 314, 100, 26, 13);
-        dc.setColor(0x94A3B8, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(0x71717A, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
             160, 327,
             Graphics.FONT_XTINY,
@@ -155,68 +156,84 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // Active HUD Screen - Dynamic Maneuver-Aware Theming
+    // Unified Apple Watch Style Aero HUD with Ambient Glow Gradient
     // -------------------------------------------------------------------------
-    private function _drawNavScreen(dc as Dc) as Void {
+    private function _drawUnifiedAppleHUD(dc as Dc) as Void {
         var theme = _getTheme(CommManager.direction);
         var accentColor = theme[0];
         var badgeBgColor = theme[1];
-        var subtextColor = theme[2];
-        var borderTint = theme[3];
+        var glow1 = theme[2];
+        var glow2 = theme[3];
+        var glow3 = theme[4];
 
-        // ---------------------------------------------------------------------
-        // 1. Top Card: Turn Arrow & Distance + Marquee Next Street (Y: 8 to 122)
-        // ---------------------------------------------------------------------
-        dc.setColor(0x0F172A, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(10, 8, 300, 114, 18);
-        dc.setColor(borderTint, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(2);
-        dc.drawRoundedRectangle(10, 8, 300, 114, 18);
+        var cardX = 8;
+        var cardY = 10;
+        var cardW = 304;
+        var cardH = 264;
+        var cardR = 22;
 
-        // Left circle badge for Turn Arrow (Center X: 64, Y: 65, Radius: 38)
-        var arrowCx = 64;
-        var arrowCy = 65;
-        var arrowR  = 38;
+        // 1. Draw Base Dark Card (Charcoal/Graphite)
+        dc.setColor(0x18181B, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(cardX, cardY, cardW, cardH, cardR);
 
-        dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(arrowCx, arrowCy, arrowR);
-        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(3);
-        dc.drawCircle(arrowCx, arrowCy, arrowR);
+        // 2. Draw Multi-Layered Ambient Glow Gradient blooming from Top-Left
+        var badgeCx = cardX + 54;
+        var badgeCy = cardY + 54;
 
-        // Render Real Google Maps RLE Bitmap if available and NOT waiting, otherwise Spinner
-        if (CommManager.isWaitingImage) {
-            // Rotating Radar Spinner while awaiting new turn graphic
-            _drawLoadingSpinner(dc, arrowCx, arrowCy, arrowR, accentColor, subtextColor);
-        } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
-            _drawRleBitmap(dc, arrowCx, arrowCy, CommManager.rleBitmap);
-        } else if (CommManager.direction != DIR_UNKNOWN) {
-            _drawVectorArrow(dc, arrowCx, arrowCy, CommManager.direction, CommManager.exitNumber, accentColor);
-        } else {
-            // Rotating Radar Spinner while awaiting new turn graphic
-            _drawLoadingSpinner(dc, arrowCx, arrowCy, arrowR, accentColor, subtextColor);
+        if (dc has :setClip) {
+            dc.setClip(cardX, cardY, cardW, cardH);
         }
 
-        // Right side of Top Card: Distance & Next Street
-        var distFull = CommManager.distText;
-        var distNum = "";
-        var distUnit = "";
+        // Concentric ambient light rings expanding outward
+        dc.setColor(glow3, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(badgeCx, badgeCy, 130);
 
+        dc.setColor(glow2, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(badgeCx, badgeCy, 95);
+
+        dc.setColor(glow1, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(badgeCx, badgeCy, 68);
+
+        if (dc has :clearClip) {
+            dc.clearClip();
+        }
+
+        // 3. Left Circular Turn Badge (Center: 62, 64 - Radius: 36)
+        var badgeR = 36;
+        dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(badgeCx, badgeCy, badgeR);
+        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(2);
+        dc.drawCircle(badgeCx, badgeCy, badgeR);
+
+        // Draw Real Google Maps RLE Bitmap, Vector Arrow or Spinner inside Badge
+        if (CommManager.isWaitingImage) {
+            _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor);
+        } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
+            _drawRleBitmap(dc, badgeCx, badgeCy, CommManager.rleBitmap);
+        } else if (CommManager.direction != DIR_UNKNOWN) {
+            _drawVectorArrow(dc, badgeCx, badgeCy, CommManager.direction, CommManager.exitNumber, accentColor);
+        } else {
+            _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor);
+        }
+
+        // 4. Distance Row on Top Right (Huge Bold Pure White + Muted Grey Unit)
+        var distFull = CommManager.distText;
         if (distFull.length() > 0) {
             var parts = _splitDist(distFull);
-            distNum = parts[0];
-            distUnit = parts[1];
+            var distNum = parts[0];
+            var distUnit = parts[1];
 
-            var numX = 114;
-            var numY = (CommManager.nextStreet.length() > 0) ? 44 : 65;
+            var numX = cardX + 104;
+            var numY = badgeCy;
 
             var numFont = Graphics.FONT_NUMBER_HOT;
             if (distNum.length() >= 3 || distUnit.length() >= 2) {
                 numFont = Graphics.FONT_NUMBER_MILD;
             }
 
-            // Draw distance number in Dynamic Accent
-            dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+            // Bold Pure White Distance Number
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
             dc.drawText(
                 numX, numY,
                 numFont,
@@ -224,10 +241,10 @@ class NavigationIQView extends WatchUi.View {
                 Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
             );
 
-            // Draw unit (e.g. "m", "km") next to distance number
+            // Sleek Muted Grey Unit (km / m)
             var numWidth = dc.getTextWidthInPixels(distNum, numFont);
             if (distUnit.length() > 0) {
-                dc.setColor(subtextColor, Graphics.COLOR_TRANSPARENT);
+                dc.setColor(0x9CA3AF, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(
                     numX + numWidth + 6, numY + 8,
                     Graphics.FONT_SMALL,
@@ -235,84 +252,66 @@ class NavigationIQView extends WatchUi.View {
                     Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
                 );
             }
-
-            // Smooth Marquee Scrolling for Next Street Name
-            if (CommManager.nextStreet.length() > 0) {
-                dc.setColor(subtextColor, Graphics.COLOR_TRANSPARENT);
-                var fullStreet = CommManager.nextStreet;
-                var font = Graphics.FONT_XTINY;
-                var strWidth = dc.getTextWidthInPixels(fullStreet, font);
-                var maxW = 180;
-                var textY = 88;
-
-                if (strWidth <= maxW) {
-                    dc.drawText(numX, textY, font, fullStreet, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-                } else {
-                    // Smooth Marquee Animation
-                    var speed = 3;
-                    var totalCycle = strWidth + 60;
-                    var offset = (_animTick * speed) % totalCycle;
-
-                    if (dc has :setClip) {
-                        dc.setClip(numX, textY - 14, maxW, 28);
-                    }
-                    dc.drawText(numX - offset, textY, font, fullStreet, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-                    if (offset > (strWidth - maxW)) {
-                        dc.drawText(numX - offset + strWidth + 60, textY, font, fullStreet, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-                    }
-                    if (dc has :clearClip) {
-                        dc.clearClip();
-                    }
-                }
-            }
         }
 
-        // ---------------------------------------------------------------------
-        // 2. Middle Card: Instruction with Dynamic Accent Bar (Y: 128 to 284)
-        // ---------------------------------------------------------------------
-        dc.setColor(0x0F172A, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(10, 128, 300, 156, 18);
-        dc.setColor(0x1E293B, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(2);
-        dc.drawRoundedRectangle(10, 128, 300, 156, 18);
+        // 5. Subtle Horizontal Divider Line
+        var divY = cardY + 108;
+        dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawLine(cardX + 16, divY, cardX + cardW - 16, divY);
 
-        // Dynamic Accent Line matching maneuver theme
-        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(16, 142, 4, 128, 2);
-
+        // 6. Bottom Row of Main Card: Instruction & Street Name
         var streetText = CommManager.navText;
         if (streetText.length() > 0) {
-            _drawDynamicWrappedText(dc, 30, 134, 268, 144, streetText, accentColor);
+            _drawDynamicWrappedText(dc, cardX + 16, divY + 12, cardW - 32, cardH - (divY - cardY) - 24, streetText, accentColor);
         }
 
         // ---------------------------------------------------------------------
-        // 3. Bottom Pill Bar: ETA & Clock Time (Y: 292 to 344)
+        // 7. Bottom Pill Bar: ETA Capsule + Dot + Current Time (Y: 284 to 344)
         // ---------------------------------------------------------------------
-        var barY = 292;
-        dc.setColor(0x111827, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(10, barY, 300, 52, 26);
-        dc.setColor(0x1F2937, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(2);
-        dc.drawRoundedRectangle(10, barY, 300, 52, 26);
+        var barY = 284;
+        var barH = 56;
+        dc.setColor(0x18181B, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(cardX, barY, cardW, barH, 28);
+        dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(cardX, barY, cardW, barH, 28);
 
-        // ETA badge on left
-        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "Navigating";
-        dc.setColor(0x064E3B, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(22, barY + 11, 130, 30, 15);
-        dc.setColor(0x34D399, Graphics.COLOR_TRANSPARENT);
+        // Left: ETA Outlined Pill Badge
+        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
+        var etaBadgeW = 126;
+        var etaBadgeH = 34;
+        var etaBadgeX = cardX + 14;
+        var etaBadgeY = barY + (barH - etaBadgeH) / 2;
+
+        // Outlined border with theme accent
+        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(2);
+        dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, 17);
+
+        // ETA Text
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
-            87, barY + 26,
+            etaBadgeX + (etaBadgeW / 2),
+            etaBadgeY + (etaBadgeH / 2),
             Graphics.FONT_XTINY,
             etaStr,
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
         );
 
-        // Live Clock Time on right
+        // Center: Subtle Bullet Dot
+        var dotX = etaBadgeX + etaBadgeW + 18;
+        var dotY = barY + (barH / 2);
+        dc.setColor(0x71717A, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(dotX, dotY, 3);
+
+        // Right: Crisp White Live Clock Time
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
-        dc.setColor(0xE2E8F0, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
-            285, barY + 26,
+            cardX + cardW - 18,
+            dotY,
             Graphics.FONT_TINY,
             timeStr,
             Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER
@@ -322,7 +321,7 @@ class NavigationIQView extends WatchUi.View {
     // -------------------------------------------------------------------------
     // Smooth Loading Spinner when waiting for new maneuver
     // -------------------------------------------------------------------------
-    private function _drawLoadingSpinner(dc as Dc, cx as Number, cy as Number, radius as Number, accent as Number, sub as Number) as Void {
+    private function _drawLoadingSpinner(dc as Dc, cx as Number, cy as Number, radius as Number, accent as Number) as Void {
         var startDeg = (_animTick * 25) % 360;
         dc.setColor(accent, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(3);
@@ -331,7 +330,7 @@ class NavigationIQView extends WatchUi.View {
         } else {
             dc.drawCircle(cx, cy, 6);
         }
-        dc.setColor(sub, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(cx, cy, 4);
     }
 
@@ -356,7 +355,6 @@ class NavigationIQView extends WatchUi.View {
             idx += 2;
 
             if (color != 0) {
-                // Non-transparent pixel: draw white icon line
                 dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT);
                 var rem = count;
                 while (rem > 0) {
@@ -418,9 +416,9 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // Dynamic Font Scaling + Auto-Pagination Text Renderer
+    // Dynamic Font Scaling + Smooth Vertical Auto-Scroll
     // -------------------------------------------------------------------------
-    private function _drawDynamicWrappedText(dc as Dc, startX as Number, startY as Number, maxWidth as Number, maxHeight as Number, text as String, pageDotAccent as Number) as Void {
+    private function _drawDynamicWrappedText(dc as Dc, startX as Number, startY as Number, maxWidth as Number, maxHeight as Number, text as String, accentColor as Number) as Void {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
 
         // 1. Try FONT_SMALL for short instructions (<= 2 lines)
@@ -439,7 +437,7 @@ class NavigationIQView extends WatchUi.View {
             return;
         }
 
-        // 3. Fallback to FONT_XTINY (Smallest font)
+        // 3. Fallback to FONT_XTINY
         var linesXTiny = _wrapWithFont(dc, text, Graphics.FONT_XTINY, maxWidth);
         var fontHXTiny = dc.getFontHeight(Graphics.FONT_XTINY);
         var lineH = fontHXTiny + 2;
@@ -447,20 +445,14 @@ class NavigationIQView extends WatchUi.View {
         var totalH = totalLines * lineH;
 
         if (totalH <= maxHeight) {
-            // Fits cleanly inside the card without scrolling
             _renderLines(dc, linesXTiny, Graphics.FONT_XTINY, startX, startY, maxHeight, lineH);
         } else {
-            // Smooth Vertical Auto-Scrolling with Pause at Top and Bottom
+            // Smooth Vertical Auto-Scroll with Pause at top and bottom
             if (dc has :setClip) {
-                dc.setClip(startX - 2, startY + 4, maxWidth + 4, maxHeight - 8);
+                dc.setClip(startX - 2, startY, maxWidth + 4, maxHeight);
             }
 
-            var overflow = totalH - maxHeight + 16;
-            // 70 ticks cycle (14 seconds at 200ms per tick):
-            // 0 - 15 ticks (3s): Pause at top
-            // 15 - 35 ticks (4s): Smooth glide down
-            // 35 - 50 ticks (3s): Pause at bottom
-            // 50 - 70 ticks (4s): Smooth glide back to top
+            var overflow = totalH - maxHeight + 10;
             var cycle = _animTick % 70;
             var scrollOffset = 0;
 
@@ -476,7 +468,7 @@ class NavigationIQView extends WatchUi.View {
                 scrollOffset = ((1.0 - progress) * overflow).toNumber();
             }
 
-            var renderY = startY + 8 - scrollOffset;
+            var renderY = startY + 4 - scrollOffset;
             for (var j = 0; j < totalLines; j++) {
                 dc.drawText(startX, renderY + (j * lineH), Graphics.FONT_XTINY, linesXTiny[j], Graphics.TEXT_JUSTIFY_LEFT);
             }
@@ -485,17 +477,17 @@ class NavigationIQView extends WatchUi.View {
                 dc.clearClip();
             }
 
-            // Subtle vertical scroll indicator track & thumb on right edge
-            var barX = startX + maxWidth - 4;
-            var barTrackH = maxHeight - 24;
+            // Subtle vertical scrollbar indicator on the right edge
+            var barX = startX + maxWidth - 3;
+            var barTrackH = maxHeight - 16;
             var thumbH = (maxHeight.toFloat() / totalH.toFloat() * barTrackH).toNumber();
-            if (thumbH < 12) {
-                thumbH = 12;
+            if (thumbH < 10) {
+                thumbH = 10;
             }
-            var thumbY = startY + 12 + ((scrollOffset.toFloat() / overflow.toFloat()) * (barTrackH - thumbH)).toNumber();
-            dc.setColor(0x334155, Graphics.COLOR_TRANSPARENT);
-            dc.fillRoundedRectangle(barX, startY + 12, 2, barTrackH, 1);
-            dc.setColor(pageDotAccent, Graphics.COLOR_TRANSPARENT);
+            var thumbY = startY + 8 + ((scrollOffset.toFloat() / overflow.toFloat()) * (barTrackH - thumbH)).toNumber();
+            dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
+            dc.fillRoundedRectangle(barX, startY + 8, 2, barTrackH, 1);
+            dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
             dc.fillRoundedRectangle(barX, thumbY, 2, thumbH, 1);
         }
     }
@@ -557,72 +549,63 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // High-Precision Vector Turn Arrow Engine (with exact Roundabout geometry)
+    // High-Precision Vector Turn Arrow Engine
     // -------------------------------------------------------------------------
     private function _drawVectorArrow(dc as Dc, cx as Number, cy as Number, dir as Number, exitNum as Number, arrowAccent as Number) as Void {
         dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT);
 
         // --- ROUNDABOUT WITH EXACT ANGLES ---
         if (dir >= DIR_ROUNDABOUT_1 && dir <= DIR_ROUNDABOUT_5) {
-            // 1. Roundabout Ring (Loop)
-            dc.setPenWidth(4);
-            dc.setColor(0x64748B, Graphics.COLOR_TRANSPARENT);
-            dc.drawCircle(cx, cy - 2, 15);
+            dc.setPenWidth(5);
+            dc.setColor(0x52525B, Graphics.COLOR_TRANSPARENT);
+            dc.drawCircle(cx, cy - 2, 14);
 
-            // 2. Bottom Entry Stem (from 6 o'clock entering clockwise)
             dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT);
-            dc.setPenWidth(6);
-            dc.drawLine(cx - 8, cy + 18, cx - 8, cy + 9);
+            dc.setPenWidth(7);
+            dc.drawLine(cx - 7, cy + 18, cx - 7, cy + 9);
 
-            // 3. Exit branch & Arrowhead based on Exit #
             if (dir == DIR_ROUNDABOUT_1) {
-                // 1st Exit -> 45° Slight Right (Top-Right ↗)
-                dc.drawLine(cx + 8, cy - 8, cx + 18, cy - 18);
+                dc.drawLine(cx + 7, cy - 7, cx + 17, cy - 17);
                 var head = [
-                    [cx + 8, cy - 20],
-                    [cx + 24, cy - 24],
-                    [cx + 20, cy - 8]
+                    [cx + 7, cy - 19],
+                    [cx + 23, cy - 23],
+                    [cx + 19, cy - 7]
                 ];
                 dc.fillPolygon(head);
             } else if (dir == DIR_ROUNDABOUT_2) {
-                // 2nd Exit -> 90° Right (East →)
-                dc.drawLine(cx + 12, cy - 2, cx + 20, cy - 2);
+                dc.drawLine(cx + 11, cy - 2, cx + 19, cy - 2);
                 var head = [
-                    [cx + 18, cy - 10],
-                    [cx + 28, cy - 2],
-                    [cx + 18, cy + 6]
+                    [cx + 17, cy - 10],
+                    [cx + 27, cy - 2],
+                    [cx + 17, cy + 6]
                 ];
                 dc.fillPolygon(head);
             } else if (dir == DIR_ROUNDABOUT_3) {
-                // 3rd Exit -> 0° Straight (North ↑)
-                dc.drawLine(cx, cy - 14, cx, cy - 22);
+                dc.drawLine(cx, cy - 13, cx, cy - 21);
                 var head = [
-                    [cx - 8, cy - 20],
-                    [cx, cy - 30],
-                    [cx + 8, cy - 20]
+                    [cx - 8, cy - 19],
+                    [cx, cy - 29],
+                    [cx + 8, cy - 19]
                 ];
                 dc.fillPolygon(head);
             } else if (dir == DIR_ROUNDABOUT_4) {
-                // 4th Exit -> 270° Left (West ←)
-                dc.drawLine(cx - 12, cy - 2, cx - 20, cy - 2);
+                dc.drawLine(cx - 11, cy - 2, cx - 19, cy - 2);
                 var head = [
-                    [cx - 18, cy - 10],
-                    [cx - 28, cy - 2],
-                    [cx - 18, cy + 6]
+                    [cx - 17, cy - 10],
+                    [cx - 27, cy - 2],
+                    [cx - 17, cy + 6]
                 ];
                 dc.fillPolygon(head);
             } else {
-                // 5th Exit -> 225° Sharp Left (South-West ↙)
-                dc.drawLine(cx - 8, cy + 6, cx - 18, cy + 16);
+                dc.drawLine(cx - 7, cy + 6, cx - 17, cy + 16);
                 var head = [
-                    [cx - 20, cy + 8],
-                    [cx - 24, cy + 24],
-                    [cx - 8, cy + 20]
+                    [cx - 19, cy + 8],
+                    [cx - 23, cy + 23],
+                    [cx - 8, cy + 19]
                 ];
                 dc.fillPolygon(head);
             }
 
-            // 4. Clean exit number in center circle
             if (exitNum > 0) {
                 dc.setColor(arrowAccent, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(
@@ -637,7 +620,6 @@ class NavigationIQView extends WatchUi.View {
 
         // --- STANDARD MANEUVER ARROWS ---
         if (dir == DIR_LEFT || dir == DIR_SHARP_LEFT) {
-            // Turn Left Arrow (Bold 9px)
             dc.setPenWidth(9);
             dc.drawLine(cx + 10, cy + 18, cx + 10, cy - 2);
             dc.drawLine(cx + 10, cy - 2, cx - 8, cy - 2);
@@ -649,7 +631,6 @@ class NavigationIQView extends WatchUi.View {
             dc.fillPolygon(head);
         }
         else if (dir == DIR_RIGHT || dir == DIR_SHARP_RIGHT) {
-            // Turn Right Arrow (Bold 9px)
             dc.setPenWidth(9);
             dc.drawLine(cx - 10, cy + 18, cx - 10, cy - 2);
             dc.drawLine(cx - 10, cy - 2, cx + 8, cy - 2);
@@ -661,7 +642,6 @@ class NavigationIQView extends WatchUi.View {
             dc.fillPolygon(head);
         }
         else if (dir == DIR_SLIGHT_LEFT) {
-            // Slight Left / Bear Left (Bold 9px)
             dc.setPenWidth(9);
             dc.drawLine(cx + 6, cy + 18, cx + 6, cy + 4);
             dc.drawLine(cx + 6, cy + 4, cx - 8, cy - 8);
@@ -673,7 +653,6 @@ class NavigationIQView extends WatchUi.View {
             dc.fillPolygon(head);
         }
         else if (dir == DIR_SLIGHT_RIGHT) {
-            // Slight Right / Bear Right (Bold 9px)
             dc.setPenWidth(9);
             dc.drawLine(cx - 6, cy + 18, cx - 6, cy + 4);
             dc.drawLine(cx - 6, cy + 4, cx + 8, cy - 8);
@@ -685,7 +664,6 @@ class NavigationIQView extends WatchUi.View {
             dc.fillPolygon(head);
         }
         else if (dir == DIR_UTURN) {
-            // U-Turn (Loop left & down, Bold 8px)
             dc.setPenWidth(8);
             dc.drawLine(cx + 10, cy + 18, cx + 10, cy - 4);
             dc.drawLine(cx + 10, cy - 4, cx - 10, cy - 4);
@@ -698,7 +676,7 @@ class NavigationIQView extends WatchUi.View {
             dc.fillPolygon(head);
         }
         else {
-            // Straight Ahead (Bold 9px)
+            // Straight Ahead
             dc.setPenWidth(9);
             dc.drawLine(cx, cy + 18, cx, cy - 6);
             var head = [
