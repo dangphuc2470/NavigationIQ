@@ -2,7 +2,7 @@ import os
 import sys
 from PIL import Image, ImageDraw, ImageFont
 
-def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_name):
+def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_name, rotate_degrees=0):
     # Load Font
     font = ImageFont.truetype(font_path, font_size)
     
@@ -47,46 +47,77 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
             xoff = bbox[0] - pad
             yoff = bbox[1] - pad
             
-            glyphs.append({
-                'id': code, 'char': ch, 'w': gw, 'h': gh,
-                'xoff': xoff, 'yoff': yoff,
-                'xadv': adv_int,
-                'img': glyph_img
-            })
+            if rotate_degrees == 90:
+                # Rotate 90 degrees CW so character top points to 3 o'clock (button edge)
+                rot_img = glyph_img.rotate(270, expand=True)
+                glyphs.append({
+                    'id': code, 'char': ch,
+                    'w': gh, 'h': gw,
+                    'xoff': 0, 'yoff': 0,
+                    'xadv': adv_int,
+                    'img': rot_img
+                })
+            else:
+                glyphs.append({
+                    'id': code, 'char': ch,
+                    'w': gw, 'h': gh,
+                    'xoff': xoff, 'yoff': yoff,
+                    'xadv': adv_int,
+                    'img': glyph_img
+                })
             
     # Pack into texture sheet (512x512)
     sheet_w = 512
     sheet_h = 512
     img = Image.new("RGBA", (sheet_w, sheet_h), (0, 0, 0, 0))
     
-    cur_x = 2
-    cur_y = 2
-    row_h = 0
+    cur_x = 1
+    cur_y = 1
+    max_row_h = 0
     
     packed_glyphs = []
     for g in glyphs:
-        if g['w'] == 0 or g['h'] == 0 or g['img'] is None:
-            packed_glyphs.append(dict(g, x=0, y=0))
+        if g['img'] is None:
+            packed_glyphs.append({
+                'id': g['id'], 'x': 0, 'y': 0,
+                'w': 0, 'h': 0,
+                'xoff': 0, 'yoff': 0,
+                'xadv': g['xadv']
+            })
             continue
             
-        if cur_x + g['w'] + 2 >= sheet_w:
-            cur_x = 2
-            cur_y += row_h + 2
-            row_h = 0
+        gw, gh = g['img'].size
+        if cur_x + gw + 1 >= sheet_w:
+            cur_x = 1
+            cur_y += max_row_h + 1
+            max_row_h = 0
             
-        if cur_y + g['h'] + 2 >= sheet_h:
-            print(f"Warning: Texture sheet full for {font_face_name}")
-            break
+        if cur_y + gh + 1 >= sheet_h:
+            sheet_h *= 2
+            new_img = Image.new("RGBA", (sheet_w, sheet_h), (0, 0, 0, 0))
+            new_img.paste(img, (0, 0))
+            img = new_img
             
-        img.paste(g['img'], (cur_x, cur_y), g['img'])
-        packed_glyphs.append(dict(g, x=cur_x, y=cur_y))
+        img.paste(g['img'], (cur_x, cur_y))
+        packed_glyphs.append({
+            'id': g['id'],
+            'x': cur_x, 'y': cur_y,
+            'w': gw, 'h': gh,
+            'xoff': g['xoff'], 'yoff': g['yoff'],
+            'xadv': g['xadv']
+        })
         
-        cur_x += g['w'] + 2
-        if g['h'] > row_h:
-            row_h = g['h']
+        cur_x += gw + 1
+        if gh > max_row_h:
+            max_row_h = gh
             
-    final_h = 128
-    while final_h < cur_y + row_h + 4 and final_h < 1024:
+    final_h = cur_y + max_row_h + 2
+    # Ensure power of 2 or clean dimension
+    p2 = 256
+    while p2 < final_h:
+        p2 *= 2
+    final_h = min(p2, sheet_h)
+    if final_h < cur_y + max_row_h + 1:
         final_h *= 2
     
     final_img = img.crop((0, 0, sheet_w, final_h))
@@ -115,7 +146,12 @@ if __name__ == "__main__":
     generate_bmfont(font_bold, 25, "garmin_app/resources/fonts/sf_pro_compact_bold.fnt", "garmin_app/resources/fonts/sf_pro_compact_bold_0.png", "SF Pro Compact Bold")
     # 4. Compact Street Regular Font (Size: 23px, Medium)
     generate_bmfont(font_regular, 23, "garmin_app/resources/fonts/sf_pro_compact.fnt", "garmin_app/resources/fonts/sf_pro_compact_0.png", "SF Pro Compact")
-    # 5. Micro Pill Font - ETA & Live Clock (Size: 29px, Bold)
-    generate_bmfont(font_bold, 29, "garmin_app/resources/fonts/sf_pro_micro.fnt", "garmin_app/resources/fonts/sf_pro_micro_0.png", "SF Pro Micro")
+    # 5. Micro Pill Font - ETA & Live Clock (Size: 28px, Bold)
+    generate_bmfont(font_bold, 28, "garmin_app/resources/fonts/sf_pro_micro.fnt", "garmin_app/resources/fonts/sf_pro_micro_0.png", "SF Pro Micro")
     
-    print("All BMFonts (30px Action + 27px Street + 29px ETA/Clock) successfully generated!")
+    # 6. Rotated 90° Clockwise Fonts for Left-Wrist Motorbike Handlebar mode
+    generate_bmfont(font_bold, 28, "garmin_app/resources/fonts/sf_pro_street_bold_rot90.fnt", "garmin_app/resources/fonts/sf_pro_street_bold_rot90_0.png", "SF Pro Street Bold Rot90", rotate_degrees=90)
+    generate_bmfont(font_regular, 25, "garmin_app/resources/fonts/sf_pro_street_rot90.fnt", "garmin_app/resources/fonts/sf_pro_street_rot90_0.png", "SF Pro Street Rot90", rotate_degrees=90)
+    generate_bmfont(font_bold, 26, "garmin_app/resources/fonts/sf_pro_micro_rot90.fnt", "garmin_app/resources/fonts/sf_pro_micro_rot90_0.png", "SF Pro Micro Rot90", rotate_degrees=90)
+    
+    print("All BMFonts (Upright + 90° Rotated for Motorbike) successfully generated!")

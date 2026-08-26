@@ -95,6 +95,9 @@ class NavigationIQView extends WatchUi.View {
     private var _fontSfCompactBold as Graphics.FontDefinition?;
     private var _fontSfCompact as Graphics.FontDefinition?;
     private var _fontSfMicro as Graphics.FontDefinition?;
+    private var _fontSfStreetBoldRot90 as Graphics.FontDefinition?;
+    private var _fontSfStreetRot90 as Graphics.FontDefinition?;
+    private var _fontSfMicroRot90 as Graphics.FontDefinition?;
 
     function initialize() {
         View.initialize();
@@ -105,12 +108,18 @@ class NavigationIQView extends WatchUi.View {
             _fontSfCompactBold = WatchUi.loadResource(Rez.Fonts.SfCompactBold) as Graphics.FontDefinition;
             _fontSfCompact = WatchUi.loadResource(Rez.Fonts.SfCompact) as Graphics.FontDefinition;
             _fontSfMicro = WatchUi.loadResource(Rez.Fonts.SfMicro) as Graphics.FontDefinition;
+            _fontSfStreetBoldRot90 = WatchUi.loadResource(Rez.Fonts.SfStreetBoldRot90) as Graphics.FontDefinition;
+            _fontSfStreetRot90 = WatchUi.loadResource(Rez.Fonts.SfStreetRot90) as Graphics.FontDefinition;
+            _fontSfMicroRot90 = WatchUi.loadResource(Rez.Fonts.SfMicroRot90) as Graphics.FontDefinition;
         } catch (e) {
             _fontSfStreetBold = null;
             _fontSfStreet = null;
             _fontSfCompactBold = null;
             _fontSfCompact = null;
             _fontSfMicro = null;
+            _fontSfStreetBoldRot90 = null;
+            _fontSfStreetRot90 = null;
+            _fontSfMicroRot90 = null;
         }
     }
 
@@ -603,6 +612,24 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
+    // 90° Clockwise Rotated String Renderer
+    // In 90° CW mode, visual (vx, vy) maps to physical (319 - vy, vx)
+    // -------------------------------------------------------------------------
+    private function _drawRot90String(dc as Dc, vx as Number, vy as Number, font as Graphics.FontDefinition?, text as String, color as Number) as Number {
+        if (font == null || text.length() == 0) { return 0; }
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        var curVx = vx;
+        for (var i = 0; i < text.length(); i++) {
+            var ch = text.substring(i, i + 1);
+            var px = 319 - vy;
+            var py = curVx;
+            dc.drawText(px, py, font, ch, Graphics.TEXT_JUSTIFY_LEFT);
+            curVx += dc.getTextWidthInPixels(ch, font);
+        }
+        return curVx - vx;
+    }
+
+    // -------------------------------------------------------------------------
     // 90° Clockwise Landscape HUD (Optimized for Left-Wrist Motorbike Handlebar)
     // -------------------------------------------------------------------------
     private function _drawLandscapeHUD(dc as Dc) as Void {
@@ -612,137 +639,105 @@ class NavigationIQView extends WatchUi.View {
         var glowRGB = theme[2] as Array<Number>;
         var etaBgColor = theme[3] as Number;
 
-        // 1. Left Card: Badge + Huge Distance + ETA/Time Capsules (X: 8, Y: 8, W: 136, H: 344)
-        var leftCardX = 8;
-        var leftCardY = 8;
-        var leftCardW = 136;
-        var leftCardH = 344;
-        var leftCardR = 24;
+        // Visual Canvas: Width = 360, Height = 320
+        // Top Card (Visual: X: 8, Y: 8, W: 344, H: 240, R: 26)
+        // Physical: px = 319 - 8 - 240 = 71, py = 8, pw = 240, ph = 344
+        var cardPx = 71;
+        var cardPy = 8;
+        var cardPw = 240;
+        var cardPh = 344;
+        var cardR = 26;
 
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(leftCardX, leftCardY, leftCardW, leftCardH, leftCardR);
+        dc.fillRoundedRectangle(cardPx, cardPy, cardPw, cardPh, cardR);
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawRoundedRectangle(leftCardX, leftCardY, leftCardW, leftCardH, leftCardR);
+        dc.drawRoundedRectangle(cardPx, cardPy, cardPw, cardPh, cardR);
 
-        // Turn Badge Glowing Aura
-        var badgeCx = leftCardX + (leftCardW / 2);
-        var badgeCy = leftCardY + 48;
+        // Turn Badge (Visual: vcx = 54, vcy = 54, r = 38 -> Physical: pcx = 265, pcy = 54)
+        var badgePcx = 265;
+        var badgePcy = 54;
         var badgeR = 38;
-        _drawAmbientGlow(dc, badgeCx, badgeCy, glowRGB);
-        _maskCardCorners(dc, leftCardX, leftCardY, leftCardW, leftCardH, leftCardR);
 
-        // Turn Badge Solid
+        _drawAmbientGlow(dc, badgePcx, badgePcy, glowRGB);
+        _maskCardCorners(dc, cardPx, cardPy, cardPw, cardPh, cardR);
+
         dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(badgeCx, badgeCy, badgeR);
+        dc.fillCircle(badgePcx, badgePcy, badgeR);
 
         if (CommManager.isWaitingImage) {
-            _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor);
+            _drawLoadingSpinner(dc, badgePcx, badgePcy, badgeR, accentColor);
         } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
-            _drawRleBitmap(dc, badgeCx, badgeCy, CommManager.rleBitmap);
+            _drawRleBitmap(dc, badgePcx, badgePcy, CommManager.rleBitmap);
         } else if (CommManager.direction != DIR_UNKNOWN) {
-            _drawVectorArrow(dc, badgeCx, badgeCy, CommManager.direction, CommManager.exitNumber, accentColor);
+            _drawVectorArrow(dc, badgePcx, badgePcy, CommManager.direction, CommManager.exitNumber, accentColor);
         } else {
-            _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor);
+            _drawLoadingSpinner(dc, badgePcx, badgePcy, badgeR, accentColor);
         }
 
-        // Distance Row (Stacked Centered: Big Number on top, Unit below)
+        // Distance Row (Visual: vcx = 110, vcy = 54)
         var distFull = CommManager.distText;
         if (distFull.length() > 0) {
-            var parts = _splitDist(distFull);
-            var distNum = parts[0];
-            var distUnit = parts[1];
-
-            var numFont = Graphics.FONT_NUMBER_HOT;
-            if (distNum.length() >= 3) {
-                numFont = Graphics.FONT_NUMBER_MILD;
-            }
-
-            dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(
-                badgeCx,
-                leftCardY + 120,
-                numFont,
-                distNum,
-                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-            );
-
-            if (distUnit.length() > 0) {
-                dc.setColor(COLOR_TEXT_UNIT, Graphics.COLOR_TRANSPARENT);
-                dc.drawText(
-                    badgeCx,
-                    leftCardY + 154,
-                    Graphics.FONT_MEDIUM,
-                    distUnit,
-                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-                );
-            }
+            var fontDist = (_fontSfStreetBoldRot90 != null) ? _fontSfStreetBoldRot90 : _fontSfStreetBold;
+            _drawRot90String(dc, 108, 68, fontDist, distFull, COLOR_TEXT_WHITE);
         }
 
-        // Divider on Left Card
+        // Divider Line (Visual: vy = 104 -> Physical: px = 215)
         dc.setColor(COLOR_DIVIDER, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawLine(leftCardX + 12, leftCardY + 180, leftCardX + leftCardW - 12, leftCardY + 180);
+        dc.drawLine(215, 20, 215, 340);
 
-        // Bottom Left: Tinted ETA Capsule
-        var microFont = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
-        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        var etaBadgeX = leftCardX + 8;
-        var etaBadgeY = leftCardY + 196;
-        var etaBadgeW = leftCardW - 16;
-        var etaBadgeH = 44;
-        var etaBadgeR = 22;
-
-        dc.setColor(etaBgColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, etaBadgeR);
-        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, etaBadgeR);
-
-        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(
-            etaBadgeX + (etaBadgeW / 2),
-            etaBadgeY + (etaBadgeH / 2),
-            microFont,
-            etaStr,
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-        );
-
-        // Live Clock Capsule (Y: 256, W: 120, H: 44)
-        var clockTime2 = System.getClockTime();
-        var timeStr2 = Lang.format("$1$:$2$", [clockTime2.hour.format("%02d"), clockTime2.min.format("%02d")]);
-        var timeBadgeY = etaBadgeY + etaBadgeH + 12;
-
-        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(etaBadgeX, timeBadgeY, etaBadgeW, etaBadgeH, etaBadgeR);
-
-        dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(
-            etaBadgeX + (etaBadgeW / 2),
-            timeBadgeY + (etaBadgeH / 2),
-            microFont,
-            timeStr2,
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-        );
-
-        // Rotation Mode Indicator (Small 90° icon badge on top right)
-        // 2. Right Card: Full-Height High-Legibility Navigation Text (X: 152, Y: 8, W: 160, H: 344)
-        var rightCardX = 152;
-        var rightCardY = 8;
-        var rightCardW = 160;
-        var rightCardH = 344;
-        var rightCardR = 24;
-
-        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(rightCardX, rightCardY, rightCardW, rightCardH, rightCardR);
-        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawRoundedRectangle(rightCardX, rightCardY, rightCardW, rightCardH, rightCardR);
-
+        // Navigation Instruction Text
         var streetText = CommManager.navText;
         if (streetText.length() > 0) {
-            _drawDynamicWrappedText(dc, rightCardX + 12, rightCardY + 16, rightCardW - 24, rightCardH - 32, streetText, accentColor);
+            var split = _splitActionAndStreet(streetText);
+            var actionStr = split[0];
+            var streetStr = split[1];
+
+            var fontAction = (_fontSfStreetBoldRot90 != null) ? _fontSfStreetBoldRot90 : _fontSfStreetBold;
+            var fontStreet = (_fontSfStreetRot90 != null) ? _fontSfStreetRot90 : _fontSfStreet;
+
+            if (actionStr.length() > 0) {
+                _drawRot90String(dc, 20, 142, fontAction, actionStr, COLOR_TEXT_WHITE);
+            }
+            if (streetStr.length() > 0) {
+                _drawRot90String(dc, 20, 192, fontStreet, streetStr, COLOR_TEXT_SILVER);
+            }
         }
+
+        // Bottom Pill Bar (Visual: vy = 256, vh = 56 -> Physical: px = 7, py = 8, pw = 56, ph = 344)
+        var barPx = 7;
+        var barPy = 8;
+        var barPw = 56;
+        var barPh = 344;
+
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(barPx, barPy, barPw, barPh, cardR);
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(barPx, barPy, barPw, barPh, cardR);
+
+        // ETA Capsule (Visual: vx = 18, vy = 262, vw = 146, vh = 44 -> Physical: px = 13, py = 18, pw = 44, ph = 146)
+        var etaCapsulePx = 13;
+        var etaCapsulePy = 18;
+        var etaCapsulePw = 44;
+        var etaCapsulePh = 146;
+        var etaCapsuleR = 22;
+
+        dc.setColor(etaBgColor, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(etaCapsulePx, etaCapsulePy, etaCapsulePw, etaCapsulePh, etaCapsuleR);
+        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(etaCapsulePx, etaCapsulePy, etaCapsulePw, etaCapsulePh, etaCapsuleR);
+
+        var fontMicroRot = (_fontSfMicroRot90 != null) ? _fontSfMicroRot90 : _fontSfMicro;
+        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
+        _drawRot90String(dc, 28, 292, fontMicroRot, etaStr, COLOR_TEXT_WHITE);
+
+        // Live Clock Time (Visual: vx = 248, vy = 292)
+        var clockTime = System.getClockTime();
+        var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
+        _drawRot90String(dc, 252, 292, fontMicroRot, timeStr, COLOR_TEXT_SILVER);
     }
 
     // -------------------------------------------------------------------------
