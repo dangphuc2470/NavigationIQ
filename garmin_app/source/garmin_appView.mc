@@ -682,6 +682,45 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
+    // Capitalize First Character Helper
+    // -------------------------------------------------------------------------
+    private function _capitalize(str as String) as String {
+        if (str.length() == 0) {
+            return str;
+        }
+        var first = str.substring(0, 1);
+        var rest = str.substring(1, str.length());
+        if (first.equals("a")) { return "A" + rest; }
+        if (first.equals("b")) { return "B" + rest; }
+        if (first.equals("c")) { return "C" + rest; }
+        if (first.equals("d")) { return "D" + rest; }
+        if (first.equals("e")) { return "E" + rest; }
+        if (first.equals("f")) { return "F" + rest; }
+        if (first.equals("g")) { return "G" + rest; }
+        if (first.equals("h")) { return "H" + rest; }
+        if (first.equals("i")) { return "I" + rest; }
+        if (first.equals("j")) { return "J" + rest; }
+        if (first.equals("k")) { return "K" + rest; }
+        if (first.equals("l")) { return "L" + rest; }
+        if (first.equals("m")) { return "M" + rest; }
+        if (first.equals("n")) { return "N" + rest; }
+        if (first.equals("o")) { return "O" + rest; }
+        if (first.equals("p")) { return "P" + rest; }
+        if (first.equals("q")) { return "Q" + rest; }
+        if (first.equals("r")) { return "R" + rest; }
+        if (first.equals("s")) { return "S" + rest; }
+        if (first.equals("t")) { return "T" + rest; }
+        if (first.equals("u")) { return "U" + rest; }
+        if (first.equals("v")) { return "V" + rest; }
+        if (first.equals("w")) { return "W" + rest; }
+        if (first.equals("x")) { return "X" + rest; }
+        if (first.equals("y")) { return "Y" + rest; }
+        if (first.equals("z")) { return "Z" + rest; }
+        if (first.equals("đ")) { return "Đ" + rest; }
+        return str;
+    }
+
+    // -------------------------------------------------------------------------
     // Optional Instruction Simplifier (For future user settings toggle)
     // -------------------------------------------------------------------------
     private function _simplifyInstructionText(text as String) as String {
@@ -691,18 +730,18 @@ class NavigationIQView extends WatchUi.View {
 
     // -------------------------------------------------------------------------
     // Intelligent Navigation Instruction Splitter (Preserves 100% Text Intact)
-    // Extracts exact Action Phrase for Bold typography; keeps all remaining words Regular.
+    // Full English & Vietnamese Support; Capitalizes Action Phrase for Clean Typography.
     // -------------------------------------------------------------------------
     private function _splitActionAndStreet(text as String) as Array<String> {
         // 1. Check for manual newline
         var nlIdx = text.find("\n");
         if (nlIdx != null && nlIdx > 0) {
-            var act = text.substring(0, nlIdx);
+            var act = _capitalize(text.substring(0, nlIdx));
             var str = text.substring(nlIdx + 1, text.length());
             return [act, str] as Array<String>;
         }
 
-        // 2. Roundabout Pattern with leading location (e.g. "At Ngã sáu..., take the 2nd exit onto...")
+        // 2. English Roundabout Pattern: "At ..., take the Nth exit onto ..."
         var takeIdx = text.find("take the ");
         if (takeIdx == null) {
             takeIdx = text.find("Take the ");
@@ -721,10 +760,33 @@ class NavigationIQView extends WatchUi.View {
             if (suffix.length() > 0) {
                 fullRemaining = (prefix.length() > 0) ? (prefix + suffix) : suffix;
             }
-            return [actStr, fullRemaining] as Array<String>;
+            return [_capitalize(actStr), fullRemaining] as Array<String>;
         }
 
-        // 3. Known Action Verb Prefixes (Priority order: longest phrases first)
+        // 3. Vietnamese Roundabout Pattern: "Tại ..., đi theo lối ra thứ N vào ..."
+        var vnRoundKeywords = ["đi theo lối ra ", "Đi theo lối ra ", "vào lối ra ", "Vào lối ra "];
+        for (var k = 0; k < vnRoundKeywords.size(); k++) {
+            var kw = vnRoundKeywords[k];
+            var rIdx = text.find(kw);
+            if (rIdx != null && rIdx > 0) {
+                var prefix = text.substring(0, rIdx);
+                var afterRound = text.substring(rIdx, text.length());
+                var vaoIdx = afterRound.find(" vào ");
+                var actStr = afterRound;
+                var suffix = "";
+                if (vaoIdx != null) {
+                    actStr = afterRound.substring(0, vaoIdx);
+                    suffix = afterRound.substring(vaoIdx + 1, afterRound.length());
+                }
+                var fullRemaining = prefix;
+                if (suffix.length() > 0) {
+                    fullRemaining = (prefix.length() > 0) ? (prefix + suffix) : suffix;
+                }
+                return [_capitalize(actStr), fullRemaining] as Array<String>;
+            }
+        }
+
+        // 4. Known Action Verb Prefixes (Priority order: longest phrases first)
         var actionPrefixes = [
             "Turn sharp right",
             "Turn sharp left",
@@ -759,9 +821,20 @@ class NavigationIQView extends WatchUi.View {
             "Rẽ trái",
             "Quay đầu xe",
             "Quay đầu",
+            "Đi về hướng Đông Bắc",
+            "Đi về hướng Tây Bắc",
+            "Đi về hướng Đông Nam",
+            "Đi về hướng Tây Nam",
+            "Đi về hướng Bắc",
+            "Đi về hướng Nam",
+            "Đi về hướng Đông",
+            "Đi về hướng Tây",
             "Đi về hướng",
             "Tiếp tục đi thẳng",
+            "Đi theo lối ra",
+            "Đi dọc theo",
             "Đi thẳng",
+            "Nhập vào",
             "Tiếp tục"
         ];
 
@@ -776,12 +849,12 @@ class NavigationIQView extends WatchUi.View {
                     if (remaining.length() > 0 && remaining.substring(0, 1).equals(" ")) {
                         remaining = remaining.substring(1, remaining.length());
                     }
-                    return [act, remaining] as Array<String>;
+                    return [_capitalize(act), remaining] as Array<String>;
                 }
             }
         }
 
-        return [text, ""] as Array<String>;
+        return [_capitalize(text), ""] as Array<String>;
     }
 
     // -------------------------------------------------------------------------
