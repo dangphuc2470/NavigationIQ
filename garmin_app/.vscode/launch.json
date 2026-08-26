@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "monkeyc",
+      "request": "launch",
+      "name": "Run Monkey C App",
+      "stopAtEntry": false,
+      "device": "${command:GetTargetDevice}"
+    }
+  ]
+}

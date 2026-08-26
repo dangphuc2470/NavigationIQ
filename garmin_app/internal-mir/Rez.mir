@@ -1,0 +1,1687 @@
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 1; @symbol_importdef<0> = [Toybox,1,7,13]; @symbol_importdef<1> = [Lang,1,14,18]; ]
+import Toybox.Lang;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 2; @symbol_usingdef<0> = [Toybox,2,6,12]; @symbol_usingdef<1> = [WatchUi,2,13,20]; ]
+using Toybox.WatchUi;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 3; @symbol_usingdef<0> = [Toybox,3,6,12]; @symbol_usingdef<1> = [WatchUi,3,13,20]; @symbol_usingAlias = [Ui,3,24,26]; ]
+using Toybox.WatchUi as :Ui;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 4; @symbol_usingdef<0> = [Toybox,4,6,12]; @symbol_usingdef<1> = [Graphics,4,13,21]; ]
+using Toybox.Graphics;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 5; @symbol_usingdef<0> = [Toybox,5,6,12]; @symbol_usingdef<1> = [Graphics,5,13,21]; @symbol_usingAlias = [Gfx,5,25,28]; ]
+using Toybox.Graphics as :Gfx;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 7; @symbol_moduledef = [Rez,7,7,10]; ]
+module Rez {
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 7; ]
+    <init> {
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 8; @symbol_moduledef = [Drawables,8,11,20]; ]
+    module Drawables {
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 8; ]
+        <init> {
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 9; @position = 27; initialized = true; @symbol_vardef = [id_monkey,9,27,36]; @symbol_type<0> = [ResourceId,9,40,50]; ]
+        var id_monkey as ResourceId;
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 10; @position = 27; initialized = true; @symbol_vardef = [LauncherIcon,10,27,39]; @symbol_type<0> = [ResourceId,10,43,53]; ]
+        var LauncherIcon as ResourceId;
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 13; @symbol_moduledef = [Layouts,13,11,18]; ]
+    module Layouts {
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 13; ]
+        <init> {
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 14; @symbol_functiondef = [MainLayout,14,17,27]; @symbol_param<0> = [dc,14,28,30]; @symbol_param<0>_type<0> = [Graphics,14,34,42]; @symbol_param<0>_type<1> = [Dc,14,43,45]; @symbol_return<0> = [Array,14,50,55]; @symbol_return<1> = [WatchUi,14,56,63]; @symbol_return<2> = [Drawable,14,64,72]; ]
+        function MainLayout(dc as Graphics.Dc) as Array<WatchUi.Drawable> {
+D__Project_APKMod_NavigationIQ_garmin_app_gen_006_B4115_00_source_Rez_mcgen_14_74_23_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 15 12 ]
+            [ "D__Project_APKMod_NavigationIQ_garmin_app_gen_006_B4115_00_source_Rez_mcgen_14_74_23_8_start" "D__Project_APKMod_NavigationIQ_garmin_app_gen_006_B4115_00_source_Rez_mcgen_14_74_23_8_stop" ]
+            %rez_cmp_local_var_dc_getWidth.1 = local;
+            symbol [ rez_cmp_local_var_dc_getWidth %rez_cmp_local_var_dc_getWidth.1 15 16 45 ];
+            %tmp.1 = lgetv %dc;
+            symbol [ dc %tmp.1 15 48 50 ];
+            symbol [ getWidth %tmp.2 15 51 59 ];
+            %tmp.2 = getv function %tmp.1 :getWidth;
+            %tmp.3 = invoke %tmp.1 %tmp.2();
+            lputv %rez_cmp_local_var_dc_getWidth.1 %tmp.3;
+            symbol [ rez_cmp_local_var_dc_getWidth %rez_cmp_local_var_dc_getWidth.1 15 16 45 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 17 12 ]
+            [ "D__Project_APKMod_NavigationIQ_garmin_app_gen_006_B4115_00_source_Rez_mcgen_14_74_23_8_start" "D__Project_APKMod_NavigationIQ_garmin_app_gen_006_B4115_00_source_Rez_mcgen_14_74_23_8_stop" ]
+            %rez_cmp_local_text_1193959466.2 = local;
+            symbol [ rez_cmp_local_text_1193959466 %rez_cmp_local_text_1193959466.2 17 16 45 ];
+            symbol [ WatchUi %tmp.6 17 52 59 ];
+            %tmp.6 = getm $.Toybox.WatchUi;
+            symbol [ Text %tmp.7 17 60 64 ];
+            %tmp.7 = getv function ? %tmp.6 :Text;
+            %tmp.8 = newd 6;
+            %tmp.10 = const :color;
+            symbol [ color %tmp.10 17 67 72 const ];
+            symbol [ Graphics %tmp.11 17 74 82 ];
+            %tmp.11 = getm $.Toybox.Graphics;
+            symbol [ COLOR_WHITE %tmp.12 17 83 94 ];
+            %tmp.12 = getv %tmp.11 :COLOR_WHITE;
+            %tmp.13 = dup %tmp.8;
+            %tmp.14 = aputv %tmp.13 %tmp.10 %tmp.12;
+            %tmp.16 = const :locX;
+            symbol [ locX %tmp.16 17 97 101 const ];
+            %tmp.17 = lgetv %rez_cmp_local_var_dc_getWidth.1;
+            symbol [ rez_cmp_local_var_dc_getWidth %tmp.17 17 104 133 ];
+            %tmp.18 = 0.5;
+            %tmp.19 = mul %tmp.17 %tmp.18;
+            %tmp.20 = dup %tmp.14;
+            %tmp.21 = aputv %tmp.20 %tmp.16 %tmp.19;
+            %tmp.23 = const :locY;
+            symbol [ locY %tmp.23 17 143 147 const ];
+            %tmp.24 = 5;
+            %tmp.25 = dup %tmp.21;
+            %tmp.26 = aputv %tmp.25 %tmp.23 %tmp.24;
+            %tmp.28 = const :text;
+            symbol [ text %tmp.28 17 153 157 const ];
+            symbol [ $ %tmp.29 17 159 160 ];
+            %tmp.29 = getm $;
+            symbol [ Rez %tmp.30 17 161 164 ];
+            %tmp.30 = getv %tmp.29 :Rez;
+            symbol [ Strings %tmp.31 17 165 172 ];
+            %tmp.31 = getv %tmp.30 :Strings;
+            symbol [ prompt %tmp.32 17 173 179 ];
+            %tmp.32 = getv %tmp.31 :prompt;
+            %tmp.33 = dup %tmp.26;
+            %tmp.34 = aputv %tmp.33 %tmp.28 %tmp.32;
+            %tmp.36 = const :justification;
+            symbol [ justification %tmp.36 17 182 195 const ];
+            symbol [ Graphics %tmp.37 17 197 205 ];
+            %tmp.37 = getm $.Toybox.Graphics;
+            symbol [ TEXT_JUSTIFY_CENTER %tmp.38 17 206 225 ];
+            %tmp.38 = getv %tmp.37 :TEXT_JUSTIFY_CENTER;
+            %tmp.39 = dup %tmp.34;
+            %tmp.40 = aputv %tmp.39 %tmp.36 %tmp.38;
+            %tmp.42 = const :font;
+            symbol [ font %tmp.42 17 228 232 const ];
+            symbol [ Graphics %tmp.43 17 234 242 ];
+            %tmp.43 = getm $.Toybox.Graphics;
+            symbol [ FONT_MEDIUM %tmp.44 17 243 254 ];
+            %tmp.44 = getv %tmp.43 :FONT_MEDIUM;
+            %tmp.45 = dup %tmp.40;
+            %tmp.46 = aputv %tmp.45 %tmp.42 %tmp.44;
+            %tmp.4 = newc %tmp.7 (%tmp.46);
+            lputv %rez_cmp_local_text_1193959466.2 %tmp.4;
+            symbol [ rez_cmp_local_text_1193959466 %rez_cmp_local_text_1193959466.2 17 16 45 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 19 12 ]
+            [ "D__Project_APKMod_NavigationIQ_garmin_app_gen_006_B4115_00_source_Rez_mcgen_14_74_23_8_start" "D__Project_APKMod_NavigationIQ_garmin_app_gen_006_B4115_00_source_Rez_mcgen_14_74_23_8_stop" ]
+            %rez_cmp_local_bitmap_id_monkey.3 = local;
+            symbol [ rez_cmp_local_bitmap_id_monkey %rez_cmp_local_bitmap_id_monkey.3 19 16 46 ];
+            symbol [ WatchUi %tmp.49 19 53 60 ];
+            %tmp.49 = getm $.Toybox.WatchUi;
+            symbol [ Bitmap %tmp.50 19 61 67 ];
+            %tmp.50 = getv function ? %tmp.49 :Bitmap;
+            %tmp.51 = newd 4;
+            %tmp.53 = const :identifier;
+            symbol [ identifier %tmp.53 19 70 80 const ];
+            %tmp.54 = "id_monkey";
+            %tmp.55 = dup %tmp.51;
+            %tmp.56 = aputv %tmp.55 %tmp.53 %tmp.54;
+            %tmp.58 = const :rezId;
+            symbol [ rezId %tmp.58 19 96 101 const ];
+            symbol [ $ %tmp.59 19 103 104 ];
+            %tmp.59 = getm $;
+            symbol [ Rez %tmp.60 19 105 108 ];
+            %tmp.60 = getv %tmp.59 :Rez;
+            symbol [ Drawables %tmp.61 19 109 118 ];
+            %tmp.61 = getv %tmp.60 :Drawables;
+            symbol [ id_monkey %tmp.62 19 119 128 ];
+            %tmp.62 = getv %tmp.61 :id_monkey;
+            %tmp.63 = dup %tmp.56;
+            %tmp.64 = aputv %tmp.63 %tmp.58 %tmp.62;
+            %tmp.66 = const :locX;
+            symbol [ locX %tmp.66 19 131 135 const ];
+            symbol [ WatchUi %tmp.67 19 137 144 ];
+            %tmp.67 = getm $.Toybox.WatchUi;
+            symbol [ LAYOUT_HALIGN_CENTER %tmp.68 19 145 165 ];
+            %tmp.68 = getv %tmp.67 :LAYOUT_HALIGN_CENTER;
+            %tmp.69 = dup %tmp.64;
+            %tmp.70 = aputv %tmp.69 %tmp.66 %tmp.68;
+            %tmp.72 = const :locY;
+            symbol [ locY %tmp.72 19 168 172 const ];
+            %tmp.73 = 30;
+            %tmp.74 = dup %tmp.70;
+            %tmp.75 = aputv %tmp.74 %tmp.72 %tmp.73;
+            %tmp.47 = newc %tmp.50 (%tmp.75);
+            lputv %rez_cmp_local_bitmap_id_monkey.3 %tmp.47;
+            symbol [ rez_cmp_local_bitmap_id_monkey %rez_cmp_local_bitmap_id_monkey.3 19 16 46 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 20 12 ]
+            %tmp.76 = lgetv %rez_cmp_local_bitmap_id_monkey.3;
+            symbol [ rez_cmp_local_bitmap_id_monkey %tmp.76 20 12 42 ];
+            symbol [ setLocation %tmp.77 20 43 54 ];
+            %tmp.77 = getv function %tmp.76 :setLocation;
+            %tmp.78 = lgetv %rez_cmp_local_var_dc_getWidth.1;
+            symbol [ rez_cmp_local_var_dc_getWidth %tmp.78 20 57 86 ];
+            %tmp.79 = lgetv %rez_cmp_local_bitmap_id_monkey.3;
+            symbol [ rez_cmp_local_bitmap_id_monkey %tmp.79 20 89 119 ];
+            symbol [ width %tmp.80 20 120 125 ];
+            %tmp.80 = getv %tmp.79 :width;
+            %tmp.81 = sub %tmp.78 %tmp.80;
+            %tmp.82 = 0.5;
+            %tmp.83 = mul %tmp.81 %tmp.82;
+            %tmp.84 = lgetv %rez_cmp_local_bitmap_id_monkey.3;
+            symbol [ rez_cmp_local_bitmap_id_monkey %tmp.84 20 135 165 ];
+            symbol [ locY %tmp.85 20 166 170 ];
+            %tmp.85 = getv %tmp.84 :locY;
+            invoke %tmp.76 %tmp.77(%tmp.83, %tmp.85);
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 22 12 ]
+            %tmp.86 = newa 2 Array<WatchUi.Drawable>;
+            symbol [ Array %tmp.86 22 86 91 ];
+            symbol [ WatchUi %tmp.86 22 92 99 ];
+            symbol [ Drawable %tmp.86 22 100 108 ];
+            %tmp.87 = lgetv %rez_cmp_local_text_1193959466.2;
+            symbol [ rez_cmp_local_text_1193959466 %tmp.87 22 20 49 ];
+            %tmp.88 = dup %tmp.86;
+            %tmp.89 = aputv %tmp.88 0 %tmp.87;
+            %tmp.90 = lgetv %rez_cmp_local_bitmap_id_monkey.3;
+            symbol [ rez_cmp_local_bitmap_id_monkey %tmp.90 22 51 81 ];
+            %tmp.91 = dup %tmp.89;
+            %tmp.92 = aputv %tmp.91 1 %tmp.90;
+            ret %tmp.92;
+D__Project_APKMod_NavigationIQ_garmin_app_gen_006_B4115_00_source_Rez_mcgen_14_74_23_8_stop:
+        }
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 26; @symbol_moduledef = [Menus,26,11,16]; ]
+    module Menus {
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 26; ]
+        <init> {
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 27; @symbol_classdef = [MainMenu,27,14,22]; @symbol_extends<0> = [WatchUi,27,31,38]; @symbol_extends<1> = [Menu,27,39,43]; ]
+        class MainMenu extends WatchUi.Menu {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 27; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 27; ]
+            static
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 28; @symbol_functiondef = [initialize,28,21,31]; ]
+            function initialize() as Void {
+D__Project_APKMod_NavigationIQ_garmin_app_gen_006_B4115_00_source_Rez_mcgen_28_34_32_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 29 16 ]
+                symbol [ Menu %tmp.2 29 16 20 ];
+                %tmp.2 = getv ? :Menu;
+                symbol [ initialize %tmp.3 29 21 31 ];
+                %tmp.3 = getv function %tmp.2 :initialize;
+                invoke %tmp.2 %tmp.3();
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 30 16 ]
+                %tmp.4 = self;
+                symbol [ addItem %tmp.5 30 16 23 ];
+                %tmp.5 = getv function %tmp.4 :addItem;
+                symbol [ WatchUi %tmp.6 30 25 32 ];
+                %tmp.6 = getm $.Toybox.WatchUi;
+                symbol [ loadResource %tmp.7 30 33 45 ];
+                %tmp.7 = getv function %tmp.6 :loadResource;
+                symbol [ $ %tmp.8 30 46 47 ];
+                %tmp.8 = getm $;
+                symbol [ Rez %tmp.9 30 48 51 ];
+                %tmp.9 = getv %tmp.8 :Rez;
+                symbol [ Strings %tmp.10 30 52 59 ];
+                %tmp.10 = getv %tmp.9 :Strings;
+                symbol [ menu_label_1 %tmp.11 30 60 72 ];
+                %tmp.11 = getv %tmp.10 :menu_label_1;
+                %tmp.12 = invoke %tmp.6 %tmp.7(%tmp.11);
+                %tmp.13 = as %tmp.12 String;
+                symbol [ String %tmp.13 30 77 83 ];
+                %tmp.15 = const :item_1;
+                symbol [ item_1 %tmp.15 30 87 93 const ];
+                invoke %tmp.4 %tmp.5(%tmp.13, %tmp.15);
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 31 16 ]
+                %tmp.16 = self;
+                symbol [ addItem %tmp.17 31 16 23 ];
+                %tmp.17 = getv function %tmp.16 :addItem;
+                symbol [ WatchUi %tmp.18 31 25 32 ];
+                %tmp.18 = getm $.Toybox.WatchUi;
+                symbol [ loadResource %tmp.19 31 33 45 ];
+                %tmp.19 = getv function %tmp.18 :loadResource;
+                symbol [ $ %tmp.20 31 46 47 ];
+                %tmp.20 = getm $;
+                symbol [ Rez %tmp.21 31 48 51 ];
+                %tmp.21 = getv %tmp.20 :Rez;
+                symbol [ Strings %tmp.22 31 52 59 ];
+                %tmp.22 = getv %tmp.21 :Strings;
+                symbol [ menu_label_2 %tmp.23 31 60 72 ];
+                %tmp.23 = getv %tmp.22 :menu_label_2;
+                %tmp.24 = invoke %tmp.18 %tmp.19(%tmp.23);
+                %tmp.25 = as %tmp.24 String;
+                symbol [ String %tmp.25 31 77 83 ];
+                %tmp.27 = const :item_2;
+                symbol [ item_2 %tmp.27 31 87 93 const ];
+                invoke %tmp.16 %tmp.17(%tmp.25, %tmp.27);
+D__Project_APKMod_NavigationIQ_garmin_app_gen_006_B4115_00_source_Rez_mcgen_28_34_32_12_stop:
+            }
+        }
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 36; @symbol_moduledef = [Strings,36,11,18]; ]
+    module Strings {
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 36; ]
+        <init> {
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 37; @position = 27; initialized = true; @symbol_vardef = [menu_label_1,37,27,39]; @symbol_type<0> = [ResourceId,37,43,53]; ]
+        var menu_label_1 as ResourceId;
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 38; @position = 27; initialized = true; @symbol_vardef = [menu_label_2,38,27,39]; @symbol_type<0> = [ResourceId,38,43,53]; ]
+        var menu_label_2 as ResourceId;
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 39; @position = 27; initialized = true; @symbol_vardef = [prompt,39,27,33]; @symbol_type<0> = [ResourceId,39,37,47]; ]
+        var prompt as ResourceId;
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 40; @position = 27; initialized = true; @symbol_vardef = [AppName,40,27,34]; @symbol_type<0> = [ResourceId,40,38,48]; ]
+        var AppName as ResourceId;
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 43; @symbol_moduledef = [Styles,43,11,17]; ]
+    module Styles {
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 43; ]
+        <init> {
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 44; @symbol_moduledef = [prompt_font_enhanced_readability__body_with_title,44,15,64]; ]
+        module prompt_font_enhanced_readability__body_with_title {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 44; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 45; @position = 18; @symbol_constdef = [exclude,45,18,25]; @symbol_type<0> = [Boolean,45,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 48; @symbol_moduledef = [system_size__menu_header,48,15,39]; ]
+        module system_size__menu_header {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 48; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 49; @position = 18; @symbol_constdef = [width,49,18,23]; @symbol_type<0> = [Number,49,27,33]; ]
+            const width as Number = 320;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 50; @position = 18; @symbol_constdef = [height,50,18,24]; @symbol_type<0> = [Number,50,28,34]; ]
+            const height as Number = 68;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 53; @symbol_moduledef = [system_loc__hint_button_left_bottom,53,15,50]; ]
+        module system_loc__hint_button_left_bottom {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 53; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 54; @position = 18; @symbol_constdef = [exclude,54,18,25]; @symbol_type<0> = [Boolean,54,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 57; @symbol_moduledef = [prompt_font_enhanced_readability__body_no_title,57,15,62]; ]
+        module prompt_font_enhanced_readability__body_no_title {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 57; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 58; @position = 18; @symbol_constdef = [exclude,58,18,25]; @symbol_type<0> = [Boolean,58,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 61; @symbol_moduledef = [prompt_loc__body_no_title,61,15,40]; ]
+        module prompt_loc__body_no_title {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 61; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 62; @position = 18; @symbol_constdef = [x,62,18,19]; @symbol_type<0> = [Number,62,23,29]; ]
+            const x as Number = 0;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 63; @position = 18; @symbol_constdef = [y,63,18,19]; @symbol_type<0> = [Number,63,23,29]; ]
+            const y as Number = 65;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 66; @symbol_moduledef = [system_icon_dark__about,66,15,38]; ]
+        module system_icon_dark__about {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 66; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 67; @position = 18; @symbol_constdef = [filename,67,18,26]; @symbol_type<0> = [String,67,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_dark__about.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 68; @position = 18; @symbol_constdef = [compress,68,18,26]; @symbol_type<0> = [String,68,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 69; @position = 18; @symbol_constdef = [dithering,69,18,27]; @symbol_type<0> = [String,69,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 70; @position = 18; @symbol_constdef = [automaticPalette,70,18,34]; @symbol_type<0> = [String,70,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 73; @symbol_moduledef = [system_icon_light__question,73,15,42]; ]
+        module system_icon_light__question {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 73; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 74; @position = 18; @symbol_constdef = [filename,74,18,26]; @symbol_type<0> = [String,74,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_light__question.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 75; @position = 18; @symbol_constdef = [compress,75,18,26]; @symbol_type<0> = [String,75,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 76; @position = 18; @symbol_constdef = [dithering,76,18,27]; @symbol_type<0> = [String,76,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 77; @position = 18; @symbol_constdef = [automaticPalette,77,18,34]; @symbol_type<0> = [String,77,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 80; @symbol_moduledef = [system_loc__hint_button_left_top,80,15,47]; ]
+        module system_loc__hint_button_left_top {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 80; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 81; @position = 18; @symbol_constdef = [exclude,81,18,25]; @symbol_type<0> = [Boolean,81,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 84; @symbol_moduledef = [prompt_font__title,84,15,33]; ]
+        module prompt_font__title {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 84; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 85 18 ]
+                symbol [ Graphics %tmp.28 85 34 42 ];
+                %tmp.28 = getm $.Toybox.Graphics;
+                symbol [ TEXT_JUSTIFY_CENTER %tmp.29 85 43 62 ];
+                %tmp.29 = getv %tmp.28 :TEXT_JUSTIFY_CENTER;
+                symbol [ Graphics %tmp.30 85 63 71 ];
+                %tmp.30 = getm $.Toybox.Graphics;
+                symbol [ TEXT_JUSTIFY_VCENTER %tmp.31 85 72 92 ];
+                %tmp.31 = getv %tmp.30 :TEXT_JUSTIFY_VCENTER;
+                %tmp.32 = bitor %tmp.29 %tmp.31;
+                putv self :justification %tmp.32;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 86 18 ]
+                symbol [ Graphics %tmp.33 86 25 33 ];
+                %tmp.33 = getm $.Toybox.Graphics;
+                symbol [ FONT_SMALL %tmp.34 86 34 44 ];
+                %tmp.34 = getv %tmp.33 :FONT_SMALL;
+                putv self :font %tmp.34;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 85; @position = 18; @symbol_constdef = [justification,85,18,31]; ]
+            const justification;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 86; @position = 18; @symbol_constdef = [font,86,18,22]; ]
+            const font;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 89; @symbol_moduledef = [system_icon_dark__discard,89,15,40]; ]
+        module system_icon_dark__discard {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 89; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 90; @position = 18; @symbol_constdef = [filename,90,18,26]; @symbol_type<0> = [String,90,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_dark__discard.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 91; @position = 18; @symbol_constdef = [compress,91,18,26]; @symbol_type<0> = [String,91,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 92; @position = 18; @symbol_constdef = [dithering,92,18,27]; @symbol_type<0> = [String,92,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 93; @position = 18; @symbol_constdef = [automaticPalette,93,18,34]; @symbol_type<0> = [String,93,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 96; @symbol_moduledef = [system_size__menu_item,96,15,37]; ]
+        module system_size__menu_item {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 96; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 97; @position = 18; @symbol_constdef = [width,97,18,23]; @symbol_type<0> = [Number,97,27,33]; ]
+            const width as Number = 320;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 98; @position = 18; @symbol_constdef = [height,98,18,24]; @symbol_type<0> = [Number,98,28,34]; ]
+            const height as Number = 98;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 101; @symbol_moduledef = [system_color_dark__text,101,15,38]; ]
+        module system_color_dark__text {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 101; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 103 18 ]
+                symbol [ Graphics %tmp.35 103 31 39 ];
+                %tmp.35 = getm $.Toybox.Graphics;
+                symbol [ COLOR_TRANSPARENT %tmp.36 103 40 57 ];
+                %tmp.36 = getv %tmp.35 :COLOR_TRANSPARENT;
+                putv self :background %tmp.36;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 102; @position = 18; @symbol_constdef = [color,102,18,23]; @symbol_type<0> = [Number,102,27,33]; ]
+            const color as Number = 0xFFFFFF;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 103; @position = 18; @symbol_constdef = [background,103,18,28]; ]
+            const background;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 106; @symbol_moduledef = [system_icon_destructive__discard,106,15,47]; ]
+        module system_icon_destructive__discard {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 106; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 107; @position = 18; @symbol_constdef = [filename,107,18,26]; @symbol_type<0> = [String,107,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_destructive__discard.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 108; @position = 18; @symbol_constdef = [dithering,108,18,27]; @symbol_type<0> = [String,108,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 111; @symbol_moduledef = [system_icon_dark__hint_action_menu,111,15,49]; ]
+        module system_icon_dark__hint_action_menu {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 111; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 112; @position = 18; @symbol_constdef = [filename,112,18,26]; @symbol_type<0> = [String,112,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_dark__hint_action_menu.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 113; @position = 18; @symbol_constdef = [dithering,113,18,27]; @symbol_type<0> = [String,113,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 116; @symbol_moduledef = [prompt_size__title,116,15,33]; ]
+        module prompt_size__title {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 116; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 117; @position = 18; @symbol_constdef = [width,117,18,23]; @symbol_type<0> = [Number,117,27,33]; ]
+            const width as Number = 320;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 118; @position = 18; @symbol_constdef = [height,118,18,24]; @symbol_type<0> = [Number,118,28,34]; ]
+            const height as Number = 54;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 121; @symbol_moduledef = [confirmation_font__body,121,15,38]; ]
+        module confirmation_font__body {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 121; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 122 18 ]
+                symbol [ Graphics %tmp.37 122 34 42 ];
+                %tmp.37 = getm $.Toybox.Graphics;
+                symbol [ TEXT_JUSTIFY_CENTER %tmp.38 122 43 62 ];
+                %tmp.38 = getv %tmp.37 :TEXT_JUSTIFY_CENTER;
+                symbol [ Graphics %tmp.39 122 63 71 ];
+                %tmp.39 = getm $.Toybox.Graphics;
+                symbol [ TEXT_JUSTIFY_VCENTER %tmp.40 122 72 92 ];
+                %tmp.40 = getv %tmp.39 :TEXT_JUSTIFY_VCENTER;
+                %tmp.41 = bitor %tmp.38 %tmp.40;
+                putv self :justification %tmp.41;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 123 18 ]
+                symbol [ Graphics %tmp.42 123 25 33 ];
+                %tmp.42 = getm $.Toybox.Graphics;
+                symbol [ FONT_TINY %tmp.43 123 34 43 ];
+                %tmp.43 = getv %tmp.42 :FONT_TINY;
+                putv self :font %tmp.43;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 122; @position = 18; @symbol_constdef = [justification,122,18,31]; ]
+            const justification;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 123; @position = 18; @symbol_constdef = [font,123,18,22]; ]
+            const font;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 126; @symbol_moduledef = [system_color_dark__background,126,15,44]; ]
+        module system_color_dark__background {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 126; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 127; @position = 18; @symbol_constdef = [color,127,18,23]; @symbol_type<0> = [Number,127,27,33]; ]
+            const color as Number = 0x000000;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 128; @position = 18; @symbol_constdef = [background,128,18,28]; @symbol_type<0> = [Number,128,32,38]; ]
+            const background as Number = 0x000000;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 131; @symbol_moduledef = [system_icon_destructive__hint_button_left_top,131,15,60]; ]
+        module system_icon_destructive__hint_button_left_top {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 131; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 132; @position = 18; @symbol_constdef = [exclude,132,18,25]; @symbol_type<0> = [Boolean,132,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 135; @symbol_moduledef = [system_size__launch_icon,135,15,39]; ]
+        module system_size__launch_icon {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 135; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 136; @position = 18; @symbol_constdef = [scaleX,136,18,24]; @symbol_type<0> = [Number,136,28,34]; ]
+            const scaleX as Number = 40;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 137; @position = 18; @symbol_constdef = [scaleY,137,18,24]; @symbol_type<0> = [Number,137,28,34]; ]
+            const scaleY as Number = 40;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 138; @position = 18; @symbol_constdef = [scaleRelativeTo,138,18,33]; @symbol_type<0> = [String,138,37,43]; ]
+            const scaleRelativeTo as String = "screen";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 141; @symbol_moduledef = [confirmation_input__confirm,141,15,42]; ]
+        module confirmation_input__confirm {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 141; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 142; @position = 18; @symbol_constdef = [y1,142,18,20]; @symbol_type<0> = [Number,142,24,30]; ]
+            const y1 as Number = 300;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 143; @position = 18; @symbol_constdef = [x1,143,18,20]; @symbol_type<0> = [Number,143,24,30]; ]
+            const x1 as Number = 0;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 144; @position = 18; @symbol_constdef = [y2,144,18,20]; @symbol_type<0> = [Number,144,24,30]; ]
+            const y2 as Number = 360;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 145; @position = 18; @symbol_constdef = [x2,145,18,20]; @symbol_type<0> = [Number,145,24,30]; ]
+            const x2 as Number = 320;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 148; @symbol_moduledef = [prompt_font__body_with_title,148,15,43]; ]
+        module prompt_font__body_with_title {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 148; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 149 18 ]
+                symbol [ Graphics %tmp.44 149 34 42 ];
+                %tmp.44 = getm $.Toybox.Graphics;
+                symbol [ TEXT_JUSTIFY_CENTER %tmp.45 149 43 62 ];
+                %tmp.45 = getv %tmp.44 :TEXT_JUSTIFY_CENTER;
+                putv self :justification %tmp.45;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 150 18 ]
+                symbol [ Graphics %tmp.46 150 25 33 ];
+                %tmp.46 = getm $.Toybox.Graphics;
+                symbol [ FONT_TINY %tmp.47 150 34 43 ];
+                %tmp.47 = getv %tmp.46 :FONT_TINY;
+                putv self :font %tmp.47;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 149; @position = 18; @symbol_constdef = [justification,149,18,31]; ]
+            const justification;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 150; @position = 18; @symbol_constdef = [font,150,18,22]; ]
+            const font;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 153; @symbol_moduledef = [confirmation_loc__body,153,15,37]; ]
+        module confirmation_loc__body {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 153; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 154; @position = 18; @symbol_constdef = [x,154,18,19]; @symbol_type<0> = [Number,154,23,29]; ]
+            const x as Number = 0;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 155; @position = 18; @symbol_constdef = [y,155,18,19]; @symbol_type<0> = [Number,155,23,29]; ]
+            const y as Number = 65;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 158; @symbol_moduledef = [system_icon_destructive__hint_button_left_bottom,158,15,63]; ]
+        module system_icon_destructive__hint_button_left_bottom {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 158; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 159; @position = 18; @symbol_constdef = [exclude,159,18,25]; @symbol_type<0> = [Boolean,159,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 162; @symbol_moduledef = [prompt_color_dark__background,162,15,44]; ]
+        module prompt_color_dark__background {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 162; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 163; @position = 18; @symbol_constdef = [color,163,18,23]; @symbol_type<0> = [Number,163,27,33]; ]
+            const color as Number = 0x000000;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 164; @position = 18; @symbol_constdef = [background,164,18,28]; @symbol_type<0> = [Number,164,32,38]; ]
+            const background as Number = 0x000000;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 167; @symbol_moduledef = [system_icon_destructive__hint_action_menu,167,15,56]; ]
+        module system_icon_destructive__hint_action_menu {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 167; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 168; @position = 18; @symbol_constdef = [filename,168,18,26]; @symbol_type<0> = [String,168,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_destructive__hint_action_menu.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 169; @position = 18; @symbol_constdef = [dithering,169,18,27]; @symbol_type<0> = [String,169,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 172; @symbol_moduledef = [system_loc__hint_action_menu,172,15,43]; ]
+        module system_loc__hint_action_menu {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 172; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 173; @position = 18; @symbol_constdef = [x,173,18,19]; @symbol_type<0> = [Number,173,23,29]; ]
+            const x as Number = 0;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 174; @position = 18; @symbol_constdef = [y,174,18,19]; @symbol_type<0> = [Number,174,23,29]; ]
+            const y as Number = 306;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 177; @symbol_moduledef = [confirmation_icon__hint_confirm,177,15,46]; ]
+        module confirmation_icon__hint_confirm {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 177; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 178; @position = 18; @symbol_constdef = [filename,178,18,26]; @symbol_type<0> = [String,178,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\confirmation_icon__hint_completion.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 179; @position = 18; @symbol_constdef = [dithering,179,18,27]; @symbol_type<0> = [String,179,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 182; @symbol_moduledef = [system_loc__hint_button_left_middle,182,15,50]; ]
+        module system_loc__hint_button_left_middle {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 182; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 183; @position = 18; @symbol_constdef = [exclude,183,18,25]; @symbol_type<0> = [Boolean,183,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 186; @symbol_moduledef = [prompt_size__body_no_title,186,15,41]; ]
+        module prompt_size__body_no_title {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 186; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 187; @position = 18; @symbol_constdef = [width,187,18,23]; @symbol_type<0> = [Number,187,27,33]; ]
+            const width as Number = 320;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 188; @position = 18; @symbol_constdef = [height,188,18,24]; @symbol_type<0> = [Number,188,28,34]; ]
+            const height as Number = 252;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 191; @symbol_moduledef = [system_icon_light__hint_button_left_top,191,15,54]; ]
+        module system_icon_light__hint_button_left_top {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 191; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 192; @position = 18; @symbol_constdef = [exclude,192,18,25]; @symbol_type<0> = [Boolean,192,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 195; @symbol_moduledef = [prompt_color_light__background,195,15,45]; ]
+        module prompt_color_light__background {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 195; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 196; @position = 18; @symbol_constdef = [color,196,18,23]; @symbol_type<0> = [Number,196,27,33]; ]
+            const color as Number = 0x000000;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 197; @position = 18; @symbol_constdef = [background,197,18,28]; @symbol_type<0> = [Number,197,32,38]; ]
+            const background as Number = 0x000000;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 200; @symbol_moduledef = [confirmation_input__delete,200,15,41]; ]
+        module confirmation_input__delete {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 200; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 201 18 ]
+                symbol [ WatchUi %tmp.48 201 27 34 ];
+                %tmp.48 = getm $.Toybox.WatchUi;
+                symbol [ KEY_ENTER %tmp.49 201 35 44 ];
+                %tmp.49 = getv %tmp.48 :KEY_ENTER;
+                putv self :button %tmp.49;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 201; @position = 18; @symbol_constdef = [button,201,18,24]; ]
+            const button;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 204; @symbol_moduledef = [system_icon_dark__hint_button_left_top,204,15,53]; ]
+        module system_icon_dark__hint_button_left_top {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 204; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 205; @position = 18; @symbol_constdef = [exclude,205,18,25]; @symbol_type<0> = [Boolean,205,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 208; @symbol_moduledef = [system_input__action_menu,208,15,40]; ]
+        module system_input__action_menu {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 208; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 209; @position = 18; @symbol_constdef = [y1,209,18,20]; @symbol_type<0> = [Number,209,24,30]; ]
+            const y1 as Number = 305;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 210; @position = 18; @symbol_constdef = [x1,210,18,20]; @symbol_type<0> = [Number,210,24,30]; ]
+            const x1 as Number = 0;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 211; @position = 18; @symbol_constdef = [y2,211,18,20]; @symbol_type<0> = [Number,211,24,30]; ]
+            const y2 as Number = 360;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 212; @position = 18; @symbol_constdef = [x2,212,18,20]; @symbol_type<0> = [Number,212,24,30]; ]
+            const x2 as Number = 320;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 215; @symbol_moduledef = [system_icon_light__save,215,15,38]; ]
+        module system_icon_light__save {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 215; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 216; @position = 18; @symbol_constdef = [filename,216,18,26]; @symbol_type<0> = [String,216,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_light__save.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 217; @position = 18; @symbol_constdef = [compress,217,18,26]; @symbol_type<0> = [String,217,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 218; @position = 18; @symbol_constdef = [dithering,218,18,27]; @symbol_type<0> = [String,218,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 219; @position = 18; @symbol_constdef = [automaticPalette,219,18,34]; @symbol_type<0> = [String,219,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 222; @symbol_moduledef = [prompt_color_light__body,222,15,39]; ]
+        module prompt_color_light__body {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 222; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 224 18 ]
+                symbol [ Graphics %tmp.50 224 31 39 ];
+                %tmp.50 = getm $.Toybox.Graphics;
+                symbol [ COLOR_TRANSPARENT %tmp.51 224 40 57 ];
+                %tmp.51 = getv %tmp.50 :COLOR_TRANSPARENT;
+                putv self :background %tmp.51;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 223; @position = 18; @symbol_constdef = [color,223,18,23]; @symbol_type<0> = [Number,223,27,33]; ]
+            const color as Number = 0xFFFFFF;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 224; @position = 18; @symbol_constdef = [background,224,18,28]; ]
+            const background;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 227; @symbol_moduledef = [system_loc__subwindow,227,15,36]; ]
+        module system_loc__subwindow {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 227; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 228; @position = 18; @symbol_constdef = [exclude,228,18,25]; @symbol_type<0> = [Boolean,228,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 231; @symbol_moduledef = [system_icon_light__warning,231,15,41]; ]
+        module system_icon_light__warning {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 231; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 232; @position = 18; @symbol_constdef = [filename,232,18,26]; @symbol_type<0> = [String,232,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_light__warning.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 233; @position = 18; @symbol_constdef = [compress,233,18,26]; @symbol_type<0> = [String,233,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 234; @position = 18; @symbol_constdef = [dithering,234,18,27]; @symbol_type<0> = [String,234,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 235; @position = 18; @symbol_constdef = [automaticPalette,235,18,34]; @symbol_type<0> = [String,235,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 238; @symbol_moduledef = [confirmation_color_light__body,238,15,45]; ]
+        module confirmation_color_light__body {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 238; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 240 18 ]
+                symbol [ Graphics %tmp.52 240 31 39 ];
+                %tmp.52 = getm $.Toybox.Graphics;
+                symbol [ COLOR_TRANSPARENT %tmp.53 240 40 57 ];
+                %tmp.53 = getv %tmp.52 :COLOR_TRANSPARENT;
+                putv self :background %tmp.53;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 239; @position = 18; @symbol_constdef = [color,239,18,23]; @symbol_type<0> = [Number,239,27,33]; ]
+            const color as Number = 0xFFFFFF;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 240; @position = 18; @symbol_constdef = [background,240,18,28]; ]
+            const background;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 243; @symbol_moduledef = [confirmation_icon_light__hint_keep,243,15,49]; ]
+        module confirmation_icon_light__hint_keep {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 243; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 244; @position = 18; @symbol_constdef = [filename,244,18,26]; @symbol_type<0> = [String,244,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\confirmation_icon__hint_keep.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 245; @position = 18; @symbol_constdef = [dithering,245,18,27]; @symbol_type<0> = [String,245,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 248; @symbol_moduledef = [activity_color_light__background,248,15,47]; ]
+        module activity_color_light__background {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 248; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 249; @position = 18; @symbol_constdef = [color,249,18,23]; @symbol_type<0> = [Number,249,27,33]; ]
+            const color as Number = 0x000000;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 250; @position = 18; @symbol_constdef = [background,250,18,28]; @symbol_type<0> = [Number,250,32,38]; ]
+            const background as Number = 0x000000;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 253; @symbol_moduledef = [system_icon_positive__hint_button_right_top,253,15,58]; ]
+        module system_icon_positive__hint_button_right_top {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 253; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 254; @position = 18; @symbol_constdef = [filename,254,18,26]; @symbol_type<0> = [String,254,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_positive__hint_button_right_top.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 255; @position = 18; @symbol_constdef = [dithering,255,18,27]; @symbol_type<0> = [String,255,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 258; @symbol_moduledef = [system_size__screen,258,15,34]; ]
+        module system_size__screen {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 258; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 259; @position = 18; @symbol_constdef = [width,259,18,23]; @symbol_type<0> = [Number,259,27,33]; ]
+            const width as Number = 320;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 260; @position = 18; @symbol_constdef = [height,260,18,24]; @symbol_type<0> = [Number,260,28,34]; ]
+            const height as Number = 360;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 263; @symbol_moduledef = [system_icon_destructive__hint_button_right_bottom,263,15,64]; ]
+        module system_icon_destructive__hint_button_right_bottom {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 263; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 264; @position = 18; @symbol_constdef = [filename,264,18,26]; @symbol_type<0> = [String,264,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_destructive__hint_button_right_bottom.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 265; @position = 18; @symbol_constdef = [dithering,265,18,27]; @symbol_type<0> = [String,265,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 268; @symbol_moduledef = [system_color_light__background,268,15,45]; ]
+        module system_color_light__background {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 268; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 269; @position = 18; @symbol_constdef = [color,269,18,23]; @symbol_type<0> = [Number,269,27,33]; ]
+            const color as Number = 0x000000;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 270; @position = 18; @symbol_constdef = [background,270,18,28]; @symbol_type<0> = [Number,270,32,38]; ]
+            const background as Number = 0x000000;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 273; @symbol_moduledef = [system_icon_destructive__hint_button_right_top,273,15,61]; ]
+        module system_icon_destructive__hint_button_right_top {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 273; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 274; @position = 18; @symbol_constdef = [filename,274,18,26]; @symbol_type<0> = [String,274,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_destructive__hint_button_right_top.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 275; @position = 18; @symbol_constdef = [dithering,275,18,27]; @symbol_type<0> = [String,275,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 278; @symbol_moduledef = [confirmation_loc__hint_confirm,278,15,45]; ]
+        module confirmation_loc__hint_confirm {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 278; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 279; @position = 18; @symbol_constdef = [x,279,18,19]; @symbol_type<0> = [Number,279,23,29]; ]
+            const x as Number = 0;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 280; @position = 18; @symbol_constdef = [y,280,18,19]; @symbol_type<0> = [Number,280,23,29]; ]
+            const y as Number = 299;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 283; @symbol_moduledef = [activity_color_dark__text,283,15,40]; ]
+        module activity_color_dark__text {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 283; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 285 18 ]
+                symbol [ Graphics %tmp.54 285 31 39 ];
+                %tmp.54 = getm $.Toybox.Graphics;
+                symbol [ COLOR_TRANSPARENT %tmp.55 285 40 57 ];
+                %tmp.55 = getv %tmp.54 :COLOR_TRANSPARENT;
+                putv self :background %tmp.55;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 284; @position = 18; @symbol_constdef = [color,284,18,23]; @symbol_type<0> = [Number,284,27,33]; ]
+            const color as Number = 0xFFFFFF;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 285; @position = 18; @symbol_constdef = [background,285,18,28]; ]
+            const background;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 288; @symbol_moduledef = [confirmation_input__keep,288,15,39]; ]
+        module confirmation_input__keep {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 288; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 289 18 ]
+                symbol [ WatchUi %tmp.56 289 27 34 ];
+                %tmp.56 = getm $.Toybox.WatchUi;
+                symbol [ KEY_ESC %tmp.57 289 35 42 ];
+                %tmp.57 = getv %tmp.56 :KEY_ESC;
+                putv self :button %tmp.57;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 289; @position = 18; @symbol_constdef = [button,289,18,24]; ]
+            const button;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 292; @symbol_moduledef = [prompt_loc__body_with_title,292,15,42]; ]
+        module prompt_loc__body_with_title {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 292; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 293; @position = 18; @symbol_constdef = [x,293,18,19]; @symbol_type<0> = [Number,293,23,29]; ]
+            const x as Number = 0;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 294; @position = 18; @symbol_constdef = [y,294,18,19]; @symbol_type<0> = [Number,294,23,29]; ]
+            const y as Number = 90;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 297; @symbol_moduledef = [system_icon_dark__search,297,15,39]; ]
+        module system_icon_dark__search {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 297; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 298; @position = 18; @symbol_constdef = [filename,298,18,26]; @symbol_type<0> = [String,298,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_dark__search.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 299; @position = 18; @symbol_constdef = [compress,299,18,26]; @symbol_type<0> = [String,299,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 300; @position = 18; @symbol_constdef = [dithering,300,18,27]; @symbol_type<0> = [String,300,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 301; @position = 18; @symbol_constdef = [automaticPalette,301,18,34]; @symbol_type<0> = [String,301,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 304; @symbol_moduledef = [activity_color_light__text,304,15,41]; ]
+        module activity_color_light__text {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 304; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 306 18 ]
+                symbol [ Graphics %tmp.58 306 31 39 ];
+                %tmp.58 = getm $.Toybox.Graphics;
+                symbol [ COLOR_TRANSPARENT %tmp.59 306 40 57 ];
+                %tmp.59 = getv %tmp.58 :COLOR_TRANSPARENT;
+                putv self :background %tmp.59;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 305; @position = 18; @symbol_constdef = [color,305,18,23]; @symbol_type<0> = [Number,305,27,33]; ]
+            const color as Number = 0xFFFFFF;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 306; @position = 18; @symbol_constdef = [background,306,18,28]; ]
+            const background;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 309; @symbol_moduledef = [confirmation_icon__hint_keep,309,15,43]; ]
+        module confirmation_icon__hint_keep {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 309; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 310; @position = 18; @symbol_constdef = [filename,310,18,26]; @symbol_type<0> = [String,310,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\confirmation_icon__hint_keep.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 311; @position = 18; @symbol_constdef = [dithering,311,18,27]; @symbol_type<0> = [String,311,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 314; @symbol_moduledef = [system_icon_dark__save,314,15,37]; ]
+        module system_icon_dark__save {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 314; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 315; @position = 18; @symbol_constdef = [filename,315,18,26]; @symbol_type<0> = [String,315,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_dark__save.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 316; @position = 18; @symbol_constdef = [compress,316,18,26]; @symbol_type<0> = [String,316,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 317; @position = 18; @symbol_constdef = [dithering,317,18,27]; @symbol_type<0> = [String,317,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 318; @position = 18; @symbol_constdef = [automaticPalette,318,18,34]; @symbol_type<0> = [String,318,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 321; @symbol_moduledef = [system_icon_destructive__hint_button_left_middle,321,15,63]; ]
+        module system_icon_destructive__hint_button_left_middle {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 321; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 322; @position = 18; @symbol_constdef = [exclude,322,18,25]; @symbol_type<0> = [Boolean,322,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 325; @symbol_moduledef = [system_icon_light__search,325,15,40]; ]
+        module system_icon_light__search {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 325; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 326; @position = 18; @symbol_constdef = [filename,326,18,26]; @symbol_type<0> = [String,326,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_light__search.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 327; @position = 18; @symbol_constdef = [compress,327,18,26]; @symbol_type<0> = [String,327,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 328; @position = 18; @symbol_constdef = [dithering,328,18,27]; @symbol_type<0> = [String,328,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 329; @position = 18; @symbol_constdef = [automaticPalette,329,18,34]; @symbol_type<0> = [String,329,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 332; @symbol_moduledef = [system_icon_dark__hint_button_left_bottom,332,15,56]; ]
+        module system_icon_dark__hint_button_left_bottom {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 332; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 333; @position = 18; @symbol_constdef = [exclude,333,18,25]; @symbol_type<0> = [Boolean,333,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 336; @symbol_moduledef = [system_icon_positive__hint_button_left_top,336,15,57]; ]
+        module system_icon_positive__hint_button_left_top {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 336; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 337; @position = 18; @symbol_constdef = [exclude,337,18,25]; @symbol_type<0> = [Boolean,337,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 340; @symbol_moduledef = [system_loc__hint_button_right_bottom,340,15,51]; ]
+        module system_loc__hint_button_right_bottom {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 340; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 341; @position = 18; @symbol_constdef = [x,341,18,19]; @symbol_type<0> = [Number,341,23,29]; ]
+            const x as Number = 307;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 342; @position = 18; @symbol_constdef = [y,342,18,19]; @symbol_type<0> = [Number,342,23,29]; ]
+            const y as Number = 287;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 343; @position = 18; @symbol_constdef = [verticalJustification,343,18,39]; @symbol_type<0> = [String,343,43,49]; ]
+            const verticalJustification as String = "center";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 346; @symbol_moduledef = [confirmation_icon_dark__hint_reject,346,15,50]; ]
+        module confirmation_icon_dark__hint_reject {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 346; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 347; @position = 18; @symbol_constdef = [filename,347,18,26]; @symbol_type<0> = [String,347,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\confirmation_icon__hint_reject.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 348; @position = 18; @symbol_constdef = [dithering,348,18,27]; @symbol_type<0> = [String,348,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 351; @symbol_moduledef = [confirmation_color_dark__body,351,15,44]; ]
+        module confirmation_color_dark__body {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 351; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 353 18 ]
+                symbol [ Graphics %tmp.60 353 31 39 ];
+                %tmp.60 = getm $.Toybox.Graphics;
+                symbol [ COLOR_TRANSPARENT %tmp.61 353 40 57 ];
+                %tmp.61 = getv %tmp.60 :COLOR_TRANSPARENT;
+                putv self :background %tmp.61;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 352; @position = 18; @symbol_constdef = [color,352,18,23]; @symbol_type<0> = [Number,352,27,33]; ]
+            const color as Number = 0xFFFFFF;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 353; @position = 18; @symbol_constdef = [background,353,18,28]; ]
+            const background;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 356; @symbol_moduledef = [confirmation_icon_light__hint_confirm,356,15,52]; ]
+        module confirmation_icon_light__hint_confirm {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 356; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 357; @position = 18; @symbol_constdef = [filename,357,18,26]; @symbol_type<0> = [String,357,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\confirmation_icon__hint_completion.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 358; @position = 18; @symbol_constdef = [dithering,358,18,27]; @symbol_type<0> = [String,358,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 361; @symbol_moduledef = [prompt_color_dark__title,361,15,39]; ]
+        module prompt_color_dark__title {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 361; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 363 18 ]
+                symbol [ Graphics %tmp.62 363 31 39 ];
+                %tmp.62 = getm $.Toybox.Graphics;
+                symbol [ COLOR_TRANSPARENT %tmp.63 363 40 57 ];
+                %tmp.63 = getv %tmp.62 :COLOR_TRANSPARENT;
+                putv self :background %tmp.63;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 362; @position = 18; @symbol_constdef = [color,362,18,23]; @symbol_type<0> = [Number,362,27,33]; ]
+            const color as Number = 0xFFFFFF;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 363; @position = 18; @symbol_constdef = [background,363,18,28]; ]
+            const background;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 366; @symbol_moduledef = [system_icon_destructive__cancel,366,15,46]; ]
+        module system_icon_destructive__cancel {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 366; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 367; @position = 18; @symbol_constdef = [filename,367,18,26]; @symbol_type<0> = [String,367,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_destructive__cancel.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 368; @position = 18; @symbol_constdef = [dithering,368,18,27]; @symbol_type<0> = [String,368,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 371; @symbol_moduledef = [system_icon_light__hint_button_right_bottom,371,15,58]; ]
+        module system_icon_light__hint_button_right_bottom {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 371; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 372; @position = 18; @symbol_constdef = [filename,372,18,26]; @symbol_type<0> = [String,372,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_light__hint_button_right_bottom.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 373; @position = 18; @symbol_constdef = [dithering,373,18,27]; @symbol_type<0> = [String,373,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 376; @symbol_moduledef = [prompt_loc__title,376,15,32]; ]
+        module prompt_loc__title {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 376; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 377; @position = 18; @symbol_constdef = [x,377,18,19]; @symbol_type<0> = [Number,377,23,29]; ]
+            const x as Number = 0;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 378; @position = 18; @symbol_constdef = [y,378,18,19]; @symbol_type<0> = [Number,378,23,29]; ]
+            const y as Number = 32;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 381; @symbol_moduledef = [confirmation_font_enhanced_readability__body,381,15,59]; ]
+        module confirmation_font_enhanced_readability__body {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 381; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 382; @position = 18; @symbol_constdef = [exclude,382,18,25]; @symbol_type<0> = [Boolean,382,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 385; @symbol_moduledef = [prompt_color_light__title,385,15,40]; ]
+        module prompt_color_light__title {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 385; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 387 18 ]
+                symbol [ Graphics %tmp.64 387 31 39 ];
+                %tmp.64 = getm $.Toybox.Graphics;
+                symbol [ COLOR_TRANSPARENT %tmp.65 387 40 57 ];
+                %tmp.65 = getv %tmp.64 :COLOR_TRANSPARENT;
+                putv self :background %tmp.65;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 386; @position = 18; @symbol_constdef = [color,386,18,23]; @symbol_type<0> = [Number,386,27,33]; ]
+            const color as Number = 0xFFFFFF;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 387; @position = 18; @symbol_constdef = [background,387,18,28]; ]
+            const background;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 390; @symbol_moduledef = [system_icon_dark__hint_button_right_top,390,15,54]; ]
+        module system_icon_dark__hint_button_right_top {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 390; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 391; @position = 18; @symbol_constdef = [filename,391,18,26]; @symbol_type<0> = [String,391,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_dark__hint_button_right_top.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 392; @position = 18; @symbol_constdef = [dithering,392,18,27]; @symbol_type<0> = [String,392,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 395; @symbol_moduledef = [system_icon_dark__hint_button_left_middle,395,15,56]; ]
+        module system_icon_dark__hint_button_left_middle {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 395; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 396; @position = 18; @symbol_constdef = [exclude,396,18,25]; @symbol_type<0> = [Boolean,396,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 399; @symbol_moduledef = [confirmation_icon_dark__hint_keep,399,15,48]; ]
+        module confirmation_icon_dark__hint_keep {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 399; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 400; @position = 18; @symbol_constdef = [filename,400,18,26]; @symbol_type<0> = [String,400,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\confirmation_icon__hint_keep.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 401; @position = 18; @symbol_constdef = [dithering,401,18,27]; @symbol_type<0> = [String,401,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 404; @symbol_moduledef = [system_icon_light__cancel,404,15,40]; ]
+        module system_icon_light__cancel {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 404; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 405; @position = 18; @symbol_constdef = [filename,405,18,26]; @symbol_type<0> = [String,405,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_light__cancel.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 406; @position = 18; @symbol_constdef = [compress,406,18,26]; @symbol_type<0> = [String,406,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 407; @position = 18; @symbol_constdef = [dithering,407,18,27]; @symbol_type<0> = [String,407,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 408; @position = 18; @symbol_constdef = [automaticPalette,408,18,34]; @symbol_type<0> = [String,408,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 411; @symbol_moduledef = [confirmation_icon_light__hint_reject,411,15,51]; ]
+        module confirmation_icon_light__hint_reject {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 411; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 412; @position = 18; @symbol_constdef = [filename,412,18,26]; @symbol_type<0> = [String,412,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\confirmation_icon__hint_reject.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 413; @position = 18; @symbol_constdef = [dithering,413,18,27]; @symbol_type<0> = [String,413,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 416; @symbol_moduledef = [system_icon_light__about,416,15,39]; ]
+        module system_icon_light__about {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 416; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 417; @position = 18; @symbol_constdef = [filename,417,18,26]; @symbol_type<0> = [String,417,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_light__about.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 418; @position = 18; @symbol_constdef = [compress,418,18,26]; @symbol_type<0> = [String,418,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 419; @position = 18; @symbol_constdef = [dithering,419,18,27]; @symbol_type<0> = [String,419,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 420; @position = 18; @symbol_constdef = [automaticPalette,420,18,34]; @symbol_type<0> = [String,420,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 423; @symbol_moduledef = [system_size__toast_icon,423,15,38]; ]
+        module system_size__toast_icon {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 423; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 424; @position = 18; @symbol_constdef = [scaleX,424,18,24]; @symbol_type<0> = [Number,424,28,34]; ]
+            const scaleX as Number = 34;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 425; @position = 18; @symbol_constdef = [scaleY,425,18,24]; @symbol_type<0> = [Number,425,28,34]; ]
+            const scaleY as Number = 34;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 426; @position = 18; @symbol_constdef = [scaleRelativeTo,426,18,33]; @symbol_type<0> = [String,426,37,43]; ]
+            const scaleRelativeTo as String = "screen";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 429; @symbol_moduledef = [system_icon_dark__hint_button_right_middle,429,15,57]; ]
+        module system_icon_dark__hint_button_right_middle {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 429; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 430; @position = 18; @symbol_constdef = [exclude,430,18,25]; @symbol_type<0> = [Boolean,430,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 433; @symbol_moduledef = [confirmation_icon__hint_reject,433,15,45]; ]
+        module confirmation_icon__hint_reject {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 433; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 434; @position = 18; @symbol_constdef = [filename,434,18,26]; @symbol_type<0> = [String,434,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\confirmation_icon__hint_reject.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 435; @position = 18; @symbol_constdef = [dithering,435,18,27]; @symbol_type<0> = [String,435,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 438; @symbol_moduledef = [system_icon_light__hint_action_menu,438,15,50]; ]
+        module system_icon_light__hint_action_menu {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 438; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 439; @position = 18; @symbol_constdef = [filename,439,18,26]; @symbol_type<0> = [String,439,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_light__hint_action_menu.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 440; @position = 18; @symbol_constdef = [dithering,440,18,27]; @symbol_type<0> = [String,440,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 443; @symbol_moduledef = [system_icon_light__hint_button_right_middle,443,15,58]; ]
+        module system_icon_light__hint_button_right_middle {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 443; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 444; @position = 18; @symbol_constdef = [exclude,444,18,25]; @symbol_type<0> = [Boolean,444,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 447; @symbol_moduledef = [system_icon_destructive__hint_button_right_middle,447,15,64]; ]
+        module system_icon_destructive__hint_button_right_middle {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 447; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 448; @position = 18; @symbol_constdef = [exclude,448,18,25]; @symbol_type<0> = [Boolean,448,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 451; @symbol_moduledef = [confirmation_loc__hint_reject,451,15,44]; ]
+        module confirmation_loc__hint_reject {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 451; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 452; @position = 18; @symbol_constdef = [x,452,18,19]; @symbol_type<0> = [Number,452,23,29]; ]
+            const x as Number = 0;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 453; @position = 18; @symbol_constdef = [y,453,18,19]; @symbol_type<0> = [Number,453,23,29]; ]
+            const y as Number = 0;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 456; @symbol_moduledef = [confirmation_icon_dark__hint_delete,456,15,50]; ]
+        module confirmation_icon_dark__hint_delete {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 456; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 457; @position = 18; @symbol_constdef = [filename,457,18,26]; @symbol_type<0> = [String,457,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\confirmation_icon__hint_delete.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 458; @position = 18; @symbol_constdef = [dithering,458,18,27]; @symbol_type<0> = [String,458,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 461; @symbol_moduledef = [activity_color_dark__background,461,15,46]; ]
+        module activity_color_dark__background {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 461; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 462; @position = 18; @symbol_constdef = [color,462,18,23]; @symbol_type<0> = [Number,462,27,33]; ]
+            const color as Number = 0x000000;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 463; @position = 18; @symbol_constdef = [background,463,18,28]; @symbol_type<0> = [Number,463,32,38]; ]
+            const background as Number = 0x000000;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 466; @symbol_moduledef = [system_icon_light__hint_button_left_bottom,466,15,57]; ]
+        module system_icon_light__hint_button_left_bottom {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 466; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 467; @position = 18; @symbol_constdef = [exclude,467,18,25]; @symbol_type<0> = [Boolean,467,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 470; @symbol_moduledef = [system_icon_positive__hint_button_left_middle,470,15,60]; ]
+        module system_icon_positive__hint_button_left_middle {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 470; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 471; @position = 18; @symbol_constdef = [exclude,471,18,25]; @symbol_type<0> = [Boolean,471,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 474; @symbol_moduledef = [system_size__menu_icon,474,15,37]; ]
+        module system_size__menu_icon {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 474; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 475; @position = 18; @symbol_constdef = [scaleX,475,18,24]; @symbol_type<0> = [Number,475,28,34]; ]
+            const scaleX as Number = 52;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 476; @position = 18; @symbol_constdef = [scaleY,476,18,24]; @symbol_type<0> = [Number,476,28,34]; ]
+            const scaleY as Number = 52;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 477; @position = 18; @symbol_constdef = [scaleRelativeTo,477,18,33]; @symbol_type<0> = [String,477,37,43]; ]
+            const scaleRelativeTo as String = "screen";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 480; @symbol_moduledef = [system_icon_destructive__warning,480,15,47]; ]
+        module system_icon_destructive__warning {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 480; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 481; @position = 18; @symbol_constdef = [filename,481,18,26]; @symbol_type<0> = [String,481,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_destructive__warning.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 482; @position = 18; @symbol_constdef = [dithering,482,18,27]; @symbol_type<0> = [String,482,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 485; @symbol_moduledef = [system_loc__hint_button_right_middle,485,15,51]; ]
+        module system_loc__hint_button_right_middle {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 485; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 486; @position = 18; @symbol_constdef = [exclude,486,18,25]; @symbol_type<0> = [Boolean,486,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 489; @symbol_moduledef = [system_icon_dark__cancel,489,15,39]; ]
+        module system_icon_dark__cancel {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 489; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 490; @position = 18; @symbol_constdef = [filename,490,18,26]; @symbol_type<0> = [String,490,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_dark__cancel.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 491; @position = 18; @symbol_constdef = [compress,491,18,26]; @symbol_type<0> = [String,491,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 492; @position = 18; @symbol_constdef = [dithering,492,18,27]; @symbol_type<0> = [String,492,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 493; @position = 18; @symbol_constdef = [automaticPalette,493,18,34]; @symbol_type<0> = [String,493,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 496; @symbol_moduledef = [prompt_size__body_with_title,496,15,43]; ]
+        module prompt_size__body_with_title {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 496; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 497; @position = 18; @symbol_constdef = [width,497,18,23]; @symbol_type<0> = [Number,497,27,33]; ]
+            const width as Number = 320;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 498; @position = 18; @symbol_constdef = [height,498,18,24]; @symbol_type<0> = [Number,498,28,34]; ]
+            const height as Number = 220;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 501; @symbol_moduledef = [system_loc__hint_button_right_top,501,15,48]; ]
+        module system_loc__hint_button_right_top {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 501; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 502; @position = 18; @symbol_constdef = [x,502,18,19]; @symbol_type<0> = [Number,502,23,29]; ]
+            const x as Number = 307;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 503; @position = 18; @symbol_constdef = [y,503,18,19]; @symbol_type<0> = [Number,503,23,29]; ]
+            const y as Number = 70;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 504; @position = 18; @symbol_constdef = [verticalJustification,504,18,39]; @symbol_type<0> = [String,504,43,49]; ]
+            const verticalJustification as String = "center";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 507; @symbol_moduledef = [system_color_light__text,507,15,39]; ]
+        module system_color_light__text {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 507; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 509 18 ]
+                symbol [ Graphics %tmp.66 509 31 39 ];
+                %tmp.66 = getm $.Toybox.Graphics;
+                symbol [ COLOR_TRANSPARENT %tmp.67 509 40 57 ];
+                %tmp.67 = getv %tmp.66 :COLOR_TRANSPARENT;
+                putv self :background %tmp.67;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 508; @position = 18; @symbol_constdef = [color,508,18,23]; @symbol_type<0> = [Number,508,27,33]; ]
+            const color as Number = 0xFFFFFF;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 509; @position = 18; @symbol_constdef = [background,509,18,28]; ]
+            const background;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 512; @symbol_moduledef = [system_icon_light__check,512,15,39]; ]
+        module system_icon_light__check {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 512; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 513; @position = 18; @symbol_constdef = [filename,513,18,26]; @symbol_type<0> = [String,513,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_light__check.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 514; @position = 18; @symbol_constdef = [compress,514,18,26]; @symbol_type<0> = [String,514,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 515; @position = 18; @symbol_constdef = [dithering,515,18,27]; @symbol_type<0> = [String,515,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 516; @position = 18; @symbol_constdef = [automaticPalette,516,18,34]; @symbol_type<0> = [String,516,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 519; @symbol_moduledef = [confirmation_input__reject,519,15,41]; ]
+        module confirmation_input__reject {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 519; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 520; @position = 18; @symbol_constdef = [y1,520,18,20]; @symbol_type<0> = [Number,520,24,30]; ]
+            const y1 as Number = 0;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 521; @position = 18; @symbol_constdef = [x1,521,18,20]; @symbol_type<0> = [Number,521,24,30]; ]
+            const x1 as Number = 0;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 522; @position = 18; @symbol_constdef = [y2,522,18,20]; @symbol_type<0> = [Number,522,24,30]; ]
+            const y2 as Number = 60;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 523; @position = 18; @symbol_constdef = [x2,523,18,20]; @symbol_type<0> = [Number,523,24,30]; ]
+            const x2 as Number = 320;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 526; @symbol_moduledef = [system_icon_light__revert,526,15,40]; ]
+        module system_icon_light__revert {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 526; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 527; @position = 18; @symbol_constdef = [filename,527,18,26]; @symbol_type<0> = [String,527,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_light__revert.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 528; @position = 18; @symbol_constdef = [compress,528,18,26]; @symbol_type<0> = [String,528,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 529; @position = 18; @symbol_constdef = [dithering,529,18,27]; @symbol_type<0> = [String,529,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 530; @position = 18; @symbol_constdef = [automaticPalette,530,18,34]; @symbol_type<0> = [String,530,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 533; @symbol_moduledef = [system_size__subwindow,533,15,37]; ]
+        module system_size__subwindow {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 533; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 534; @position = 18; @symbol_constdef = [exclude,534,18,25]; @symbol_type<0> = [Boolean,534,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 537; @symbol_moduledef = [system_icon_positive__hint_button_left_bottom,537,15,60]; ]
+        module system_icon_positive__hint_button_left_bottom {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 537; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 538; @position = 18; @symbol_constdef = [exclude,538,18,25]; @symbol_type<0> = [Boolean,538,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 541; @symbol_moduledef = [system_icon_dark__check,541,15,38]; ]
+        module system_icon_dark__check {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 541; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 542; @position = 18; @symbol_constdef = [filename,542,18,26]; @symbol_type<0> = [String,542,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_dark__check.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 543; @position = 18; @symbol_constdef = [compress,543,18,26]; @symbol_type<0> = [String,543,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 544; @position = 18; @symbol_constdef = [dithering,544,18,27]; @symbol_type<0> = [String,544,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 545; @position = 18; @symbol_constdef = [automaticPalette,545,18,34]; @symbol_type<0> = [String,545,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 548; @symbol_moduledef = [confirmation_loc__hint_keep,548,15,42]; ]
+        module confirmation_loc__hint_keep {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 548; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 549; @position = 18; @symbol_constdef = [x,549,18,19]; @symbol_type<0> = [Number,549,23,29]; ]
+            const x as Number = 260;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 550; @position = 18; @symbol_constdef = [y,550,18,19]; @symbol_type<0> = [Number,550,23,29]; ]
+            const y as Number = 288;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 551; @position = 18; @symbol_constdef = [verticalJustification,551,18,39]; @symbol_type<0> = [String,551,43,49]; ]
+            const verticalJustification as String = "center";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 554; @symbol_moduledef = [confirmation_loc__hint_delete,554,15,44]; ]
+        module confirmation_loc__hint_delete {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 554; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 555; @position = 18; @symbol_constdef = [x,555,18,19]; @symbol_type<0> = [Number,555,23,29]; ]
+            const x as Number = 260;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 556; @position = 18; @symbol_constdef = [y,556,18,19]; @symbol_type<0> = [Number,556,23,29]; ]
+            const y as Number = 70;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 557; @position = 18; @symbol_constdef = [verticalJustification,557,18,39]; @symbol_type<0> = [String,557,43,49]; ]
+            const verticalJustification as String = "center";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 560; @symbol_moduledef = [system_icon_positive__hint_action_menu,560,15,53]; ]
+        module system_icon_positive__hint_action_menu {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 560; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 561; @position = 18; @symbol_constdef = [filename,561,18,26]; @symbol_type<0> = [String,561,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_positive__hint_action_menu.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 562; @position = 18; @symbol_constdef = [dithering,562,18,27]; @symbol_type<0> = [String,562,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 565; @symbol_moduledef = [system_icon_positive__hint_button_right_middle,565,15,61]; ]
+        module system_icon_positive__hint_button_right_middle {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 565; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 566; @position = 18; @symbol_constdef = [exclude,566,18,25]; @symbol_type<0> = [Boolean,566,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 569; @symbol_moduledef = [system_icon_light__hint_button_left_middle,569,15,57]; ]
+        module system_icon_light__hint_button_left_middle {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 569; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 570; @position = 18; @symbol_constdef = [exclude,570,18,25]; @symbol_type<0> = [Boolean,570,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 573; @symbol_moduledef = [system_icon_dark__hint_button_right_bottom,573,15,57]; ]
+        module system_icon_dark__hint_button_right_bottom {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 573; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 574; @position = 18; @symbol_constdef = [filename,574,18,26]; @symbol_type<0> = [String,574,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_dark__hint_button_right_bottom.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 575; @position = 18; @symbol_constdef = [dithering,575,18,27]; @symbol_type<0> = [String,575,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 578; @symbol_moduledef = [system_icon_positive__hint_button_right_bottom,578,15,61]; ]
+        module system_icon_positive__hint_button_right_bottom {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 578; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 579; @position = 18; @symbol_constdef = [filename,579,18,26]; @symbol_type<0> = [String,579,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_positive__hint_button_right_bottom.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 580; @position = 18; @symbol_constdef = [dithering,580,18,27]; @symbol_type<0> = [String,580,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 583; @symbol_moduledef = [system_icon_dark__revert,583,15,39]; ]
+        module system_icon_dark__revert {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 583; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 584; @position = 18; @symbol_constdef = [filename,584,18,26]; @symbol_type<0> = [String,584,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_dark__revert.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 585; @position = 18; @symbol_constdef = [compress,585,18,26]; @symbol_type<0> = [String,585,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 586; @position = 18; @symbol_constdef = [dithering,586,18,27]; @symbol_type<0> = [String,586,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 587; @position = 18; @symbol_constdef = [automaticPalette,587,18,34]; @symbol_type<0> = [String,587,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 590; @symbol_moduledef = [confirmation_icon_light__hint_delete,590,15,51]; ]
+        module confirmation_icon_light__hint_delete {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 590; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 591; @position = 18; @symbol_constdef = [filename,591,18,26]; @symbol_type<0> = [String,591,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\confirmation_icon__hint_delete.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 592; @position = 18; @symbol_constdef = [dithering,592,18,27]; @symbol_type<0> = [String,592,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 595; @symbol_moduledef = [system_icon_dark__question,595,15,41]; ]
+        module system_icon_dark__question {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 595; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 596; @position = 18; @symbol_constdef = [filename,596,18,26]; @symbol_type<0> = [String,596,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_dark__question.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 597; @position = 18; @symbol_constdef = [compress,597,18,26]; @symbol_type<0> = [String,597,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 598; @position = 18; @symbol_constdef = [dithering,598,18,27]; @symbol_type<0> = [String,598,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 599; @position = 18; @symbol_constdef = [automaticPalette,599,18,34]; @symbol_type<0> = [String,599,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 602; @symbol_moduledef = [system_icon_light__discard,602,15,41]; ]
+        module system_icon_light__discard {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 602; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 603; @position = 18; @symbol_constdef = [filename,603,18,26]; @symbol_type<0> = [String,603,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_light__discard.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 604; @position = 18; @symbol_constdef = [compress,604,18,26]; @symbol_type<0> = [String,604,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 605; @position = 18; @symbol_constdef = [dithering,605,18,27]; @symbol_type<0> = [String,605,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 606; @position = 18; @symbol_constdef = [automaticPalette,606,18,34]; @symbol_type<0> = [String,606,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 609; @symbol_moduledef = [device_info,609,15,26]; ]
+        module device_info {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 609; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 611 18 ]
+                symbol [ Toybox %tmp.69 611 32 38 ];
+                %tmp.69 = getv ? :Toybox;
+                symbol [ System %tmp.70 611 39 45 ];
+                %tmp.70 = getv %tmp.69 :System;
+                symbol [ SCREEN_SHAPE_RECTANGLE %tmp.71 611 46 68 ];
+                %tmp.71 = getv %tmp.70 :SCREEN_SHAPE_RECTANGLE;
+                putv self :screenShape %tmp.71;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 610; @position = 18; @symbol_constdef = [screenWidth,610,18,29]; @symbol_type<0> = [Number,610,33,39]; ]
+            const screenWidth as Number = 320;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 611; @position = 18; @symbol_constdef = [screenShape,611,18,29]; ]
+            const screenShape;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 612; @position = 18; @symbol_constdef = [hasNightMode,612,18,30]; @symbol_type<0> = [Boolean,612,34,41]; ]
+            const hasNightMode as Boolean = false;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 613; @position = 18; @symbol_constdef = [hasGpu,613,18,24]; @symbol_type<0> = [Boolean,613,28,35]; ]
+            const hasGpu as Boolean = false;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 614; @position = 18; @symbol_constdef = [screenHeight,614,18,30]; @symbol_type<0> = [Number,614,34,40]; ]
+            const screenHeight as Number = 360;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 615; @position = 18; @symbol_constdef = [hasTouchScreen,615,18,32]; @symbol_type<0> = [Boolean,615,36,43]; ]
+            const hasTouchScreen as Boolean = true;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 616; @position = 18; @symbol_constdef = [hasEnhancedReadabilityMode,616,18,44]; @symbol_type<0> = [Boolean,616,48,55]; ]
+            const hasEnhancedReadabilityMode as Boolean = false;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 619; @symbol_moduledef = [confirmation_icon_dark__hint_confirm,619,15,51]; ]
+        module confirmation_icon_dark__hint_confirm {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 619; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 620; @position = 18; @symbol_constdef = [filename,620,18,26]; @symbol_type<0> = [String,620,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\confirmation_icon__hint_completion.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 621; @position = 18; @symbol_constdef = [dithering,621,18,27]; @symbol_type<0> = [String,621,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 624; @symbol_moduledef = [prompt_font__body_no_title,624,15,41]; ]
+        module prompt_font__body_no_title {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 624; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 625 18 ]
+                symbol [ Graphics %tmp.72 625 34 42 ];
+                %tmp.72 = getm $.Toybox.Graphics;
+                symbol [ TEXT_JUSTIFY_CENTER %tmp.73 625 43 62 ];
+                %tmp.73 = getv %tmp.72 :TEXT_JUSTIFY_CENTER;
+                symbol [ Graphics %tmp.74 625 63 71 ];
+                %tmp.74 = getm $.Toybox.Graphics;
+                symbol [ TEXT_JUSTIFY_VCENTER %tmp.75 625 72 92 ];
+                %tmp.75 = getv %tmp.74 :TEXT_JUSTIFY_VCENTER;
+                %tmp.76 = bitor %tmp.73 %tmp.75;
+                putv self :justification %tmp.76;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 626 18 ]
+                symbol [ Graphics %tmp.77 626 25 33 ];
+                %tmp.77 = getm $.Toybox.Graphics;
+                symbol [ FONT_TINY %tmp.78 626 34 43 ];
+                %tmp.78 = getv %tmp.77 :FONT_TINY;
+                putv self :font %tmp.78;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 625; @position = 18; @symbol_constdef = [justification,625,18,31]; ]
+            const justification;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 626; @position = 18; @symbol_constdef = [font,626,18,22]; ]
+            const font;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 629; @symbol_moduledef = [prompt_size__title_icon,629,15,38]; ]
+        module prompt_size__title_icon {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 629; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 630; @position = 18; @symbol_constdef = [scaleX,630,18,24]; @symbol_type<0> = [Float,630,28,33]; ]
+            const scaleX as Float = 0.14;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 631; @position = 18; @symbol_constdef = [scaleRelativeTo,631,18,33]; @symbol_type<0> = [String,631,37,43]; ]
+            const scaleRelativeTo as String = "screen";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 634; @symbol_moduledef = [system_icon_dark__warning,634,15,40]; ]
+        module system_icon_dark__warning {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 634; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 635; @position = 18; @symbol_constdef = [filename,635,18,26]; @symbol_type<0> = [String,635,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_dark__warning.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 636; @position = 18; @symbol_constdef = [compress,636,18,26]; @symbol_type<0> = [String,636,30,36]; ]
+            const compress as String = "true";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 637; @position = 18; @symbol_constdef = [dithering,637,18,27]; @symbol_type<0> = [String,637,31,37]; ]
+            const dithering as String = "none";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 638; @position = 18; @symbol_constdef = [automaticPalette,638,18,34]; @symbol_type<0> = [String,638,38,44]; ]
+            const automaticPalette as String = "true";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 641; @symbol_moduledef = [prompt_loc__title_icon,641,15,37]; ]
+        module prompt_loc__title_icon {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 641; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 642; @position = 18; @symbol_constdef = [x,642,18,19]; @symbol_type<0> = [Number,642,23,29]; ]
+            const x as Number = 160;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 643; @position = 18; @symbol_constdef = [y,643,18,19]; @symbol_type<0> = [Number,643,23,29]; ]
+            const y as Number = 47;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 644; @position = 18; @symbol_constdef = [horizontalJustification,644,18,41]; @symbol_type<0> = [String,644,45,51]; ]
+            const horizontalJustification as String = "center";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 645; @position = 18; @symbol_constdef = [verticalJustification,645,18,39]; @symbol_type<0> = [String,645,43,49]; ]
+            const verticalJustification as String = "center";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 648; @symbol_moduledef = [prompt_font_enhanced_readability__title,648,15,54]; ]
+        module prompt_font_enhanced_readability__title {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 648; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 649; @position = 18; @symbol_constdef = [exclude,649,18,25]; @symbol_type<0> = [Boolean,649,29,36]; ]
+            const exclude as Boolean = true;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 652; @symbol_moduledef = [prompt_color_dark__body,652,15,38]; ]
+        module prompt_color_dark__body {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 652; ]
+            <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen" 654 18 ]
+                symbol [ Graphics %tmp.79 654 31 39 ];
+                %tmp.79 = getm $.Toybox.Graphics;
+                symbol [ COLOR_TRANSPARENT %tmp.80 654 40 57 ];
+                %tmp.80 = getv %tmp.79 :COLOR_TRANSPARENT;
+                putv self :background %tmp.80;
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 653; @position = 18; @symbol_constdef = [color,653,18,23]; @symbol_type<0> = [Number,653,27,33]; ]
+            const color as Number = 0xFFFFFF;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 654; @position = 18; @symbol_constdef = [background,654,18,28]; ]
+            const background;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 657; @symbol_moduledef = [confirmation_icon__hint_delete,657,15,45]; ]
+        module confirmation_icon__hint_delete {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 657; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 658; @position = 18; @symbol_constdef = [filename,658,18,26]; @symbol_type<0> = [String,658,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\confirmation_icon__hint_delete.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 659; @position = 18; @symbol_constdef = [dithering,659,18,27]; @symbol_type<0> = [String,659,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 662; @symbol_moduledef = [system_icon_light__hint_button_right_top,662,15,55]; ]
+        module system_icon_light__hint_button_right_top {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 662; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 663; @position = 18; @symbol_constdef = [filename,663,18,26]; @symbol_type<0> = [String,663,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_light__hint_button_right_top.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 664; @position = 18; @symbol_constdef = [dithering,664,18,27]; @symbol_type<0> = [String,664,31,37]; ]
+            const dithering as String = "none";
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 667; @symbol_moduledef = [confirmation_size__body,667,15,38]; ]
+        module confirmation_size__body {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 667; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 668; @position = 18; @symbol_constdef = [width,668,18,23]; @symbol_type<0> = [Number,668,27,33]; ]
+            const width as Number = 320;
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 669; @position = 18; @symbol_constdef = [height,669,18,24]; @symbol_type<0> = [Number,669,28,34]; ]
+            const height as Number = 220;
+        }
+        [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 672; @symbol_moduledef = [system_icon_positive__check,672,15,42]; ]
+        module system_icon_positive__check {
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 672; ]
+            <init> {
+            }
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 673; @position = 18; @symbol_constdef = [filename,673,18,26]; @symbol_type<0> = [String,673,30,36]; ]
+            const filename as String = "C:\\Users\\phucdnh\\AppData\\Roaming\\Garmin\\ConnectIQ\\Devices\\venusq2\\system_icon_positive__check.svg";
+            [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 674; @position = 18; @symbol_constdef = [dithering,674,18,27]; @symbol_type<0> = [String,674,31,37]; ]
+            const dithering as String = "none";
+        }
+    }
+}
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\gen\006-B4115-00\source\Rez.mcgen"; @line = 1; ]
+<init> {
+}

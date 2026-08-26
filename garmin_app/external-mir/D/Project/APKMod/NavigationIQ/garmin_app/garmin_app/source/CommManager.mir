@@ -1,0 +1,1622 @@
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 1; @symbol_importdef<0> = [Toybox,1,7,13]; @symbol_importdef<1> = [Application,1,14,25]; ]
+import Toybox.Application;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 2; @symbol_importdef<0> = [Toybox,2,7,13]; @symbol_importdef<1> = [Communications,2,14,28]; ]
+import Toybox.Communications;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 3; @symbol_importdef<0> = [Toybox,3,7,13]; @symbol_importdef<1> = [Attention,3,14,23]; ]
+import Toybox.Attention;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 4; @symbol_importdef<0> = [Toybox,4,7,13]; @symbol_importdef<1> = [Lang,4,14,18]; ]
+import Toybox.Lang;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 5; @symbol_importdef<0> = [Toybox,5,7,13]; @symbol_importdef<1> = [WatchUi,5,14,21]; ]
+import Toybox.WatchUi;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 8; @position = 6; @symbol_constdef = [DIR_UNKNOWN,8,6,17]; ]
+const DIR_UNKNOWN = 0;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 9; @position = 6; @symbol_constdef = [DIR_STRAIGHT,9,6,18]; ]
+const DIR_STRAIGHT = 1;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 10; @position = 6; @symbol_constdef = [DIR_LEFT,10,6,14]; ]
+const DIR_LEFT = 2;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 11; @position = 6; @symbol_constdef = [DIR_RIGHT,11,6,15]; ]
+const DIR_RIGHT = 3;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 12; @position = 6; @symbol_constdef = [DIR_UTURN,12,6,15]; ]
+const DIR_UTURN = 4;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 13; @position = 6; @symbol_constdef = [DIR_SLIGHT_LEFT,13,6,21]; ]
+const DIR_SLIGHT_LEFT = 5;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 14; @position = 6; @symbol_constdef = [DIR_SLIGHT_RIGHT,14,6,22]; ]
+const DIR_SLIGHT_RIGHT = 6;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 15; @position = 6; @symbol_constdef = [DIR_SHARP_LEFT,15,6,20]; ]
+const DIR_SHARP_LEFT = 7;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 16; @position = 6; @symbol_constdef = [DIR_SHARP_RIGHT,16,6,21]; ]
+const DIR_SHARP_RIGHT = 8;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 19; @position = 6; @symbol_constdef = [HAPTIC_ALERT_FAR,19,6,22]; ]
+const HAPTIC_ALERT_FAR = 100;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 20; @position = 6; @symbol_constdef = [HAPTIC_ALERT_NEAR,20,6,23]; ]
+const HAPTIC_ALERT_NEAR = 30;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 22; @symbol_classdef = [CommManager,22,6,17]; ]
+class CommManager {
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 22; ]
+    <init> {
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 22; ]
+    static
+    <init> {
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 28 15 ]
+        symbol [ DIR_UNKNOWN %tmp.2 28 38 49 ];
+        %tmp.2 = getv ? :DIR_UNKNOWN;
+        putv self :direction %tmp.2;
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 25; @position = 15; @symbol_vardef = [navText,25,15,22]; @symbol_type<0> = [String,25,29,35]; ]
+    static
+    var navText as String = "";
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 26; @position = 15; @symbol_vardef = [distText,26,15,23]; @symbol_type<0> = [String,26,29,35]; ]
+    static
+    var distText as String = "";
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 27; @position = 15; @symbol_vardef = [etaText,27,15,22]; @symbol_type<0> = [String,27,29,35]; ]
+    static
+    var etaText as String = "";
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 28; @position = 15; @symbol_vardef = [direction,28,15,24]; @symbol_type<0> = [Number,28,29,35]; ]
+    static
+    var direction as Number;
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 29; @position = 15; @symbol_vardef = [isActive,29,15,23]; @symbol_type<0> = [Boolean,29,29,36]; ]
+    static
+    var isActive as Boolean = false;
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 32; @position = 23; @symbol_vardef = [_alertedFar,32,23,34]; @symbol_type<0> = [Boolean,32,39,46]; ]
+    private static
+    var _alertedFar as Boolean = false;
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 33; @position = 23; @symbol_vardef = [_alertedNear,33,23,35]; @symbol_type<0> = [Boolean,33,39,46]; ]
+    private static
+    var _alertedNear as Boolean = false;
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 36; @symbol_functiondef = [start,36,20,25]; ]
+    static
+    function start() as Void {
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_36_36_39_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 37 8 ]
+        symbol [ Communications %tmp.1 37 8 22 ];
+        %tmp.1 = getm $.Toybox.Communications;
+        symbol [ registerForPhoneAppMessages %tmp.2 37 23 50 ];
+        %tmp.2 = getv function %tmp.1 :registerForPhoneAppMessages;
+        symbol [ Lang %tmp.5 37 55 59 ];
+        %tmp.5 = getm $.Toybox.Lang;
+        symbol [ Method %tmp.6 37 60 66 ];
+        %tmp.6 = getv function ? %tmp.5 :Method;
+        symbol [ CommManager %tmp.8 37 67 78 ];
+        %tmp.8 = getv ? :CommManager;
+        %tmp.10 = const :onPhoneMessage;
+        symbol [ onPhoneMessage %tmp.10 37 81 95 const ];
+        %tmp.3 = newc %tmp.6 (%tmp.8, %tmp.10);
+        invoke %tmp.1 %tmp.2(%tmp.3);
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 38 8 ]
+        %tmp.11 = self;
+        symbol [ _sendAlive %tmp.12 38 8 18 ];
+        %tmp.12 = getv function %tmp.11 :_sendAlive;
+        invoke %tmp.11 %tmp.12();
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_36_36_39_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 41; @symbol_functiondef = [_sendAlive,41,28,38]; ]
+    private static
+    function _sendAlive() as Void {
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_41_49_47_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 42 8 ]
+        try @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_beginTry @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_endTry @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_catch @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_finally;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_beginTry:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_12_44_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 43 12 ]
+        symbol [ Communications %tmp.1 43 12 26 ];
+        %tmp.1 = getm $.Toybox.Communications;
+        symbol [ transmit %tmp.2 43 27 35 ];
+        %tmp.2 = getv function %tmp.1 :transmit;
+        %tmp.3 = "alive";
+        %tmp.4 = null;
+        symbol [ PhoneCommListener %tmp.8 43 55 72 ];
+        %tmp.8 = getv ? :PhoneCommListener;
+        %tmp.5 = newc %tmp.8 ();
+        invoke %tmp.1 %tmp.2(%tmp.3, %tmp.4, %tmp.5);
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_12_44_8_stop:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_endTry:
+        jsr @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_finally;
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_catch:
+        %tmp.9 = exception;
+        push %tmp.9;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 44 10 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_catch" "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_44_10_46_8_end" ]
+        %e.1 = local;
+        symbol [ e %e.1 44 17 18 ];
+        %tmp.10 = dup %tmp.9;
+        lputv %e.1 %tmp.10;
+        symbol [ e %e.1 44 17 18 ];
+        jsr @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_finally;
+        pop;
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_44_10_46_8_end:
+        try @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_catch @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_44_10_46_8_end @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_44_10_46_8_end @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_finally;
+        jsr @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_finally;
+        throw %tmp.9;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_finally:
+        jsrret;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_42_8_46_8_end:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_41_49_47_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 50; @symbol_functiondef = [onPhoneMessage,50,20,34]; @symbol_param<0> = [msg,50,35,38]; @symbol_param<0>_type<0> = [Communications,50,42,56]; @symbol_param<0>_type<1> = [PhoneAppMessage,50,57,72]; ]
+    static
+    function onPhoneMessage(msg as Communications.PhoneAppMessage) as Void {
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_50_82_98_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 51 8 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_50_82_98_4_start" "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_50_82_98_4_stop" ]
+        %data.1 = local;
+        symbol [ data %data.1 51 12 16 ];
+        %tmp.1 = lgetv %msg;
+        symbol [ msg %tmp.1 51 19 22 ];
+        symbol [ data %tmp.2 51 23 27 ];
+        %tmp.2 = getv %tmp.1 :data;
+        lputv %data.1 %tmp.2;
+        symbol [ data %data.1 51 12 16 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 54 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_54_8_60_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_54_12_54_57_begin:
+        %tmp.3 = lgetv %data.1;
+        symbol [ data %tmp.3 54 12 16 ];
+        symbol [ Lang %tmp.4 54 28 32 ];
+        %tmp.4 = getm $.Toybox.Lang;
+        symbol [ Array %tmp.5 54 33 38 ];
+        %tmp.5 = getv %tmp.4 :Array;
+        %tmp.6 = isa %tmp.3 %tmp.5;
+        bf %tmp.6 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_54_8_60_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_54_42_54_57_true:
+        %tmp.7 = lgetv %data.1;
+        symbol [ data %tmp.7 54 42 46 ];
+        %tmp.8 = as %tmp.7 { (Lang.Array) };
+        symbol [ size %tmp.9 54 47 51 ];
+        %tmp.9 = getv function %tmp.8 :size;
+        %tmp.10 = invoke %tmp.8 %tmp.9();
+        %tmp.11 = 1;
+        %tmp.12 = eq %tmp.10 %tmp.11;
+        push %tmp.12;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_54_42_54_57_end:
+        %tmp.13 = phi [%tmp.6 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_54_12_54_57_begin] [%tmp.12 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_54_42_54_57_true] [%tmp.13 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_54_42_54_57_end];
+        bf %tmp.13 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_54_8_60_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_54_8_60_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_54_60_60_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 55 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_55_12_59_12_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_55_16_55_74_begin:
+        %tmp.14 = lgetv %data.1;
+        symbol [ data %tmp.14 55 16 20 ];
+        %tmp.15 = as %tmp.14 { (Lang.Array) };
+        %tmp.16 = 0;
+        %tmp.17 = agetv %tmp.15 %tmp.16;
+        symbol [ Lang %tmp.18 55 35 39 ];
+        %tmp.18 = getm $.Toybox.Lang;
+        symbol [ String %tmp.19 55 40 46 ];
+        %tmp.19 = getv %tmp.18 :String;
+        %tmp.20 = isa %tmp.17 %tmp.19;
+        bf %tmp.20 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_55_12_59_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_55_50_55_74_true:
+        %tmp.21 = lgetv %data.1;
+        symbol [ data %tmp.21 55 50 54 ];
+        %tmp.22 = as %tmp.21 { (Lang.Array) };
+        %tmp.23 = 0;
+        %tmp.24 = agetv %tmp.22 %tmp.23;
+        symbol [ equals %tmp.25 55 58 64 ];
+        %tmp.25 = getv function %tmp.24 :equals;
+        %tmp.26 = "naviend";
+        %tmp.27 = invoke %tmp.24 %tmp.25(%tmp.26);
+        push %tmp.27;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_55_50_55_74_end:
+        %tmp.28 = phi [%tmp.20 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_55_16_55_74_begin] [%tmp.27 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_55_50_55_74_true] [%tmp.28 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_55_50_55_74_end];
+        bf %tmp.28 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_55_12_59_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_55_12_59_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_55_77_59_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 56 16 ]
+        %tmp.29 = self;
+        symbol [ _resetNav %tmp.30 56 16 25 ];
+        %tmp.30 = getv function %tmp.29 :_resetNav;
+        invoke %tmp.29 %tmp.30();
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 57 16 ]
+        symbol [ WatchUi %tmp.31 57 16 23 ];
+        %tmp.31 = getm $.Toybox.WatchUi;
+        symbol [ requestUpdate %tmp.32 57 24 37 ];
+        %tmp.32 = getv function %tmp.31 :requestUpdate;
+        invoke %tmp.31 %tmp.32();
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 58 16 ]
+        ret ?;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_55_77_59_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_55_12_59_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_55_12_59_12_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_54_60_60_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_54_8_60_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_54_8_60_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 61 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_61_8_65_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_61_12_61_64_begin:
+        %tmp.33 = lgetv %data.1;
+        symbol [ data %tmp.33 61 12 16 ];
+        symbol [ Lang %tmp.34 61 28 32 ];
+        %tmp.34 = getm $.Toybox.Lang;
+        symbol [ String %tmp.35 61 33 39 ];
+        %tmp.35 = getv %tmp.34 :String;
+        %tmp.36 = isa %tmp.33 %tmp.35;
+        bf %tmp.36 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_61_8_65_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_61_43_61_64_true:
+        %tmp.37 = lgetv %data.1;
+        symbol [ data %tmp.37 61 43 47 ];
+        %tmp.38 = as %tmp.37 { (Lang.String) };
+        symbol [ equals %tmp.39 61 48 54 ];
+        %tmp.39 = getv function %tmp.38 :equals;
+        %tmp.40 = "naviend";
+        %tmp.41 = invoke %tmp.38 %tmp.39(%tmp.40);
+        push %tmp.41;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_61_43_61_64_end:
+        %tmp.42 = phi [%tmp.36 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_61_12_61_64_begin] [%tmp.41 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_61_43_61_64_true] [%tmp.42 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_61_43_61_64_end];
+        bf %tmp.42 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_61_8_65_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_61_8_65_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_61_67_65_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 62 12 ]
+        %tmp.43 = self;
+        symbol [ _resetNav %tmp.44 62 12 21 ];
+        %tmp.44 = getv function %tmp.43 :_resetNav;
+        invoke %tmp.43 %tmp.44();
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 63 12 ]
+        symbol [ WatchUi %tmp.45 63 12 19 ];
+        %tmp.45 = getm $.Toybox.WatchUi;
+        symbol [ requestUpdate %tmp.46 63 20 33 ];
+        %tmp.46 = getv function %tmp.45 :requestUpdate;
+        invoke %tmp.45 %tmp.46();
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 64 12 ]
+        ret ?;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_61_67_65_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_61_8_65_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_61_8_65_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 69 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_69_8_71_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_69_12_69_59_begin:
+        %tmp.47 = lgetv %data.1;
+        symbol [ data %tmp.47 69 14 18 ];
+        symbol [ Lang %tmp.48 69 30 34 ];
+        %tmp.48 = getm $.Toybox.Lang;
+        symbol [ Array %tmp.49 69 35 40 ];
+        %tmp.49 = getv %tmp.48 :Array;
+        %tmp.50 = isa %tmp.47 %tmp.49;
+        %tmp.51 = not %tmp.50;
+        bt %tmp.51 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_69_8_71_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_69_45_69_59_false:
+        %tmp.52 = lgetv %data.1;
+        symbol [ data %tmp.52 69 45 49 ];
+        %tmp.53 = as %tmp.52 { (Lang.Array) };
+        symbol [ size %tmp.54 69 50 54 ];
+        %tmp.54 = getv function %tmp.53 :size;
+        %tmp.55 = invoke %tmp.53 %tmp.54();
+        %tmp.56 = 2;
+        %tmp.57 = lt %tmp.55 %tmp.56;
+        push %tmp.57;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_69_45_69_59_end:
+        %tmp.58 = phi [%tmp.51 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_69_12_69_59_begin] [%tmp.57 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_69_45_69_59_false] [%tmp.58 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_69_45_69_59_end];
+        bf %tmp.58 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_69_8_71_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_69_8_71_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_69_62_71_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 70 12 ]
+        ret ?;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_69_62_71_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_69_8_71_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_69_8_71_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 73 8 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_50_82_98_4_start" "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_50_82_98_4_stop" ]
+        %navData.2 = local;
+        symbol [ navData %navData.2 73 12 19 ];
+        %tmp.59 = lgetv %data.1;
+        symbol [ data %tmp.59 73 22 26 ];
+        %tmp.60 = 1;
+        %tmp.61 = agetv %tmp.59 %tmp.60;
+        lputv %navData.2 %tmp.61;
+        symbol [ navData %navData.2 73 12 19 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 74 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_74_8_92_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_74_12_74_63_begin:
+        %tmp.62 = lgetv %navData.2;
+        symbol [ navData %tmp.62 74 12 19 ];
+        symbol [ Lang %tmp.63 74 31 35 ];
+        %tmp.63 = getm $.Toybox.Lang;
+        symbol [ Array %tmp.64 74 36 41 ];
+        %tmp.64 = getv %tmp.63 :Array;
+        %tmp.65 = isa %tmp.62 %tmp.64;
+        bf %tmp.65 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_74_8_92_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_74_45_74_63_true:
+        %tmp.66 = lgetv %navData.2;
+        symbol [ navData %tmp.66 74 45 52 ];
+        %tmp.67 = as %tmp.66 { (Lang.Array) };
+        symbol [ size %tmp.68 74 53 57 ];
+        %tmp.68 = getv function %tmp.67 :size;
+        %tmp.69 = invoke %tmp.67 %tmp.68();
+        %tmp.70 = 6;
+        %tmp.71 = gte %tmp.69 %tmp.70;
+        push %tmp.71;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_74_45_74_63_end:
+        %tmp.72 = phi [%tmp.65 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_74_12_74_63_begin] [%tmp.71 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_74_45_74_63_true] [%tmp.72 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_74_45_74_63_end];
+        bf %tmp.72 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_74_8_92_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_74_8_92_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_74_66_92_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 76 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_76_12_78_12_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_76_16_76_65_begin:
+        %tmp.73 = lgetv %navData.2;
+        symbol [ navData %tmp.73 76 16 23 ];
+        %tmp.74 = as %tmp.73 { (Lang.Array) };
+        %tmp.75 = 1;
+        %tmp.76 = agetv %tmp.74 %tmp.75;
+        %tmp.77 = null;
+        %tmp.78 = ne %tmp.76 %tmp.77;
+        bf %tmp.78 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_76_12_78_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_76_38_76_65_true:
+        %tmp.79 = lgetv %navData.2;
+        symbol [ navData %tmp.79 76 38 45 ];
+        %tmp.80 = as %tmp.79 { (Lang.Array) };
+        %tmp.81 = 1;
+        %tmp.82 = agetv %tmp.80 %tmp.81;
+        symbol [ Lang %tmp.83 76 60 64 ];
+        %tmp.83 = getm $.Toybox.Lang;
+        symbol [ String %tmp.84 76 65 71 ];
+        %tmp.84 = getv %tmp.83 :String;
+        %tmp.85 = isa %tmp.82 %tmp.84;
+        push %tmp.85;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_76_38_76_65_end:
+        %tmp.86 = phi [%tmp.78 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_76_16_76_65_begin] [%tmp.85 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_76_38_76_65_true] [%tmp.86 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_76_38_76_65_end];
+        bf %tmp.86 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_76_12_78_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_76_12_78_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_76_73_78_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 77 16 ]
+        %tmp.87 = lgetv %navData.2;
+        symbol [ navData %tmp.87 77 26 33 ];
+        %tmp.88 = as %tmp.87 { (Lang.Array) };
+        %tmp.89 = 1;
+        %tmp.90 = agetv %tmp.88 %tmp.89;
+        %tmp.91 = as %tmp.90 String;
+        symbol [ String %tmp.91 77 40 46 ];
+        symbol [ etaText ? 77 16 23 ];
+        putv self :etaText %tmp.91;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_76_73_78_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_76_12_78_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_76_12_78_12_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 80 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_80_12_82_12_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_80_16_80_65_begin:
+        %tmp.92 = lgetv %navData.2;
+        symbol [ navData %tmp.92 80 16 23 ];
+        %tmp.93 = as %tmp.92 { (Lang.Array) };
+        %tmp.94 = 4;
+        %tmp.95 = agetv %tmp.93 %tmp.94;
+        %tmp.96 = null;
+        %tmp.97 = ne %tmp.95 %tmp.96;
+        bf %tmp.97 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_80_12_82_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_80_38_80_65_true:
+        %tmp.98 = lgetv %navData.2;
+        symbol [ navData %tmp.98 80 38 45 ];
+        %tmp.99 = as %tmp.98 { (Lang.Array) };
+        %tmp.100 = 4;
+        %tmp.101 = agetv %tmp.99 %tmp.100;
+        symbol [ Lang %tmp.102 80 60 64 ];
+        %tmp.102 = getm $.Toybox.Lang;
+        symbol [ String %tmp.103 80 65 71 ];
+        %tmp.103 = getv %tmp.102 :String;
+        %tmp.104 = isa %tmp.101 %tmp.103;
+        push %tmp.104;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_80_38_80_65_end:
+        %tmp.105 = phi [%tmp.97 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_80_16_80_65_begin] [%tmp.104 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_80_38_80_65_true] [%tmp.105 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_80_38_80_65_end];
+        bf %tmp.105 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_80_12_82_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_80_12_82_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_80_73_82_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 81 16 ]
+        %tmp.106 = lgetv %navData.2;
+        symbol [ navData %tmp.106 81 27 34 ];
+        %tmp.107 = as %tmp.106 { (Lang.Array) };
+        %tmp.108 = 4;
+        %tmp.109 = agetv %tmp.107 %tmp.108;
+        %tmp.110 = as %tmp.109 String;
+        symbol [ String %tmp.110 81 41 47 ];
+        symbol [ distText ? 81 16 24 ];
+        putv self :distText %tmp.110;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_80_73_82_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_80_12_82_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_80_12_82_12_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 84 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_84_12_87_12_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_84_16_84_65_begin:
+        %tmp.111 = lgetv %navData.2;
+        symbol [ navData %tmp.111 84 16 23 ];
+        %tmp.112 = as %tmp.111 { (Lang.Array) };
+        %tmp.113 = 5;
+        %tmp.114 = agetv %tmp.112 %tmp.113;
+        %tmp.115 = null;
+        %tmp.116 = ne %tmp.114 %tmp.115;
+        bf %tmp.116 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_84_12_87_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_84_38_84_65_true:
+        %tmp.117 = lgetv %navData.2;
+        symbol [ navData %tmp.117 84 38 45 ];
+        %tmp.118 = as %tmp.117 { (Lang.Array) };
+        %tmp.119 = 5;
+        %tmp.120 = agetv %tmp.118 %tmp.119;
+        symbol [ Lang %tmp.121 84 60 64 ];
+        %tmp.121 = getm $.Toybox.Lang;
+        symbol [ String %tmp.122 84 65 71 ];
+        %tmp.122 = getv %tmp.121 :String;
+        %tmp.123 = isa %tmp.120 %tmp.122;
+        push %tmp.123;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_84_38_84_65_end:
+        %tmp.124 = phi [%tmp.116 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_84_16_84_65_begin] [%tmp.123 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_84_38_84_65_true] [%tmp.124 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_84_38_84_65_end];
+        bf %tmp.124 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_84_12_87_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_84_12_87_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_84_73_87_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 85 16 ]
+        %tmp.125 = lgetv %navData.2;
+        symbol [ navData %tmp.125 85 26 33 ];
+        %tmp.126 = as %tmp.125 { (Lang.Array) };
+        %tmp.127 = 5;
+        %tmp.128 = agetv %tmp.126 %tmp.127;
+        %tmp.129 = as %tmp.128 String;
+        symbol [ String %tmp.129 85 40 46 ];
+        symbol [ navText ? 85 16 23 ];
+        putv self :navText %tmp.129;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 86 16 ]
+        %tmp.130 = self;
+        symbol [ _inferDirection %tmp.131 86 28 43 ];
+        %tmp.131 = getv function %tmp.130 :_inferDirection;
+        symbol [ navText %tmp.133 86 44 51 ];
+        %tmp.133 = getv ? :navText;
+        %tmp.134 = invoke %tmp.130 %tmp.131(%tmp.133);
+        symbol [ direction ? 86 16 25 ];
+        putv self :direction %tmp.134;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_84_73_87_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_84_12_87_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_84_12_87_12_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 89 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_89_12_91_12_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_89_16_89_60_begin:
+        symbol [ navText %tmp.136 89 16 23 ];
+        %tmp.136 = getv ? :navText;
+        symbol [ length %tmp.137 89 24 30 ];
+        %tmp.137 = getv function %tmp.136 :length;
+        %tmp.138 = invoke %tmp.136 %tmp.137();
+        %tmp.139 = 0;
+        %tmp.140 = gt %tmp.138 %tmp.139;
+        bt %tmp.140 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_89_12_91_12_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_89_40_89_60_false:
+        symbol [ distText %tmp.142 89 40 48 ];
+        %tmp.142 = getv ? :distText;
+        symbol [ length %tmp.143 89 49 55 ];
+        %tmp.143 = getv function %tmp.142 :length;
+        %tmp.144 = invoke %tmp.142 %tmp.143();
+        %tmp.145 = 0;
+        %tmp.146 = gt %tmp.144 %tmp.145;
+        push %tmp.146;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_89_40_89_60_end:
+        %tmp.147 = phi [%tmp.140 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_89_16_89_60_begin] [%tmp.146 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_89_40_89_60_false] [%tmp.147 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_89_40_89_60_end];
+        bf %tmp.147 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_89_12_91_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_89_12_91_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_89_63_91_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 90 16 ]
+        %tmp.148 = true;
+        symbol [ isActive ? 90 16 24 ];
+        putv self :isActive %tmp.148;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_89_63_91_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_89_12_91_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_89_12_91_12_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_74_66_92_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_74_8_92_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_74_8_92_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 95 8 ]
+        %tmp.149 = self;
+        symbol [ _checkHaptic %tmp.150 95 8 20 ];
+        %tmp.150 = getv function %tmp.149 :_checkHaptic;
+        invoke %tmp.149 %tmp.150();
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 97 8 ]
+        symbol [ WatchUi %tmp.151 97 8 15 ];
+        %tmp.151 = getm $.Toybox.WatchUi;
+        symbol [ requestUpdate %tmp.152 97 16 29 ];
+        %tmp.152 = getv function %tmp.151 :requestUpdate;
+        invoke %tmp.151 %tmp.152();
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_50_82_98_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 101; @symbol_functiondef = [checkHapticUpdate,101,20,37]; ]
+    static
+    function checkHapticUpdate() as Void {
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_101_48_103_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 102 8 ]
+        %tmp.1 = self;
+        symbol [ _checkHaptic %tmp.2 102 8 20 ];
+        %tmp.2 = getv function %tmp.1 :_checkHaptic;
+        invoke %tmp.1 %tmp.2();
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_101_48_103_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 109; @symbol_functiondef = [_resetNav,109,28,37]; ]
+    private static
+    function _resetNav() as Void {
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_109_48_117_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 110 8 ]
+        %tmp.1 = "";
+        symbol [ navText ? 110 8 15 ];
+        putv self :navText %tmp.1;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 111 8 ]
+        %tmp.2 = "";
+        symbol [ distText ? 111 8 16 ];
+        putv self :distText %tmp.2;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 112 8 ]
+        %tmp.3 = "";
+        symbol [ etaText ? 112 8 15 ];
+        putv self :etaText %tmp.3;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 113 8 ]
+        symbol [ DIR_UNKNOWN %tmp.5 113 20 31 ];
+        %tmp.5 = getv ? :DIR_UNKNOWN;
+        symbol [ direction ? 113 8 17 ];
+        putv self :direction %tmp.5;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 114 8 ]
+        %tmp.6 = false;
+        symbol [ isActive ? 114 8 16 ];
+        putv self :isActive %tmp.6;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 115 8 ]
+        %tmp.7 = false;
+        symbol [ _alertedFar ? 115 8 19 ];
+        putv self :_alertedFar %tmp.7;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 116 8 ]
+        %tmp.8 = false;
+        symbol [ _alertedNear ? 116 8 20 ];
+        putv self :_alertedNear %tmp.8;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_109_48_117_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 119; @symbol_functiondef = [_inferDirection,119,28,43]; @symbol_param<0> = [text,119,44,48]; @symbol_param<0>_type<0> = [String,119,52,58]; @symbol_return<0> = [Number,119,63,69]; ]
+    private static
+    function _inferDirection(text as String) as Number {
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_119_70_140_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 120 8 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_119_70_140_4_start" "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_119_70_140_4_stop" ]
+        %lower.1 = local;
+        symbol [ lower %lower.1 120 12 17 ];
+        %tmp.1 = lgetv %text;
+        symbol [ text %tmp.1 120 20 24 ];
+        symbol [ toLower %tmp.2 120 25 32 ];
+        %tmp.2 = getv function %tmp.1 :toLower;
+        %tmp.3 = invoke %tmp.1 %tmp.2();
+        lputv %lower.1 %tmp.3;
+        symbol [ lower %lower.1 120 12 17 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 121 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_121_8_123_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_121_12_121_70_begin:
+        %tmp.4 = lgetv %lower.1;
+        symbol [ lower %tmp.4 121 12 17 ];
+        symbol [ find %tmp.5 121 18 22 ];
+        %tmp.5 = getv function %tmp.4 :find;
+        %tmp.6 = "u-turn";
+        %tmp.7 = invoke %tmp.4 %tmp.5(%tmp.6);
+        %tmp.8 = null;
+        %tmp.9 = ne %tmp.7 %tmp.8;
+        bt %tmp.9 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_121_8_123_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_121_44_121_70_false:
+        %tmp.10 = lgetv %lower.1;
+        symbol [ lower %tmp.10 121 44 49 ];
+        symbol [ find %tmp.11 121 50 54 ];
+        %tmp.11 = getv function %tmp.10 :find;
+        %tmp.12 = "quay đầu";
+        %tmp.13 = invoke %tmp.10 %tmp.11(%tmp.12);
+        %tmp.14 = null;
+        %tmp.15 = ne %tmp.13 %tmp.14;
+        push %tmp.15;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_121_44_121_70_end:
+        %tmp.16 = phi [%tmp.9 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_121_12_121_70_begin] [%tmp.15 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_121_44_121_70_false] [%tmp.16 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_121_44_121_70_end];
+        bf %tmp.16 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_121_8_123_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_121_8_123_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_121_76_123_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 122 12 ]
+        symbol [ DIR_UTURN %tmp.18 122 19 28 ];
+        %tmp.18 = getv ? :DIR_UTURN;
+        ret %tmp.18;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_121_76_123_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_121_8_123_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_121_8_123_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 124 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_8_126_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_12_124_117_begin:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_12_124_82_begin:
+        %tmp.19 = lgetv %lower.1;
+        symbol [ lower %tmp.19 124 12 17 ];
+        symbol [ find %tmp.20 124 18 22 ];
+        %tmp.20 = getv function %tmp.19 :find;
+        %tmp.21 = "chếch sang trái";
+        %tmp.22 = invoke %tmp.19 %tmp.20(%tmp.21);
+        %tmp.23 = null;
+        %tmp.24 = ne %tmp.22 %tmp.23;
+        bt %tmp.24 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_8_126_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_53_124_82_false:
+        %tmp.25 = lgetv %lower.1;
+        symbol [ lower %tmp.25 124 53 58 ];
+        symbol [ find %tmp.26 124 59 63 ];
+        %tmp.26 = getv function %tmp.25 :find;
+        %tmp.27 = "slight left";
+        %tmp.28 = invoke %tmp.25 %tmp.26(%tmp.27);
+        %tmp.29 = null;
+        %tmp.30 = ne %tmp.28 %tmp.29;
+        push %tmp.30;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_53_124_82_end:
+        %tmp.31 = phi [%tmp.24 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_12_124_82_begin] [%tmp.30 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_53_124_82_false] [%tmp.31 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_53_124_82_end];
+        bt %tmp.31 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_8_126_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_90_124_117_false:
+        %tmp.32 = lgetv %lower.1;
+        symbol [ lower %tmp.32 124 90 95 ];
+        symbol [ find %tmp.33 124 96 100 ];
+        %tmp.33 = getv function %tmp.32 :find;
+        %tmp.34 = "bear left";
+        %tmp.35 = invoke %tmp.32 %tmp.33(%tmp.34);
+        %tmp.36 = null;
+        %tmp.37 = ne %tmp.35 %tmp.36;
+        push %tmp.37;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_90_124_117_end:
+        %tmp.38 = phi [%tmp.31 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_12_124_117_begin] [%tmp.37 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_90_124_117_false] [%tmp.38 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_90_124_117_end];
+        bf %tmp.38 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_8_126_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_8_126_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_123_126_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 125 12 ]
+        symbol [ DIR_SLIGHT_LEFT %tmp.40 125 19 34 ];
+        %tmp.40 = getv ? :DIR_SLIGHT_LEFT;
+        ret %tmp.40;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_123_126_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_8_126_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_124_8_126_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 127 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_8_129_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_12_127_119_begin:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_12_127_83_begin:
+        %tmp.41 = lgetv %lower.1;
+        symbol [ lower %tmp.41 127 12 17 ];
+        symbol [ find %tmp.42 127 18 22 ];
+        %tmp.42 = getv function %tmp.41 :find;
+        %tmp.43 = "chếch sang phải";
+        %tmp.44 = invoke %tmp.41 %tmp.42(%tmp.43);
+        %tmp.45 = null;
+        %tmp.46 = ne %tmp.44 %tmp.45;
+        bt %tmp.46 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_8_129_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_53_127_83_false:
+        %tmp.47 = lgetv %lower.1;
+        symbol [ lower %tmp.47 127 53 58 ];
+        symbol [ find %tmp.48 127 59 63 ];
+        %tmp.48 = getv function %tmp.47 :find;
+        %tmp.49 = "slight right";
+        %tmp.50 = invoke %tmp.47 %tmp.48(%tmp.49);
+        %tmp.51 = null;
+        %tmp.52 = ne %tmp.50 %tmp.51;
+        push %tmp.52;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_53_127_83_end:
+        %tmp.53 = phi [%tmp.46 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_12_127_83_begin] [%tmp.52 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_53_127_83_false] [%tmp.53 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_53_127_83_end];
+        bt %tmp.53 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_8_129_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_91_127_119_false:
+        %tmp.54 = lgetv %lower.1;
+        symbol [ lower %tmp.54 127 91 96 ];
+        symbol [ find %tmp.55 127 97 101 ];
+        %tmp.55 = getv function %tmp.54 :find;
+        %tmp.56 = "bear right";
+        %tmp.57 = invoke %tmp.54 %tmp.55(%tmp.56);
+        %tmp.58 = null;
+        %tmp.59 = ne %tmp.57 %tmp.58;
+        push %tmp.59;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_91_127_119_end:
+        %tmp.60 = phi [%tmp.53 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_12_127_119_begin] [%tmp.59 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_91_127_119_false] [%tmp.60 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_91_127_119_end];
+        bf %tmp.60 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_8_129_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_8_129_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_125_129_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 128 12 ]
+        symbol [ DIR_SLIGHT_RIGHT %tmp.62 128 19 35 ];
+        %tmp.62 = getv ? :DIR_SLIGHT_RIGHT;
+        ret %tmp.62;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_125_129_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_8_129_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_127_8_129_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 130 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_130_8_132_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_130_12_130_64_begin:
+        %tmp.63 = lgetv %lower.1;
+        symbol [ lower %tmp.63 130 12 17 ];
+        symbol [ find %tmp.64 130 18 22 ];
+        %tmp.64 = getv function %tmp.63 :find;
+        %tmp.65 = "trái";
+        %tmp.66 = invoke %tmp.63 %tmp.64(%tmp.65);
+        %tmp.67 = null;
+        %tmp.68 = ne %tmp.66 %tmp.67;
+        bt %tmp.68 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_130_8_132_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_130_42_130_64_false:
+        %tmp.69 = lgetv %lower.1;
+        symbol [ lower %tmp.69 130 42 47 ];
+        symbol [ find %tmp.70 130 48 52 ];
+        %tmp.70 = getv function %tmp.69 :find;
+        %tmp.71 = "left";
+        %tmp.72 = invoke %tmp.69 %tmp.70(%tmp.71);
+        %tmp.73 = null;
+        %tmp.74 = ne %tmp.72 %tmp.73;
+        push %tmp.74;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_130_42_130_64_end:
+        %tmp.75 = phi [%tmp.68 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_130_12_130_64_begin] [%tmp.74 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_130_42_130_64_false] [%tmp.75 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_130_42_130_64_end];
+        bf %tmp.75 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_130_8_132_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_130_8_132_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_130_70_132_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 131 12 ]
+        symbol [ DIR_LEFT %tmp.77 131 19 27 ];
+        %tmp.77 = getv ? :DIR_LEFT;
+        ret %tmp.77;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_130_70_132_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_130_8_132_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_130_8_132_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 133 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_133_8_135_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_133_12_133_65_begin:
+        %tmp.78 = lgetv %lower.1;
+        symbol [ lower %tmp.78 133 12 17 ];
+        symbol [ find %tmp.79 133 18 22 ];
+        %tmp.79 = getv function %tmp.78 :find;
+        %tmp.80 = "phải";
+        %tmp.81 = invoke %tmp.78 %tmp.79(%tmp.80);
+        %tmp.82 = null;
+        %tmp.83 = ne %tmp.81 %tmp.82;
+        bt %tmp.83 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_133_8_135_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_133_42_133_65_false:
+        %tmp.84 = lgetv %lower.1;
+        symbol [ lower %tmp.84 133 42 47 ];
+        symbol [ find %tmp.85 133 48 52 ];
+        %tmp.85 = getv function %tmp.84 :find;
+        %tmp.86 = "right";
+        %tmp.87 = invoke %tmp.84 %tmp.85(%tmp.86);
+        %tmp.88 = null;
+        %tmp.89 = ne %tmp.87 %tmp.88;
+        push %tmp.89;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_133_42_133_65_end:
+        %tmp.90 = phi [%tmp.83 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_133_12_133_65_begin] [%tmp.89 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_133_42_133_65_false] [%tmp.90 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_133_42_133_65_end];
+        bf %tmp.90 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_133_8_135_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_133_8_135_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_133_71_135_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 134 12 ]
+        symbol [ DIR_RIGHT %tmp.92 134 19 28 ];
+        %tmp.92 = getv ? :DIR_RIGHT;
+        ret %tmp.92;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_133_71_135_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_133_8_135_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_133_8_135_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 136 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_8_138_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_12_136_137_begin:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_12_136_103_begin:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_12_136_69_begin:
+        %tmp.93 = lgetv %lower.1;
+        symbol [ lower %tmp.93 136 12 17 ];
+        symbol [ find %tmp.94 136 18 22 ];
+        %tmp.94 = getv function %tmp.93 :find;
+        %tmp.95 = "thẳng";
+        %tmp.96 = invoke %tmp.93 %tmp.94(%tmp.95);
+        %tmp.97 = null;
+        %tmp.98 = ne %tmp.96 %tmp.97;
+        bt %tmp.98 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_8_138_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_43_136_69_false:
+        %tmp.99 = lgetv %lower.1;
+        symbol [ lower %tmp.99 136 43 48 ];
+        symbol [ find %tmp.100 136 49 53 ];
+        %tmp.100 = getv function %tmp.99 :find;
+        %tmp.101 = "straight";
+        %tmp.102 = invoke %tmp.99 %tmp.100(%tmp.101);
+        %tmp.103 = null;
+        %tmp.104 = ne %tmp.102 %tmp.103;
+        push %tmp.104;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_43_136_69_end:
+        %tmp.105 = phi [%tmp.98 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_12_136_69_begin] [%tmp.104 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_43_136_69_false] [%tmp.105 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_43_136_69_end];
+        bt %tmp.105 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_8_138_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_77_136_103_false:
+        %tmp.106 = lgetv %lower.1;
+        symbol [ lower %tmp.106 136 77 82 ];
+        symbol [ find %tmp.107 136 83 87 ];
+        %tmp.107 = getv function %tmp.106 :find;
+        %tmp.108 = "tiếp tục";
+        %tmp.109 = invoke %tmp.106 %tmp.107(%tmp.108);
+        %tmp.110 = null;
+        %tmp.111 = ne %tmp.109 %tmp.110;
+        push %tmp.111;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_77_136_103_end:
+        %tmp.112 = phi [%tmp.105 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_12_136_103_begin] [%tmp.111 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_77_136_103_false] [%tmp.112 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_77_136_103_end];
+        bt %tmp.112 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_8_138_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_111_136_137_false:
+        %tmp.113 = lgetv %lower.1;
+        symbol [ lower %tmp.113 136 111 116 ];
+        symbol [ find %tmp.114 136 117 121 ];
+        %tmp.114 = getv function %tmp.113 :find;
+        %tmp.115 = "continue";
+        %tmp.116 = invoke %tmp.113 %tmp.114(%tmp.115);
+        %tmp.117 = null;
+        %tmp.118 = ne %tmp.116 %tmp.117;
+        push %tmp.118;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_111_136_137_end:
+        %tmp.119 = phi [%tmp.112 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_12_136_137_begin] [%tmp.118 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_111_136_137_false] [%tmp.119 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_111_136_137_end];
+        bf %tmp.119 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_8_138_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_8_138_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_143_138_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 137 12 ]
+        symbol [ DIR_STRAIGHT %tmp.121 137 19 31 ];
+        %tmp.121 = getv ? :DIR_STRAIGHT;
+        ret %tmp.121;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_143_138_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_8_138_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_136_8_138_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 139 8 ]
+        symbol [ DIR_UNKNOWN %tmp.123 139 15 26 ];
+        %tmp.123 = getv ? :DIR_UNKNOWN;
+        ret %tmp.123;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_119_70_140_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 142; @symbol_functiondef = [_checkHaptic,142,28,40]; ]
+    private static
+    function _checkHaptic() as Void {
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_142_51_169_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 143 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_8_145_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_12_143_66_begin:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_12_143_38_begin:
+        symbol [ isActive %tmp.2 143 13 21 ];
+        %tmp.2 = getv ? :isActive;
+        %tmp.3 = not %tmp.2;
+        bt %tmp.3 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_8_145_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_25_143_38_false:
+        symbol [ direction %tmp.5 143 25 34 ];
+        %tmp.5 = getv ? :direction;
+        symbol [ DIR_UNKNOWN %tmp.7 143 38 49 ];
+        %tmp.7 = getv ? :DIR_UNKNOWN;
+        %tmp.8 = eq %tmp.5 %tmp.7;
+        push %tmp.8;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_25_143_38_end:
+        %tmp.9 = phi [%tmp.3 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_12_143_38_begin] [%tmp.8 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_25_143_38_false] [%tmp.9 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_25_143_38_end];
+        bt %tmp.9 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_8_145_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_53_143_66_false:
+        symbol [ direction %tmp.11 143 53 62 ];
+        %tmp.11 = getv ? :direction;
+        symbol [ DIR_STRAIGHT %tmp.13 143 66 78 ];
+        %tmp.13 = getv ? :DIR_STRAIGHT;
+        %tmp.14 = eq %tmp.11 %tmp.13;
+        push %tmp.14;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_53_143_66_end:
+        %tmp.15 = phi [%tmp.9 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_12_143_66_begin] [%tmp.14 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_53_143_66_false] [%tmp.15 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_53_143_66_end];
+        bf %tmp.15 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_8_145_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_8_145_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_80_145_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 144 12 ]
+        ret ?;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_80_145_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_8_145_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_143_8_145_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 147 8 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_142_51_169_4_start" "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_142_51_169_4_stop" ]
+        %meters.1 = local;
+        symbol [ meters %meters.1 147 12 18 ];
+        %tmp.16 = self;
+        symbol [ _parseMeters %tmp.17 147 21 33 ];
+        %tmp.17 = getv function %tmp.16 :_parseMeters;
+        symbol [ distText %tmp.19 147 34 42 ];
+        %tmp.19 = getv ? :distText;
+        %tmp.20 = invoke %tmp.16 %tmp.17(%tmp.19);
+        lputv %meters.1 %tmp.20;
+        symbol [ meters %meters.1 147 12 18 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 148 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_148_8_150_8_if_stmt:
+        %tmp.21 = lgetv %meters.1;
+        symbol [ meters %tmp.21 148 12 18 ];
+        %tmp.22 = 0;
+        %tmp.23 = lt %tmp.21 %tmp.22;
+        bf %tmp.23 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_148_8_150_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_148_8_150_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_148_24_150_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 149 12 ]
+        ret ?;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_148_24_150_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_148_8_150_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_148_8_150_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 153 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_153_8_162_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_153_12_153_44_begin:
+        %tmp.24 = lgetv %meters.1;
+        symbol [ meters %tmp.24 153 12 18 ];
+        symbol [ HAPTIC_ALERT_NEAR %tmp.26 153 22 39 ];
+        %tmp.26 = getv ? :HAPTIC_ALERT_NEAR;
+        %tmp.27 = lte %tmp.24 %tmp.26;
+        bf %tmp.27 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_153_8_162_8_if_false;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_153_43_153_44_true:
+        symbol [ _alertedNear %tmp.29 153 44 56 ];
+        %tmp.29 = getv ? :_alertedNear;
+        %tmp.30 = not %tmp.29;
+        push %tmp.30;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_153_43_153_44_end:
+        %tmp.31 = phi [%tmp.27 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_153_12_153_44_begin] [%tmp.30 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_153_43_153_44_true] [%tmp.31 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_153_43_153_44_end];
+        bf %tmp.31 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_153_8_162_8_if_false;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_153_8_162_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_153_58_157_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 154 12 ]
+        %tmp.32 = true;
+        symbol [ _alertedNear ? 154 12 24 ];
+        putv self :_alertedNear %tmp.32;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 155 12 ]
+        %tmp.33 = true;
+        symbol [ _alertedFar ? 155 12 23 ];
+        putv self :_alertedFar %tmp.33;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 156 12 ]
+        %tmp.34 = self;
+        symbol [ _vibrateForDirection %tmp.35 156 12 32 ];
+        %tmp.35 = getv function %tmp.34 :_vibrateForDirection;
+        symbol [ direction %tmp.37 156 33 42 ];
+        %tmp.37 = getv ? :direction;
+        %tmp.38 = true;
+        invoke %tmp.34 %tmp.35(%tmp.37, %tmp.38);
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_153_58_157_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_153_8_162_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_153_8_162_8_if_false:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 159 13 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_159_13_162_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_159_17_159_48_begin:
+        %tmp.39 = lgetv %meters.1;
+        symbol [ meters %tmp.39 159 17 23 ];
+        symbol [ HAPTIC_ALERT_FAR %tmp.41 159 27 43 ];
+        %tmp.41 = getv ? :HAPTIC_ALERT_FAR;
+        %tmp.42 = lte %tmp.39 %tmp.41;
+        bf %tmp.42 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_159_13_162_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_159_47_159_48_true:
+        symbol [ _alertedFar %tmp.44 159 48 59 ];
+        %tmp.44 = getv ? :_alertedFar;
+        %tmp.45 = not %tmp.44;
+        push %tmp.45;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_159_47_159_48_end:
+        %tmp.46 = phi [%tmp.42 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_159_17_159_48_begin] [%tmp.45 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_159_47_159_48_true] [%tmp.46 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_159_47_159_48_end];
+        bf %tmp.46 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_159_13_162_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_159_13_162_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_159_61_162_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 160 12 ]
+        %tmp.47 = true;
+        symbol [ _alertedFar ? 160 12 23 ];
+        putv self :_alertedFar %tmp.47;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 161 12 ]
+        %tmp.48 = self;
+        symbol [ _vibrateForDirection %tmp.49 161 12 32 ];
+        %tmp.49 = getv function %tmp.48 :_vibrateForDirection;
+        symbol [ direction %tmp.51 161 33 42 ];
+        %tmp.51 = getv ? :direction;
+        %tmp.52 = false;
+        invoke %tmp.48 %tmp.49(%tmp.51, %tmp.52);
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_159_61_162_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_159_13_162_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_159_13_162_8_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_153_8_162_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 165 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_165_8_168_8_if_stmt:
+        %tmp.53 = lgetv %meters.1;
+        symbol [ meters %tmp.53 165 12 18 ];
+        symbol [ HAPTIC_ALERT_FAR %tmp.55 165 21 37 ];
+        %tmp.55 = getv ? :HAPTIC_ALERT_FAR;
+        %tmp.56 = 20;
+        %tmp.57 = add %tmp.55 %tmp.56;
+        %tmp.58 = gt %tmp.53 %tmp.57;
+        bf %tmp.58 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_165_8_168_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_165_8_168_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_165_44_168_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 166 12 ]
+        %tmp.59 = false;
+        symbol [ _alertedFar ? 166 12 23 ];
+        putv self :_alertedFar %tmp.59;
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 167 12 ]
+        %tmp.60 = false;
+        symbol [ _alertedNear ? 167 12 24 ];
+        putv self :_alertedNear %tmp.60;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_165_44_168_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_165_8_168_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_165_8_168_8_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_142_51_169_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 172; @symbol_functiondef = [_vibrateForDirection,172,28,48]; @symbol_param<0> = [dir,172,49,52]; @symbol_param<0>_type<0> = [Number,172,56,62]; @symbol_param<1> = [isUrgent,172,64,72]; @symbol_param<1>_type<0> = [Boolean,172,76,83]; ]
+    private static
+    function _vibrateForDirection(dir as Number, isUrgent as Boolean) as Void {
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_172_93_239_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 173 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_173_8_175_8_if_stmt:
+        symbol [ Attention %tmp.1 173 14 23 ];
+        %tmp.1 = getm $.Toybox.Attention;
+        %tmp.3 = const :vibrate;
+        symbol [ vibrate %tmp.3 173 29 36 const ];
+        %tmp.4 = canhazplz %tmp.1 %tmp.3;
+        %tmp.5 = not %tmp.4;
+        bf %tmp.5 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_173_8_175_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_173_8_175_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_173_39_175_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 174 12 ]
+        ret ?;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_173_39_175_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_173_8_175_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_173_8_175_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 177 8 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_172_93_239_4_start" "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_172_93_239_4_stop" ]
+        %vibeData.1 = local;
+        symbol [ vibeData %vibeData.1 177 12 20 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 179 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_179_8_236_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_179_12_179_38_begin:
+        %tmp.6 = lgetv %dir;
+        symbol [ dir %tmp.6 179 12 15 ];
+        symbol [ DIR_LEFT %tmp.8 179 19 27 ];
+        %tmp.8 = getv ? :DIR_LEFT;
+        %tmp.9 = eq %tmp.6 %tmp.8;
+        bt %tmp.9 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_179_8_236_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_179_31_179_38_false:
+        %tmp.10 = lgetv %dir;
+        symbol [ dir %tmp.10 179 31 34 ];
+        symbol [ DIR_SHARP_LEFT %tmp.12 179 38 52 ];
+        %tmp.12 = getv ? :DIR_SHARP_LEFT;
+        %tmp.13 = eq %tmp.10 %tmp.12;
+        push %tmp.13;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_179_31_179_38_end:
+        %tmp.14 = phi [%tmp.9 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_179_12_179_38_begin] [%tmp.13 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_179_31_179_38_false] [%tmp.14 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_179_31_179_38_end];
+        bf %tmp.14 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_179_8_236_8_if_false;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_179_8_236_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_179_54_190_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 181 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_181_12_189_12_if_stmt:
+        %tmp.15 = lgetv %isUrgent;
+        symbol [ isUrgent %tmp.15 181 16 24 ];
+        bf %tmp.15 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_181_12_189_12_if_else_false;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_181_12_189_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_181_26_185_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 182 16 ]
+        %tmp.16 = newa 1;
+        symbol [ Attention %tmp.19 183 24 33 ];
+        %tmp.19 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.20 183 34 45 ];
+        %tmp.20 = getv function ? %tmp.19 :VibeProfile;
+        %tmp.21 = 100;
+        %tmp.22 = 600;
+        %tmp.17 = newc %tmp.20 (%tmp.21, %tmp.22);
+        %tmp.23 = dup %tmp.16;
+        %tmp.24 = aputv %tmp.23 0 %tmp.17;
+        lputv %vibeData.1 %tmp.24;
+        symbol [ vibeData %vibeData.1 182 16 24 ];
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_181_26_185_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_181_12_189_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_181_12_189_12_if_else_false:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_185_19_189_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 186 16 ]
+        %tmp.25 = newa 1;
+        symbol [ Attention %tmp.28 187 24 33 ];
+        %tmp.28 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.29 187 34 45 ];
+        %tmp.29 = getv function ? %tmp.28 :VibeProfile;
+        %tmp.30 = 100;
+        %tmp.31 = 400;
+        %tmp.26 = newc %tmp.29 (%tmp.30, %tmp.31);
+        %tmp.32 = dup %tmp.25;
+        %tmp.33 = aputv %tmp.32 0 %tmp.26;
+        lputv %vibeData.1 %tmp.33;
+        symbol [ vibeData %vibeData.1 186 16 24 ];
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_185_19_189_12_stop:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_181_12_189_12_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_179_54_190_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_179_8_236_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_179_8_236_8_if_false:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 190 15 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_190_15_236_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_190_19_190_46_begin:
+        %tmp.34 = lgetv %dir;
+        symbol [ dir %tmp.34 190 19 22 ];
+        symbol [ DIR_RIGHT %tmp.36 190 26 35 ];
+        %tmp.36 = getv ? :DIR_RIGHT;
+        %tmp.37 = eq %tmp.34 %tmp.36;
+        bt %tmp.37 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_190_15_236_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_190_39_190_46_false:
+        %tmp.38 = lgetv %dir;
+        symbol [ dir %tmp.38 190 39 42 ];
+        symbol [ DIR_SHARP_RIGHT %tmp.40 190 46 61 ];
+        %tmp.40 = getv ? :DIR_SHARP_RIGHT;
+        %tmp.41 = eq %tmp.38 %tmp.40;
+        push %tmp.41;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_190_39_190_46_end:
+        %tmp.42 = phi [%tmp.37 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_190_19_190_46_begin] [%tmp.41 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_190_39_190_46_false] [%tmp.42 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_190_39_190_46_end];
+        bf %tmp.42 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_190_15_236_8_if_false;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_190_15_236_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_190_63_205_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 192 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_192_12_204_12_if_stmt:
+        %tmp.43 = lgetv %isUrgent;
+        symbol [ isUrgent %tmp.43 192 16 24 ];
+        bf %tmp.43 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_192_12_204_12_if_else_false;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_192_12_204_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_192_26_198_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 193 16 ]
+        %tmp.44 = newa 3;
+        symbol [ Attention %tmp.47 194 24 33 ];
+        %tmp.47 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.48 194 34 45 ];
+        %tmp.48 = getv function ? %tmp.47 :VibeProfile;
+        %tmp.49 = 100;
+        %tmp.50 = 250;
+        %tmp.45 = newc %tmp.48 (%tmp.49, %tmp.50);
+        %tmp.51 = dup %tmp.44;
+        %tmp.52 = aputv %tmp.51 0 %tmp.45;
+        symbol [ Attention %tmp.55 195 24 33 ];
+        %tmp.55 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.56 195 34 45 ];
+        %tmp.56 = getv function ? %tmp.55 :VibeProfile;
+        %tmp.57 = 0;
+        %tmp.58 = 80;
+        %tmp.53 = newc %tmp.56 (%tmp.57, %tmp.58);
+        %tmp.59 = dup %tmp.52;
+        %tmp.60 = aputv %tmp.59 1 %tmp.53;
+        symbol [ Attention %tmp.63 196 24 33 ];
+        %tmp.63 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.64 196 34 45 ];
+        %tmp.64 = getv function ? %tmp.63 :VibeProfile;
+        %tmp.65 = 100;
+        %tmp.66 = 250;
+        %tmp.61 = newc %tmp.64 (%tmp.65, %tmp.66);
+        %tmp.67 = dup %tmp.60;
+        %tmp.68 = aputv %tmp.67 2 %tmp.61;
+        lputv %vibeData.1 %tmp.68;
+        symbol [ vibeData %vibeData.1 193 16 24 ];
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_192_26_198_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_192_12_204_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_192_12_204_12_if_else_false:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_198_19_204_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 199 16 ]
+        %tmp.69 = newa 3;
+        symbol [ Attention %tmp.72 200 24 33 ];
+        %tmp.72 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.73 200 34 45 ];
+        %tmp.73 = getv function ? %tmp.72 :VibeProfile;
+        %tmp.74 = 100;
+        %tmp.75 = 180;
+        %tmp.70 = newc %tmp.73 (%tmp.74, %tmp.75);
+        %tmp.76 = dup %tmp.69;
+        %tmp.77 = aputv %tmp.76 0 %tmp.70;
+        symbol [ Attention %tmp.80 201 24 33 ];
+        %tmp.80 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.81 201 34 45 ];
+        %tmp.81 = getv function ? %tmp.80 :VibeProfile;
+        %tmp.82 = 0;
+        %tmp.83 = 100;
+        %tmp.78 = newc %tmp.81 (%tmp.82, %tmp.83);
+        %tmp.84 = dup %tmp.77;
+        %tmp.85 = aputv %tmp.84 1 %tmp.78;
+        symbol [ Attention %tmp.88 202 24 33 ];
+        %tmp.88 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.89 202 34 45 ];
+        %tmp.89 = getv function ? %tmp.88 :VibeProfile;
+        %tmp.90 = 100;
+        %tmp.91 = 180;
+        %tmp.86 = newc %tmp.89 (%tmp.90, %tmp.91);
+        %tmp.92 = dup %tmp.85;
+        %tmp.93 = aputv %tmp.92 2 %tmp.86;
+        lputv %vibeData.1 %tmp.93;
+        symbol [ vibeData %vibeData.1 199 16 24 ];
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_198_19_204_12_stop:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_192_12_204_12_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_190_63_205_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_190_15_236_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_190_15_236_8_if_false:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 205 15 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_205_15_236_8_if_stmt:
+        %tmp.94 = lgetv %dir;
+        symbol [ dir %tmp.94 205 19 22 ];
+        symbol [ DIR_UTURN %tmp.96 205 26 35 ];
+        %tmp.96 = getv ? :DIR_UTURN;
+        %tmp.97 = eq %tmp.94 %tmp.96;
+        bf %tmp.97 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_205_15_236_8_if_false;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_205_15_236_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_205_37_224_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 207 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_207_12_223_12_if_stmt:
+        %tmp.98 = lgetv %isUrgent;
+        symbol [ isUrgent %tmp.98 207 16 24 ];
+        bf %tmp.98 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_207_12_223_12_if_else_false;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_207_12_223_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_207_26_215_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 208 16 ]
+        %tmp.99 = newa 5;
+        symbol [ Attention %tmp.102 209 24 33 ];
+        %tmp.102 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.103 209 34 45 ];
+        %tmp.103 = getv function ? %tmp.102 :VibeProfile;
+        %tmp.104 = 100;
+        %tmp.105 = 200;
+        %tmp.100 = newc %tmp.103 (%tmp.104, %tmp.105);
+        %tmp.106 = dup %tmp.99;
+        %tmp.107 = aputv %tmp.106 0 %tmp.100;
+        symbol [ Attention %tmp.110 210 24 33 ];
+        %tmp.110 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.111 210 34 45 ];
+        %tmp.111 = getv function ? %tmp.110 :VibeProfile;
+        %tmp.112 = 0;
+        %tmp.113 = 60;
+        %tmp.108 = newc %tmp.111 (%tmp.112, %tmp.113);
+        %tmp.114 = dup %tmp.107;
+        %tmp.115 = aputv %tmp.114 1 %tmp.108;
+        symbol [ Attention %tmp.118 211 24 33 ];
+        %tmp.118 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.119 211 34 45 ];
+        %tmp.119 = getv function ? %tmp.118 :VibeProfile;
+        %tmp.120 = 100;
+        %tmp.121 = 200;
+        %tmp.116 = newc %tmp.119 (%tmp.120, %tmp.121);
+        %tmp.122 = dup %tmp.115;
+        %tmp.123 = aputv %tmp.122 2 %tmp.116;
+        symbol [ Attention %tmp.126 212 24 33 ];
+        %tmp.126 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.127 212 34 45 ];
+        %tmp.127 = getv function ? %tmp.126 :VibeProfile;
+        %tmp.128 = 0;
+        %tmp.129 = 60;
+        %tmp.124 = newc %tmp.127 (%tmp.128, %tmp.129);
+        %tmp.130 = dup %tmp.123;
+        %tmp.131 = aputv %tmp.130 3 %tmp.124;
+        symbol [ Attention %tmp.134 213 24 33 ];
+        %tmp.134 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.135 213 34 45 ];
+        %tmp.135 = getv function ? %tmp.134 :VibeProfile;
+        %tmp.136 = 100;
+        %tmp.137 = 200;
+        %tmp.132 = newc %tmp.135 (%tmp.136, %tmp.137);
+        %tmp.138 = dup %tmp.131;
+        %tmp.139 = aputv %tmp.138 4 %tmp.132;
+        lputv %vibeData.1 %tmp.139;
+        symbol [ vibeData %vibeData.1 208 16 24 ];
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_207_26_215_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_207_12_223_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_207_12_223_12_if_else_false:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_215_19_223_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 216 16 ]
+        %tmp.140 = newa 5;
+        symbol [ Attention %tmp.143 217 24 33 ];
+        %tmp.143 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.144 217 34 45 ];
+        %tmp.144 = getv function ? %tmp.143 :VibeProfile;
+        %tmp.145 = 100;
+        %tmp.146 = 150;
+        %tmp.141 = newc %tmp.144 (%tmp.145, %tmp.146);
+        %tmp.147 = dup %tmp.140;
+        %tmp.148 = aputv %tmp.147 0 %tmp.141;
+        symbol [ Attention %tmp.151 218 24 33 ];
+        %tmp.151 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.152 218 34 45 ];
+        %tmp.152 = getv function ? %tmp.151 :VibeProfile;
+        %tmp.153 = 0;
+        %tmp.154 = 80;
+        %tmp.149 = newc %tmp.152 (%tmp.153, %tmp.154);
+        %tmp.155 = dup %tmp.148;
+        %tmp.156 = aputv %tmp.155 1 %tmp.149;
+        symbol [ Attention %tmp.159 219 24 33 ];
+        %tmp.159 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.160 219 34 45 ];
+        %tmp.160 = getv function ? %tmp.159 :VibeProfile;
+        %tmp.161 = 100;
+        %tmp.162 = 150;
+        %tmp.157 = newc %tmp.160 (%tmp.161, %tmp.162);
+        %tmp.163 = dup %tmp.156;
+        %tmp.164 = aputv %tmp.163 2 %tmp.157;
+        symbol [ Attention %tmp.167 220 24 33 ];
+        %tmp.167 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.168 220 34 45 ];
+        %tmp.168 = getv function ? %tmp.167 :VibeProfile;
+        %tmp.169 = 0;
+        %tmp.170 = 80;
+        %tmp.165 = newc %tmp.168 (%tmp.169, %tmp.170);
+        %tmp.171 = dup %tmp.164;
+        %tmp.172 = aputv %tmp.171 3 %tmp.165;
+        symbol [ Attention %tmp.175 221 24 33 ];
+        %tmp.175 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.176 221 34 45 ];
+        %tmp.176 = getv function ? %tmp.175 :VibeProfile;
+        %tmp.177 = 100;
+        %tmp.178 = 150;
+        %tmp.173 = newc %tmp.176 (%tmp.177, %tmp.178);
+        %tmp.179 = dup %tmp.172;
+        %tmp.180 = aputv %tmp.179 4 %tmp.173;
+        lputv %vibeData.1 %tmp.180;
+        symbol [ vibeData %vibeData.1 216 16 24 ];
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_215_19_223_12_stop:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_207_12_223_12_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_205_37_224_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_205_15_236_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_205_15_236_8_if_false:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 224 15 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_224_15_236_8_if_stmt:
+        %tmp.181 = lgetv %dir;
+        symbol [ dir %tmp.181 224 19 22 ];
+        symbol [ DIR_SLIGHT_LEFT %tmp.183 224 26 41 ];
+        %tmp.183 = getv ? :DIR_SLIGHT_LEFT;
+        %tmp.184 = eq %tmp.181 %tmp.183;
+        bf %tmp.184 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_224_15_236_8_if_false;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_224_15_236_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_224_43_228_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 225 12 ]
+        %tmp.185 = newa 1;
+        symbol [ Attention %tmp.188 226 20 29 ];
+        %tmp.188 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.189 226 30 41 ];
+        %tmp.189 = getv function ? %tmp.188 :VibeProfile;
+        %tmp.190 = 70;
+        %tmp.191 = 250;
+        %tmp.186 = newc %tmp.189 (%tmp.190, %tmp.191);
+        %tmp.192 = dup %tmp.185;
+        %tmp.193 = aputv %tmp.192 0 %tmp.186;
+        lputv %vibeData.1 %tmp.193;
+        symbol [ vibeData %vibeData.1 225 12 20 ];
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_224_43_228_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_224_15_236_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_224_15_236_8_if_false:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 228 15 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_228_15_236_8_if_stmt:
+        %tmp.194 = lgetv %dir;
+        symbol [ dir %tmp.194 228 19 22 ];
+        symbol [ DIR_SLIGHT_RIGHT %tmp.196 228 26 42 ];
+        %tmp.196 = getv ? :DIR_SLIGHT_RIGHT;
+        %tmp.197 = eq %tmp.194 %tmp.196;
+        bf %tmp.197 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_228_15_236_8_if_else_false;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_228_15_236_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_228_44_234_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 229 12 ]
+        %tmp.198 = newa 3;
+        symbol [ Attention %tmp.201 230 20 29 ];
+        %tmp.201 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.202 230 30 41 ];
+        %tmp.202 = getv function ? %tmp.201 :VibeProfile;
+        %tmp.203 = 70;
+        %tmp.204 = 150;
+        %tmp.199 = newc %tmp.202 (%tmp.203, %tmp.204);
+        %tmp.205 = dup %tmp.198;
+        %tmp.206 = aputv %tmp.205 0 %tmp.199;
+        symbol [ Attention %tmp.209 231 20 29 ];
+        %tmp.209 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.210 231 30 41 ];
+        %tmp.210 = getv function ? %tmp.209 :VibeProfile;
+        %tmp.211 = 0;
+        %tmp.212 = 80;
+        %tmp.207 = newc %tmp.210 (%tmp.211, %tmp.212);
+        %tmp.213 = dup %tmp.206;
+        %tmp.214 = aputv %tmp.213 1 %tmp.207;
+        symbol [ Attention %tmp.217 232 20 29 ];
+        %tmp.217 = getm $.Toybox.Attention;
+        symbol [ VibeProfile %tmp.218 232 30 41 ];
+        %tmp.218 = getv function ? %tmp.217 :VibeProfile;
+        %tmp.219 = 70;
+        %tmp.220 = 150;
+        %tmp.215 = newc %tmp.218 (%tmp.219, %tmp.220);
+        %tmp.221 = dup %tmp.214;
+        %tmp.222 = aputv %tmp.221 2 %tmp.215;
+        lputv %vibeData.1 %tmp.222;
+        symbol [ vibeData %vibeData.1 229 12 20 ];
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_228_44_234_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_228_15_236_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_228_15_236_8_if_else_false:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_234_15_236_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 235 12 ]
+        ret ?;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_234_15_236_8_stop:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_228_15_236_8_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_224_15_236_8_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_205_15_236_8_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_190_15_236_8_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_179_8_236_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 238 8 ]
+        symbol [ Attention %tmp.223 238 8 17 ];
+        %tmp.223 = getm $.Toybox.Attention;
+        symbol [ vibrate %tmp.224 238 18 25 ];
+        %tmp.224 = getv function %tmp.223 :vibrate;
+        %tmp.225 = lgetv %vibeData.1;
+        symbol [ vibeData %tmp.225 238 26 34 ];
+        invoke %tmp.223 %tmp.224(%tmp.225);
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_172_93_239_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 242; @symbol_functiondef = [_parseMeters,242,28,40]; @symbol_param<0> = [distStr,242,41,48]; @symbol_param<0>_type<0> = [String,242,52,58]; @symbol_return<0> = [Number,242,63,69]; ]
+    private static
+    function _parseMeters(distStr as String) as Number {
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_242_70_266_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 243 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_243_8_245_8_if_stmt:
+        %tmp.1 = lgetv %distStr;
+        symbol [ distStr %tmp.1 243 12 19 ];
+        symbol [ length %tmp.2 243 20 26 ];
+        %tmp.2 = getv function %tmp.1 :length;
+        %tmp.3 = invoke %tmp.1 %tmp.2();
+        %tmp.4 = 0;
+        %tmp.5 = eq %tmp.3 %tmp.4;
+        bf %tmp.5 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_243_8_245_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_243_8_245_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_243_35_245_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 244 12 ]
+        %tmp.6 = -1;
+        ret %tmp.6;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_243_35_245_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_243_8_245_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_243_8_245_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 247 8 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_242_70_266_4_start" "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_242_70_266_4_stop" ]
+        %lower.1 = local;
+        symbol [ lower %lower.1 247 12 17 ];
+        %tmp.7 = lgetv %distStr;
+        symbol [ distStr %tmp.7 247 20 27 ];
+        symbol [ toLower %tmp.8 247 28 35 ];
+        %tmp.8 = getv function %tmp.7 :toLower;
+        %tmp.9 = invoke %tmp.7 %tmp.8();
+        lputv %lower.1 %tmp.9;
+        symbol [ lower %lower.1 247 12 17 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 249 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_249_8_263_8_if_stmt:
+        %tmp.10 = lgetv %lower.1;
+        symbol [ lower %tmp.10 249 12 17 ];
+        symbol [ find %tmp.11 249 18 22 ];
+        %tmp.11 = getv function %tmp.10 :find;
+        %tmp.12 = "km";
+        %tmp.13 = invoke %tmp.10 %tmp.11(%tmp.12);
+        %tmp.14 = null;
+        %tmp.15 = ne %tmp.13 %tmp.14;
+        bf %tmp.15 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_249_8_263_8_if_false;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_249_8_263_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_249_38_256_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 250 12 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_249_38_256_8_start" "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_249_38_256_8_stop" ]
+        %idx.2 = local;
+        symbol [ idx %idx.2 250 16 19 ];
+        %tmp.16 = lgetv %lower.1;
+        symbol [ lower %tmp.16 250 22 27 ];
+        symbol [ find %tmp.17 250 28 32 ];
+        %tmp.17 = getv function %tmp.16 :find;
+        %tmp.18 = "km";
+        %tmp.19 = invoke %tmp.16 %tmp.17(%tmp.18);
+        lputv %idx.2 %tmp.19;
+        symbol [ idx %idx.2 250 16 19 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 251 12 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_249_38_256_8_start" "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_249_38_256_8_stop" ]
+        %numStr.3 = local;
+        symbol [ numStr %numStr.3 251 16 22 ];
+        %tmp.20 = lgetv %distStr;
+        symbol [ distStr %tmp.20 251 25 32 ];
+        symbol [ substring %tmp.21 251 33 42 ];
+        %tmp.21 = getv function %tmp.20 :substring;
+        %tmp.22 = 0;
+        %tmp.23 = lgetv %idx.2;
+        symbol [ idx %tmp.23 251 46 49 ];
+        %tmp.24 = invoke %tmp.20 %tmp.21(%tmp.22, %tmp.23);
+        lputv %numStr.3 %tmp.24;
+        symbol [ numStr %numStr.3 251 16 22 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 252 12 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_249_38_256_8_start" "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_249_38_256_8_stop" ]
+        %val.4 = local;
+        symbol [ val %val.4 252 16 19 ];
+        %tmp.25 = lgetv %numStr.3;
+        symbol [ numStr %tmp.25 252 22 28 ];
+        symbol [ toFloat %tmp.26 252 29 36 ];
+        %tmp.26 = getv function %tmp.25 :toFloat;
+        %tmp.27 = invoke %tmp.25 %tmp.26();
+        lputv %val.4 %tmp.27;
+        symbol [ val %val.4 252 16 19 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 253 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_253_12_255_12_if_stmt:
+        %tmp.28 = lgetv %val.4;
+        symbol [ val %tmp.28 253 16 19 ];
+        %tmp.29 = null;
+        %tmp.30 = ne %tmp.28 %tmp.29;
+        bf %tmp.30 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_253_12_255_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_253_12_255_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_253_29_255_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 254 16 ]
+        %tmp.31 = lgetv %val.4;
+        symbol [ val %tmp.31 254 24 27 ];
+        %tmp.32 = as %tmp.31 { (!Null) };
+        %tmp.33 = 1000;
+        %tmp.34 = mul %tmp.32 %tmp.33;
+        symbol [ toNumber %tmp.35 254 36 44 ];
+        %tmp.35 = getv function %tmp.34 :toNumber;
+        %tmp.36 = invoke %tmp.34 %tmp.35();
+        ret %tmp.36;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_253_29_255_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_253_12_255_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_253_12_255_12_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_249_38_256_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_249_8_263_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_249_8_263_8_if_false:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 256 15 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_15_263_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_19_256_66_begin:
+        %tmp.37 = lgetv %lower.1;
+        symbol [ lower %tmp.37 256 19 24 ];
+        symbol [ find %tmp.38 256 25 29 ];
+        %tmp.38 = getv function %tmp.37 :find;
+        %tmp.39 = " m";
+        %tmp.40 = invoke %tmp.37 %tmp.38(%tmp.39);
+        %tmp.41 = null;
+        %tmp.42 = ne %tmp.40 %tmp.41;
+        bt %tmp.42 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_15_263_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_47_256_66_false:
+        %tmp.43 = lgetv %lower.1;
+        symbol [ lower %tmp.43 256 47 52 ];
+        symbol [ find %tmp.44 256 53 57 ];
+        %tmp.44 = getv function %tmp.43 :find;
+        %tmp.45 = "m";
+        %tmp.46 = invoke %tmp.43 %tmp.44(%tmp.45);
+        %tmp.47 = null;
+        %tmp.48 = ne %tmp.46 %tmp.47;
+        push %tmp.48;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_47_256_66_end:
+        %tmp.49 = phi [%tmp.42 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_19_256_66_begin] [%tmp.48 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_47_256_66_false] [%tmp.49 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_47_256_66_end];
+        bf %tmp.49 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_15_263_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_15_263_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_72_263_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 257 12 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_72_263_8_start" "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_72_263_8_stop" ]
+        %idx.5 = local;
+        symbol [ idx %idx.5 257 16 19 ];
+        %tmp.50 = lgetv %lower.1;
+        symbol [ lower %tmp.50 257 22 27 ];
+        symbol [ find %tmp.51 257 28 32 ];
+        %tmp.51 = getv function %tmp.50 :find;
+        %tmp.52 = "m";
+        %tmp.53 = invoke %tmp.50 %tmp.51(%tmp.52);
+        lputv %idx.5 %tmp.53;
+        symbol [ idx %idx.5 257 16 19 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 258 12 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_72_263_8_start" "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_72_263_8_stop" ]
+        %numStr.6 = local;
+        symbol [ numStr %numStr.6 258 16 22 ];
+        %tmp.54 = lgetv %distStr;
+        symbol [ distStr %tmp.54 258 25 32 ];
+        symbol [ substring %tmp.55 258 33 42 ];
+        %tmp.55 = getv function %tmp.54 :substring;
+        %tmp.56 = 0;
+        %tmp.57 = lgetv %idx.5;
+        symbol [ idx %tmp.57 258 46 49 ];
+        %tmp.58 = invoke %tmp.54 %tmp.55(%tmp.56, %tmp.57);
+        lputv %numStr.6 %tmp.58;
+        symbol [ numStr %numStr.6 258 16 22 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 259 12 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_72_263_8_start" "D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_72_263_8_stop" ]
+        %val.7 = local;
+        symbol [ val %val.7 259 16 19 ];
+        %tmp.59 = lgetv %numStr.6;
+        symbol [ numStr %tmp.59 259 22 28 ];
+        symbol [ toNumber %tmp.60 259 29 37 ];
+        %tmp.60 = getv function %tmp.59 :toNumber;
+        %tmp.61 = invoke %tmp.59 %tmp.60();
+        lputv %val.7 %tmp.61;
+        symbol [ val %val.7 259 16 19 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 260 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_260_12_262_12_if_stmt:
+        %tmp.62 = lgetv %val.7;
+        symbol [ val %tmp.62 260 16 19 ];
+        %tmp.63 = null;
+        %tmp.64 = ne %tmp.62 %tmp.63;
+        bf %tmp.64 @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_260_12_262_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_260_12_262_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_260_29_262_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 261 16 ]
+        %tmp.65 = lgetv %val.7;
+        symbol [ val %tmp.65 261 23 26 ];
+        %tmp.66 = as %tmp.65 { (!Null) };
+        ret %tmp.66;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_260_29_262_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_260_12_262_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_260_12_262_12_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_72_263_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_15_263_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_256_15_263_8_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_249_8_263_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc" 265 8 ]
+        %tmp.67 = -1;
+        ret %tmp.67;
+D__Project_APKMod_NavigationIQ_garmin_app_garmin_app_source_CommManager_mc_242_70_266_4_stop:
+    }
+}
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 269; @symbol_classdef = [PhoneCommListener,269,6,23]; @symbol_extends<0> = [Communications,269,32,46]; @symbol_extends<1> = [ConnectionListener,269,47,65]; ]
+class PhoneCommListener extends Communications.ConnectionListener {
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 269; ]
+    <init> {
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 269; ]
+    static
+    <init> {
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 270; @symbol_functiondef = [onComplete,270,13,23]; ]
+    function onComplete() as Void {
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 272; @symbol_functiondef = [onError,272,13,20]; ]
+    function onError() as Void {
+    }
+}
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\garmin_app\source\CommManager.mc"; @line = 1; ]
+<init> {
+}

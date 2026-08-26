@@ -1,0 +1,68 @@
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 1; @symbol_importdef<0> = [Toybox,1,7,13]; @symbol_importdef<1> = [Lang,1,14,18]; ]
+import Toybox.Lang;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 2; @symbol_importdef<0> = [Toybox,2,7,13]; @symbol_importdef<1> = [WatchUi,2,14,21]; ]
+import Toybox.WatchUi;
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 4; @symbol_classdef = [NavigationIQDelegate,4,6,26]; @symbol_extends<0> = [WatchUi,4,35,42]; @symbol_extends<1> = [BehaviorDelegate,4,43,59]; ]
+class NavigationIQDelegate extends WatchUi.BehaviorDelegate {
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 4; ]
+    <init> {
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 4; ]
+    static
+    <init> {
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 6; @symbol_functiondef = [initialize,6,13,23]; ]
+    function initialize() as Void {
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_6_26_8_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 7 8 ]
+        symbol [ BehaviorDelegate %tmp.2 7 8 24 ];
+        %tmp.2 = getv ? :BehaviorDelegate;
+        symbol [ initialize %tmp.3 7 25 35 ];
+        %tmp.3 = getv function %tmp.2 :initialize;
+        invoke %tmp.2 %tmp.3();
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_6_26_8_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 11; @symbol_functiondef = [onBack,11,13,19]; @symbol_return<0> = [Boolean,11,25,32]; ]
+    function onBack() as Boolean {
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_11_33_14_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 12 8 ]
+        symbol [ WatchUi %tmp.1 12 8 15 ];
+        %tmp.1 = getm $.Toybox.WatchUi;
+        symbol [ popView %tmp.2 12 16 23 ];
+        %tmp.2 = getv function %tmp.1 :popView;
+        symbol [ WatchUi %tmp.3 12 24 31 ];
+        %tmp.3 = getm $.Toybox.WatchUi;
+        symbol [ SLIDE_DOWN %tmp.4 12 32 42 ];
+        %tmp.4 = getv %tmp.3 :SLIDE_DOWN;
+        invoke %tmp.1 %tmp.2(%tmp.4);
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 13 8 ]
+        %tmp.5 = true;
+        ret %tmp.5;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_11_33_14_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 17; @symbol_functiondef = [onTap,17,13,18]; @symbol_param<0> = [clickEvent,17,19,29]; @symbol_param<0>_type<0> = [WatchUi,17,33,40]; @symbol_param<0>_type<1> = [ClickEvent,17,41,51]; @symbol_return<0> = [Boolean,17,56,63]; ]
+    function onTap(clickEvent as WatchUi.ClickEvent) as Boolean {
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_17_64_20_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 18 8 ]
+        symbol [ WatchUi %tmp.1 18 8 15 ];
+        %tmp.1 = getm $.Toybox.WatchUi;
+        symbol [ requestUpdate %tmp.2 18 16 29 ];
+        %tmp.2 = getv function %tmp.1 :requestUpdate;
+        invoke %tmp.1 %tmp.2();
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 19 8 ]
+        %tmp.3 = true;
+        ret %tmp.3;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_17_64_20_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 22; @symbol_functiondef = [onMenu,22,13,19]; @symbol_return<0> = [Boolean,22,25,32]; ]
+    function onMenu() as Boolean {
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_22_33_24_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 23 8 ]
+        %tmp.1 = true;
+        ret %tmp.1;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_22_33_24_4_stop:
+    }
+}
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 1; ]
+<init> {
+}

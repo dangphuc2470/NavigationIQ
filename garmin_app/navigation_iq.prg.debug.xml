@@ -1,0 +1,703 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<debugInfo>
+    <manifest filename="D:\Project\APKMod\NavigationIQ\garmin_app\manifest.xml"/>
+    <pcToLineNum>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appMenuDelegate.mc" id="1" lineNum="5" parent="globals/garmin_appMenuDelegate" pc="268435460" symbol="&lt;init&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="2" lineNum="53" parent="globals" pc="268435472" symbol="getApp"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="2" lineNum="54" parent="globals" pc="268435482" symbol="getApp"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="3" lineNum="10" parent="globals/NavigationIQView" pc="268435493" symbol="&lt;init&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\gen\\006-B4115-00\\source\\Rez.mcgen" id="4" lineNum="7" parent="globals/Rez" pc="268435505" symbol="&lt;init&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="5" lineNum="8" parent="globals/NavigationIQApp" pc="268435525" symbol="&lt;init&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appDelegate.mc" id="6" lineNum="4" parent="globals/NavigationIQDelegate" pc="268435537" symbol="&lt;init&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="7" lineNum="279" parent="globals/PhoneCommListener" pc="268435549" symbol="&lt;init&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appMenuDelegate.mc" id="8" lineNum="11" parent="globals/garmin_appMenuDelegate" pc="268435561" symbol="onMenuItem"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appMenuDelegate.mc" id="8" lineNum="12" parent="globals/garmin_appMenuDelegate" pc="268435563" symbol="onMenuItem"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appMenuDelegate.mc" id="8" lineNum="13" parent="globals/garmin_appMenuDelegate" pc="268435574" symbol="onMenuItem"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appMenuDelegate.mc" id="8" lineNum="14" parent="globals/garmin_appMenuDelegate" pc="268435595" symbol="onMenuItem"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appMenuDelegate.mc" id="8" lineNum="15" parent="globals/garmin_appMenuDelegate" pc="268435606" symbol="onMenuItem"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appMenuDelegate.mc" id="9" lineNum="7" parent="globals/garmin_appMenuDelegate" pc="268435628" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appMenuDelegate.mc" id="9" lineNum="8" parent="globals/garmin_appMenuDelegate" pc="268435630" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="279" parent="globals/NavigationIQView" pc="268435643" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="280" parent="globals/NavigationIQView" pc="268435646" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="281" parent="globals/NavigationIQView" pc="268435663" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="282" parent="globals/NavigationIQView" pc="268435666" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="285" parent="globals/NavigationIQView" pc="268435670" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="286" parent="globals/NavigationIQView" pc="268435682" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="287" parent="globals/NavigationIQView" pc="268435689" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="288" parent="globals/NavigationIQView" pc="268435692" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="290" parent="globals/NavigationIQView" pc="268435696" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="291" parent="globals/NavigationIQView" pc="268435712" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="292" parent="globals/NavigationIQView" pc="268435719" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="293" parent="globals/NavigationIQView" pc="268435749" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="295" parent="globals/NavigationIQView" pc="268435764" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="296" parent="globals/NavigationIQView" pc="268435784" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="297" parent="globals/NavigationIQView" pc="268435810" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="298" parent="globals/NavigationIQView" pc="268435817" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="299" parent="globals/NavigationIQView" pc="268435828" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="300" parent="globals/NavigationIQView" pc="268435838" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="302" parent="globals/NavigationIQView" pc="268435844" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="304" parent="globals/NavigationIQView" pc="268435851" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="308" parent="globals/NavigationIQView" pc="268435865" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="10" lineNum="309" parent="globals/NavigationIQView" pc="268435885" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="43" parent="globals/NavigationIQView" pc="268435915" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="45" parent="globals/NavigationIQView" pc="268435918" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="46" parent="globals/NavigationIQView" pc="268435934" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="47" parent="globals/NavigationIQView" pc="268435955" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="48" parent="globals/NavigationIQView" pc="268435971" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="49" parent="globals/NavigationIQView" pc="268435987" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="50" parent="globals/NavigationIQView" pc="268436004" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="58" parent="globals/NavigationIQView" pc="268436027" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="59" parent="globals/NavigationIQView" pc="268436043" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="60" parent="globals/NavigationIQView" pc="268436061" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="61" parent="globals/NavigationIQView" pc="268436077" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="62" parent="globals/NavigationIQView" pc="268436089" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="65" parent="globals/NavigationIQView" pc="268436107" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="71" parent="globals/NavigationIQView" pc="268436145" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="72" parent="globals/NavigationIQView" pc="268436161" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="74" parent="globals/NavigationIQView" pc="268436173" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="75" parent="globals/NavigationIQView" pc="268436190" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="82" parent="globals/NavigationIQView" pc="268436215" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="83" parent="globals/NavigationIQView" pc="268436232" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="84" parent="globals/NavigationIQView" pc="268436271" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="92" parent="globals/NavigationIQView" pc="268436292" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="93" parent="globals/NavigationIQView" pc="268436304" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="94" parent="globals/NavigationIQView" pc="268436371" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="11" lineNum="95" parent="globals/NavigationIQView" pc="268436387" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="12" lineNum="19" parent="globals/NavigationIQView" pc="268436409" symbol="onShow"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="12" lineNum="20" parent="globals/NavigationIQView" pc="268436411" symbol="onShow"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="13" lineNum="313" parent="globals/NavigationIQView" pc="268436423" symbol="&lt;globals/NavigationIQView/&lt;&gt;_splitWords&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="13" lineNum="314" parent="globals/NavigationIQView" pc="268436426" symbol="&lt;globals/NavigationIQView/&lt;&gt;_splitWords&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="13" lineNum="315" parent="globals/NavigationIQView" pc="268436430" symbol="&lt;globals/NavigationIQView/&lt;&gt;_splitWords&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="13" lineNum="316" parent="globals/NavigationIQView" pc="268436437" symbol="&lt;globals/NavigationIQView/&lt;&gt;_splitWords&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="13" lineNum="317" parent="globals/NavigationIQView" pc="268436453" symbol="&lt;globals/NavigationIQView/&lt;&gt;_splitWords&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="13" lineNum="318" parent="globals/NavigationIQView" pc="268436471" symbol="&lt;globals/NavigationIQView/&lt;&gt;_splitWords&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="13" lineNum="319" parent="globals/NavigationIQView" pc="268436505" symbol="&lt;globals/NavigationIQView/&lt;&gt;_splitWords&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="13" lineNum="320" parent="globals/NavigationIQView" pc="268436517" symbol="&lt;globals/NavigationIQView/&lt;&gt;_splitWords&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="13" lineNum="321" parent="globals/NavigationIQView" pc="268436529" symbol="&lt;globals/NavigationIQView/&lt;&gt;_splitWords&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="13" lineNum="324" parent="globals/NavigationIQView" pc="268436542" symbol="&lt;globals/NavigationIQView/&lt;&gt;_splitWords&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="13" lineNum="327" parent="globals/NavigationIQView" pc="268436559" symbol="&lt;globals/NavigationIQView/&lt;&gt;_splitWords&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="13" lineNum="328" parent="globals/NavigationIQView" pc="268436571" symbol="&lt;globals/NavigationIQView/&lt;&gt;_splitWords&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="13" lineNum="330" parent="globals/NavigationIQView" pc="268436586" symbol="&lt;globals/NavigationIQView/&lt;&gt;_splitWords&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="109" parent="globals/NavigationIQView" pc="268436589" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="111" parent="globals/NavigationIQView" pc="268436592" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="112" parent="globals/NavigationIQView" pc="268436596" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="113" parent="globals/NavigationIQView" pc="268436600" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="116" parent="globals/NavigationIQView" pc="268436604" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="117" parent="globals/NavigationIQView" pc="268436620" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="118" parent="globals/NavigationIQView" pc="268436636" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="119" parent="globals/NavigationIQView" pc="268436652" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="120" parent="globals/NavigationIQView" pc="268436664" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="123" parent="globals/NavigationIQView" pc="268436680" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="126" parent="globals/NavigationIQView" pc="268436704" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="127" parent="globals/NavigationIQView" pc="268436708" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="128" parent="globals/NavigationIQView" pc="268436719" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="130" parent="globals/NavigationIQView" pc="268436731" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="131" parent="globals/NavigationIQView" pc="268436735" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="132" parent="globals/NavigationIQView" pc="268436742" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="133" parent="globals/NavigationIQView" pc="268436758" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="134" parent="globals/NavigationIQView" pc="268436764" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="135" parent="globals/NavigationIQView" pc="268436778" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="139" parent="globals/NavigationIQView" pc="268436804" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="140" parent="globals/NavigationIQView" pc="268436820" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="148" parent="globals/NavigationIQView" pc="268436840" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="149" parent="globals/NavigationIQView" pc="268436855" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="150" parent="globals/NavigationIQView" pc="268436871" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="159" parent="globals/NavigationIQView" pc="268436900" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="160" parent="globals/NavigationIQView" pc="268436911" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="161" parent="globals/NavigationIQView" pc="268436923" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="165" parent="globals/NavigationIQView" pc="268436946" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="166" parent="globals/NavigationIQView" pc="268436951" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="167" parent="globals/NavigationIQView" pc="268436967" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="168" parent="globals/NavigationIQView" pc="268436988" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="169" parent="globals/NavigationIQView" pc="268437004" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="170" parent="globals/NavigationIQView" pc="268437016" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="173" parent="globals/NavigationIQView" pc="268437037" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="174" parent="globals/NavigationIQView" pc="268437053" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="175" parent="globals/NavigationIQView" pc="268437098" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="183" parent="globals/NavigationIQView" pc="268437120" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="184" parent="globals/NavigationIQView" pc="268437132" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="185" parent="globals/NavigationIQView" pc="268437199" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="14" lineNum="186" parent="globals/NavigationIQView" pc="268437216" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="197" parent="globals/NavigationIQView" pc="268437240" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="198" parent="globals/NavigationIQView" pc="268437243" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="200" parent="globals/NavigationIQView" pc="268437260" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="202" parent="globals/NavigationIQView" pc="268437276" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="203" parent="globals/NavigationIQView" pc="268437288" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="204" parent="globals/NavigationIQView" pc="268437318" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="206" parent="globals/NavigationIQView" pc="268437348" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="211" parent="globals/NavigationIQView" pc="268437423" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="213" parent="globals/NavigationIQView" pc="268437438" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="215" parent="globals/NavigationIQView" pc="268437454" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="216" parent="globals/NavigationIQView" pc="268437466" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="217" parent="globals/NavigationIQView" pc="268437496" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="219" parent="globals/NavigationIQView" pc="268437526" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="224" parent="globals/NavigationIQView" pc="268437601" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="226" parent="globals/NavigationIQView" pc="268437616" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="228" parent="globals/NavigationIQView" pc="268437624" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="229" parent="globals/NavigationIQView" pc="268437636" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="230" parent="globals/NavigationIQView" pc="268437666" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="231" parent="globals/NavigationIQView" pc="268437696" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="236" parent="globals/NavigationIQView" pc="268437771" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="238" parent="globals/NavigationIQView" pc="268437786" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="240" parent="globals/NavigationIQView" pc="268437794" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="241" parent="globals/NavigationIQView" pc="268437806" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="242" parent="globals/NavigationIQView" pc="268437836" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="243" parent="globals/NavigationIQView" pc="268437866" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="248" parent="globals/NavigationIQView" pc="268437941" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="250" parent="globals/NavigationIQView" pc="268437956" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="252" parent="globals/NavigationIQView" pc="268437964" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="253" parent="globals/NavigationIQView" pc="268437976" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="254" parent="globals/NavigationIQView" pc="268438006" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="255" parent="globals/NavigationIQView" pc="268438036" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="256" parent="globals/NavigationIQView" pc="268438066" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="261" parent="globals/NavigationIQView" pc="268438141" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="265" parent="globals/NavigationIQView" pc="268438156" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="266" parent="globals/NavigationIQView" pc="268438168" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="267" parent="globals/NavigationIQView" pc="268438192" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="15" lineNum="272" parent="globals/NavigationIQView" pc="268438264" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="16" lineNum="16" parent="globals/NavigationIQView" pc="268438277" symbol="onLayout"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="17" lineNum="12" parent="globals/NavigationIQView" pc="268438280" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="17" lineNum="13" parent="globals/NavigationIQView" pc="268438282" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="19" lineNum="23" parent="globals/NavigationIQView" pc="268438295" symbol="onUpdate"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="19" lineNum="24" parent="globals/NavigationIQView" pc="268438297" symbol="onUpdate"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="19" lineNum="27" parent="globals/NavigationIQView" pc="268438308" symbol="onUpdate"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="19" lineNum="28" parent="globals/NavigationIQView" pc="268438320" symbol="onUpdate"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="19" lineNum="30" parent="globals/NavigationIQView" pc="268438328" symbol="onUpdate"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="19" lineNum="31" parent="globals/NavigationIQView" pc="268438341" symbol="onUpdate"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appView.mc" id="19" lineNum="33" parent="globals/NavigationIQView" pc="268438355" symbol="onUpdate"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="20" lineNum="20" parent="globals/NavigationIQApp" pc="268438367" symbol="onStart"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="20" lineNum="21" parent="globals/NavigationIQApp" pc="268438369" symbol="onStart"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="20" lineNum="22" parent="globals/NavigationIQApp" pc="268438384" symbol="onStart"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="20" lineNum="24" parent="globals/NavigationIQApp" pc="268438413" symbol="onStart"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="20" lineNum="25" parent="globals/NavigationIQApp" pc="268438428" symbol="onStart"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="20" lineNum="27" parent="globals/NavigationIQApp" pc="268438457" symbol="onStart"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="21" lineNum="33" parent="globals/NavigationIQApp" pc="268438469" symbol="onPhoneMessage"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="21" lineNum="34" parent="globals/NavigationIQApp" pc="268438471" symbol="onPhoneMessage"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="21" lineNum="35" parent="globals/NavigationIQApp" pc="268438496" symbol="onPhoneMessage"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="22" lineNum="38" parent="globals/NavigationIQApp" pc="268438512" symbol="onMailboxMessage"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="22" lineNum="39" parent="globals/NavigationIQApp" pc="268438515" symbol="onMailboxMessage"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="22" lineNum="40" parent="globals/NavigationIQApp" pc="268438524" symbol="onMailboxMessage"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="22" lineNum="41" parent="globals/NavigationIQApp" pc="268438530" symbol="onMailboxMessage"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="22" lineNum="42" parent="globals/NavigationIQApp" pc="268438551" symbol="onMailboxMessage"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="22" lineNum="43" parent="globals/NavigationIQApp" pc="268438566" symbol="onMailboxMessage"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="23" lineNum="47" parent="globals/NavigationIQApp" pc="268438579" symbol="getInitialView"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="23" lineNum="48" parent="globals/NavigationIQApp" pc="268438581" symbol="getInitialView"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="24" lineNum="10" parent="globals/NavigationIQApp" pc="268438628" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="24" lineNum="11" parent="globals/NavigationIQApp" pc="268438630" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="24" lineNum="12" parent="globals/NavigationIQApp" pc="268438642" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="24" lineNum="13" parent="globals/NavigationIQApp" pc="268438657" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="24" lineNum="15" parent="globals/NavigationIQApp" pc="268438686" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="24" lineNum="16" parent="globals/NavigationIQApp" pc="268438701" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appApp.mc" id="25" lineNum="30" parent="globals/NavigationIQApp" pc="268438731" symbol="onStop"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appDelegate.mc" id="26" lineNum="11" parent="globals/NavigationIQDelegate" pc="268438734" symbol="onBack"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appDelegate.mc" id="26" lineNum="12" parent="globals/NavigationIQDelegate" pc="268438736" symbol="onBack"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appDelegate.mc" id="26" lineNum="13" parent="globals/NavigationIQDelegate" pc="268438751" symbol="onBack"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appDelegate.mc" id="27" lineNum="22" parent="globals/NavigationIQDelegate" pc="268438753" symbol="onMenu"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appDelegate.mc" id="27" lineNum="23" parent="globals/NavigationIQDelegate" pc="268438755" symbol="onMenu"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appDelegate.mc" id="28" lineNum="6" parent="globals/NavigationIQDelegate" pc="268438757" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appDelegate.mc" id="28" lineNum="7" parent="globals/NavigationIQDelegate" pc="268438759" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appDelegate.mc" id="29" lineNum="17" parent="globals/NavigationIQDelegate" pc="268438772" symbol="onTap"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appDelegate.mc" id="29" lineNum="18" parent="globals/NavigationIQDelegate" pc="268438774" symbol="onTap"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\garmin_appDelegate.mc" id="29" lineNum="19" parent="globals/NavigationIQDelegate" pc="268438785" symbol="onTap"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="32" lineNum="280" parent="globals/PhoneCommListener" pc="268438787" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="32" lineNum="281" parent="globals/PhoneCommListener" pc="268438789" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="33" lineNum="41" parent="globals/CommManager" pc="268438802" symbol="onPhoneMessage"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="33" lineNum="42" parent="globals/CommManager" pc="268438812" symbol="onPhoneMessage"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="182" parent="globals/CommManager" pc="268438828" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="183" parent="globals/CommManager" pc="268438839" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="184" parent="globals/CommManager" pc="268438855" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="189" parent="globals/CommManager" pc="268438859" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="191" parent="globals/CommManager" pc="268438875" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="192" parent="globals/CommManager" pc="268438880" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="196" parent="globals/CommManager" pc="268438919" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="200" parent="globals/CommManager" pc="268438958" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="202" parent="globals/CommManager" pc="268438974" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="203" parent="globals/CommManager" pc="268438979" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="209" parent="globals/CommManager" pc="268439076" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="215" parent="globals/CommManager" pc="268439173" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="217" parent="globals/CommManager" pc="268439181" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="218" parent="globals/CommManager" pc="268439186" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="226" parent="globals/CommManager" pc="268439341" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="234" parent="globals/CommManager" pc="268439496" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="235" parent="globals/CommManager" pc="268439504" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="238" parent="globals/CommManager" pc="268439543" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="239" parent="globals/CommManager" pc="268439551" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="245" parent="globals/CommManager" pc="268439648" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="34" lineNum="248" parent="globals/CommManager" pc="268439649" symbol="_vibrateForDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="118" parent="globals/CommManager" pc="268439665" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="119" parent="globals/CommManager" pc="268439676" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="120" parent="globals/CommManager" pc="268439685" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="121" parent="globals/CommManager" pc="268439721" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="123" parent="globals/CommManager" pc="268439727" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="124" parent="globals/CommManager" pc="268439781" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="126" parent="globals/CommManager" pc="268439787" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="127" parent="globals/CommManager" pc="268439841" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="129" parent="globals/CommManager" pc="268439847" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="130" parent="globals/CommManager" pc="268439883" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="132" parent="globals/CommManager" pc="268439889" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="133" parent="globals/CommManager" pc="268439925" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="135" parent="globals/CommManager" pc="268439931" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="136" parent="globals/CommManager" pc="268440021" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="137" parent="globals/CommManager" pc="268440093" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="138" parent="globals/CommManager" pc="268440099" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="139" parent="globals/CommManager" pc="268440153" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="140" parent="globals/CommManager" pc="268440159" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="141" parent="globals/CommManager" pc="268440213" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="143" parent="globals/CommManager" pc="268440219" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="146" parent="globals/CommManager" pc="268440225" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="147" parent="globals/CommManager" pc="268440333" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="36" lineNum="149" parent="globals/CommManager" pc="268440339" symbol="_inferDirection"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="152" parent="globals/CommManager" pc="268440342" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="153" parent="globals/CommManager" pc="268440353" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="154" parent="globals/CommManager" pc="268440383" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="157" parent="globals/CommManager" pc="268440387" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="158" parent="globals/CommManager" pc="268440402" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="159" parent="globals/CommManager" pc="268440409" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="163" parent="globals/CommManager" pc="268440413" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="164" parent="globals/CommManager" pc="268440430" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="165" parent="globals/CommManager" pc="268440438" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="166" parent="globals/CommManager" pc="268440446" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="169" parent="globals/CommManager" pc="268440464" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="170" parent="globals/CommManager" pc="268440481" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="171" parent="globals/CommManager" pc="268440489" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="175" parent="globals/CommManager" pc="268440507" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="176" parent="globals/CommManager" pc="268440515" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="37" lineNum="177" parent="globals/CommManager" pc="268440523" symbol="_checkHaptic"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="38" lineNum="100" parent="globals/CommManager" pc="268440535" symbol="checkHapticUpdate"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="38" lineNum="101" parent="globals/CommManager" pc="268440545" symbol="checkHapticUpdate"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="39" lineNum="108" parent="globals/CommManager" pc="268440553" symbol="_resetNav"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="39" lineNum="109" parent="globals/CommManager" pc="268440563" symbol="_resetNav"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="39" lineNum="110" parent="globals/CommManager" pc="268440575" symbol="_resetNav"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="39" lineNum="111" parent="globals/CommManager" pc="268440587" symbol="_resetNav"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="39" lineNum="112" parent="globals/CommManager" pc="268440599" symbol="_resetNav"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="39" lineNum="113" parent="globals/CommManager" pc="268440607" symbol="_resetNav"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="39" lineNum="114" parent="globals/CommManager" pc="268440615" symbol="_resetNav"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="39" lineNum="115" parent="globals/CommManager" pc="268440623" symbol="_resetNav"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="252" parent="globals/CommManager" pc="268440632" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="253" parent="globals/CommManager" pc="268440643" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="254" parent="globals/CommManager" pc="268440655" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="257" parent="globals/CommManager" pc="268440661" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="259" parent="globals/CommManager" pc="268440670" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="260" parent="globals/CommManager" pc="268440688" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="261" parent="globals/CommManager" pc="268440704" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="262" parent="globals/CommManager" pc="268440718" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="263" parent="globals/CommManager" pc="268440727" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="264" parent="globals/CommManager" pc="268440733" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="266" parent="globals/CommManager" pc="268440752" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="267" parent="globals/CommManager" pc="268440788" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="268" parent="globals/CommManager" pc="268440804" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="269" parent="globals/CommManager" pc="268440818" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="270" parent="globals/CommManager" pc="268440827" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="271" parent="globals/CommManager" pc="268440833" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="40" lineNum="275" parent="globals/CommManager" pc="268440842" symbol="_parseMeters"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="45" parent="globals/CommManager" pc="268440845" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="46" parent="globals/CommManager" pc="268440856" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="47" parent="globals/CommManager" pc="268440862" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="49" parent="globals/CommManager" pc="268440866" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="50" parent="globals/CommManager" pc="268440881" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="53" parent="globals/CommManager" pc="268440902" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="54" parent="globals/CommManager" pc="268440931" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="55" parent="globals/CommManager" pc="268440968" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="56" parent="globals/CommManager" pc="268440975" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="57" parent="globals/CommManager" pc="268440986" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="60" parent="globals/CommManager" pc="268440993" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="61" parent="globals/CommManager" pc="268441026" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="62" parent="globals/CommManager" pc="268441033" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="63" parent="globals/CommManager" pc="268441044" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="68" parent="globals/CommManager" pc="268441048" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="69" parent="globals/CommManager" pc="268441078" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="72" parent="globals/CommManager" pc="268441082" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="73" parent="globals/CommManager" pc="268441089" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="75" parent="globals/CommManager" pc="268441118" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="76" parent="globals/CommManager" pc="268441145" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="79" parent="globals/CommManager" pc="268441160" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="80" parent="globals/CommManager" pc="268441187" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="83" parent="globals/CommManager" pc="268441202" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="84" parent="globals/CommManager" pc="268441229" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="85" parent="globals/CommManager" pc="268441241" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="88" parent="globals/CommManager" pc="268441264" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="89" parent="globals/CommManager" pc="268441296" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="94" parent="globals/CommManager" pc="268441310" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\source\\CommManager.mc" id="41" lineNum="96" parent="globals/CommManager" pc="268441317" symbol="onPhoneMessageRaw"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\gen\\006-B4115-00\\source\\Rez.mcgen" id="42" lineNum="14" parent="globals/Rez/Layouts" pc="268441329" symbol="MainLayout"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\gen\\006-B4115-00\\source\\Rez.mcgen" id="42" lineNum="15" parent="globals/Rez/Layouts" pc="268441340" symbol="MainLayout"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\gen\\006-B4115-00\\source\\Rez.mcgen" id="42" lineNum="17" parent="globals/Rez/Layouts" pc="268441349" symbol="MainLayout"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\gen\\006-B4115-00\\source\\Rez.mcgen" id="42" lineNum="19" parent="globals/Rez/Layouts" pc="268441452" symbol="MainLayout"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\gen\\006-B4115-00\\source\\Rez.mcgen" id="42" lineNum="20" parent="globals/Rez/Layouts" pc="268441536" symbol="MainLayout"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\gen\\006-B4115-00\\source\\Rez.mcgen" id="42" lineNum="22" parent="globals/Rez/Layouts" pc="268441567" symbol="MainLayout"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\gen\\006-B4115-00\\source\\Rez.mcgen" id="43" lineNum="27" parent="globals/Rez/Menus/MainMenu" pc="268441582" symbol="&lt;init&gt;"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\gen\\006-B4115-00\\source\\Rez.mcgen" id="44" lineNum="28" parent="globals/Rez/Menus/MainMenu" pc="268441594" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\gen\\006-B4115-00\\source\\Rez.mcgen" id="44" lineNum="29" parent="globals/Rez/Menus/MainMenu" pc="268441596" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\gen\\006-B4115-00\\source\\Rez.mcgen" id="44" lineNum="30" parent="globals/Rez/Menus/MainMenu" pc="268441608" symbol="initialize"/>
+        <entry filename="D:\\Project\\APKMod\\NavigationIQ\\garmin_app\\gen\\006-B4115-00\\source\\Rez.mcgen" id="44" lineNum="31" parent="globals/Rez/Menus/MainMenu" pc="268441653" symbol="initialize"/>
+    </pcToLineNum>
+    <symbolTable>
+        <entry id="8388639" module="true" symbol="Graphics"/>
+        <entry field="true" id="8389346" symbol="text"/>
+        <entry id="10" object="true" symbol="NavigationIQDelegate"/>
+        <entry id="8389939" method="true" symbol="registerForPhoneAppMessages"/>
+        <entry id="8388632" method="true" symbol="&lt;init&gt;"/>
+        <entry id="6" module="true" symbol="globals/Rez/Menus"/>
+        <entry id="34" method="true" symbol="onPhoneMessageRaw"/>
+        <entry field="true" id="35" symbol="rxCount"/>
+        <entry id="38" method="true" symbol="MainLayout"/>
+        <entry id="14" method="true" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;"/>
+        <entry field="true" id="33" symbol="navText"/>
+        <entry id="30" method="true" symbol="checkHapticUpdate"/>
+        <entry field="true" id="8388611" module="true" symbol="Toybox"/>
+        <entry id="8" module="true" symbol="CommManager"/>
+        <entry id="26" method="true" symbol="_inferDirection"/>
+        <entry field="true" id="40" symbol="AppName"/>
+        <entry id="21" method="true" symbol="onMailboxMessage"/>
+        <entry id="7" module="true" symbol="globals/Rez/Strings"/>
+        <entry id="8389080" method="true" symbol="onMenu"/>
+        <entry id="8389345" symbol="rezId"/>
+        <entry id="8388648" module="true" symbol="WatchUi"/>
+        <entry id="8389081" method="true" symbol="onBack"/>
+        <entry field="true" id="24" symbol="_alertedNear"/>
+        <entry id="8388822" method="true" symbol="setMailboxListener"/>
+        <entry id="3" module="true" symbol="globals/Rez"/>
+        <entry field="true" id="43" symbol="prompt"/>
+        <entry field="true" id="37" symbol="id_monkey"/>
+        <entry id="8389124" method="true" symbol="onUpdate"/>
+        <entry field="true" id="8389065" symbol="locY"/>
+        <entry field="true" id="8389064" symbol="locX"/>
+        <entry id="28" method="true" symbol="_resetNav"/>
+        <entry id="12" object="true" symbol="PhoneCommListener"/>
+        <entry id="18" method="true" symbol="&lt;globals/NavigationIQView/&lt;&gt;_splitWords&gt;"/>
+        <entry id="8388771" module="true" object="true" symbol="Drawables"/>
+        <entry id="8389348" symbol="font"/>
+        <entry id="11" object="true" symbol="NavigationIQView"/>
+        <entry id="45" symbol="item_2"/>
+        <entry id="44" symbol="item_1"/>
+        <entry id="20" module="true" symbol="Menus"/>
+        <entry id="8389275" method="true" symbol="getApp"/>
+        <entry id="5" module="true" symbol="globals/Rez/Layouts"/>
+        <entry id="27" method="true" symbol="_parseMeters"/>
+        <entry id="8389122" method="true" symbol="onLayout"/>
+        <entry field="true" id="8389063" symbol="identifier"/>
+        <entry id="8389349" symbol="justification"/>
+        <entry id="8389098" method="true" symbol="onTap"/>
+        <entry id="13" object="true" symbol="garmin_appMenuDelegate"/>
+        <entry id="8388987" method="true" symbol="vibrate"/>
+        <entry id="16" method="true" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;"/>
+        <entry id="17" method="true" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;"/>
+        <entry id="25" method="true" symbol="_checkHaptic"/>
+        <entry id="8388637" module="true" symbol="Communications"/>
+        <entry id="4" module="true" symbol="globals/Rez/Drawables"/>
+        <entry id="9" object="true" symbol="NavigationIQApp"/>
+        <entry id="8388828" method="true" symbol="onError"/>
+        <entry id="39" object="true" symbol="MainMenu"/>
+        <entry field="true" id="8392250" method="true" symbol="isActive"/>
+        <entry id="15" method="true" symbol="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;"/>
+        <entry id="8388644" module="true" symbol="System"/>
+        <entry id="8388769" module="true" object="true" symbol="Rez"/>
+        <entry id="8388640" module="true" symbol="Lang"/>
+        <entry id="22" method="true" symbol="onPhoneMessage"/>
+        <entry field="true" id="36" symbol="LauncherIcon"/>
+        <entry id="8388610" symbol="statics"/>
+        <entry id="8389123" method="true" symbol="onShow"/>
+        <entry id="8389350" module="true" symbol="globals"/>
+        <entry id="8388770" module="true" object="true" symbol="Strings"/>
+        <entry id="2" module="true" symbol="globals/CommManager"/>
+        <entry id="8388702" method="true" symbol="initialize"/>
+        <entry id="8389279" method="true" symbol="onStart"/>
+        <entry field="true" id="32" symbol="etaText"/>
+        <entry id="8389280" method="true" symbol="getInitialView"/>
+        <entry id="8389281" method="true" symbol="onStop"/>
+        <entry id="8389109" method="true" symbol="onMenuItem"/>
+        <entry field="true" id="8389347" symbol="color"/>
+        <entry field="true" id="31" symbol="distText"/>
+        <entry id="8388829" method="true" symbol="onComplete"/>
+        <entry id="29" method="true" symbol="_vibrateForDirection"/>
+        <entry id="19" module="true" symbol="Layouts"/>
+        <entry field="true" id="23" symbol="_alertedFar"/>
+        <entry id="8388636" module="true" symbol="Attention"/>
+        <entry id="8388698" method="true" symbol="start"/>
+        <entry id="8389125" method="true" symbol="onHide"/>
+        <entry field="true" id="8392203" symbol="direction"/>
+        <entry id="8388635" module="true" symbol="Application"/>
+        <entry field="true" id="42" symbol="menu_label_2"/>
+        <entry field="true" id="41" symbol="menu_label_1"/>
+    </symbolTable>
+    <localVars>
+        <entry arg="true" endPc="268435627" name="item" stackId="1" startPc="268435561"/>
+        <entry arg="true" endPc="268435914" name="dc" stackId="1" startPc="268435643"/>
+        <entry arg="true" endPc="268435914" name="startX" stackId="2" startPc="268435643"/>
+        <entry arg="true" endPc="268435914" name="startY" stackId="3" startPc="268435643"/>
+        <entry arg="true" endPc="268435914" name="maxWidth" stackId="4" startPc="268435643"/>
+        <entry arg="true" endPc="268435914" name="text" stackId="5" startPc="268435643"/>
+        <entry endPc="268435913" name="font" stackId="6" startPc="268435646"/>
+        <entry endPc="268435913" name="lineHeight" stackId="7" startPc="268435646"/>
+        <entry endPc="268435913" name="words" stackId="8" startPc="268435646"/>
+        <entry endPc="268435913" name="curLine" stackId="9" startPc="268435646"/>
+        <entry endPc="268435913" name="lineCount" stackId="10" startPc="268435646"/>
+        <entry endPc="268435913" name="maxLines" stackId="11" startPc="268435646"/>
+        <entry endPc="268435864" name="i" stackId="12" startPc="268435712"/>
+        <entry endPc="268435854" name="word" stackId="13" startPc="268435712"/>
+        <entry endPc="268435854" name="testLine" stackId="14" startPc="268435712"/>
+        <entry endPc="268435854" name="width" stackId="15" startPc="268435712"/>
+        <entry arg="true" endPc="268436408" name="dc" stackId="1" startPc="268435915"/>
+        <entry endPc="268436407" name="arrowPts" stackId="2" startPc="268435918"/>
+        <entry endPc="268436407" name="subText" stackId="3" startPc="268435918"/>
+        <entry endPc="268436407" name="clockTime" stackId="4" startPc="268435918"/>
+        <entry endPc="268436407" name="timeStr" stackId="5" startPc="268435918"/>
+        <entry arg="true" endPc="268436588" name="text" stackId="1" startPc="268436423"/>
+        <entry endPc="268436588" name="words" stackId="2" startPc="268436426"/>
+        <entry endPc="268436588" name="cur" stackId="3" startPc="268436426"/>
+        <entry endPc="268436558" name="i" stackId="4" startPc="268436453"/>
+        <entry endPc="268436548" name="ch" stackId="5" startPc="268436453"/>
+        <entry arg="true" endPc="268437239" name="dc" stackId="1" startPc="268436589"/>
+        <entry endPc="268437238" name="arrowCx" stackId="2" startPc="268436592"/>
+        <entry endPc="268437238" name="arrowCy" stackId="3" startPc="268436592"/>
+        <entry endPc="268437238" name="arrowRadius" stackId="4" startPc="268436592"/>
+        <entry endPc="268437238" name="rightX" stackId="5" startPc="268436592"/>
+        <entry endPc="268437238" name="distFull" stackId="6" startPc="268436592"/>
+        <entry endPc="268436896" name="distNum" stackId="7" startPc="268436731"/>
+        <entry endPc="268436896" name="distUnit" stackId="8" startPc="268436731"/>
+        <entry endPc="268436896" name="spaceIdx" stackId="9" startPc="268436731"/>
+        <entry endPc="268436896" name="numWidth" stackId="10" startPc="268436731"/>
+        <entry endPc="268437238" name="streetText" stackId="11" startPc="268436592"/>
+        <entry endPc="268437238" name="barY" stackId="12" startPc="268436592"/>
+        <entry endPc="268437238" name="etaStr" stackId="13" startPc="268436592"/>
+        <entry endPc="268437238" name="clockTime" stackId="14" startPc="268436592"/>
+        <entry endPc="268437238" name="timeStr" stackId="15" startPc="268436592"/>
+        <entry arg="true" endPc="268438276" name="dc" stackId="1" startPc="268437240"/>
+        <entry arg="true" endPc="268438276" name="cx" stackId="2" startPc="268437240"/>
+        <entry arg="true" endPc="268438276" name="cy" stackId="3" startPc="268437240"/>
+        <entry arg="true" endPc="268438276" name="dir" stackId="4" startPc="268437240"/>
+        <entry endPc="268437434" name="head" stackId="5" startPc="268437276"/>
+        <entry endPc="268437612" name="head" stackId="6" startPc="268437454"/>
+        <entry endPc="268437782" name="head" stackId="7" startPc="268437624"/>
+        <entry endPc="268437952" name="head" stackId="8" startPc="268437794"/>
+        <entry endPc="268438152" name="head" stackId="9" startPc="268437964"/>
+        <entry endPc="268438275" name="head" stackId="10" startPc="268438156"/>
+        <entry arg="true" endPc="268438366" name="dc" stackId="1" startPc="268438295"/>
+        <entry arg="true" endPc="268438468" name="state" stackId="1" startPc="268438367"/>
+        <entry arg="true" endPc="268438511" name="msg" stackId="1" startPc="268438469"/>
+        <entry arg="true" endPc="268438578" name="iter" stackId="1" startPc="268438512"/>
+        <entry endPc="268438577" name="msg" stackId="2" startPc="268438515"/>
+        <entry arg="true" endPc="268438786" name="clickEvent" stackId="1" startPc="268438772"/>
+        <entry arg="true" endPc="268438827" name="msg" stackId="1" startPc="268438802"/>
+        <entry arg="true" endPc="268439664" name="dir" stackId="1" startPc="268438828"/>
+        <entry arg="true" endPc="268439664" name="isUrgent" stackId="2" startPc="268438828"/>
+        <entry endPc="268439663" name="vibeData" stackId="3" startPc="268438839"/>
+        <entry arg="true" endPc="268440341" name="text" stackId="1" startPc="268439665"/>
+        <entry endPc="268440341" name="lower" stackId="2" startPc="268439676"/>
+        <entry endPc="268440533" name="meters" stackId="1" startPc="268440353"/>
+        <entry arg="true" endPc="268440844" name="distStr" stackId="1" startPc="268440632"/>
+        <entry endPc="268440844" name="lower" stackId="2" startPc="268440643"/>
+        <entry endPc="268440748" name="idx" stackId="3" startPc="268440688"/>
+        <entry endPc="268440748" name="numStr" stackId="4" startPc="268440688"/>
+        <entry endPc="268440748" name="val" stackId="5" startPc="268440688"/>
+        <entry endPc="268440838" name="idx" stackId="6" startPc="268440788"/>
+        <entry endPc="268440838" name="numStr" stackId="7" startPc="268440788"/>
+        <entry endPc="268440838" name="val" stackId="8" startPc="268440788"/>
+        <entry arg="true" endPc="268441328" name="data" stackId="1" startPc="268440845"/>
+        <entry endPc="268441327" name="navData" stackId="2" startPc="268440856"/>
+        <entry arg="true" endPc="268441581" name="dc" stackId="1" startPc="268441329"/>
+        <entry endPc="268441581" name="rez_cmp_local_var_dc_getWidth" stackId="2" startPc="268441340"/>
+        <entry endPc="268441581" name="rez_cmp_local_text_1193959466" stackId="3" startPc="268441340"/>
+        <entry endPc="268441581" name="rez_cmp_local_bitmap_id_monkey" stackId="4" startPc="268441340"/>
+    </localVars>
+    <deviceInfo deviceVersion="45fe3cbb0de8ea0a70e12628d2697915f1272301" partNumber="006-B4115-00"/>
+    <annotations>
+        <annotationEntry annotation="initialized" class="Drawables" module="globals/Rez" symbol="LauncherIcon"/>
+        <annotationEntry annotation="initialized" class="Strings" module="globals/Rez" symbol="menu_label_2"/>
+        <annotationEntry annotation="initialized" class="Strings" module="globals/Rez" symbol="menu_label_1"/>
+        <annotationEntry annotation="initialized" class="Strings" module="globals/Rez" symbol="prompt"/>
+        <annotationEntry annotation="initialized" class="Strings" module="globals/Rez" symbol="AppName"/>
+        <annotationEntry annotation="initialized" class="Drawables" module="globals/Rez" symbol="id_monkey"/>
+    </annotations>
+    <dataEntryOffsetMappings>
+        <dataEntry label="globals" offset="76" parentId="" symbolId="globals" type="module"/>
+        <dataEntry label="globals/garmin_appMenuDelegate" offset="179" parentId="globals" symbolId="garmin_appMenuDelegate" type="class"/>
+        <dataEntry label="globals/NavigationIQView" offset="232" parentId="globals" symbolId="NavigationIQView" type="class"/>
+        <dataEntry label="globals/Rez" offset="357" parentId="globals" symbolId="Rez" type="module"/>
+        <dataEntry label="globals/NavigationIQApp" offset="419" parentId="globals" symbolId="NavigationIQApp" type="class"/>
+        <dataEntry label="globals/NavigationIQDelegate" offset="508" parentId="globals" symbolId="NavigationIQDelegate" type="class"/>
+        <dataEntry label="globals/PhoneCommListener" offset="579" parentId="globals" symbolId="PhoneCommListener" type="class"/>
+        <dataEntry label="globals/CommManager" offset="641" parentId="globals" symbolId="CommManager" type="module"/>
+        <dataEntry label="globals/Rez/Drawables" offset="820" parentId="Rez" symbolId="Drawables" type="module"/>
+        <dataEntry label="globals/Rez/Layouts" offset="864" parentId="Rez" symbolId="Layouts" type="module"/>
+        <dataEntry label="globals/Rez/Menus" offset="899" parentId="Rez" symbolId="Menus" type="module"/>
+        <dataEntry label="globals/Rez/Strings" offset="934" parentId="Rez" symbolId="Strings" type="module"/>
+        <dataEntry label="globals/Rez/Menus/MainMenu" offset="996" parentId="Menus" symbolId="MainMenu" type="class"/>
+    </dataEntryOffsetMappings>
+    <functions>
+        <functionEntry accessMode="public" endPc="268435471" name="&lt;init&gt;" parent="garmin_appMenuDelegate" startPc="268435460">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268435492" name="getApp" startPc="268435472">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268435504" name="&lt;init&gt;" parent="NavigationIQView" startPc="268435493">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268435524" name="&lt;init&gt;" parent="Rez" startPc="268435505">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268435536" name="&lt;init&gt;" parent="NavigationIQApp" startPc="268435525">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268435548" name="&lt;init&gt;" parent="NavigationIQDelegate" startPc="268435537">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268435560" name="&lt;init&gt;" parent="PhoneCommListener" startPc="268435549">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="&lt;init&gt;" parent="CommManager">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268435627" name="onMenuItem" parent="garmin_appMenuDelegate" startPc="268435561">
+            <param id="item"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268435642" name="initialize" parent="garmin_appMenuDelegate" startPc="268435628">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="private" endPc="268435914" name="&lt;globals/NavigationIQView/&lt;&gt;_drawWrappedText&gt;" parent="NavigationIQView" startPc="268435643">
+            <param id="dc"/>
+            <param id="startX"/>
+            <param id="startY"/>
+            <param id="maxWidth"/>
+            <param id="text"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="private" endPc="268436408" name="&lt;globals/NavigationIQView/&lt;&gt;_drawIdleScreen&gt;" parent="NavigationIQView" startPc="268435915">
+            <param id="dc"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268436422" name="onShow" parent="NavigationIQView" startPc="268436409">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="private" endPc="268436588" name="&lt;globals/NavigationIQView/&lt;&gt;_splitWords&gt;" parent="NavigationIQView" startPc="268436423">
+            <param id="text"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="private" endPc="268437239" name="&lt;globals/NavigationIQView/&lt;&gt;_drawNavScreen&gt;" parent="NavigationIQView" startPc="268436589">
+            <param id="dc"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="private" endPc="268438276" name="&lt;globals/NavigationIQView/&lt;&gt;_drawVectorArrow&gt;" parent="NavigationIQView" startPc="268437240">
+            <param id="dc"/>
+            <param id="cx"/>
+            <param id="cy"/>
+            <param id="dir"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268438279" name="onLayout" parent="NavigationIQView" startPc="268438277">
+            <param id="dc"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268438294" name="initialize" parent="NavigationIQView" startPc="268438280">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="onHide" parent="NavigationIQView">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268438366" name="onUpdate" parent="NavigationIQView" startPc="268438295">
+            <param id="dc"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="&lt;init&gt;" parent="Drawables">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="&lt;init&gt;" parent="Layouts">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="&lt;init&gt;" parent="Menus">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="&lt;init&gt;" parent="Strings">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268438468" name="onStart" parent="NavigationIQApp" startPc="268438367">
+            <param id="state"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268438511" name="onPhoneMessage" parent="NavigationIQApp" startPc="268438469">
+            <param id="msg"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268438578" name="onMailboxMessage" parent="NavigationIQApp" startPc="268438512">
+            <param id="iter"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268438627" name="getInitialView" parent="NavigationIQApp" startPc="268438579">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268438730" name="initialize" parent="NavigationIQApp" startPc="268438628">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268438733" name="onStop" parent="NavigationIQApp" startPc="268438731">
+            <param id="state"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268438752" name="onBack" parent="NavigationIQDelegate" startPc="268438734">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268438756" name="onMenu" parent="NavigationIQDelegate" startPc="268438753">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268438771" name="initialize" parent="NavigationIQDelegate" startPc="268438757">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268438786" name="onTap" parent="NavigationIQDelegate" startPc="268438772">
+            <param id="clickEvent"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="onError" parent="PhoneCommListener">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="onComplete" parent="PhoneCommListener">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268438801" name="initialize" parent="PhoneCommListener" startPc="268438787">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268438827" name="onPhoneMessage" parent="CommManager" startPc="268438802">
+            <param id="msg"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268439664" name="_vibrateForDirection" parent="CommManager" startPc="268438828">
+            <param id="dir"/>
+            <param id="isUrgent"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="start" parent="CommManager">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268440341" name="_inferDirection" parent="CommManager" startPc="268439665">
+            <param id="text"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268440534" name="_checkHaptic" parent="CommManager" startPc="268440342">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268440552" name="checkHapticUpdate" parent="CommManager" startPc="268440535">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268440631" name="_resetNav" parent="CommManager" startPc="268440553">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268440844" name="_parseMeters" parent="CommManager" startPc="268440632">
+            <param id="distStr"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268441328" name="onPhoneMessageRaw" parent="CommManager" startPc="268440845">
+            <param id="data"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268441581" name="MainLayout" parent="Layouts" startPc="268441329">
+            <param id="dc"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268441593" name="&lt;init&gt;" parent="MainMenu" startPc="268441582">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" endPc="268441698" name="initialize" parent="MainMenu" startPc="268441594">
+            <documentation/>
+        </functionEntry>
+    </functions>
+</debugInfo>
