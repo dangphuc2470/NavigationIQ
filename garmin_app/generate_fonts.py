@@ -3,34 +3,34 @@ import sys
 from PIL import Image, ImageDraw, ImageFont
 
 def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_name, rotate_degrees=0):
-    # Load Font
-    font = ImageFont.truetype(font_path, font_size)
+    # 4x Supersampling for ultra-crisp, studio-grade anti-aliasing on Garmin AMOLED
+    scale = 4
+    font_hi = ImageFont.truetype(font_path, font_size * scale)
     
     # Complete ASCII + Vietnamese Charset
     ascii_chars = "".join(chr(i) for i in range(32, 127))
     vn_chars = "àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ•–—’“”…"
     unique_chars = list(dict.fromkeys(ascii_chars + vn_chars))
     
-    # Line Metrics
-    ascent, descent = font.getmetrics()
-    line_height = ascent + descent + 2
-    base = ascent
+    ascent_hi, descent_hi = font_hi.getmetrics()
+    line_height = int(round((ascent_hi + descent_hi) / scale)) + 2
+    base = int(round(ascent_hi / scale))
     
-    pad = 4
-    cell_h = line_height + pad * 2
+    pad_hi = 8 * scale
+    pad = 8
     
     glyphs = []
     for ch in unique_chars:
         code = ord(ch)
-        advance = font.getlength(ch)
-        adv_int = int(round(advance))
+        adv_hi = font_hi.getlength(ch)
+        adv_int = int(round(adv_hi / scale))
         
-        cell_w = max(adv_int + pad * 2, font_size * 2)
-        temp_img = Image.new("RGBA", (cell_w, cell_h), (0, 0, 0, 0))
+        cell_w_hi = max(int(round(adv_hi)) + pad_hi * 2, font_size * scale * 2)
+        cell_h_hi = (ascent_hi + descent_hi) + pad_hi * 2
+        
+        temp_img = Image.new("RGBA", (cell_w_hi, cell_h_hi), (0, 0, 0, 0))
         temp_draw = ImageDraw.Draw(temp_img)
-        
-        # Draw character at exact origin (pad, pad)
-        temp_draw.text((pad, pad), ch, font=font, fill=(255, 255, 255, 255))
+        temp_draw.text((pad_hi, pad_hi), ch, font=font_hi, fill=(255, 255, 255, 255))
         
         bbox = temp_img.getbbox()
         if bbox is None:
@@ -40,21 +40,29 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
                 'img': None
             })
         else:
-            glyph_img = temp_img.crop(bbox)
-            gw = bbox[2] - bbox[0]
-            gh = bbox[3] - bbox[1]
+            # Crop at 4x with safety padding to prevent accent clipping
+            crop_hi = temp_img.crop(bbox)
+            gw_hi = bbox[2] - bbox[0]
+            gh_hi = bbox[3] - bbox[1]
             
-            xoff = bbox[0] - pad
-            yoff = bbox[1] - pad
+            gw = max(1, int(round(gw_hi / scale)))
+            gh = max(1, int(round(gh_hi / scale)))
+            
+            # High quality Lanczos downsample for silky smooth anti-aliased edges
+            glyph_img = crop_hi.resize((gw, gh), Image.Resampling.LANCZOS)
+            
+            xoff = int(round((bbox[0] - pad_hi) / scale))
+            yoff = int(round((bbox[1] - pad_hi) / scale))
             
             if rotate_degrees == 90:
-                # Rotate 90 degrees CW so character top points to 3 o'clock (button edge)
-                rot_img = glyph_img.rotate(270, expand=True)
+                # Rotate 90 degrees CW so character top points to 3 o'clock (buttons)
+                rot_img = glyph_img.rotate(270, expand=True, resample=Image.Resampling.BICUBIC)
                 glyphs.append({
                     'id': code, 'char': ch,
-                    'w': gh, 'h': gw,
-                    'xoff': 0, 'yoff': 0,
-                    'xadv': adv_int,
+                    'w': rot_img.width, 'h': rot_img.height,
+                    'xoff': 0,
+                    'yoff': max(0, yoff),
+                    'xadv': max(adv_int, rot_img.height),
                     'img': rot_img
                 })
             else:
@@ -71,8 +79,8 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
     sheet_h = 512
     img = Image.new("RGBA", (sheet_w, sheet_h), (0, 0, 0, 0))
     
-    cur_x = 1
-    cur_y = 1
+    cur_x = 2
+    cur_y = 2
     max_row_h = 0
     
     packed_glyphs = []
@@ -87,12 +95,12 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
             continue
             
         gw, gh = g['img'].size
-        if cur_x + gw + 1 >= sheet_w:
-            cur_x = 1
-            cur_y += max_row_h + 1
+        if cur_x + gw + 2 >= sheet_w:
+            cur_x = 2
+            cur_y += max_row_h + 2
             max_row_h = 0
             
-        if cur_y + gh + 1 >= sheet_h:
+        if cur_y + gh + 2 >= sheet_h:
             sheet_h *= 2
             new_img = Image.new("RGBA", (sheet_w, sheet_h), (0, 0, 0, 0))
             new_img.paste(img, (0, 0))
@@ -107,21 +115,22 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
             'xadv': g['xadv']
         })
         
-        cur_x += gw + 1
+        cur_x += gw + 2
         if gh > max_row_h:
             max_row_h = gh
             
-    final_h = cur_y + max_row_h + 2
-    # Ensure power of 2 or clean dimension
+    final_h = cur_y + max_row_h + 4
     p2 = 256
     while p2 < final_h:
         p2 *= 2
     final_h = min(p2, sheet_h)
-    if final_h < cur_y + max_row_h + 1:
+    if final_h < cur_y + max_row_h + 2:
         final_h *= 2
     
     final_img = img.crop((0, 0, sheet_w, final_h))
-    final_img.save(out_png_path, "PNG")
+    # Convert to 8-bit Grayscale Alpha channel for Garmin Connect IQ native Anti-Aliasing
+    alpha_channel = final_img.split()[3]
+    alpha_channel.save(out_png_path, "PNG")
     
     png_filename = os.path.basename(out_png_path)
     with open(out_fnt_path, "w", encoding="utf-8") as f:
@@ -146,12 +155,12 @@ if __name__ == "__main__":
     generate_bmfont(font_bold, 25, "garmin_app/resources/fonts/sf_pro_compact_bold.fnt", "garmin_app/resources/fonts/sf_pro_compact_bold_0.png", "SF Pro Compact Bold")
     # 4. Compact Street Regular Font (Size: 23px, Medium)
     generate_bmfont(font_regular, 23, "garmin_app/resources/fonts/sf_pro_compact.fnt", "garmin_app/resources/fonts/sf_pro_compact_0.png", "SF Pro Compact")
-    # 5. Micro Pill Font - ETA & Live Clock (Size: 28px, Bold)
-    generate_bmfont(font_bold, 28, "garmin_app/resources/fonts/sf_pro_micro.fnt", "garmin_app/resources/fonts/sf_pro_micro_0.png", "SF Pro Micro")
+    # 5. Micro Pill Font - ETA & Live Clock (Size: 27px, Bold - Reduced 1px as requested)
+    generate_bmfont(font_bold, 27, "garmin_app/resources/fonts/sf_pro_micro.fnt", "garmin_app/resources/fonts/sf_pro_micro_0.png", "SF Pro Micro")
     
     # 6. Rotated 90° Clockwise Fonts for Left-Wrist Motorbike Handlebar mode
     generate_bmfont(font_bold, 28, "garmin_app/resources/fonts/sf_pro_street_bold_rot90.fnt", "garmin_app/resources/fonts/sf_pro_street_bold_rot90_0.png", "SF Pro Street Bold Rot90", rotate_degrees=90)
     generate_bmfont(font_regular, 25, "garmin_app/resources/fonts/sf_pro_street_rot90.fnt", "garmin_app/resources/fonts/sf_pro_street_rot90_0.png", "SF Pro Street Rot90", rotate_degrees=90)
-    generate_bmfont(font_bold, 26, "garmin_app/resources/fonts/sf_pro_micro_rot90.fnt", "garmin_app/resources/fonts/sf_pro_micro_rot90_0.png", "SF Pro Micro Rot90", rotate_degrees=90)
+    generate_bmfont(font_bold, 25, "garmin_app/resources/fonts/sf_pro_micro_rot90.fnt", "garmin_app/resources/fonts/sf_pro_micro_rot90_0.png", "SF Pro Micro Rot90", rotate_degrees=90)
     
-    print("All BMFonts (Upright + 90° Rotated for Motorbike) successfully generated!")
+    print("All BMFonts (4x Supersampled Anti-Aliased Upright + 90° Rotated) successfully generated!")

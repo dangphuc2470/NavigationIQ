@@ -698,10 +698,10 @@ class NavigationIQView extends WatchUi.View {
             var fontStreet = (_fontSfStreetRot90 != null) ? _fontSfStreetRot90 : _fontSfStreet;
 
             if (actionStr.length() > 0) {
-                _drawRot90String(dc, 20, 142, fontAction, actionStr, COLOR_TEXT_WHITE);
+                _drawRot90String(dc, 20, 136, fontAction, actionStr, COLOR_TEXT_WHITE);
             }
             if (streetStr.length() > 0) {
-                _drawRot90String(dc, 20, 192, fontStreet, streetStr, COLOR_TEXT_SILVER);
+                _drawRot90String(dc, 20, 180, fontStreet, streetStr, COLOR_TEXT_SILVER);
             }
         }
 
@@ -732,12 +732,12 @@ class NavigationIQView extends WatchUi.View {
 
         var fontMicroRot = (_fontSfMicroRot90 != null) ? _fontSfMicroRot90 : _fontSfMicro;
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        _drawRot90String(dc, 28, 292, fontMicroRot, etaStr, COLOR_TEXT_WHITE);
+        _drawRot90String(dc, 28, 286, fontMicroRot, etaStr, COLOR_TEXT_WHITE);
 
-        // Live Clock Time (Visual: vx = 248, vy = 292)
+        // Live Clock Time (Visual: vx = 248, vy = 286)
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
-        _drawRot90String(dc, 252, 292, fontMicroRot, timeStr, COLOR_TEXT_SILVER);
+        _drawRot90String(dc, 248, 286, fontMicroRot, timeStr, COLOR_TEXT_SILVER);
     }
 
     // -------------------------------------------------------------------------
