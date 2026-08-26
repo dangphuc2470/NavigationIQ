@@ -240,13 +240,10 @@ class NavigationIQView extends WatchUi.View {
         // 3. Clear outer corner leak to maintain perfect round curves
         _maskCardCorners(dc, cardX, cardY, cardW, cardH, cardR);
 
-        // 4. Left Circular Turn Badge (Center: 64, 66 - Radius: 36)
+        // 4. Left Circular Turn Badge (Solid theme-colored badge, NO outline border)
         var badgeR = 36;
         dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(badgeCx, badgeCy, badgeR);
-        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(2);
-        dc.drawCircle(badgeCx, badgeCy, badgeR);
 
         // Draw Real Google Maps RLE Bitmap, Vector Arrow or Spinner inside Badge
         if (CommManager.isWaitingImage) {
@@ -259,7 +256,7 @@ class NavigationIQView extends WatchUi.View {
             _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor);
         }
 
-        // 5. Distance Row on Top Right (Huge Bold Pure White + Muted Grey Unit)
+        // 5. Distance Row on Top Right (Huge Bold Pure White + Baseline Aligned Muted Grey Unit)
         var distFull = CommManager.distText;
         if (distFull.length() > 0) {
             var parts = _splitDist(distFull);
@@ -283,13 +280,14 @@ class NavigationIQView extends WatchUi.View {
                 Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
             );
 
-            // Sleek Muted Grey Unit (km / m)
+            // Sleek Muted Grey Unit (km / m) perfectly aligned to baseline
             var numWidth = dc.getTextWidthInPixels(distNum, numFont);
             if (distUnit.length() > 0) {
                 dc.setColor(0x9CA3AF, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(
-                    numX + numWidth + 6, numY + 8,
-                    Graphics.FONT_SMALL,
+                    numX + numWidth + 6,
+                    badgeCy + 6,
+                    Graphics.FONT_MEDIUM,
                     distUnit,
                     Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
                 );
@@ -322,12 +320,12 @@ class NavigationIQView extends WatchUi.View {
 
         // Left: Tinted ETA Outlined Pill Badge
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        var etaBadgeW = 120;
+        var etaBadgeW = 126;
         var etaBadgeH = 34;
-        var etaBadgeX = cardX + 14;
+        var etaBadgeX = cardX + 12;
         var etaBadgeY = barY + (barH - etaBadgeH) / 2;
 
-        // Subtle tinted background
+        // Subtle tinted theme background
         dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
         dc.fillRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, 17);
 
@@ -347,7 +345,7 @@ class NavigationIQView extends WatchUi.View {
         );
 
         // Center: Subtle Bullet Dot
-        var dotX = etaBadgeX + etaBadgeW + 18;
+        var dotX = etaBadgeX + etaBadgeW + 16;
         var dotY = barY + (barH / 2);
         dc.setColor(0x71717A, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(dotX, dotY, 2.5);
@@ -357,7 +355,7 @@ class NavigationIQView extends WatchUi.View {
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
-            cardX + cardW - 20,
+            cardX + cardW - 16,
             dotY,
             Graphics.FONT_XTINY,
             timeStr,
