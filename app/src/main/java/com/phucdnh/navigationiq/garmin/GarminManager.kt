@@ -284,6 +284,21 @@ object GarminManager {
         }
     }
 
+    private var lastPromptTime = 0L
+
+    fun promptOpenWatchApp(device: IQDevice, app: IQApp) {
+        val now = System.currentTimeMillis()
+        if (now - lastPromptTime < 8_000) return // Throttled to avoid prompt spam
+        lastPromptTime = now
+        try {
+            connectIQ?.openApplication(device, app) { _, _, status ->
+                addLog("Prompt watch to open app: $status")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "openApplication exception: ${e.message}")
+        }
+    }
+
     private fun sendMessage(context: Context, device: IQDevice, app: IQApp, message: GarminMessage) {
         try {
             connectIQ?.sendMessage(device, app, message.toDataPayload()) { _, _, status ->
@@ -292,6 +307,8 @@ object GarminManager {
                 } else {
                     failedCount++
                     addLog("[FAIL] Send to ${app.applicationId.take(8)}...: $status")
+                    // If watch app is not opened yet, trigger Garmin system prompt to open app
+                    promptOpenWatchApp(device, app)
                     if (failedCount >= 10) {
                         addLog("[WARN] Consecutive failures – restarting connection")
                         failedCount = 0
