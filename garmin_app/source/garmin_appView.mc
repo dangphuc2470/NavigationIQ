@@ -17,7 +17,7 @@ const SCREEN_H = 360;
 const CARD_X = 8;
 const CARD_Y = 8;
 const CARD_W = 304;
-const CARD_H = 276;
+const CARD_H = 272;
 const CARD_RADIUS = 30;
 
 // 3. Turn Badge Geometry
@@ -40,15 +40,15 @@ const NAV_TEXT_OFFSET_Y = 10;
 const NAV_TEXT_BOTTOM_PADDING = 14;
 
 // 7. Bottom Pill Bar Layout (Flush to bottom edge)
-const BAR_Y = 290;
-const BAR_H = 62;
+const BAR_Y = 286;
+const BAR_H = 66;
 const BAR_RADIUS = 28;
 
-// 8. ETA Capsule Badge
-const ETA_BADGE_W = 124;
-const ETA_BADGE_H = 38;
-const ETA_BADGE_RADIUS = 19;
-const ETA_BADGE_PADDING_X = 14;
+// 8. ETA Capsule Badge (Enlarged for 29px Bold Font)
+const ETA_BADGE_W = 142;
+const ETA_BADGE_H = 44;
+const ETA_BADGE_RADIUS = 22;
+const ETA_BADGE_PADDING_X = 12;
 
 // 9. Ambient Glow Radial Gradient (Ultra-Smooth 120-Step Diffusion)
 const GLOW_STEPS = 120;
@@ -63,19 +63,20 @@ const COLOR_DIVIDER = 0x27272A;
 const COLOR_TEXT_WHITE = 0xFFFFFF;
 const COLOR_TEXT_SILVER = 0xE4E4E7;
 const COLOR_TEXT_MUTED = 0x71717A;
-const COLOR_TEXT_UNIT = 0x9CA3AF;
+const COLOR_TEXT_UNIT = 0x94A3B8;
 
-// Straight / 2nd Exit (Cyan Theme)
-const COLOR_THEME_CYAN_ACCENT = 0x00E5FF;
-const COLOR_THEME_CYAN_BADGE = 0x5C8E98;
-const COLOR_THEME_CYAN_ETA_BG = 0x243E45;
-const GLOW_RGB_CYAN = [0x00, 0x99, 0xBB];
+// Theme Palettes (Milky Desaturated Pastel for True Aero HUD)
+// Straight / 2nd-3rd Exit (Teal/Cyan Theme)
+const COLOR_THEME_CYAN_ACCENT = 0x06B6D4;
+const COLOR_THEME_CYAN_BADGE = 0x4A858F;
+const COLOR_THEME_CYAN_ETA_BG = 0x1E3B42;
+const GLOW_RGB_CYAN = [0x06, 0x88, 0x99];
 
-// Turn Left / U-turn (Amber Theme)
+// Turn Left / U-turn (Amber/Warm Theme)
 const COLOR_THEME_AMBER_ACCENT = 0xF59E0B;
-const COLOR_THEME_AMBER_BADGE = 0x9E806C;
-const COLOR_THEME_AMBER_ETA_BG = 0x423226;
-const GLOW_RGB_AMBER = [0xCC, 0x60, 0x05];
+const COLOR_THEME_AMBER_BADGE = 0x9E7852;
+const COLOR_THEME_AMBER_ETA_BG = 0x3E3022;
+const GLOW_RGB_AMBER = [0xA8, 0x62, 0x18];
 
 // Turn Right / 1st Exit (Green Theme)
 const COLOR_THEME_GREEN_ACCENT = 0x10B981;
@@ -88,6 +89,7 @@ class NavigationIQView extends WatchUi.View {
     private var _pageTimer as Timer.Timer?;
     private var _animTick as Number = 0;
     private var _pageIndex as Number = 0;
+    private var _rotation as Number = 0; // 0 = Portrait (0°), 1 = Landscape (90° Clockwise for Left-Wrist Motorbike)
     private var _fontSfStreetBold as Graphics.FontDefinition?;
     private var _fontSfStreet as Graphics.FontDefinition?;
     private var _fontSfCompactBold as Graphics.FontDefinition?;
@@ -110,6 +112,15 @@ class NavigationIQView extends WatchUi.View {
             _fontSfCompact = null;
             _fontSfMicro = null;
         }
+    }
+
+    public function toggleRotation() as Void {
+        _rotation = (_rotation == 0) ? 1 : 0;
+        WatchUi.requestUpdate();
+    }
+
+    public function onScreenTap(x as Number, y as Number) as Void {
+        toggleRotation();
     }
 
     function onLayout(dc as Dc) as Void {
@@ -143,6 +154,11 @@ class NavigationIQView extends WatchUi.View {
 
         if (!CommManager.isActive) {
             _drawIdleScreen(dc);
+            return;
+        }
+
+        if (_rotation == 1) {
+            _drawLandscapeHUD(dc);
         } else {
             _drawUnifiedAppleHUD(dc);
         }
@@ -584,6 +600,149 @@ class NavigationIQView extends WatchUi.View {
             timeStr,
             Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER
         );
+    }
+
+    // -------------------------------------------------------------------------
+    // 90° Clockwise Landscape HUD (Optimized for Left-Wrist Motorbike Handlebar)
+    // -------------------------------------------------------------------------
+    private function _drawLandscapeHUD(dc as Dc) as Void {
+        var theme = _getTheme(CommManager.direction);
+        var accentColor = theme[0] as Number;
+        var badgeBgColor = theme[1] as Number;
+        var glowRGB = theme[2] as Array<Number>;
+        var etaBgColor = theme[3] as Number;
+
+        // 1. Left Card: Badge + Huge Distance + ETA/Time Capsules (X: 8, Y: 8, W: 136, H: 344)
+        var leftCardX = 8;
+        var leftCardY = 8;
+        var leftCardW = 136;
+        var leftCardH = 344;
+        var leftCardR = 24;
+
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(leftCardX, leftCardY, leftCardW, leftCardH, leftCardR);
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(leftCardX, leftCardY, leftCardW, leftCardH, leftCardR);
+
+        // Turn Badge Glowing Aura
+        var badgeCx = leftCardX + (leftCardW / 2);
+        var badgeCy = leftCardY + 48;
+        var badgeR = 38;
+        _drawAmbientGlow(dc, badgeCx, badgeCy, glowRGB);
+        _maskCardCorners(dc, leftCardX, leftCardY, leftCardW, leftCardH, leftCardR);
+
+        // Turn Badge Solid
+        dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(badgeCx, badgeCy, badgeR);
+
+        if (CommManager.isWaitingImage) {
+            _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor);
+        } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
+            _drawRleBitmap(dc, badgeCx, badgeCy, CommManager.rleBitmap);
+        } else if (CommManager.direction != DIR_UNKNOWN) {
+            _drawVectorArrow(dc, badgeCx, badgeCy, CommManager.direction, CommManager.exitNumber, accentColor);
+        } else {
+            _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor);
+        }
+
+        // Distance Row (Stacked Centered: Big Number on top, Unit below)
+        var distFull = CommManager.distText;
+        if (distFull.length() > 0) {
+            var parts = _splitDist(distFull);
+            var distNum = parts[0];
+            var distUnit = parts[1];
+
+            var numFont = Graphics.FONT_NUMBER_HOT;
+            if (distNum.length() >= 3) {
+                numFont = Graphics.FONT_NUMBER_MILD;
+            }
+
+            dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(
+                badgeCx,
+                leftCardY + 120,
+                numFont,
+                distNum,
+                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+            );
+
+            if (distUnit.length() > 0) {
+                dc.setColor(COLOR_TEXT_UNIT, Graphics.COLOR_TRANSPARENT);
+                dc.drawText(
+                    badgeCx,
+                    leftCardY + 154,
+                    Graphics.FONT_MEDIUM,
+                    distUnit,
+                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+                );
+            }
+        }
+
+        // Divider on Left Card
+        dc.setColor(COLOR_DIVIDER, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawLine(leftCardX + 12, leftCardY + 180, leftCardX + leftCardW - 12, leftCardY + 180);
+
+        // Bottom Left: Tinted ETA Capsule
+        var microFont = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
+        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
+        var etaBadgeX = leftCardX + 8;
+        var etaBadgeY = leftCardY + 196;
+        var etaBadgeW = leftCardW - 16;
+        var etaBadgeH = 44;
+        var etaBadgeR = 22;
+
+        dc.setColor(etaBgColor, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, etaBadgeR);
+        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, etaBadgeR);
+
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(
+            etaBadgeX + (etaBadgeW / 2),
+            etaBadgeY + (etaBadgeH / 2),
+            microFont,
+            etaStr,
+            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+        );
+
+        // Live Clock Capsule (Y: 256, W: 120, H: 44)
+        var clockTime2 = System.getClockTime();
+        var timeStr2 = Lang.format("$1$:$2$", [clockTime2.hour.format("%02d"), clockTime2.min.format("%02d")]);
+        var timeBadgeY = etaBadgeY + etaBadgeH + 12;
+
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(etaBadgeX, timeBadgeY, etaBadgeW, etaBadgeH, etaBadgeR);
+
+        dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(
+            etaBadgeX + (etaBadgeW / 2),
+            timeBadgeY + (etaBadgeH / 2),
+            microFont,
+            timeStr2,
+            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+        );
+
+        // Rotation Mode Indicator (Small 90° icon badge on top right)
+        // 2. Right Card: Full-Height High-Legibility Navigation Text (X: 152, Y: 8, W: 160, H: 344)
+        var rightCardX = 152;
+        var rightCardY = 8;
+        var rightCardW = 160;
+        var rightCardH = 344;
+        var rightCardR = 24;
+
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(rightCardX, rightCardY, rightCardW, rightCardH, rightCardR);
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(rightCardX, rightCardY, rightCardW, rightCardH, rightCardR);
+
+        var streetText = CommManager.navText;
+        if (streetText.length() > 0) {
+            _drawDynamicWrappedText(dc, rightCardX + 12, rightCardY + 16, rightCardW - 24, rightCardH - 32, streetText, accentColor);
+        }
     }
 
     // -------------------------------------------------------------------------

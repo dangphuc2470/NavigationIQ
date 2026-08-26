@@ -30,7 +30,8 @@ class NavigationIQApp extends Application.AppBase {
     }
 
     function getInitialView() as [Views] or [Views, InputDelegates] {
-        return [ new NavigationIQView(), new NavigationIQDelegate() ];
+        var view = new NavigationIQView();
+        return [ view, new NavigationIQDelegate(view) ];
     }
 
 }
