@@ -3,71 +3,57 @@ import sys
 from PIL import Image, ImageDraw, ImageFont
 
 def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_name):
-    # 4x Supersampling for ultra-smooth anti-aliased text rendering
-    scale = 4
-    high_res_font = ImageFont.truetype(font_path, font_size * scale)
-    base_font = ImageFont.truetype(font_path, font_size)
+    # Load Font with Semibold / Bold Weight
+    font = ImageFont.truetype(font_path, font_size)
     
-    # Complete ASCII and Vietnamese Charset
+    # Complete ASCII + Vietnamese Charset
     ascii_chars = "".join(chr(i) for i in range(32, 127))
     vn_chars = "àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ•–—’“”…"
     unique_chars = list(dict.fromkeys(ascii_chars + vn_chars))
     
-    # Metrics
-    ascent, descent = base_font.getmetrics()
+    # Line Metrics
+    ascent, descent = font.getmetrics()
     line_height = ascent + descent + 2
     base = ascent
+    
+    pad = 4
+    cell_h = line_height + pad * 2
     
     glyphs = []
     for ch in unique_chars:
         code = ord(ch)
-        bbox = base_font.getbbox(ch)
-        if bbox is None or bbox[2] <= bbox[0] or bbox[3] <= bbox[1]:
-            advance = base_font.getlength(ch)
+        advance = font.getlength(ch)
+        adv_int = int(round(advance))
+        
+        # Temporary canvas for single glyph to measure exact relative bounding box
+        cell_w = max(adv_int + pad * 2, font_size * 2)
+        temp_img = Image.new("RGBA", (cell_w, cell_h), (0, 0, 0, 0))
+        temp_draw = ImageDraw.Draw(temp_img)
+        
+        # Draw character at exact coordinate (pad, pad)
+        temp_draw.text((pad, pad), ch, font=font, fill=(255, 255, 255, 255))
+        
+        bbox = temp_img.getbbox()
+        if bbox is None:
+            # Space or whitespace
             glyphs.append({
                 'id': code, 'char': ch, 'w': 0, 'h': 0,
-                'xoff': 0, 'yoff': 0, 'xadv': int(round(advance)),
+                'xoff': 0, 'yoff': 0, 'xadv': adv_int,
                 'img': None
             })
         else:
-            left, top, right, bottom = bbox
-            w = right - left
-            h = bottom - top
-            advance = base_font.getlength(ch)
+            glyph_img = temp_img.crop(bbox)
+            gw = bbox[2] - bbox[0]
+            gh = bbox[3] - bbox[1]
             
-            # Render glyph at 4x scale
-            high_bbox = high_res_font.getbbox(ch)
-            hl, ht, hr, hb = high_bbox
-            hw = hr - hl
-            hh = hb - ht
-            
-            # Create high-res image with padding
-            high_img = Image.new("RGBA", (hw + 16, hh + 16), (0, 0, 0, 0))
-            high_draw = ImageDraw.Draw(high_img)
-            high_draw.text((8 - hl, 8 - ht), ch, font=high_res_font, fill=(255, 255, 255, 255))
-            
-            # Target 1x size (scaled down with Lanczos)
-            target_w = max(1, int(round((hw + 16) / scale)))
-            target_h = max(1, int(round((hh + 16) / scale)))
-            low_img = high_img.resize((target_w, target_h), Image.Resampling.LANCZOS)
-            
-            # Crop to non-empty bounding box in low_img
-            low_bbox = low_img.getbbox()
-            if low_bbox:
-                glyph_img = low_img.crop(low_bbox)
-                gw, gh = glyph_img.size
-                actual_xoff = left + low_bbox[0] - int(round(8 / scale))
-                actual_yoff = top + low_bbox[1] - int(round(8 / scale))
-            else:
-                glyph_img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-                gw, gh = w, h
-                actual_xoff = left
-                actual_yoff = top
+            # Exact offset relative to cell origin (pad, pad)
+            xoff = bbox[0] - pad
+            yoff = bbox[1] - pad
             
             glyphs.append({
                 'id': code, 'char': ch, 'w': gw, 'h': gh,
-                'xoff': actual_xoff, 'yoff': actual_yoff,
-                'xadv': int(round(advance)),
+                'xoff': xoff, 'yoff': yoff,
+                'xadv': adv_int,
                 'img': glyph_img
             })
             
@@ -95,7 +81,7 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
             print(f"Warning: Texture sheet full for {font_face_name}")
             break
             
-        # Paste glyph image onto sheet
+        # Paste glyph onto sheet
         img.paste(g['img'], (cur_x, cur_y), g['img'])
         packed_glyphs.append(dict(g, x=cur_x, y=cur_y))
         
@@ -103,7 +89,7 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
         if g['h'] > row_h:
             row_h = g['h']
             
-    # Crop unused bottom area of image to power of 2 or minimum size
+    # Crop to power-of-2 height
     final_h = 128
     while final_h < cur_y + row_h + 4 and final_h < 1024:
         final_h *= 2
@@ -122,14 +108,15 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
             f.write(f"char id={g['id']:<5} x={g['x']:<4} y={g['y']:<4} width={g['w']:<3} height={g['h']:<3} xoffset={g['xoff']:<3} yoffset={g['yoff']:<3} xadvance={g['xadv']:<3} page=0 chnl=15\n")
 
 if __name__ == "__main__":
-    font_path = "garmin_app/resources/fonts/SF-Pro.ttf"
+    # Use Apple SF Pro Display Semibold for premium thickness and weight
+    font_path = "app/src/main/res/font/sf_pro_display_semibold.otf"
     os.makedirs("garmin_app/resources/fonts", exist_ok=True)
     
-    # 1. Medium Street Text Font (Size: 22px) with 4x Lanczos Antialiasing
-    generate_bmfont(font_path, 22, "garmin_app/resources/fonts/sf_pro_street.fnt", "garmin_app/resources/fonts/sf_pro_street_0.png", "SF Pro Street")
-    # 2. Compact Street Text Font (Size: 18px) with 4x Lanczos Antialiasing
-    generate_bmfont(font_path, 18, "garmin_app/resources/fonts/sf_pro_compact.fnt", "garmin_app/resources/fonts/sf_pro_compact_0.png", "SF Pro Compact")
-    # 3. Micro Pill Font (Size: 14px) with 4x Lanczos Antialiasing
-    generate_bmfont(font_path, 14, "garmin_app/resources/fonts/sf_pro_micro.fnt", "garmin_app/resources/fonts/sf_pro_micro_0.png", "SF Pro Micro")
+    # 1. Large Street Text Font (Size: 25px, Semibold)
+    generate_bmfont(font_path, 25, "garmin_app/resources/fonts/sf_pro_street.fnt", "garmin_app/resources/fonts/sf_pro_street_0.png", "SF Pro Street")
+    # 2. Compact Street Text Font (Size: 20px, Semibold)
+    generate_bmfont(font_path, 20, "garmin_app/resources/fonts/sf_pro_compact.fnt", "garmin_app/resources/fonts/sf_pro_compact_0.png", "SF Pro Compact")
+    # 3. Micro Pill Font (Size: 16px, Semibold)
+    generate_bmfont(font_path, 16, "garmin_app/resources/fonts/sf_pro_micro.fnt", "garmin_app/resources/fonts/sf_pro_micro_0.png", "SF Pro Micro")
     
-    print("Ultra-smooth Antialiased BMFonts successfully generated!")
+    print("Apple SF Pro Semibold BMFonts successfully generated with exact baseline alignment!")
