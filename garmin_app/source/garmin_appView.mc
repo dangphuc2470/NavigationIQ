@@ -205,11 +205,12 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // Razor-Sharp Micro Vector Typography Engine (Supports Letters & Digits)
+    // Razor-Sharp 7-Segment Digital Typography Engine (Uniform Grid)
     // -------------------------------------------------------------------------
     private function _drawMicroText(dc as Dc, targetX as Number, centerY as Number, text as String, color as Number, isCentered as Boolean) as Void {
         var digitW = 7;
         var digitH = 12;
+        var midY = 6;
         var spacing = 3;
         var colonW = 3;
         var spaceW = 4;
@@ -252,73 +253,92 @@ class NavigationIQView extends WatchUi.View {
                 curX += spaceW + spacing;
                 continue;
             } else if (ch.equals("-")) {
-                dc.drawLine(x + 1, y + (h / 2), x + w - 2, y + (h / 2));
+                dc.drawLine(x, y + midY, x + w - 1, y + midY);
                 curX += w + spacing;
                 continue;
             } else if (ch.equals("E") || ch.equals("e")) {
+                // Segments: a, f, e, g, d
                 dc.drawLine(x, y, x + w - 1, y);
                 dc.drawLine(x, y, x, y + h - 1);
-                dc.drawLine(x, y + (h / 2), x + w - 2, y + (h / 2));
+                dc.drawLine(x, y + midY, x + w - 1, y + midY);
                 dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
                 curX += w + spacing;
                 continue;
             } else if (ch.equals("T") || ch.equals("t")) {
+                // Segment a + centered vertical bar
                 dc.drawLine(x, y, x + w - 1, y);
                 dc.drawLine(x + (w / 2), y, x + (w / 2), y + h - 1);
                 curX += w + spacing;
                 continue;
             } else if (ch.equals("A") || ch.equals("a")) {
-                dc.drawLine(x, y + h - 1, x + (w / 2), y);
-                dc.drawLine(x + (w / 2), y, x + w - 1, y + h - 1);
-                dc.drawLine(x + 1, y + 7, x + w - 2, y + 7);
+                // Segments: a, f, e, b, c, g (8 without bottom bar)
+                dc.drawLine(x, y, x + w - 1, y);
+                dc.drawLine(x, y, x, y + h - 1);
+                dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
+                dc.drawLine(x, y + midY, x + w - 1, y + midY);
                 curX += w + spacing;
                 continue;
             }
 
             var d = ch.toNumber();
             if (d == 0) {
-                dc.drawRoundedRectangle(x, y, w, h, 2);
-            } else if (d == 1) {
-                dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
-                dc.drawLine(x + 2, y + 3, x + w - 1, y);
-            } else if (d == 2) {
+                // Segments: a, b, c, d, e, f
                 dc.drawLine(x, y, x + w - 1, y);
-                dc.drawLine(x + w - 1, y, x + w - 1, y + (h / 2));
-                dc.drawLine(x, y + (h / 2), x + w - 1, y + (h / 2));
-                dc.drawLine(x, y + (h / 2), x, y + h - 1);
+                dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
+                dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
+                dc.drawLine(x, y, x, y + h - 1);
+            } else if (d == 1) {
+                // Segments: b, c (Pure straight vertical bar on right side)
+                dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
+            } else if (d == 2) {
+                // Segments: a, b, g, e, d
+                dc.drawLine(x, y, x + w - 1, y);
+                dc.drawLine(x + w - 1, y, x + w - 1, y + midY);
+                dc.drawLine(x, y + midY, x + w - 1, y + midY);
+                dc.drawLine(x, y + midY, x, y + h - 1);
                 dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
             } else if (d == 3) {
+                // Segments: a, b, c, d, g
                 dc.drawLine(x, y, x + w - 1, y);
                 dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
-                dc.drawLine(x + 1, y + (h / 2), x + w - 1, y + (h / 2));
+                dc.drawLine(x, y + midY, x + w - 1, y + midY);
                 dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
             } else if (d == 4) {
-                dc.drawLine(x, y, x, y + (h / 2));
-                dc.drawLine(x, y + (h / 2), x + w - 1, y + (h / 2));
+                // Segments: f, g, b, c
+                dc.drawLine(x, y, x, y + midY);
+                dc.drawLine(x, y + midY, x + w - 1, y + midY);
                 dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
             } else if (d == 5) {
+                // Segments: a, f, g, c, d
                 dc.drawLine(x, y, x + w - 1, y);
-                dc.drawLine(x, y, x, y + (h / 2));
-                dc.drawLine(x, y + (h / 2), x + w - 1, y + (h / 2));
-                dc.drawLine(x + w - 1, y + (h / 2), x + w - 1, y + h - 1);
+                dc.drawLine(x, y, x, y + midY);
+                dc.drawLine(x, y + midY, x + w - 1, y + midY);
+                dc.drawLine(x + w - 1, y + midY, x + w - 1, y + h - 1);
                 dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
             } else if (d == 6) {
+                // Segments: a, f, e, d, c, g
                 dc.drawLine(x, y, x + w - 1, y);
                 dc.drawLine(x, y, x, y + h - 1);
-                dc.drawLine(x, y + (h / 2), x + w - 1, y + (h / 2));
-                dc.drawLine(x + w - 1, y + (h / 2), x + w - 1, y + h - 1);
+                dc.drawLine(x, y + midY, x + w - 1, y + midY);
+                dc.drawLine(x + w - 1, y + midY, x + w - 1, y + h - 1);
                 dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
             } else if (d == 7) {
+                // Segments: a, b, c
                 dc.drawLine(x, y, x + w - 1, y);
                 dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
             } else if (d == 8) {
-                dc.drawRoundedRectangle(x, y, w, h, 2);
-                dc.drawLine(x, y + (h / 2), x + w - 1, y + (h / 2));
-            } else if (d == 9) {
+                // Segments: a, b, c, d, e, f, g (All segments)
                 dc.drawLine(x, y, x + w - 1, y);
-                dc.drawLine(x, y, x, y + (h / 2));
+                dc.drawLine(x, y, x, y + h - 1);
                 dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
-                dc.drawLine(x, y + (h / 2), x + w - 1, y + (h / 2));
+                dc.drawLine(x, y + midY, x + w - 1, y + midY);
+                dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
+            } else if (d == 9) {
+                // Segments: a, b, c, d, f, g
+                dc.drawLine(x, y, x + w - 1, y);
+                dc.drawLine(x, y, x, y + midY);
+                dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
+                dc.drawLine(x, y + midY, x + w - 1, y + midY);
                 dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
             }
             curX += w + spacing;
