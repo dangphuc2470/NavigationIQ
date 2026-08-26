@@ -682,7 +682,16 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // Intelligent Navigation Instruction Splitter (Action vs Target Road)
+    // Optional Instruction Simplifier (For future user settings toggle)
+    // -------------------------------------------------------------------------
+    private function _simplifyInstructionText(text as String) as String {
+        // Reserved for future user preferences (e.g. optional preposition stripping)
+        return text;
+    }
+
+    // -------------------------------------------------------------------------
+    // Intelligent Navigation Instruction Splitter (Preserves 100% Text Intact)
+    // Extracts exact Action Phrase for Bold typography; keeps all remaining words Regular.
     // -------------------------------------------------------------------------
     private function _splitActionAndStreet(text as String) as Array<String> {
         // 1. Check for manual newline
@@ -693,94 +702,83 @@ class NavigationIQView extends WatchUi.View {
             return [act, str] as Array<String>;
         }
 
-        // 2. Special Roundabout Pattern: "At ..., take the Nth exit onto ..." or "take the Nth exit"
+        // 2. Roundabout Pattern with leading location (e.g. "At Ngã sáu..., take the 2nd exit onto...")
         var takeIdx = text.find("take the ");
         if (takeIdx == null) {
             takeIdx = text.find("Take the ");
         }
-        if (takeIdx != null) {
+        if (takeIdx != null && takeIdx > 0) {
+            var prefix = text.substring(0, takeIdx);
             var afterTake = text.substring(takeIdx, text.length());
-            // Capitalize first letter if needed
-            var actStr = "Take the " + afterTake.substring(9, afterTake.length());
-            var exitOntoIdx = actStr.find(" onto ");
-            var strTarget = "";
+            var exitOntoIdx = afterTake.find(" onto ");
+            var actStr = afterTake;
+            var suffix = "";
             if (exitOntoIdx != null) {
-                strTarget = "onto " + actStr.substring(exitOntoIdx + 6, actStr.length());
-                actStr = actStr.substring(0, exitOntoIdx);
-            } else {
-                var exitOnIdx = actStr.find(" on ");
-                if (exitOnIdx != null) {
-                    strTarget = actStr.substring(exitOnIdx + 4, actStr.length());
-                    actStr = actStr.substring(0, exitOnIdx);
+                actStr = afterTake.substring(0, exitOntoIdx);
+                suffix = afterTake.substring(exitOntoIdx + 1, afterTake.length());
+            }
+            var fullRemaining = prefix;
+            if (suffix.length() > 0) {
+                fullRemaining = (prefix.length() > 0) ? (prefix + suffix) : suffix;
+            }
+            return [actStr, fullRemaining] as Array<String>;
+        }
+
+        // 3. Known Action Verb Prefixes (Priority order: longest phrases first)
+        var actionPrefixes = [
+            "Turn sharp right",
+            "Turn sharp left",
+            "Turn slight right",
+            "Turn slight left",
+            "Slight right",
+            "Slight left",
+            "Sharp right",
+            "Sharp left",
+            "Turn right",
+            "Turn left",
+            "Keep right",
+            "Keep left",
+            "Make a U-turn",
+            "Head northeast",
+            "Head northwest",
+            "Head southeast",
+            "Head southwest",
+            "Head north",
+            "Head south",
+            "Head east",
+            "Head west",
+            "Take the",
+            "Continue onto",
+            "Continue straight",
+            "Continue",
+            "Đi chếch sang phải",
+            "Đi chếch sang trái",
+            "Rẽ ngoặt sang phải",
+            "Rẽ ngoặt sang trái",
+            "Rẽ phải",
+            "Rẽ trái",
+            "Quay đầu xe",
+            "Quay đầu",
+            "Đi về hướng",
+            "Tiếp tục đi thẳng",
+            "Đi thẳng",
+            "Tiếp tục"
+        ];
+
+        for (var i = 0; i < actionPrefixes.size(); i++) {
+            var pfx = actionPrefixes[i];
+            var pfxLen = pfx.length();
+            if (text.length() >= pfxLen) {
+                var sub = text.substring(0, pfxLen);
+                if (sub.equals(pfx)) {
+                    var act = pfx;
+                    var remaining = text.substring(pfxLen, text.length());
+                    if (remaining.length() > 0 && remaining.substring(0, 1).equals(" ")) {
+                        remaining = remaining.substring(1, remaining.length());
+                    }
+                    return [act, remaining] as Array<String>;
                 }
             }
-            return [actStr, strTarget] as Array<String>;
-        }
-
-        // 3. Keyword delimiters to separate maneuver action from target road (Priority Order)
-        // Strips " at " / " to continue on " to keep target road clean
-        var atIdx = text.find(" at ");
-        if (atIdx != null && atIdx > 2) {
-            var act = text.substring(0, atIdx);
-            var str = text.substring(atIdx + 4, text.length()); // removes "at "
-            return [act, str] as Array<String>;
-        }
-
-        var contIdx = text.find(" to continue on ");
-        if (contIdx != null && contIdx > 2) {
-            var act = text.substring(0, contIdx);
-            var str = text.substring(contIdx + 16, text.length());
-            return [act, str] as Array<String>;
-        }
-
-        var ontoIdx = text.find(" onto ");
-        if (ontoIdx != null && ontoIdx > 2) {
-            var act = text.substring(0, ontoIdx);
-            var str = text.substring(ontoIdx + 1, text.length()); // "onto ..."
-            return [act, str] as Array<String>;
-        }
-
-        var onIdx = text.find(" on ");
-        if (onIdx != null && onIdx > 2) {
-            var act = text.substring(0, onIdx);
-            var str = text.substring(onIdx + 4, text.length());
-            return [act, str] as Array<String>;
-        }
-
-        var afterIdx = text.find(" after ");
-        if (afterIdx != null && afterIdx > 2) {
-            var act = text.substring(0, afterIdx);
-            var str = text.substring(afterIdx + 1, text.length());
-            return [act, str] as Array<String>;
-        }
-
-        var towardIdx = text.find(" toward ");
-        if (towardIdx != null && towardIdx > 2) {
-            var act = text.substring(0, towardIdx);
-            var str = text.substring(towardIdx + 1, text.length());
-            return [act, str] as Array<String>;
-        }
-
-        // Vietnamese keywords
-        var vaoIdx = text.find(" vào ");
-        if (vaoIdx != null && vaoIdx > 2) {
-            var act = text.substring(0, vaoIdx);
-            var str = text.substring(vaoIdx + 5, text.length());
-            return [act, str] as Array<String>;
-        }
-
-        var taiIdx = text.find(" tại ");
-        if (taiIdx != null && taiIdx > 2) {
-            var act = text.substring(0, taiIdx);
-            var str = text.substring(taiIdx + 5, text.length());
-            return [act, str] as Array<String>;
-        }
-
-        var trenIdx = text.find(" trên ");
-        if (trenIdx != null && trenIdx > 2) {
-            var act = text.substring(0, trenIdx);
-            var str = text.substring(trenIdx + 6, text.length());
-            return [act, str] as Array<String>;
         }
 
         return [text, ""] as Array<String>;
