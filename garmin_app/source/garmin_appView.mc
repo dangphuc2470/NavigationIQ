@@ -14,10 +14,22 @@ class NavigationIQView extends WatchUi.View {
     private var _pageTimer as Timer.Timer?;
     private var _animTick as Number = 0;
     private var _pageIndex as Number = 0;
+    private var _fontSfStreet as Graphics.FontDefinition?;
+    private var _fontSfCompact as Graphics.FontDefinition?;
+    private var _fontSfMicro as Graphics.FontDefinition?;
 
     function initialize() {
         View.initialize();
         _pageTimer = new Timer.Timer();
+        try {
+            _fontSfStreet = WatchUi.loadResource(Rez.Fonts.SfStreet) as Graphics.FontDefinition;
+            _fontSfCompact = WatchUi.loadResource(Rez.Fonts.SfCompact) as Graphics.FontDefinition;
+            _fontSfMicro = WatchUi.loadResource(Rez.Fonts.SfMicro) as Graphics.FontDefinition;
+        } catch (e) {
+            _fontSfStreet = null;
+            _fontSfCompact = null;
+            _fontSfMicro = null;
+        }
     }
 
     function onLayout(dc as Dc) as Void {
@@ -476,8 +488,16 @@ class NavigationIQView extends WatchUi.View {
         dc.setPenWidth(1);
         dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, 15);
 
-        // Crisp White Micro Vector Typography for ETA
-        _drawMicroText(dc, etaBadgeX + (etaBadgeW / 2), etaBadgeY + (etaBadgeH / 2), etaStr, Graphics.COLOR_WHITE, true);
+        // Crisp White SF Pro Font for ETA
+        var microFont = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(
+            etaBadgeX + (etaBadgeW / 2),
+            etaBadgeY + (etaBadgeH / 2),
+            microFont,
+            etaStr,
+            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+        );
 
         // Center: Subtle Bullet Dot
         var dotX = etaBadgeX + etaBadgeW + 16;
@@ -485,10 +505,17 @@ class NavigationIQView extends WatchUi.View {
         dc.setColor(0x71717A, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(dotX, dotY, 2.5);
 
-        // Right: Razor-Sharp Micro Vector Digital Clock Time
+        // Right: Crisp White SF Pro Live Clock Time
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
-        _drawMicroText(dc, cardX + cardW - 20, dotY, timeStr, 0xE4E4E7, false);
+        dc.setColor(0xE4E4E7, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(
+            cardX + cardW - 18,
+            dotY,
+            microFont,
+            timeStr,
+            Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER
+        );
     }
 
     // -------------------------------------------------------------------------
@@ -587,36 +614,40 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // Dynamic Font Scaling + Smooth Vertical Auto-Scroll
+    // Dynamic Font Scaling + Smooth Vertical Auto-Scroll (Apple SF Pro Font)
     // -------------------------------------------------------------------------
     private function _drawDynamicWrappedText(dc as Dc, startX as Number, startY as Number, maxWidth as Number, maxHeight as Number, text as String, accentColor as Number) as Void {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
 
-        // 1. Try FONT_SMALL for short instructions (<= 2 lines)
-        var linesSmall = _wrapWithFont(dc, text, Graphics.FONT_SMALL, maxWidth);
-        var fontHSmall = dc.getFontHeight(Graphics.FONT_SMALL);
-        if (linesSmall.size() <= 2 && (linesSmall.size() * (fontHSmall + 2)) <= maxHeight) {
-            _renderLines(dc, linesSmall, Graphics.FONT_SMALL, startX, startY, maxHeight, fontHSmall + 2);
+        var fontStreet = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL;
+        var fontCompact = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_TINY;
+        var fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
+
+        // 1. Try SF Pro Street font (22px) for short instructions (<= 2 lines)
+        var linesStreet = _wrapWithFont(dc, text, fontStreet, maxWidth);
+        var fontHStreet = dc.getFontHeight(fontStreet);
+        if (linesStreet.size() <= 2 && (linesStreet.size() * (fontHStreet + 2)) <= maxHeight) {
+            _renderLines(dc, linesStreet, fontStreet, startX, startY, maxHeight, fontHStreet + 2);
             return;
         }
 
-        // 2. Try FONT_TINY for medium instructions (<= 3 lines)
-        var linesTiny = _wrapWithFont(dc, text, Graphics.FONT_TINY, maxWidth);
-        var fontHTiny = dc.getFontHeight(Graphics.FONT_TINY);
-        if (linesTiny.size() <= 3 && (linesTiny.size() * (fontHTiny + 2)) <= maxHeight) {
-            _renderLines(dc, linesTiny, Graphics.FONT_TINY, startX, startY, maxHeight, fontHTiny + 2);
+        // 2. Try SF Pro Compact font (18px) for medium instructions (<= 3 lines)
+        var linesCompact = _wrapWithFont(dc, text, fontCompact, maxWidth);
+        var fontHCompact = dc.getFontHeight(fontCompact);
+        if (linesCompact.size() <= 3 && (linesCompact.size() * (fontHCompact + 2)) <= maxHeight) {
+            _renderLines(dc, linesCompact, fontCompact, startX, startY, maxHeight, fontHCompact + 2);
             return;
         }
 
-        // 3. Fallback to FONT_XTINY
-        var linesXTiny = _wrapWithFont(dc, text, Graphics.FONT_XTINY, maxWidth);
-        var fontHXTiny = dc.getFontHeight(Graphics.FONT_XTINY);
-        var lineH = fontHXTiny + 2;
-        var totalLines = linesXTiny.size();
+        // 3. Fallback to SF Pro Micro font (14px) with smooth auto-scroll
+        var linesMicro = _wrapWithFont(dc, text, fontMicro, maxWidth);
+        var fontHMicro = dc.getFontHeight(fontMicro);
+        var lineH = fontHMicro + 2;
+        var totalLines = linesMicro.size();
         var totalH = totalLines * lineH;
 
         if (totalH <= maxHeight) {
-            _renderLines(dc, linesXTiny, Graphics.FONT_XTINY, startX, startY, maxHeight, lineH);
+            _renderLines(dc, linesMicro, fontMicro, startX, startY, maxHeight, lineH);
         } else {
             // Smooth Vertical Auto-Scroll with Pause at top and bottom
             if (dc has :setClip) {
@@ -641,7 +672,7 @@ class NavigationIQView extends WatchUi.View {
 
             var renderY = startY + 4 - scrollOffset;
             for (var j = 0; j < totalLines; j++) {
-                dc.drawText(startX, renderY + (j * lineH), Graphics.FONT_XTINY, linesXTiny[j], Graphics.TEXT_JUSTIFY_LEFT);
+                dc.drawText(startX, renderY + (j * lineH), fontMicro, linesMicro[j], Graphics.TEXT_JUSTIFY_LEFT);
             }
 
             if (dc has :clearClip) {
