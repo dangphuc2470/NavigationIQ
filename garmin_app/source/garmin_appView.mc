@@ -763,8 +763,8 @@ class NavigationIQView extends WatchUi.View {
         dc.setPenWidth(1);
         dc.drawRoundedRectangle(barPx, barPy, barPw, barPh, barR);
 
-        // ETA Capsule (Visual: vx = 12, vy = 264, vw = 146, vh = 44 -> Physical: px = 12, py = 12, pw = 44, ph = 146)
-        var etaCapsulePx = 12;
+        // ETA Capsule (Visual: vx = 12, vy = 264, vw = 146, vh = 44 -> Physical: px = 11, py = 12, pw = 44, ph = 146)
+        var etaCapsulePx = 11;
         var etaCapsulePy = 12;
         var etaCapsulePw = 44;
         var etaCapsulePh = 146;
@@ -779,12 +779,20 @@ class NavigationIQView extends WatchUi.View {
         var fontMicroRot = (_fontSfMicroRot90 != null) ? _fontSfMicroRot90 : _fontSfMicro;
         var fontMicroUp = (_fontSfMicro != null) ? _fontSfMicro : fontMicroRot;
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        _drawRot90String(dc, 22, 286, fontMicroRot, fontMicroUp, etaStr, COLOR_TEXT_WHITE);
+        var etaW = _measureRot90String(dc, fontMicroUp, etaStr);
+        var etaVx = 12 + (146 - etaW) / 2;
+        _drawRot90String(dc, etaVx, 286, fontMicroRot, fontMicroUp, etaStr, COLOR_TEXT_WHITE);
 
-        // Live Clock Time (Visual: vx = 260, vy = 286)
+        // Center Bullet Dot (Visual: vx = 200, vy = 286 -> Physical: px = 33, py = 200)
+        dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(33, 200, 2);
+
+        // Live Clock Time (Visual: right aligned to vx = 346, vy = 286)
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
-        _drawRot90String(dc, 260, 286, fontMicroRot, fontMicroUp, timeStr, COLOR_TEXT_SILVER);
+        var clockW = _measureRot90String(dc, fontMicroUp, timeStr);
+        var clockVx = 346 - clockW;
+        _drawRot90String(dc, clockVx, 286, fontMicroRot, fontMicroUp, timeStr, COLOR_TEXT_SILVER);
     }
 
     // -------------------------------------------------------------------------
