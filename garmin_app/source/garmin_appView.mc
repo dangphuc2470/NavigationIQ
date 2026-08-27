@@ -230,14 +230,14 @@ class NavigationIQView extends WatchUi.View {
         dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
         dc.drawText(160, 226, fontStreet, "Waiting for navigation", Graphics.TEXT_JUSTIFY_CENTER);
 
-        // 5. Bottom WatchOS Clock Pill (Centered at y = 286)
+        // 5. Bottom WatchOS Clock Pill (Centered symmetrically with equal 6px top/bottom padding)
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
         var clockW = dc.getTextWidthInPixels(timeStr, fontMicro);
-        var clockPillW = clockW + 28;
+        var clockPillW = clockW + 36;
         var clockPillH = 32;
         var clockPillX = (320 - clockPillW) / 2;
-        var clockPillY = 270;
+        var clockPillY = 268;
         var clockPillR = 16;
 
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
@@ -247,7 +247,7 @@ class NavigationIQView extends WatchUi.View {
         dc.drawRoundedRectangle(clockPillX, clockPillY, clockPillW, clockPillH, clockPillR);
 
         dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(160, clockPillY, fontMicro, timeStr, Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(160, clockPillY - 2, fontMicro, timeStr, Graphics.TEXT_JUSTIFY_CENTER);
     }
 
     // -------------------------------------------------------------------------
