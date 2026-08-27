@@ -106,9 +106,10 @@ module CommManager {
                     navText = newNav;
                     _inferDirectionAndExit(navText);
                     nextStreet = _extractNextStreet(navText);
-                    // Clear old bitmap immediately upon new instruction change!
-                    rleBitmap = null;
-                    isWaitingImage = true;
+                    // Preserve cached rleBitmap; only mark waiting if no bitmap exists
+                    if (rleBitmap == null) {
+                        isWaitingImage = true;
+                    }
                     try { Application.Storage.setValue("navText", navText); } catch (e) {}
                 }
             }

@@ -179,11 +179,34 @@ object GarminManager {
         }
     }
 
+    @Volatile
+    private var isSending = false
+    @Volatile
+    private var latestPendingInfo: NavigationInfo? = null
+
     fun sendNavigationInfo(context: Context, info: NavigationInfo) {
+        latestPendingInfo = info
         if (!isSdkReady) {
-            initSdk(context) { sendNavigationInfo(context, info) }
+            initSdk(context) { 
+                latestPendingInfo?.let { sendNavigationInfo(context, it) }
+            }
             return
         }
+
+        if (isSending) {
+            // A message is currently transmitting over BLE; latestPendingInfo holds the newest data
+            // and will be dispatched as soon as the in-flight send completes, discarding stale intermediates.
+            return
+        }
+
+        dispatchLatest(context)
+    }
+
+    @Synchronized
+    private fun dispatchLatest(context: Context) {
+        val info = latestPendingInfo ?: return
+        latestPendingInfo = null
+        isSending = true
 
         // Refresh devices list if empty
         if (devices.isEmpty()) {
@@ -195,15 +218,41 @@ object GarminManager {
 
         if (devices.isEmpty()) {
             addLog("[WARN] No Garmin device found to send to")
+            isSending = false
             return
         }
 
         val message = GarminMessage(context, info, cache)
-        if (message.isEmpty()) return
+        if (message.isEmpty()) {
+            isSending = false
+            if (latestPendingInfo != null) dispatchLatest(context)
+            return
+        }
 
+        val targetApps = mutableListOf<Pair<IQDevice, IQApp>>()
         for (device in devices) {
             for (app in registeredApps.values) {
-                sendMessage(context, device, app, message)
+                targetApps.add(device to app)
+            }
+        }
+
+        if (targetApps.isEmpty()) {
+            isSending = false
+            if (latestPendingInfo != null) dispatchLatest(context)
+            return
+        }
+
+        var completedCount = 0
+        for ((device, app) in targetApps) {
+            sendMessage(context, device, app, message) {
+                completedCount++
+                if (completedCount >= targetApps.size) {
+                    isSending = false
+                    // If a newer update arrived during transmission, send it immediately
+                    if (latestPendingInfo != null) {
+                        dispatchLatest(context)
+                    }
+                }
             }
         }
         _sentCount.value++
@@ -211,6 +260,7 @@ object GarminManager {
     }
 
     fun sendNavigationEnd(context: Context) {
+        latestPendingInfo = null
         val endMsg = GarminMessage()
         for (device in devices) {
             for (app in registeredApps.values) {
@@ -299,7 +349,7 @@ object GarminManager {
         }
     }
 
-    private fun sendMessage(context: Context, device: IQDevice, app: IQApp, message: GarminMessage) {
+    private fun sendMessage(context: Context, device: IQDevice, app: IQApp, message: GarminMessage, onComplete: (() -> Unit)? = null) {
         try {
             connectIQ?.sendMessage(device, app, message.toDataPayload()) { _, _, status ->
                 if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
@@ -315,10 +365,12 @@ object GarminManager {
                         restartConnection(context)
                     }
                 }
+                onComplete?.invoke()
             }
         } catch (e: Exception) {
             addLog("[ERR] sendMessage: ${e.message}")
             Log.e(TAG, "sendMessage: ${e.message}")
+            onComplete?.invoke()
         }
     }
 
