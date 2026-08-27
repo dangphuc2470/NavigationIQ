@@ -93,14 +93,15 @@ module CommManager {
     }
 
     function start() as Void {
-        navText     = "";
-        distText    = "";
-        etaText     = "";
-        nextStreet  = "";
-        direction   = DIR_UNKNOWN;
+        navText     = "Rẽ trái vào đường Lê Lợi";
+        distText    = "250 m";
+        etaText     = "12:30";
+        _inferDirectionAndExit(navText);
+        nextStreet  = _extractNextStreet(navText);
         rleBitmap   = null;
-        isActive    = false;
+        isActive    = true;
         mapRleData  = null;
+        lastRxTime  = System.getTimer();
     }
 
     function onPhoneMessage(msg as Communications.PhoneAppMessage) as Void {
