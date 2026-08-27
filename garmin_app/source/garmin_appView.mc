@@ -89,7 +89,7 @@ class NavigationIQView extends WatchUi.View {
     private var _pageTimer as Timer.Timer?;
     private var _animTick as Number = 0;
     private var _pageIndex as Number = 0;
-    private var _rotation as Number = 0; // 0 = Portrait (0°), 1 = Landscape (90° Clockwise for Left-Wrist Motorbike)
+    private var _rotation as Number = 1; // 0 = Portrait (0°), 1 = Landscape (90° Clockwise for Left-Wrist Motorbike)
     private var _fontSfStreetBold as Graphics.FontDefinition?;
     private var _fontSfStreet as Graphics.FontDefinition?;
     private var _fontSfCompactBold as Graphics.FontDefinition?;
@@ -619,14 +619,51 @@ class NavigationIQView extends WatchUi.View {
         if (font == null || text.length() == 0) { return 0; }
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
         var curVx = vx;
-        for (var i = 0; i < text.length(); i++) {
-            var ch = text.substring(i, i + 1);
+        var chars = text.toCharArray();
+        for (var i = 0; i < chars.size(); i++) {
+            var ch = "" + chars[i];
             var px = 319 - vy;
             var py = curVx;
             dc.drawText(px, py, font, ch, Graphics.TEXT_JUSTIFY_LEFT);
             curVx += dc.getTextWidthInPixels(ch, font);
         }
         return curVx - vx;
+    }
+
+    private function _measureRot90String(dc as Dc, font as Graphics.FontDefinition?, text as String) as Number {
+        if (font == null || text.length() == 0) { return 0; }
+        var w = 0;
+        var chars = text.toCharArray();
+        for (var i = 0; i < chars.size(); i++) {
+            var ch = "" + chars[i];
+            w += dc.getTextWidthInPixels(ch, font);
+        }
+        return w;
+    }
+
+    private function _wrapWithRot90Font(dc as Dc, text as String, font as Graphics.FontDefinition?, maxWidth as Number) as Array<String> {
+        var words = _splitWords(text);
+        var lines = [] as Array<String>;
+        var curLine = "";
+
+        for (var i = 0; i < words.size(); i++) {
+            var word = words[i];
+            var testLine = (curLine.length() == 0) ? word : (curLine + " " + word);
+            var width = _measureRot90String(dc, font, testLine);
+
+            if (width > maxWidth && curLine.length() > 0) {
+                lines.add(curLine);
+                curLine = word;
+            } else {
+                curLine = testLine;
+            }
+        }
+
+        if (curLine.length() > 0) {
+            lines.add(curLine);
+        }
+
+        return lines;
     }
 
     // -------------------------------------------------------------------------
@@ -640,11 +677,11 @@ class NavigationIQView extends WatchUi.View {
         var etaBgColor = theme[3] as Number;
 
         // Visual Canvas: Width = 360, Height = 320
-        // Top Card (Visual: X: 8, Y: 8, W: 344, H: 240, R: 26)
-        // Physical: px = 319 - 8 - 240 = 71, py = 8, pw = 240, ph = 344
-        var cardPx = 71;
+        // Top Card (Visual: X: 8, Y: 8, W: 344, H: 236, R: 26)
+        // Physical: px = 319 - 8 - 236 = 75, py = 8, pw = 236, ph = 344
+        var cardPx = 75;
         var cardPy = 8;
-        var cardPw = 240;
+        var cardPw = 236;
         var cardPh = 344;
         var cardR = 26;
 
@@ -668,26 +705,26 @@ class NavigationIQView extends WatchUi.View {
         if (CommManager.isWaitingImage) {
             _drawLoadingSpinner(dc, badgePcx, badgePcy, badgeR, accentColor);
         } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
-            _drawRleBitmap(dc, badgePcx, badgePcy, CommManager.rleBitmap);
+            _drawRleBitmapRot90(dc, badgePcx, badgePcy, CommManager.rleBitmap);
         } else if (CommManager.direction != DIR_UNKNOWN) {
-            _drawVectorArrow(dc, badgePcx, badgePcy, CommManager.direction, CommManager.exitNumber, accentColor);
+            _drawVectorArrowRot90(dc, badgePcx, badgePcy, CommManager.direction, CommManager.exitNumber, accentColor);
         } else {
             _drawLoadingSpinner(dc, badgePcx, badgePcy, badgeR, accentColor);
         }
 
-        // Distance Row (Visual: vcx = 110, vcy = 54)
+        // Distance Row (Visual: vcx = 108, vcy = 60)
         var distFull = CommManager.distText;
         if (distFull.length() > 0) {
             var fontDist = (_fontSfStreetBoldRot90 != null) ? _fontSfStreetBoldRot90 : _fontSfStreetBold;
-            _drawRot90String(dc, 108, 68, fontDist, distFull, COLOR_TEXT_WHITE);
+            _drawRot90String(dc, 108, 62, fontDist, distFull, COLOR_TEXT_WHITE);
         }
 
-        // Divider Line (Visual: vy = 104 -> Physical: px = 215)
+        // Divider Line (Visual: vy = 102 -> Physical: px = 217)
         dc.setColor(COLOR_DIVIDER, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawLine(215, 20, 215, 340);
+        dc.drawLine(217, 16, 217, 344);
 
-        // Navigation Instruction Text
+        // Navigation Instruction Text (Wrapped within visual width 320)
         var streetText = CommManager.navText;
         if (streetText.length() > 0) {
             var split = _splitActionAndStreet(streetText);
@@ -697,18 +734,28 @@ class NavigationIQView extends WatchUi.View {
             var fontAction = (_fontSfStreetBoldRot90 != null) ? _fontSfStreetBoldRot90 : _fontSfStreetBold;
             var fontStreet = (_fontSfStreetRot90 != null) ? _fontSfStreetRot90 : _fontSfStreet;
 
+            var curVy = 132;
             if (actionStr.length() > 0) {
-                _drawRot90String(dc, 20, 136, fontAction, actionStr, COLOR_TEXT_WHITE);
+                var actionLines = _wrapWithRot90Font(dc, actionStr, fontAction, 310);
+                for (var al = 0; al < actionLines.size(); al++) {
+                    _drawRot90String(dc, 22, curVy, fontAction, actionLines[al], COLOR_TEXT_WHITE);
+                    curVy += 32;
+                }
             }
+
             if (streetStr.length() > 0) {
-                _drawRot90String(dc, 20, 180, fontStreet, streetStr, COLOR_TEXT_SILVER);
+                var streetLines = _wrapWithRot90Font(dc, streetStr, fontStreet, 310);
+                for (var sl = 0; sl < streetLines.size(); sl++) {
+                    _drawRot90String(dc, 22, curVy, fontStreet, streetLines[sl], COLOR_TEXT_SILVER);
+                    curVy += 28;
+                }
             }
         }
 
-        // Bottom Pill Bar (Visual: vy = 256, vh = 56 -> Physical: px = 7, py = 8, pw = 56, ph = 344)
+        // Bottom Pill Bar (Visual: vy = 252, vh = 60 -> Physical: px = 7, py = 8, pw = 60, ph = 344)
         var barPx = 7;
         var barPy = 8;
-        var barPw = 56;
+        var barPw = 60;
         var barPh = 344;
 
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
@@ -717,9 +764,9 @@ class NavigationIQView extends WatchUi.View {
         dc.setPenWidth(1);
         dc.drawRoundedRectangle(barPx, barPy, barPw, barPh, cardR);
 
-        // ETA Capsule (Visual: vx = 18, vy = 262, vw = 146, vh = 44 -> Physical: px = 13, py = 18, pw = 44, ph = 146)
-        var etaCapsulePx = 13;
-        var etaCapsulePy = 18;
+        // ETA Capsule (Visual: vx = 16, vy = 260, vw = 146, vh = 44 -> Physical: px = 15, py = 16, pw = 44, ph = 146)
+        var etaCapsulePx = 15;
+        var etaCapsulePy = 16;
         var etaCapsulePw = 44;
         var etaCapsulePh = 146;
         var etaCapsuleR = 22;
@@ -732,12 +779,136 @@ class NavigationIQView extends WatchUi.View {
 
         var fontMicroRot = (_fontSfMicroRot90 != null) ? _fontSfMicroRot90 : _fontSfMicro;
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        _drawRot90String(dc, 28, 286, fontMicroRot, etaStr, COLOR_TEXT_WHITE);
+        _drawRot90String(dc, 26, 286, fontMicroRot, etaStr, COLOR_TEXT_WHITE);
 
         // Live Clock Time (Visual: vx = 248, vy = 286)
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
         _drawRot90String(dc, 248, 286, fontMicroRot, timeStr, COLOR_TEXT_SILVER);
+    }
+
+    // -------------------------------------------------------------------------
+    // RLE Bitmap 90° Clockwise Rotated Renderer
+    // In 90° CW mode: px = cx - (y - h/2), py = cy + (x - w/2)
+    // -------------------------------------------------------------------------
+    private function _drawRleBitmapRot90(dc as Dc, cx as Number, cy as Number, rleData as Array<Number>) as Void {
+        dc.setPenWidth(1);
+        var w = rleData[0];
+        var h = rleData[1];
+        var startPy = cy - (w / 2);
+
+        var curX = 0;
+        var curY = 0;
+        var idx = 2;
+        var len = rleData.size();
+
+        while (idx < len - 1) {
+            var color = rleData[idx];
+            var count = rleData[idx + 1];
+            idx += 2;
+
+            if (color != 0) {
+                dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT);
+                var rem = count;
+                while (rem > 0) {
+                    var canFit = w - curX;
+                    var drawSpan = (rem < canFit) ? rem : canFit;
+                    var px = cx - (curY - (h / 2));
+                    var py = startPy + curX;
+                    dc.drawLine(px, py, px, py + drawSpan - 1);
+                    curX += drawSpan;
+                    if (curX >= w) {
+                        curX = 0;
+                        curY++;
+                    }
+                    rem -= drawSpan;
+                }
+            } else {
+                curX += count;
+                while (curX >= w) {
+                    curX -= w;
+                    curY++;
+                }
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Vector Arrow 90° Clockwise Rotated Renderer
+    // Maps each point (cx + dx, cy + dy) -> (cx - dy, cy + dx)
+    // -------------------------------------------------------------------------
+    private function _drawVectorArrowRot90(dc as Dc, cx as Number, cy as Number, dir as Number, exitNum as Number, arrowAccent as Number) as Void {
+        dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT);
+
+        if (dir == DIR_RIGHT || dir == DIR_SHARP_RIGHT) {
+            // Turn Right -> in 90° CW: straight towards hand, then turn UP towards buttons (3 o'clock)
+            dc.setPenWidth(9);
+            dc.drawLine(cx - 16, cy - 10, cx + 2, cy - 10);
+            dc.drawLine(cx + 2, cy - 10, cx + 2, cy + 8);
+            var head = [
+                [cx - 10, cy + 8],
+                [cx + 2, cy + 22],
+                [cx + 14, cy + 8]
+            ];
+            dc.fillPolygon(head);
+        }
+        else if (dir == DIR_LEFT || dir == DIR_SHARP_LEFT) {
+            // Turn Left -> in 90° CW: straight towards hand, then turn DOWN towards bezel (9 o'clock)
+            dc.setPenWidth(9);
+            dc.drawLine(cx - 16, cy + 10, cx + 2, cy + 10);
+            dc.drawLine(cx + 2, cy + 10, cx + 2, cy - 8);
+            var head = [
+                [cx - 10, cy - 8],
+                [cx + 2, cy - 22],
+                [cx + 14, cy - 8]
+            ];
+            dc.fillPolygon(head);
+        }
+        else if (dir == DIR_SLIGHT_RIGHT) {
+            dc.setPenWidth(9);
+            dc.drawLine(cx - 16, cy - 6, cx - 4, cy - 6);
+            dc.drawLine(cx - 4, cy - 6, cx + 8, cy + 8);
+            var head = [
+                [cx - 2, cy + 16],
+                [cx + 16, cy + 18],
+                [cx + 18, cy + 2]
+            ];
+            dc.fillPolygon(head);
+        }
+        else if (dir == DIR_SLIGHT_LEFT) {
+            dc.setPenWidth(9);
+            dc.drawLine(cx - 16, cy + 6, cx - 4, cy + 6);
+            dc.drawLine(cx - 4, cy + 6, cx + 8, cy - 8);
+            var head = [
+                [cx + 18, cy - 2],
+                [cx + 16, cy - 18],
+                [cx - 2, cy - 16]
+            ];
+            dc.fillPolygon(head);
+        }
+        else if (dir == DIR_UTURN) {
+            dc.setPenWidth(8);
+            dc.drawLine(cx - 16, cy - 10, cx + 4, cy - 10);
+            dc.drawLine(cx + 4, cy - 10, cx + 4, cy + 10);
+            dc.drawLine(cx + 4, cy + 10, cx - 8, cy + 10);
+            var head = [
+                [cx - 6, cy + 1],
+                [cx - 20, cy + 10],
+                [cx - 6, cy + 19]
+            ];
+            dc.fillPolygon(head);
+        }
+        else {
+            // Straight Ahead -> in 90° CW: points right (towards hand)
+            dc.setPenWidth(9);
+            dc.drawLine(cx - 16, cy, cx + 6, cy);
+            var head = [
+                [cx + 4, cy - 14],
+                [cx + 22, cy],
+                [cx + 4, cy + 14]
+            ];
+            dc.fillPolygon(head);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1182,8 +1353,9 @@ class NavigationIQView extends WatchUi.View {
     private function _splitWords(text as String) as Array<String> {
         var words = [] as Array<String>;
         var cur = "";
-        for (var i = 0; i < text.length(); i++) {
-            var ch = text.substring(i, i + 1);
+        var chars = text.toCharArray();
+        for (var i = 0; i < chars.size(); i++) {
+            var ch = "" + chars[i];
             if (ch.equals(" ") || ch.equals("\n") || ch.equals("\t")) {
                 if (cur.length() > 0) {
                     words.add(cur);

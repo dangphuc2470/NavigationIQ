@@ -3,34 +3,30 @@ import sys
 from PIL import Image, ImageDraw, ImageFont
 
 def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_name, rotate_degrees=0):
-    # 4x Supersampling for ultra-crisp, studio-grade anti-aliasing on Garmin AMOLED
-    scale = 4
-    font_hi = ImageFont.truetype(font_path, font_size * scale)
+    font = ImageFont.truetype(font_path, font_size)
     
     # Complete ASCII + Vietnamese Charset
     ascii_chars = "".join(chr(i) for i in range(32, 127))
     vn_chars = "àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ•–—’“”…"
     unique_chars = list(dict.fromkeys(ascii_chars + vn_chars))
     
-    ascent_hi, descent_hi = font_hi.getmetrics()
-    line_height = int(round((ascent_hi + descent_hi) / scale)) + 2
-    base = int(round(ascent_hi / scale))
+    ascent, descent = font.getmetrics()
+    line_height = ascent + descent + 2
+    base = ascent
     
-    pad_hi = 8 * scale
-    pad = 8
+    pad = 10
+    cell_h = line_height + pad * 2
     
     glyphs = []
     for ch in unique_chars:
         code = ord(ch)
-        adv_hi = font_hi.getlength(ch)
-        adv_int = int(round(adv_hi / scale))
+        advance = font.getlength(ch)
+        adv_int = int(round(advance))
         
-        cell_w_hi = max(int(round(adv_hi)) + pad_hi * 2, font_size * scale * 2)
-        cell_h_hi = (ascent_hi + descent_hi) + pad_hi * 2
-        
-        temp_img = Image.new("RGBA", (cell_w_hi, cell_h_hi), (0, 0, 0, 0))
+        cell_w = max(adv_int + pad * 2, font_size * 2 + pad * 2)
+        temp_img = Image.new("RGBA", (cell_w, cell_h), (0, 0, 0, 0))
         temp_draw = ImageDraw.Draw(temp_img)
-        temp_draw.text((pad_hi, pad_hi), ch, font=font_hi, fill=(255, 255, 255, 255))
+        temp_draw.text((pad, pad), ch, font=font, fill=(255, 255, 255, 255))
         
         bbox = temp_img.getbbox()
         if bbox is None:
@@ -40,29 +36,24 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
                 'img': None
             })
         else:
-            # Crop at 4x with safety padding to prevent accent clipping
-            crop_hi = temp_img.crop(bbox)
-            gw_hi = bbox[2] - bbox[0]
-            gh_hi = bbox[3] - bbox[1]
+            glyph_img = temp_img.crop(bbox)
+            gw = bbox[2] - bbox[0]
+            gh = bbox[3] - bbox[1]
             
-            gw = max(1, int(round(gw_hi / scale)))
-            gh = max(1, int(round(gh_hi / scale)))
-            
-            # High quality Lanczos downsample for silky smooth anti-aliased edges
-            glyph_img = crop_hi.resize((gw, gh), Image.Resampling.LANCZOS)
-            
-            xoff = int(round((bbox[0] - pad_hi) / scale))
-            yoff = int(round((bbox[1] - pad_hi) / scale))
+            xoff = bbox[0] - pad
+            yoff = bbox[1] - pad
             
             if rotate_degrees == 90:
-                # Rotate 90 degrees CW so character top points to 3 o'clock (buttons)
-                rot_img = glyph_img.rotate(270, expand=True, resample=Image.Resampling.BICUBIC)
+                # Rotate 90 degrees CW (in PIL: rotate 270)
+                rot_img = glyph_img.rotate(270, expand=True)
+                rot_xoff = base - yoff - gh
+                rot_yoff = xoff
                 glyphs.append({
                     'id': code, 'char': ch,
                     'w': rot_img.width, 'h': rot_img.height,
-                    'xoff': 0,
-                    'yoff': max(0, yoff),
-                    'xadv': max(adv_int, rot_img.height),
+                    'xoff': rot_xoff,
+                    'yoff': rot_yoff,
+                    'xadv': adv_int,
                     'img': rot_img
                 })
             else:
