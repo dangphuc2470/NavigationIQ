@@ -247,7 +247,7 @@ class NavigationIQView extends WatchUi.View {
         dc.drawRoundedRectangle(clockPillX, clockPillY, clockPillW, clockPillH, clockPillR);
 
         dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(160, clockPillY - 2, fontMicro, timeStr, Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(160, clockPillY - 5, fontMicro, timeStr, Graphics.TEXT_JUSTIFY_CENTER);
     }
 
     // -------------------------------------------------------------------------
