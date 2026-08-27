@@ -36,7 +36,7 @@ const DIVIDER_PADDING_X = 14;
 
 // 6. Navigation Text Box Geometry
 const NAV_TEXT_PADDING_X = 14;
-const NAV_TEXT_OFFSET_Y = 12;
+const NAV_TEXT_OFFSET_Y = 0;
 const NAV_TEXT_BOTTOM_PADDING = 14;
 
 // 7. Bottom Pill Bar Layout (Distinct Rounded Pill Card)
@@ -881,12 +881,12 @@ class NavigationIQView extends WatchUi.View {
         dc.setPenWidth(1);
         dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, ETA_BADGE_W, ETA_BADGE_H, ETA_BADGE_RADIUS);
 
-        // Crisp White SF Pro Font for ETA (Shifted 1px up for optical vertical centering)
+        // Crisp White SF Pro Font for ETA (Shifted 3px up for optical vertical centering)
         var microFont = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
             etaBadgeX + (ETA_BADGE_W / 2),
-            etaBadgeY + (ETA_BADGE_H / 2) - 1,
+            etaBadgeY + (ETA_BADGE_H / 2) - 3,
             microFont,
             etaStr,
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
@@ -1544,7 +1544,7 @@ class NavigationIQView extends WatchUi.View {
         var totalH = (linesAct.size() * hAct) + (linesStr.size() * hStr);
 
         if (totalH <= maxHeight) {
-            var curY = startY + (maxHeight - totalH) / 2;
+            var curY = startY + (maxHeight - totalH) / 2 - 6;
             // Primary Action in Bold Pure White
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
             for (var i = 0; i < linesAct.size(); i++) {
@@ -1568,7 +1568,7 @@ class NavigationIQView extends WatchUi.View {
         totalH = (linesAct.size() * hAct) + (linesStr.size() * hStr);
 
         if (totalH <= maxHeight) {
-            var curY = startY + (maxHeight - totalH) / 2;
+            var curY = startY + (maxHeight - totalH) / 2 - 6;
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
             for (var i = 0; i < linesAct.size(); i++) {
                 dc.drawText(startX, curY + (hAct / 2), fontCompactBold, linesAct[i], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
@@ -1668,7 +1668,7 @@ class NavigationIQView extends WatchUi.View {
         var totalH = lines.size() * lineH;
         var renderY = startY;
         if (maxHeight > totalH) {
-            renderY = startY + (maxHeight - totalH) / 2;
+            renderY = startY + (maxHeight - totalH) / 2 - 6;
         }
         for (var j = 0; j < lines.size(); j++) {
             dc.drawText(startX, renderY + (j * lineH), font, lines[j], Graphics.TEXT_JUSTIFY_LEFT);
@@ -1700,6 +1700,7 @@ class NavigationIQView extends WatchUi.View {
     // High-Precision Vector Turn Arrow Engine
     // -------------------------------------------------------------------------
     private function _drawVectorArrow(dc as Dc, cx as Number, cy as Number, dir as Number, exitNum as Number, arrowAccent as Number) as Void {
+        cy = cy - 4;
         dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT);
 
         // --- ROUNDABOUT WITH EXACT ANGLES ---
