@@ -704,20 +704,20 @@ class NavigationIQView extends WatchUi.View {
             _drawLoadingSpinner(dc, badgePcx, badgePcy, badgeR, accentColor);
         }
 
-        // Distance Row (Visual: vcx = 106, vcy = 58)
+        // Distance Row (Aligned optically with Turn Badge center vy = 71)
         var distFull = CommManager.distText;
         if (distFull.length() > 0) {
             var fontDistRot = (_fontSfStreetBoldRot90 != null) ? _fontSfStreetBoldRot90 : _fontSfStreetBold;
             var fontDistUp = (_fontSfStreetBold != null) ? _fontSfStreetBold : fontDistRot;
-            _drawRot90String(dc, 106, 60, fontDistRot, fontDistUp, distFull, COLOR_TEXT_WHITE);
+            _drawRot90String(dc, 114, 84, fontDistRot, fontDistUp, distFull, COLOR_TEXT_WHITE);
         }
 
-        // Divider Line inside Top Card (Visual: vy = 104 -> Physical: px = 215)
+        // Divider Line inside Top Card (Visual: vy = 118 -> Physical: px = 201)
         dc.setColor(COLOR_DIVIDER, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawLine(215, 14, 215, 346);
+        dc.drawLine(201, 16, 201, 344);
 
-        // Navigation Instruction Text (Wrapped edge-to-edge with 14px padding)
+        // Navigation Instruction Text (Vertically centered within vy = 118..244)
         var streetText = CommManager.navText;
         if (streetText.length() > 0) {
             var split = _splitActionAndStreet(streetText);
@@ -729,21 +729,22 @@ class NavigationIQView extends WatchUi.View {
             var fontStreetRot = (_fontSfStreetRot90 != null) ? _fontSfStreetRot90 : _fontSfStreet;
             var fontStreetUp = (_fontSfStreet != null) ? _fontSfStreet : fontStreetRot;
 
-            var curVy = 128;
-            if (actionStr.length() > 0) {
-                var actionLines = _wrapWithRot90Font(dc, actionStr, fontActionUp, 332);
-                for (var al = 0; al < actionLines.size(); al++) {
-                    _drawRot90String(dc, 14, curVy, fontActionRot, fontActionUp, actionLines[al], COLOR_TEXT_WHITE);
-                    curVy += 32;
-                }
+            var actionLines = (actionStr.length() > 0) ? _wrapWithRot90Font(dc, actionStr, fontActionUp, 332) : [] as Array<String>;
+            var streetLines = (streetStr.length() > 0) ? _wrapWithRot90Font(dc, streetStr, fontStreetUp, 332) : [] as Array<String>;
+
+            var totalLines = actionLines.size() + streetLines.size();
+            var blockH = (actionLines.size() * 32) + (streetLines.size() * 28);
+            var startVy = 118 + ((126 - blockH) / 2) + 24;
+
+            var curVy = startVy;
+            for (var al = 0; al < actionLines.size(); al++) {
+                _drawRot90String(dc, 14, curVy, fontActionRot, fontActionUp, actionLines[al], COLOR_TEXT_WHITE);
+                curVy += 32;
             }
 
-            if (streetStr.length() > 0) {
-                var streetLines = _wrapWithRot90Font(dc, streetStr, fontStreetUp, 332);
-                for (var sl = 0; sl < streetLines.size(); sl++) {
-                    _drawRot90String(dc, 14, curVy, fontStreetRot, fontStreetUp, streetLines[sl], COLOR_TEXT_SILVER);
-                    curVy += 28;
-                }
+            for (var sl = 0; sl < streetLines.size(); sl++) {
+                _drawRot90String(dc, 14, curVy, fontStreetRot, fontStreetUp, streetLines[sl], COLOR_TEXT_SILVER);
+                curVy += 28;
             }
         }
 
@@ -781,18 +782,18 @@ class NavigationIQView extends WatchUi.View {
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
         var etaW = _measureRot90String(dc, fontMicroUp, etaStr);
         var etaVx = 12 + (146 - etaW) / 2;
-        _drawRot90String(dc, etaVx, 295, fontMicroRot, fontMicroUp, etaStr, COLOR_TEXT_WHITE);
+        _drawRot90String(dc, etaVx, 298, fontMicroRot, fontMicroUp, etaStr, COLOR_TEXT_WHITE);
 
         // Center Bullet Dot (Visual: vx = 200, vy = 286 -> Physical: px = 33, py = 200)
         dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(33, 200, 2);
 
-        // Live Clock Time (Visual: right aligned to vx = 346, vy = 295)
+        // Live Clock Time (Visual: right aligned to vx = 346, vy = 298)
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
         var clockW = _measureRot90String(dc, fontMicroUp, timeStr);
         var clockVx = 346 - clockW;
-        _drawRot90String(dc, clockVx, 295, fontMicroRot, fontMicroUp, timeStr, COLOR_TEXT_SILVER);
+        _drawRot90String(dc, clockVx, 298, fontMicroRot, fontMicroUp, timeStr, COLOR_TEXT_SILVER);
     }
 
     // -------------------------------------------------------------------------
