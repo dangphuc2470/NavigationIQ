@@ -111,6 +111,8 @@ object GarminManager {
                 || android.os.Build.PRODUCT.contains("simulator")
     }
 
+    private var isSdkInitializing = false
+
     /** Init SDK. Safe to call multiple times – skips if already ready. */
     @Synchronized
     fun initSdk(context: Context, onReady: (() -> Unit)? = null) {
@@ -119,6 +121,10 @@ object GarminManager {
             onReady?.invoke()
             return
         }
+        if (isSdkInitializing) {
+            return
+        }
+        isSdkInitializing = true
         _disposeSdk(context)
         try {
             val connectType = if (isEmulator()) {
@@ -130,6 +136,7 @@ object GarminManager {
                 initialize(context, false, object : ConnectIQ.ConnectIQListener {
                     override fun onSdkReady() {
                         addLog("Garmin SDK ready ($connectType)")
+                        isSdkInitializing = false
                         isSdkReady = true
                         loadDevices(context)
                         startHeartbeatMonitor()
@@ -137,16 +144,20 @@ object GarminManager {
                     }
                     override fun onInitializeError(status: ConnectIQ.IQSdkErrorStatus) {
                         addLog("SDK init error: $status")
+                        isSdkInitializing = false
                         isSdkReady = false
                     }
                     override fun onSdkShutDown() {
                         addLog("SDK shut down")
+                        isSdkInitializing = false
                         isSdkReady = false
                         _isWatchFound.value = false
+                        _isHeartbeatLive.value = false
                     }
                 })
             }
         } catch (e: Exception) {
+            isSdkInitializing = false
             addLog("Init exception: ${e.message}")
             Log.e(TAG, "ConnectIQ init exception: ${e.message}")
         }

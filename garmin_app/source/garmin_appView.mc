@@ -84,6 +84,10 @@ const COLOR_THEME_GREEN_BADGE = 0x5C8E74;
 const COLOR_THEME_GREEN_ETA_BG = 0x243E30;
 const GLOW_RGB_GREEN = [0x10, 0x90, 0x55];
 
+// Warning / Disconnected (Red Theme)
+const COLOR_THEME_RED_ACCENT = 0xFF453A;
+const COLOR_THEME_RED_BADGE = 0x7A2A2A;
+
 class NavigationIQView extends WatchUi.View {
 
     private var _pageTimer as Timer.Timer?;
@@ -274,9 +278,9 @@ class NavigationIQView extends WatchUi.View {
         var fontBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_LARGE;
         var fontStreet = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL;
 
-        // 1. Top Status Pill (Dynamic Island Style with Heartbeat Pulse)
-        var isLive = CommManager.isConnected();
-        var statusStr = isLive ? "Live Connected" : ((CommManager.rxCount > 0) ? "Ready" : "Waiting Phone");
+        // 1. Top Status Pill (Dynamic Island Style)
+        var isConnected = CommManager.isConnected() || (CommManager.rxCount > 0);
+        var statusStr = isConnected ? Lang.format("Connected ($1$)", [CommManager.rxCount]) : "Ready";
         var strW = dc.getTextWidthInPixels(statusStr, fontMicro);
         var pillW = strW + 36;
         var pillH = 34;
@@ -290,26 +294,21 @@ class NavigationIQView extends WatchUi.View {
         dc.setPenWidth(1);
         dc.drawRoundedRectangle(pillX, pillY, pillW, pillH, pillR);
 
-        // Status LED Dot with Smooth Heartbeat Pulse Animation
-        var dotColor = isLive ? ((_animTick % 8 < 4) ? COLOR_THEME_GREEN_ACCENT : 0x1B4D2B) : ((CommManager.rxCount > 0) ? COLOR_THEME_AMBER_ACCENT : 0x48484A);
+        // Status Dot: Green when connected, Red/Amber when ready/waiting
+        var dotColor = isConnected ? COLOR_THEME_GREEN_ACCENT : COLOR_THEME_RED_ACCENT;
         dc.setColor(dotColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(pillX + 14, pillY + 17, isLive ? 4 : 3);
-        if (isLive && (_animTick % 8 < 4)) {
-            dc.setColor(0x30D158, Graphics.COLOR_TRANSPARENT);
-            dc.setPenWidth(1);
-            dc.drawCircle(pillX + 14, pillY + 17, 6);
-        }
+        dc.fillCircle(pillX + 14, pillY + 17, 4);
 
         // Status Text
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(pillX + 24, pillY + 4, fontMicro, statusStr, Graphics.TEXT_JUSTIFY_LEFT);
 
-        // 2. Center Compass Orb (Apple Maps Navigation Orb with Ambient Glow & Pulse)
+        // 2. Center Compass Orb (Original Ambient Cyan Glow Gradient)
         var cx = 160;
         var cy = 132;
-        var orbR = isLive ? (42 + ((_animTick % 12 < 6) ? 1 : 0)) : 42;
+        var orbR = 42;
 
-        _drawAmbientGlow(dc, cx, cy, isLive ? GLOW_RGB_CYAN : [0x1C, 0x1C, 0x1E] as Array<Number>);
+        _drawAmbientGlow(dc, cx, cy, GLOW_RGB_CYAN);
 
         dc.setColor(COLOR_THEME_CYAN_BADGE, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(cx, cy, orbR);
@@ -335,7 +334,7 @@ class NavigationIQView extends WatchUi.View {
         dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
         dc.drawText(160, 226, fontStreet, "Waiting for navigation", Graphics.TEXT_JUSTIFY_CENTER);
 
-        // 5. Bottom WatchOS Clock Pill (with Live Heartbeat Dot)
+        // 5. Bottom WatchOS Clock Pill (with Clean Status Dot)
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
         var clockW = dc.getTextWidthInPixels(timeStr, fontMicro);
@@ -351,7 +350,7 @@ class NavigationIQView extends WatchUi.View {
         dc.setPenWidth(1);
         dc.drawRoundedRectangle(clockPillX, clockPillY, clockPillW, clockPillH, clockPillR);
 
-        // Heartbeat dot inside clock pill
+        // Status dot inside clock pill
         dc.setColor(dotColor, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(clockPillX + 13, clockPillY + 16, 3);
 
