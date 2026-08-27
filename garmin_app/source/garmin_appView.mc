@@ -294,8 +294,8 @@ class NavigationIQView extends WatchUi.View {
         dc.setPenWidth(1);
         dc.drawRoundedRectangle(pillX, pillY, pillW, pillH, pillR);
 
-        // Status Dot: Green when connected, Red/Amber when ready/waiting
-        var dotColor = isConnected ? COLOR_THEME_GREEN_ACCENT : COLOR_THEME_RED_ACCENT;
+        // Status Dot: Green when connected, Muted Gray when ready/disconnected
+        var dotColor = isConnected ? COLOR_THEME_GREEN_ACCENT : COLOR_TEXT_MUTED;
         dc.setColor(dotColor, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(pillX + 14, pillY + 17, 4);
 

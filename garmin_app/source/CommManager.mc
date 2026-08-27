@@ -118,10 +118,6 @@ module CommManager {
         // Keep-Alive Ping packet: ["ping", timestamp]
         if (data instanceof Lang.Array && data.size() >= 1) {
             if (data[0] instanceof Lang.String && data[0].equals("ping")) {
-                try {
-                    Communications.transmit("pong", null, new PhoneCommListener());
-                } catch (e) {
-                }
                 WatchUi.requestUpdate();
                 return;
             }
