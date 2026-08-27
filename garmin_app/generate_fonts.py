@@ -14,20 +14,21 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
     
     ascent_b, descent_b = font_base.getmetrics()
     line_height = ascent_b + descent_b + 4
-    base = ascent_b + 10
+    base = ascent_b + 4
     
-    pad_large = 40
-    cell_h_large = (line_height * scale) + pad_large * 2
+    pad_x = 40
+    pad_baseline = ascent_b * scale + 40
+    cell_h_large = pad_baseline + (descent_b * scale) + 40
     
     glyphs = []
     for ch in unique_chars:
         code = ord(ch)
         adv_int = max(int(round(font_base.getlength(ch))), 1)
         
-        cell_w_large = max(adv_int * scale + pad_large * 2, font_size * scale * 2 + pad_large * 2)
+        cell_w_large = max(adv_int * scale + pad_x * 2, font_size * scale * 2 + pad_x * 2)
         temp_img = Image.new("RGBA", (cell_w_large, cell_h_large), (0, 0, 0, 0))
         temp_draw = ImageDraw.Draw(temp_img)
-        temp_draw.text((pad_large, pad_large), ch, font=font_large, fill=(255, 255, 255, 255))
+        temp_draw.text((pad_x, pad_baseline), ch, font=font_large, fill=(255, 255, 255, 255), anchor="ls")
         
         bbox = temp_img.getbbox()
         if bbox is None:
@@ -44,12 +45,12 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
             target_h = max(int(round((bbox[3] - bbox[1]) / scale)), 1)
             glyph_smooth = glyph_crop.resize((target_w, target_h), Image.Resampling.LANCZOS)
             
-            xoff = int(round((bbox[0] - pad_large) / scale))
-            yoff = int(round((bbox[1] - pad_large) / scale))
+            xoff = int(round((bbox[0] - pad_x) / scale))
+            yoff = base + int(round((bbox[1] - pad_baseline) / scale))
             
             if rotate_degrees == 90:
                 rot_img = glyph_smooth.rotate(270, expand=True)
-                rot_xoff = (ascent_b - yoff - target_h) + 10
+                rot_xoff = (base - yoff - target_h) + 10
                 rot_yoff = xoff
                 glyphs.append({
                     'id': code, 'char': ch,

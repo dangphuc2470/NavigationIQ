@@ -51,10 +51,6 @@ module CommManager {
         direction   = DIR_UNKNOWN;
         rleBitmap   = null;
         isActive    = false;
-        try {
-            Communications.transmit("alive", null, new PhoneCommListener());
-        } catch (e) {
-        }
     }
 
     function onPhoneMessage(msg as Communications.PhoneAppMessage) as Void {
