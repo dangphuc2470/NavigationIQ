@@ -32,10 +32,10 @@ const DIST_UNIT_GAP = 6;
 
 // 5. Divider Line
 const DIVIDER_OFFSET_Y = 106;
-const DIVIDER_PADDING_X = 14;
+const DIVIDER_PADDING_X = 16;
 
 // 6. Navigation Text Box Geometry
-const NAV_TEXT_PADDING_X = 14;
+const NAV_TEXT_PADDING_X = 16;
 const NAV_TEXT_OFFSET_Y = 0;
 const NAV_TEXT_BOTTOM_PADDING = 14;
 
@@ -48,7 +48,7 @@ const BAR_RADIUS = 30;
 const ETA_BADGE_W = 142;
 const ETA_BADGE_H = 44;
 const ETA_BADGE_RADIUS = 22;
-const ETA_BADGE_PADDING_X = 12;
+const ETA_BADGE_PADDING_X = 16;
 
 // 9. Ambient Glow Radial Gradient (Ultra-Smooth 120-Step Diffusion)
 const GLOW_STEPS = 120;
@@ -835,7 +835,7 @@ class NavigationIQView extends WatchUi.View {
                 dc.setColor(COLOR_TEXT_UNIT, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(
                     numX + numWidth + DIST_UNIT_GAP,
-                    badgeCy,
+                    badgeCy + 4,
                     Graphics.FONT_MEDIUM,
                     distUnit,
                     Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
@@ -881,12 +881,12 @@ class NavigationIQView extends WatchUi.View {
         dc.setPenWidth(1);
         dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, ETA_BADGE_W, ETA_BADGE_H, ETA_BADGE_RADIUS);
 
-        // Crisp White SF Pro Font for ETA (Shifted 3px up for optical vertical centering)
+        // Crisp White SF Pro Font for ETA (Shifted 1px up for optical vertical centering)
         var microFont = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
             etaBadgeX + (ETA_BADGE_W / 2),
-            etaBadgeY + (ETA_BADGE_H / 2) - 3,
+            etaBadgeY + (ETA_BADGE_H / 2) - 1,
             microFont,
             etaStr,
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
@@ -903,8 +903,8 @@ class NavigationIQView extends WatchUi.View {
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
         dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
-            CARD_X + CARD_W - 18,
-            dotY,
+            CARD_X + CARD_W - 16,
+            dotY - 1,
             microFont,
             timeStr,
             Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER
