@@ -3,8 +3,6 @@ import sys
 from PIL import Image, ImageDraw, ImageFont
 
 def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_name, rotate_degrees=0):
-    scale = 2
-    font_large = ImageFont.truetype(font_path, font_size * scale)
     font_base = ImageFont.truetype(font_path, font_size)
     
     # Complete ASCII + full Vietnamese accented characters
@@ -14,21 +12,21 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
     
     ascent_b, descent_b = font_base.getmetrics()
     line_height = ascent_b + descent_b + 4
-    base = ascent_b + 4
+    base = ascent_b + 2
     
-    pad_x = 40
-    pad_baseline = ascent_b * scale + 40
-    cell_h_large = pad_baseline + (descent_b * scale) + 40
+    pad_x = 20
+    pad_baseline = ascent_b + 20
+    cell_h = pad_baseline + descent_b + 20
     
     glyphs = []
     for ch in unique_chars:
         code = ord(ch)
         adv_int = max(int(round(font_base.getlength(ch))), 1)
         
-        cell_w_large = max(adv_int * scale + pad_x * 2, font_size * scale * 2 + pad_x * 2)
-        temp_img = Image.new("RGBA", (cell_w_large, cell_h_large), (0, 0, 0, 0))
+        cell_w = adv_int + pad_x * 2 + 20
+        temp_img = Image.new("RGBA", (cell_w, cell_h), (0, 0, 0, 0))
         temp_draw = ImageDraw.Draw(temp_img)
-        temp_draw.text((pad_x, pad_baseline), ch, font=font_large, fill=(255, 255, 255, 255), anchor="ls")
+        temp_draw.text((pad_x, pad_baseline), ch, font=font_base, fill=(255, 255, 255, 255), anchor="ls")
         
         bbox = temp_img.getbbox()
         if bbox is None:
@@ -39,17 +37,13 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
             })
         else:
             glyph_crop = temp_img.crop(bbox)
-            
-            # Subpixel smooth downscaling with Lanczos
-            target_w = max(int(round((bbox[2] - bbox[0]) / scale)), 1)
-            target_h = max(int(round((bbox[3] - bbox[1]) / scale)), 1)
-            glyph_smooth = glyph_crop.resize((target_w, target_h), Image.Resampling.LANCZOS)
-            
-            xoff = int(round((bbox[0] - pad_x) / scale))
-            yoff = base + int(round((bbox[1] - pad_baseline) / scale))
+            target_w = bbox[2] - bbox[0]
+            target_h = bbox[3] - bbox[1]
+            xoff = bbox[0] - pad_x
+            yoff = base + (bbox[1] - pad_baseline)
             
             if rotate_degrees == 90:
-                rot_img = glyph_smooth.rotate(270, expand=True)
+                rot_img = glyph_crop.rotate(270, expand=True)
                 rot_xoff = (base - yoff - target_h) + 10
                 rot_yoff = xoff
                 glyphs.append({
@@ -67,7 +61,7 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
                     'xoff': xoff,
                     'yoff': yoff,
                     'xadv': adv_int,
-                    'img': glyph_smooth
+                    'img': glyph_crop
                 })
                 
     # Texture packing
@@ -138,7 +132,7 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
             f.write(f"char id={g['id']:<5} x={g['x']:<4} y={g['y']:<4} width={g['w']:<3} height={g['h']:<3} xoffset={g['xoff']:<3} yoffset={g['yoff']:<3} xadvance={g['xadv']:<3} page=0 chnl=0\n")
 
 if __name__ == "__main__":
-    font_bold = "app/src/main/res/font/sf_pro_rounded_bold.otf"
+    font_bold = "app/src/main/res/font/sf_pro_display_semibold.otf"
     font_regular = "app/src/main/res/font/sf_pro_text_medium.otf"
     
     os.makedirs("garmin_app/resources/fonts", exist_ok=True)
@@ -151,7 +145,7 @@ if __name__ == "__main__":
     generate_bmfont(font_bold, 25, "garmin_app/resources/fonts/sf_pro_compact_bold.fnt", "garmin_app/resources/fonts/sf_pro_compact_bold_0.png", "SF Pro Compact Bold")
     # 4. Compact Street Regular Font (Size: 23px, Medium)
     generate_bmfont(font_regular, 23, "garmin_app/resources/fonts/sf_pro_compact.fnt", "garmin_app/resources/fonts/sf_pro_compact_0.png", "SF Pro Compact")
-    # 5. Micro Pill Font - ETA & Live Clock (Size: 27px, Bold - Reduced 1px as requested)
+    # 5. Micro Pill Font - ETA & Live Clock (Size: 27px, Bold)
     generate_bmfont(font_bold, 27, "garmin_app/resources/fonts/sf_pro_micro.fnt", "garmin_app/resources/fonts/sf_pro_micro_0.png", "SF Pro Micro")
     
     # 6. Rotated 90° Clockwise Fonts for Left-Wrist Motorbike Handlebar mode
@@ -159,4 +153,4 @@ if __name__ == "__main__":
     generate_bmfont(font_regular, 25, "garmin_app/resources/fonts/sf_pro_street_rot90.fnt", "garmin_app/resources/fonts/sf_pro_street_rot90_0.png", "SF Pro Street Rot90", rotate_degrees=90)
     generate_bmfont(font_bold, 25, "garmin_app/resources/fonts/sf_pro_micro_rot90.fnt", "garmin_app/resources/fonts/sf_pro_micro_rot90_0.png", "SF Pro Micro Rot90", rotate_degrees=90)
     
-    print("All BMFonts (4x Supersampled Anti-Aliased Upright + 90° Rotated) successfully generated!")
+    print("All BMFonts (Direct 1x TrueType Hinted + Precise Baseline Alignment) successfully generated!")
