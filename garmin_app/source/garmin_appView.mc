@@ -32,10 +32,10 @@ const DIST_UNIT_GAP = 6;
 
 // 5. Divider Line
 const DIVIDER_OFFSET_Y = 106;
-const DIVIDER_PADDING_X = 16;
+const DIVIDER_PADDING_X = 14;
 
 // 6. Navigation Text Box Geometry
-const NAV_TEXT_PADDING_X = 16;
+const NAV_TEXT_PADDING_X = 14;
 const NAV_TEXT_OFFSET_Y = 0;
 const NAV_TEXT_BOTTOM_PADDING = 14;
 
@@ -48,7 +48,7 @@ const BAR_RADIUS = 30;
 const ETA_BADGE_W = 142;
 const ETA_BADGE_H = 44;
 const ETA_BADGE_RADIUS = 22;
-const ETA_BADGE_PADDING_X = 16;
+const ETA_BADGE_PADDING_X = 12;
 
 // 9. Ambient Glow Radial Gradient (Ultra-Smooth 120-Step Diffusion)
 const GLOW_STEPS = 120;
@@ -835,7 +835,7 @@ class NavigationIQView extends WatchUi.View {
                 dc.setColor(COLOR_TEXT_UNIT, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(
                     numX + numWidth + DIST_UNIT_GAP,
-                    badgeCy + 4,
+                    badgeCy,
                     Graphics.FONT_MEDIUM,
                     distUnit,
                     Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
@@ -881,30 +881,31 @@ class NavigationIQView extends WatchUi.View {
         dc.setPenWidth(1);
         dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, ETA_BADGE_W, ETA_BADGE_H, ETA_BADGE_RADIUS);
 
-        // Crisp White SF Pro Font for ETA (Shifted 1px up for optical vertical centering)
+        var barCenterY = BAR_Y + (BAR_H / 2) - 2;
+
+        // Crisp White SF Pro Font for ETA (Aligned with clock baseline)
         var microFont = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
             etaBadgeX + (ETA_BADGE_W / 2),
-            etaBadgeY + (ETA_BADGE_H / 2) - 1,
+            barCenterY,
             microFont,
             etaStr,
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
         );
 
-        // Center: Subtle Bullet Dot
+        // Center: Subtle Bullet Dot (Aligned with same vertical center)
         var dotX = etaBadgeX + ETA_BADGE_W + 16;
-        var dotY = BAR_Y + (BAR_H / 2);
         dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(dotX, dotY, 2.5);
+        dc.fillCircle(dotX, barCenterY, 2.5);
 
-        // Right: Crisp White SF Pro Live Clock Time
+        // Right: Crisp White SF Pro Live Clock Time (Aligned with same vertical center)
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
         dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
-            CARD_X + CARD_W - 16,
-            dotY - 1,
+            CARD_X + CARD_W - 18,
+            barCenterY,
             microFont,
             timeStr,
             Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER
