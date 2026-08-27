@@ -102,25 +102,14 @@ class NavigationIQView extends WatchUi.View {
     function initialize() {
         View.initialize();
         _pageTimer = new Timer.Timer();
-        try {
-            _fontSfStreetBold = WatchUi.loadResource(Rez.Fonts.SfStreetBold) as Graphics.FontDefinition;
-            _fontSfStreet = WatchUi.loadResource(Rez.Fonts.SfStreet) as Graphics.FontDefinition;
-            _fontSfCompactBold = WatchUi.loadResource(Rez.Fonts.SfCompactBold) as Graphics.FontDefinition;
-            _fontSfCompact = WatchUi.loadResource(Rez.Fonts.SfCompact) as Graphics.FontDefinition;
-            _fontSfMicro = WatchUi.loadResource(Rez.Fonts.SfMicro) as Graphics.FontDefinition;
-            _fontSfStreetBoldRot90 = WatchUi.loadResource(Rez.Fonts.SfStreetBoldRot90) as Graphics.FontDefinition;
-            _fontSfStreetRot90 = WatchUi.loadResource(Rez.Fonts.SfStreetRot90) as Graphics.FontDefinition;
-            _fontSfMicroRot90 = WatchUi.loadResource(Rez.Fonts.SfMicroRot90) as Graphics.FontDefinition;
-        } catch (e) {
-            _fontSfStreetBold = null;
-            _fontSfStreet = null;
-            _fontSfCompactBold = null;
-            _fontSfCompact = null;
-            _fontSfMicro = null;
-            _fontSfStreetBoldRot90 = null;
-            _fontSfStreetRot90 = null;
-            _fontSfMicroRot90 = null;
-        }
+        try { _fontSfStreetBold = WatchUi.loadResource(Rez.Fonts.SfStreetBold) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfStreetBold: " + e.getErrorMessage()); }
+        try { _fontSfStreet = WatchUi.loadResource(Rez.Fonts.SfStreet) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfStreet: " + e.getErrorMessage()); }
+        try { _fontSfCompactBold = WatchUi.loadResource(Rez.Fonts.SfCompactBold) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfCompactBold: " + e.getErrorMessage()); }
+        try { _fontSfCompact = WatchUi.loadResource(Rez.Fonts.SfCompact) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfCompact: " + e.getErrorMessage()); }
+        try { _fontSfMicro = WatchUi.loadResource(Rez.Fonts.SfMicro) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfMicro: " + e.getErrorMessage()); }
+        try { _fontSfStreetBoldRot90 = WatchUi.loadResource(Rez.Fonts.SfStreetBoldRot90) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfStreetBoldRot90: " + e.getErrorMessage()); }
+        try { _fontSfStreetRot90 = WatchUi.loadResource(Rez.Fonts.SfStreetRot90) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfStreetRot90: " + e.getErrorMessage()); }
+        try { _fontSfMicroRot90 = WatchUi.loadResource(Rez.Fonts.SfMicroRot90) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfMicroRot90: " + e.getErrorMessage()); }
     }
 
     public function toggleRotation() as Void {
@@ -622,7 +611,7 @@ class NavigationIQView extends WatchUi.View {
         var chars = text.toCharArray();
         for (var i = 0; i < chars.size(); i++) {
             var ch = chars[i].toString();
-            var px = 319 - vy;
+            var px = 319 - vy - 10;
             var py = curVx;
             dc.drawText(px, py, font, ch, Graphics.TEXT_JUSTIFY_LEFT);
             curVx += dc.getTextWidthInPixels(ch, font);
@@ -644,25 +633,21 @@ class NavigationIQView extends WatchUi.View {
     private function _wrapWithRot90Font(dc as Dc, text as String, font as Graphics.FontDefinition?, maxWidth as Number) as Array<String> {
         var words = _splitWords(text);
         var lines = [] as Array<String>;
-        var curLine = "";
+        if (words.size() == 0) {
+            return lines;
+        }
 
-        for (var i = 0; i < words.size(); i++) {
-            var word = words[i];
-            var testLine = (curLine.length() == 0) ? word : (curLine + " " + word);
-            var width = _measureRot90String(dc, font, testLine);
-
-            if (width > maxWidth && curLine.length() > 0) {
-                lines.add(curLine);
-                curLine = word;
+        var currentLine = words[0];
+        for (var i = 1; i < words.size(); i++) {
+            var candidate = currentLine + " " + words[i];
+            if (_measureRot90String(dc, font, candidate) <= maxWidth) {
+                currentLine = candidate;
             } else {
-                curLine = testLine;
+                lines.add(currentLine);
+                currentLine = words[i];
             }
         }
-
-        if (curLine.length() > 0) {
-            lines.add(curLine);
-        }
-
+        lines.add(currentLine);
         return lines;
     }
 
@@ -687,9 +672,6 @@ class NavigationIQView extends WatchUi.View {
 
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
         dc.fillRoundedRectangle(cardPx, cardPy, cardPw, cardPh, cardR);
-        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawRoundedRectangle(cardPx, cardPy, cardPw, cardPh, cardR);
 
         // Turn Badge (Visual: vcx = 54, vcy = 54, r = 38 -> Physical: pcx = 265, pcy = 54)
         var badgePcx = 265;
@@ -697,7 +679,10 @@ class NavigationIQView extends WatchUi.View {
         var badgeR = 38;
 
         _drawAmbientGlow(dc, badgePcx, badgePcy, glowRGB);
-        _maskCardCorners(dc, cardPx, cardPy, cardPw, cardPh, cardR);
+
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(cardPx, cardPy, cardPw, cardPh, cardR);
 
         dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(badgePcx, badgePcy, badgeR);

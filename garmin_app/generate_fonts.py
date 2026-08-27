@@ -11,17 +11,17 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
     unique_chars = list(dict.fromkeys(ascii_chars + vn_chars))
     
     ascent, descent = font.getmetrics()
-    line_height = ascent + descent + 2
-    base = ascent
+    line_height = ascent + descent + 4
+    base = ascent + 10
     
-    pad = 10
+    pad = 20
     cell_h = line_height + pad * 2
     
     glyphs = []
     for ch in unique_chars:
         code = ord(ch)
         advance = font.getlength(ch)
-        adv_int = int(round(advance))
+        adv_int = max(int(round(advance)), 1)
         
         cell_w = max(adv_int + pad * 2, font_size * 2 + pad * 2)
         temp_img = Image.new("RGBA", (cell_w, cell_h), (0, 0, 0, 0))
@@ -39,14 +39,12 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
             glyph_img = temp_img.crop(bbox)
             gw = bbox[2] - bbox[0]
             gh = bbox[3] - bbox[1]
-            
             xoff = bbox[0] - pad
             yoff = bbox[1] - pad
             
             if rotate_degrees == 90:
-                # Rotate 90 degrees CW (in PIL: rotate 270)
                 rot_img = glyph_img.rotate(270, expand=True)
-                rot_xoff = base - yoff - gh
+                rot_xoff = (ascent - yoff - gh) + 10
                 rot_yoff = xoff
                 glyphs.append({
                     'id': code, 'char': ch,
@@ -64,6 +62,7 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
                     'xadv': adv_int,
                     'img': glyph_img
                 })
+
             
     # Pack into texture sheet (512x512)
     sheet_w = 512
