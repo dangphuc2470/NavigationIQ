@@ -177,7 +177,7 @@ class NavigationIQView extends WatchUi.View {
         var fontStreet = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL;
 
         // 1. Top Status Pill (Dynamic Island Style)
-        var statusStr = (CommManager.rxCount > 0) ? Lang.format("Da nhan $1$ goi", [CommManager.rxCount]) : "San sang ket noi";
+        var statusStr = (CommManager.rxCount > 0) ? Lang.format("Connected ($1$)", [CommManager.rxCount]) : "Ready";
         var strW = dc.getTextWidthInPixels(statusStr, fontMicro);
         var pillW = strW + 36;
         var pillH = 34;
@@ -224,11 +224,11 @@ class NavigationIQView extends WatchUi.View {
 
         // 3. Title (SF Pro Street Bold - Pure White)
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(160, 192, fontBold, "Navigation IQ", Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(160, 190, fontBold, "Navigation IQ", Graphics.TEXT_JUSTIFY_CENTER);
 
         // 4. Subtitle (SF Pro Regular - Silver Muted)
         dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(160, 230, fontStreet, "Mo Maps tren dien thoai", Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(160, 226, fontStreet, "Start route on phone", Graphics.TEXT_JUSTIFY_CENTER);
 
         // 5. Bottom WatchOS Clock Pill
         var clockTime = System.getClockTime();
