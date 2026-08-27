@@ -169,75 +169,85 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // Idle Standby Screen
+    // Idle Standby Screen (Apple WatchOS Aesthetic with SF Pro & Glowing Pill)
     // -------------------------------------------------------------------------
     private function _drawIdleScreen(dc as Dc) as Void {
-        // Status Pill
+        var fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
+        var fontBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_LARGE;
+        var fontStreet = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL;
+
+        // 1. Top Status Pill (Dynamic Island Style)
+        var statusStr = (CommManager.rxCount > 0) ? Lang.format("Da nhan $1$ goi", [CommManager.rxCount]) : "San sang ket noi";
+        var strW = dc.getTextWidthInPixels(statusStr, fontMicro);
+        var pillW = strW + 36;
+        var pillH = 34;
+        var pillX = (320 - pillW) / 2;
+        var pillY = 16;
+        var pillR = 17;
+
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(40, 24, 240, 32, 16);
+        dc.fillRoundedRectangle(pillX, pillY, pillW, pillH, pillR);
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawRoundedRectangle(40, 24, 240, 32, 16);
+        dc.drawRoundedRectangle(pillX, pillY, pillW, pillH, pillR);
 
+        // Status Green LED Dot
         dc.setColor(COLOR_THEME_GREEN_ACCENT, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(58, 40, 4);
-        dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(
-            165, 40,
-            Graphics.FONT_XTINY,
-            "Garmin Link: Connected",
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-        );
+        dc.fillCircle(pillX + 14, pillY + 17, 4);
 
-        // Center Compass HUD
+        // Status Text
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(pillX + 24, pillY + 4, fontMicro, statusStr, Graphics.TEXT_JUSTIFY_LEFT);
+
+        // 2. Center Compass Orb (Apple Maps Navigation Orb with Ambient Glow)
         var cx = 160;
-        var cy = 165;
-        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(cx, cy, 60);
-        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(2);
-        dc.drawCircle(cx, cy, 60);
+        var cy = 132;
+        var orbR = 42;
 
+        _drawAmbientGlow(dc, cx, cy, GLOW_RGB_CYAN);
+
+        dc.setColor(COLOR_THEME_CYAN_BADGE, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(cx, cy, orbR);
+        dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(2);
+        dc.drawCircle(cx, cy, orbR);
+
+        // Modern 3D Navigation Arrow
         var arrowPts = [
-            [cx, cy - 36],
-            [cx + 18, cy + 16],
-            [cx, cy + 6],
-            [cx - 18, cy + 16]
+            [cx, cy - 26],
+            [cx + 15, cy + 16],
+            [cx, cy + 8],
+            [cx - 15, cy + 16]
         ];
         dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
         dc.fillPolygon(arrowPts);
 
-        // Title
+        // 3. Title (SF Pro Street Bold - Pure White)
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(
-            160, 248,
-            Graphics.FONT_MEDIUM,
-            "Navigation IQ",
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-        );
+        dc.drawText(160, 192, fontBold, "Navigation IQ", Graphics.TEXT_JUSTIFY_CENTER);
 
-        // Subtitle
-        dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
-        var subText = (CommManager.rxCount > 0) ? ("Packets: " + CommManager.rxCount) : "Waiting for Google Maps...";
-        dc.drawText(
-            160, 280,
-            Graphics.FONT_XTINY,
-            subText,
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-        );
+        // 4. Subtitle (SF Pro Regular - Silver Muted)
+        dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(160, 230, fontStreet, "Mo Maps tren dien thoai", Graphics.TEXT_JUSTIFY_CENTER);
 
-        // Bottom Clock Pill
+        // 5. Bottom WatchOS Clock Pill
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
+        var clockW = dc.getTextWidthInPixels(timeStr, fontMicro);
+        var clockPillW = clockW + 28;
+        var clockPillH = 32;
+        var clockPillX = (320 - clockPillW) / 2;
+        var clockPillY = 272;
+        var clockPillR = 16;
+
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(110, 314, 100, 26, 13);
-        dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(
-            160, 327,
-            Graphics.FONT_XTINY,
-            timeStr,
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-        );
+        dc.fillRoundedRectangle(clockPillX, clockPillY, clockPillW, clockPillH, clockPillR);
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(clockPillX, clockPillY, clockPillW, clockPillH, clockPillR);
+
+        dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(160, clockPillY + 3, fontMicro, timeStr, Graphics.TEXT_JUSTIFY_CENTER);
     }
 
     // -------------------------------------------------------------------------

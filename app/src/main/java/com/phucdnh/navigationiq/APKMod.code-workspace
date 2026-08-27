@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../../../../../../../.."
+		},
+		{
+			"name": "garmin_app",
+			"path": "../../../../../../../garmin_app/garmin_app"
+		}
+	],
+	"settings": {}
+}
