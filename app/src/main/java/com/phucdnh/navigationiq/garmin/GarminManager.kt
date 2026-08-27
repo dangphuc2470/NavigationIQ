@@ -2,6 +2,8 @@ package com.phucdnh.navigationiq.garmin
 
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.garmin.android.connectiq.ConnectIQ
 import com.garmin.android.connectiq.IQApp
@@ -183,8 +185,23 @@ object GarminManager {
     private var isSending = false
     @Volatile
     private var latestPendingInfo: NavigationInfo? = null
+    @Volatile
+    private var sendStartTime = 0L
+    private val sendTimeoutHandler = Handler(Looper.getMainLooper())
+    private val timeoutRunnable = Runnable {
+        if (isSending) {
+            addLog("[WARN] Send timeout (2.5s) – forcing unlock & dispatching latest")
+            isSending = false
+            latestPendingInfo?.let {
+                dispatchLatest(appContext ?: return@Runnable)
+            }
+        }
+    }
+
+    private var appContext: Context? = null
 
     fun sendNavigationInfo(context: Context, info: NavigationInfo) {
+        appContext = context.applicationContext
         latestPendingInfo = info
         if (!isSdkReady) {
             initSdk(context) { 
@@ -194,8 +211,12 @@ object GarminManager {
         }
 
         if (isSending) {
-            // A message is currently transmitting over BLE; latestPendingInfo holds the newest data
-            // and will be dispatched as soon as the in-flight send completes, discarding stale intermediates.
+            // If currently sending, check if send has timed out (>2500ms)
+            if (System.currentTimeMillis() - sendStartTime > 2500) {
+                sendTimeoutHandler.removeCallbacks(timeoutRunnable)
+                isSending = false
+                dispatchLatest(context)
+            }
             return
         }
 
@@ -207,6 +228,10 @@ object GarminManager {
         val info = latestPendingInfo ?: return
         latestPendingInfo = null
         isSending = true
+        sendStartTime = System.currentTimeMillis()
+
+        sendTimeoutHandler.removeCallbacks(timeoutRunnable)
+        sendTimeoutHandler.postDelayed(timeoutRunnable, 2500)
 
         // Refresh devices list if empty
         if (devices.isEmpty()) {
@@ -219,12 +244,14 @@ object GarminManager {
         if (devices.isEmpty()) {
             addLog("[WARN] No Garmin device found to send to")
             isSending = false
+            sendTimeoutHandler.removeCallbacks(timeoutRunnable)
             return
         }
 
         val message = GarminMessage(context, info, cache)
         if (message.isEmpty()) {
             isSending = false
+            sendTimeoutHandler.removeCallbacks(timeoutRunnable)
             if (latestPendingInfo != null) dispatchLatest(context)
             return
         }
@@ -238,6 +265,7 @@ object GarminManager {
 
         if (targetApps.isEmpty()) {
             isSending = false
+            sendTimeoutHandler.removeCallbacks(timeoutRunnable)
             if (latestPendingInfo != null) dispatchLatest(context)
             return
         }
@@ -247,6 +275,7 @@ object GarminManager {
             sendMessage(context, device, app, message) {
                 completedCount++
                 if (completedCount >= targetApps.size) {
+                    sendTimeoutHandler.removeCallbacks(timeoutRunnable)
                     isSending = false
                     // If a newer update arrived during transmission, send it immediately
                     if (latestPendingInfo != null) {
