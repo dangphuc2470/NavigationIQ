@@ -45,21 +45,13 @@ module CommManager {
 
     function start() as Void {
         try {
-            var savedNav = Application.Storage.getValue("navText");
-            if (savedNav != null && savedNav instanceof Lang.String && (savedNav as String).length() > 0) {
-                navText = savedNav as String;
-                _inferDirectionAndExit(navText);
-                nextStreet = _extractNextStreet(navText);
-                isActive = true;
-            }
-            var savedDist = Application.Storage.getValue("distText");
-            if (savedDist != null && savedDist instanceof Lang.String) {
-                distText = savedDist as String;
-            }
-            var savedEta = Application.Storage.getValue("etaText");
-            if (savedEta != null && savedEta instanceof Lang.String) {
-                etaText = savedEta as String;
-            }
+            navText = "Rẽ phải vào đường Điện Biên Phủ";
+            distText = "350 m";
+            etaText = "12:15";
+            direction = DIR_RIGHT;
+            isActive = true;
+            _inferDirectionAndExit(navText);
+            nextStreet = _extractNextStreet(navText);
         } catch (e) {
         }
     }

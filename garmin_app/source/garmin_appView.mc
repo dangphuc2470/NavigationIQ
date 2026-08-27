@@ -621,7 +621,7 @@ class NavigationIQView extends WatchUi.View {
         var curVx = vx;
         var chars = text.toCharArray();
         for (var i = 0; i < chars.size(); i++) {
-            var ch = "" + chars[i];
+            var ch = chars[i].toString();
             var px = 319 - vy;
             var py = curVx;
             dc.drawText(px, py, font, ch, Graphics.TEXT_JUSTIFY_LEFT);
@@ -635,7 +635,7 @@ class NavigationIQView extends WatchUi.View {
         var w = 0;
         var chars = text.toCharArray();
         for (var i = 0; i < chars.size(); i++) {
-            var ch = "" + chars[i];
+            var ch = chars[i].toString();
             w += dc.getTextWidthInPixels(ch, font);
         }
         return w;
@@ -1355,7 +1355,7 @@ class NavigationIQView extends WatchUi.View {
         var cur = "";
         var chars = text.toCharArray();
         for (var i = 0; i < chars.size(); i++) {
-            var ch = "" + chars[i];
+            var ch = chars[i].toString();
             if (ch.equals(" ") || ch.equals("\n") || ch.equals("\t")) {
                 if (cur.length() > 0) {
                     words.add(cur);
