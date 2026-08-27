@@ -76,7 +76,7 @@ fun MainScreen() {
     val context = LocalContext.current
     var isNotificationPermissionGranted by remember { mutableStateOf(isNotificationServiceEnabled(context)) }
     val currentNavInfo by NavNotificationService.currentNavigationInfo.collectAsState()
-    val isWatchFound by GarminManager.isWatchFoundFlow.collectAsState()
+    val isHeartbeatLive by GarminManager.isHeartbeatLiveFlow.collectAsState()
     val watchName by GarminManager.watchNameFlow.collectAsState()
     val sentCount by GarminManager.sentCountFlow.collectAsState()
     val logs by GarminManager.logsFlow.collectAsState()
@@ -221,12 +221,22 @@ fun MainScreen() {
                     }
                 }
                 Spacer(modifier = Modifier.height(6.dp))
-                val displayName = watchName ?: "Đang chờ kết nối Bluetooth..."
-                Text(
-                    text = displayName,
-                    fontSize = 13.sp,
-                    color = if (isWatchFound) Color(0xFF30D158) else Color(0xFF8E8E93)
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val dotColor = if (isHeartbeatLive) Color(0xFF30D158) else Color(0xFFFF9F0A)
+                    Surface(
+                        shape = RoundedCornerShape(50),
+                        color = dotColor,
+                        modifier = Modifier.size(8.dp)
+                    ) {}
+                    Spacer(modifier = Modifier.width(8.dp))
+                    val displayName = watchName ?: "Đang chờ kết nối Bluetooth..."
+                    val statusLabel = if (isHeartbeatLive) "$displayName (Live Heartbeat)" else displayName
+                    Text(
+                        text = statusLabel,
+                        fontSize = 13.sp,
+                        color = if (isHeartbeatLive) Color(0xFF30D158) else Color(0xFF8E8E93)
+                    )
+                }
             }
         }
 

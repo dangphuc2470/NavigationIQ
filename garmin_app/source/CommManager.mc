@@ -53,6 +53,14 @@ module CommManager {
     var mapSpeed           as Number = 0;
     var mapHeading         as Number = 0;
     var mapRxCount         as Number = 0;
+    var lastRxTime         as Number = 0;
+
+    function isConnected() as Boolean {
+        if (lastRxTime <= 0) {
+            return false;
+        }
+        return (System.getTimer() - lastRxTime < 15000);
+    }
 
     function setMapMode(enabled as Boolean) as Void {
         isMapMode = enabled;
@@ -104,7 +112,20 @@ module CommManager {
             return;
         }
         rxCount++;
+        lastRxTime = System.getTimer();
         System.println(">>> CommManager parsed data: " + data);
+
+        // Keep-Alive Ping packet: ["ping", timestamp]
+        if (data instanceof Lang.Array && data.size() >= 1) {
+            if (data[0] instanceof Lang.String && data[0].equals("ping")) {
+                try {
+                    Communications.transmit("pong", null, new PhoneCommListener());
+                } catch (e) {
+                }
+                WatchUi.requestUpdate();
+                return;
+            }
+        }
 
         // Map data packet from Android: [ "map", width, height, zoom, speed, heading, rleData, palette ]
         if (data instanceof Lang.Array && data.size() >= 7) {

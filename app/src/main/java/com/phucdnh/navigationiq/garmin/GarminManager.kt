@@ -52,6 +52,9 @@ object GarminManager {
     private val _isWatchFound = MutableStateFlow(false)
     val isWatchFoundFlow = _isWatchFound.asStateFlow()
 
+    private val _isHeartbeatLive = MutableStateFlow(false)
+    val isHeartbeatLiveFlow = _isHeartbeatLive.asStateFlow()
+
     private val _watchName = MutableStateFlow<String?>(null)
     val watchNameFlow = _watchName.asStateFlow()
 
@@ -61,6 +64,8 @@ object GarminManager {
     /** Ring-buffer of recent log lines: "[HH:mm:ss] message" */
     private val _logs = MutableStateFlow<List<String>>(emptyList())
     val logsFlow = _logs.asStateFlow()
+
+    private var lastWatchRxTime = 0L
 
     // -------------------------------------------------------------------------
     // Internal state
@@ -127,6 +132,7 @@ object GarminManager {
                         addLog("Garmin SDK ready ($connectType)")
                         isSdkReady = true
                         loadDevices(context)
+                        startHeartbeatMonitor()
                         onReady?.invoke()
                     }
                     override fun onInitializeError(status: ConnectIQ.IQSdkErrorStatus) {
@@ -368,6 +374,10 @@ object GarminManager {
     private fun registerAppEvents(device: IQDevice, app: IQApp) {
         connectIQ?.registerForAppEvents(device, app) { _, _, messages, _ ->
             if (messages.isNullOrEmpty()) return@registerForAppEvents
+            lastWatchRxTime = System.currentTimeMillis()
+            _isHeartbeatLive.value = true
+            _isWatchFound.value = true
+
             val first = messages[0]
             if (first is List<*> && first.isNotEmpty()) {
                 val action = first[0]?.toString()
@@ -392,16 +402,20 @@ object GarminManager {
             val msg = first?.toString() ?: return@registerForAppEvents
             addLog("[RECV from watch] $msg")
             when (msg) {
-                "reset", "alive" -> {
+                "reset", "alive", "pong" -> {
                     cache.reset()
                     isWatchAppAlive = true
                     _isWatchFound.value = true
+                    _isHeartbeatLive.value = true
                 }
                 "resetimage" -> {
                     cache.sendBitmap = true
                     isWatchAppAlive = true
                 }
-                "dead" -> isWatchAppAlive = false
+                "dead" -> {
+                    isWatchAppAlive = false
+                    _isHeartbeatLive.value = false
+                }
                 "map_on" -> {
                     isMapMode = true
                     addLog("[MAP] Activated Map Mode on watch - starting 5s loop")
@@ -420,6 +434,43 @@ object GarminManager {
                     currentPanDy = 0
                     addLog("[MAP] Recenter GPS")
                     triggerInstantMapUpdate()
+                }
+            }
+        }
+    }
+
+    private var heartbeatJob: Job? = null
+
+    private fun startHeartbeatMonitor() {
+        heartbeatJob?.cancel()
+        heartbeatJob = mapScope.launch {
+            while (isActive) {
+                val now = System.currentTimeMillis()
+                _isHeartbeatLive.value = (now - lastWatchRxTime < 15_000L && lastWatchRxTime > 0L)
+                if (!isMapMode && latestPendingInfo == null && isSdkReady) {
+                    sendPing()
+                }
+                delay(8000L)
+            }
+        }
+    }
+
+    fun sendPing() {
+        if (devices.isEmpty()) {
+            devices = connectIQ?.knownDevices ?: emptyList()
+        }
+        val payload = listOf("ping", System.currentTimeMillis())
+        for (device in devices) {
+            for (app in registeredApps.values) {
+                try {
+                    connectIQ?.sendMessage(device, app, payload) { _, _, status ->
+                        if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
+                            lastWatchRxTime = System.currentTimeMillis()
+                            _isHeartbeatLive.value = true
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Ignore ping failures
                 }
             }
         }
