@@ -160,7 +160,15 @@ class NavigationIQView extends WatchUi.View {
             return true;
         } else if (type == WatchUi.DRAG_TYPE_STOP) {
             _isDragging = false;
-            CommManager.requestPan(_panX, _panY);
+            var distMovedX = coords[0] - _dragStartX;
+            var distMovedY = coords[1] - _dragStartY;
+            if (distMovedX < 0) { distMovedX = -distMovedX; }
+            if (distMovedY < 0) { distMovedY = -distMovedY; }
+            if (distMovedX < 8 && distMovedY < 8) {
+                onScreenTap(coords[0], coords[1]);
+            } else {
+                CommManager.requestPan(_panX, _panY);
+            }
             WatchUi.requestUpdate();
             return true;
         }
@@ -174,31 +182,31 @@ class NavigationIQView extends WatchUi.View {
 
     public function onScreenTap(x as Number, y as Number) as Void {
         if (_currentTab == TAB_MAP) {
-            // Tap Zoom [+] button (Right side top: x in [265, 310], y in [100, 145])
-            if (x >= 265 && x <= 310 && y >= 100 && y <= 145) {
+            // Tap Bottom Area (y >= 260) -> Switch back to HUD immediately
+            if (y >= 260) {
+                switchToHudTab();
+                return;
+            }
+            // Tap Zoom [+] button (Right Top)
+            if (x >= 260 && y <= 148) {
                 _mapZoom = (_mapZoom < 18) ? _mapZoom + 1 : 18;
                 CommManager.requestZoom(_mapZoom);
                 WatchUi.requestUpdate();
                 return;
             }
-            // Tap Zoom [-] button (Right side bottom: x in [265, 310], y in [155, 200])
-            if (x >= 265 && x <= 310 && y >= 155 && y <= 200) {
+            // Tap Zoom [-] button (Right Bottom)
+            if (x >= 260 && y >= 152 && y <= 220) {
                 _mapZoom = (_mapZoom > 14) ? _mapZoom - 1 : 14;
                 CommManager.requestZoom(_mapZoom);
                 WatchUi.requestUpdate();
                 return;
             }
-            // Tap Recenter GPS button (Left side: x in [10, 55], y in [120, 175])
-            if (x >= 10 && x <= 55 && y >= 120 && y <= 175) {
+            // Tap Recenter GPS button (Left)
+            if (x <= 65 && y >= 110 && y <= 190) {
                 _panX = 0;
                 _panY = 0;
                 CommManager.recenterMap();
                 WatchUi.requestUpdate();
-                return;
-            }
-            // Tap Bottom Pill -> Switch back to HUD
-            if (x >= 60 && x <= 260 && y >= 265 && y <= 315) {
-                switchToHudTab();
                 return;
             }
             return;
