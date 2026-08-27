@@ -43,6 +43,25 @@ module CommManager {
     var _alertedFar  as Boolean = false;
     var _alertedNear as Boolean = false;
 
+    // Map Mode State (OSM Live Mini-Map)
+    var isMapMode          as Boolean = false;
+    var mapRleData         as Array<Number>? = null;
+    var mapPalette         as Array<Number>? = null;
+    var mapWidth           as Number = 180;
+    var mapHeight          as Number = 180;
+    var mapZoom            as Number = 16;
+    var mapSpeed           as Number = 0;
+    var mapHeading         as Number = 0;
+    var mapRxCount         as Number = 0;
+
+    function setMapMode(enabled as Boolean) as Void {
+        isMapMode = enabled;
+        try {
+            Communications.transmit(enabled ? "map_on" : "map_off", null, new PhoneCommListener());
+        } catch (e) {
+        }
+    }
+
     function start() as Void {
         navText     = "";
         distText    = "";
@@ -51,6 +70,7 @@ module CommManager {
         direction   = DIR_UNKNOWN;
         rleBitmap   = null;
         isActive    = false;
+        mapRleData  = null;
     }
 
     function onPhoneMessage(msg as Communications.PhoneAppMessage) as Void {
@@ -63,6 +83,24 @@ module CommManager {
         }
         rxCount++;
         System.println(">>> CommManager parsed data: " + data);
+
+        // Map data packet from Android: [ "map", width, height, zoom, speed, heading, rleData, palette ]
+        if (data instanceof Lang.Array && data.size() >= 7) {
+            if (data[0] instanceof Lang.String && data[0].equals("map")) {
+                mapWidth   = (data[1] != null) ? data[1] as Number : 180;
+                mapHeight  = (data[2] != null) ? data[2] as Number : 180;
+                mapZoom    = (data[3] != null) ? data[3] as Number : 16;
+                mapSpeed   = (data[4] != null) ? data[4] as Number : 0;
+                mapHeading = (data[5] != null) ? data[5] as Number : 0;
+                mapRleData = (data[6] != null) ? data[6] as Array<Number> : null;
+                if (data.size() >= 8 && data[7] != null) {
+                    mapPalette = data[7] as Array<Number>;
+                }
+                mapRxCount++;
+                WatchUi.requestUpdate();
+                return;
+            }
+        }
 
         // End-of-navigation signal
         if (data instanceof Lang.Array && data.size() == 1) {

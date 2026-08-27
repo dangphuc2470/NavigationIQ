@@ -112,7 +112,31 @@ class NavigationIQView extends WatchUi.View {
         try { _fontSfMicroRot90 = WatchUi.loadResource(Rez.Fonts.SfMicroRot90) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfMicroRot90: " + e.getErrorMessage()); }
     }
 
+    const TAB_HUD = 0;
+    const TAB_MAP = 1;
+
+    private var _currentTab as Number = TAB_HUD;
+    private var _mapZoom as Number = 16;
+
+    public function switchToMapTab() as Void {
+        _currentTab = TAB_MAP;
+        CommManager.setMapMode(true);
+        WatchUi.requestUpdate();
+    }
+
+    public function switchToHudTab() as Void {
+        _currentTab = TAB_HUD;
+        CommManager.setMapMode(false);
+        WatchUi.requestUpdate();
+    }
+
     public function toggleRotation() as Void {
+        if (_currentTab == TAB_MAP) {
+            // In map tab, tap toggles zoom level between 16 (close) and 15 (overview)
+            _mapZoom = (_mapZoom == 16) ? 15 : 16;
+            WatchUi.requestUpdate();
+            return;
+        }
         _rotation = (_rotation == 0) ? 1 : 0;
         WatchUi.requestUpdate();
     }
@@ -149,6 +173,11 @@ class NavigationIQView extends WatchUi.View {
         // True AMOLED Pure Black Background
         dc.setColor(COLOR_BG_AMOLED, COLOR_BG_AMOLED);
         dc.clear();
+
+        if (_currentTab == TAB_MAP) {
+            _drawMapScreen(dc);
+            return;
+        }
 
         if (!CommManager.isActive) {
             _drawIdleScreen(dc);
@@ -248,6 +277,156 @@ class NavigationIQView extends WatchUi.View {
 
         dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
         dc.drawText(160, clockPillY - 5, fontMicro, timeStr, Graphics.TEXT_JUSTIFY_CENTER);
+    }
+
+    // -------------------------------------------------------------------------
+    // OpenStreetMap (OSM) Live Mini-Map Screen (5s Update, AMOLED Dark-Mode)
+    // -------------------------------------------------------------------------
+    private function _getMapPaletteColor(idx as Number) as Number {
+        if (CommManager.mapPalette != null && idx < CommManager.mapPalette.size()) {
+            return CommManager.mapPalette[idx] as Number;
+        }
+        var fallback = [
+            0x000000, 0x1C1C1E, 0x2C2C2E, 0x48484A,
+            0x636366, 0x8E8E93, 0xFFFFFF, 0x0A84FF,
+            0x30D158, 0xFFD60A, 0xFF9F0A, 0xFF453A,
+            0xBF5AF2, 0x5AC8FA, 0x34C759, 0x1B382B
+        ];
+        if (idx < fallback.size()) {
+            return fallback[idx];
+        }
+        return 0x000000;
+    }
+
+    private function _drawMapScreen(dc as Dc) as Void {
+        var fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
+
+        var mapW = CommManager.mapWidth;
+        var mapH = CommManager.mapHeight;
+        var startX = (320 - mapW) / 2;
+        var startY = 64;
+
+        // 1. Map Viewport Canvas Background & Border
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(startX - 2, startY - 2, mapW + 4, mapH + 4, 14);
+
+        // 2. Render RLE Decompressed OSM Map Pixels
+        var rle = CommManager.mapRleData;
+        if (rle != null && rle.size() > 0) {
+            var px = 0;
+            var py = 0;
+            var i = 0;
+            var rleLen = rle.size();
+            while (i < rleLen - 1) {
+                var runLen = rle[i] as Number;
+                var colIdx = rle[i + 1] as Number;
+                var colRgb = _getMapPaletteColor(colIdx);
+                if (colIdx != 0) { // Optimize: skip pure black background pixels
+                    dc.setColor(colRgb, Graphics.COLOR_TRANSPARENT);
+                    while (runLen > 0) {
+                        var span = runLen;
+                        if (px + span > mapW) {
+                            span = mapW - px;
+                        }
+                        dc.fillRectangle(startX + px, startY + py, span, 1);
+                        px += span;
+                        runLen -= span;
+                        if (px >= mapW) {
+                            px = 0;
+                            py++;
+                            if (py >= mapH) {
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    px += runLen;
+                    while (px >= mapW) {
+                        px -= mapW;
+                        py++;
+                    }
+                    if (py >= mapH) {
+                        break;
+                    }
+                }
+                i += 2;
+            }
+        } else {
+            // Animated Radar Pulse when map is downloading
+            var pulseR = 25 + ((_animTick * 2) % 35);
+            dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
+            dc.setPenWidth(1);
+            dc.drawCircle(160, startY + (mapH / 2), pulseR);
+
+            dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(160, startY + (mapH / 2) + 30, fontMicro, "Loading OSM Map...", Graphics.TEXT_JUSTIFY_CENTER);
+        }
+
+        // Map Border
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(2);
+        dc.drawRoundedRectangle(startX - 2, startY - 2, mapW + 4, mapH + 4, 14);
+
+        // 3. Current GPS Location Pin & Pulsing Dot at Center
+        var mapCenterX = startX + (mapW / 2);
+        var mapCenterY = startY + (mapH / 2);
+
+        // Halo
+        dc.setColor(0x0A84FF, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(mapCenterX, mapCenterY, 8);
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(mapCenterX, mapCenterY, 4);
+
+        // Direction Arrow / Heading Cone
+        if (CommManager.mapHeading > 0) {
+            var rad = Math.toRadians(CommManager.mapHeading - 90);
+            var tipX = mapCenterX + (18 * Math.cos(rad)).toNumber();
+            var tipY = mapCenterY + (18 * Math.sin(rad)).toNumber();
+            var base1X = mapCenterX + (8 * Math.cos(rad + 2.5)).toNumber();
+            var base1Y = mapCenterY + (8 * Math.sin(rad + 2.5)).toNumber();
+            var base2X = mapCenterX + (8 * Math.cos(rad - 2.5)).toNumber();
+            var base2Y = mapCenterY + (8 * Math.sin(rad - 2.5)).toNumber();
+
+            dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
+            dc.fillPolygon([[tipX, tipY], [base1X, base1Y], [base2X, base2Y]]);
+        }
+
+        // 4. Top Status Header (Speed, Zoom)
+        // Speed Pill (Left)
+        var speedStr = Lang.format("$1$ km/h", [CommManager.mapSpeed]);
+        var speedW = dc.getTextWidthInPixels(speedStr, fontMicro) + 16;
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(16, 16, speedW, 30, 15);
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.drawRoundedRectangle(16, 16, speedW, 30, 15);
+        dc.setColor(COLOR_THEME_GREEN_ACCENT, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(16 + (speedW / 2), 16 + 2, fontMicro, speedStr, Graphics.TEXT_JUSTIFY_CENTER);
+
+        // Zoom Pill (Center/Right)
+        var zoomStr = (_mapZoom == 16) ? "500m" : "1km";
+        var zoomW = dc.getTextWidthInPixels(zoomStr, fontMicro) + 16;
+        var zoomX = 320 - 16 - zoomW;
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(zoomX, 16, zoomW, 30, 15);
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.drawRoundedRectangle(zoomX, 16, zoomW, 30, 15);
+        dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(zoomX + (zoomW / 2), 16 + 2, fontMicro, zoomStr, Graphics.TEXT_JUSTIFY_CENTER);
+
+        // 5. Bottom Navigation Bar Pill (Swipe Up to return to HUD)
+        var clock = System.getClockTime();
+        var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
+        var bottomStr = Lang.format("^ HUD  |  $1$", [timeStr]);
+        var bottomW = dc.getTextWidthInPixels(bottomStr, fontMicro) + 24;
+        var bottomX = (320 - bottomW) / 2;
+        var bottomY = 276;
+
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(bottomX, bottomY, bottomW, 32, 16);
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.drawRoundedRectangle(bottomX, bottomY, bottomW, 32, 16);
+        dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(160, bottomY + 3, fontMicro, bottomStr, Graphics.TEXT_JUSTIFY_CENTER);
     }
 
     // -------------------------------------------------------------------------

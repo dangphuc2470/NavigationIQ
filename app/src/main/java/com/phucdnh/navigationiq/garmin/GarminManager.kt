@@ -9,9 +9,18 @@ import com.garmin.android.connectiq.ConnectIQ
 import com.garmin.android.connectiq.IQApp
 import com.garmin.android.connectiq.IQDevice
 import com.garmin.android.connectiq.adb.AdbConnection
+import com.phucdnh.navigationiq.map.OsmMapManager
+import com.phucdnh.navigationiq.map.OsmMapPacket
 import com.phucdnh.navigationiq.model.NavigationInfo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -33,6 +42,10 @@ object GarminManager {
 
     // Max log entries shown in UI
     private const val MAX_LOGS = 50
+
+    private val mapScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private var mapJob: Job? = null
+    var isMapMode = false; private set
 
     // -------------------------------------------------------------------------
     // Observable state for UI
@@ -204,6 +217,10 @@ object GarminManager {
     fun sendNavigationInfo(context: Context, info: NavigationInfo) {
         appContext = context.applicationContext
         latestPendingInfo = info
+        if (isMapMode) {
+            // Map tab is active on Garmin watch: pause detailed HUD transmission to prioritize map bandwidth
+            return
+        }
         if (!isSdkReady) {
             initSdk(context) { 
                 latestPendingInfo?.let { sendNavigationInfo(context, it) }
@@ -360,6 +377,74 @@ object GarminManager {
                     isWatchAppAlive = true
                 }
                 "dead" -> isWatchAppAlive = false
+                "map_on" -> {
+                    isMapMode = true
+                    addLog("[MAP] Activated Map Mode on watch - starting 5s loop")
+                    startMapLoop()
+                }
+                "map_off" -> {
+                    isMapMode = false
+                    stopMapLoop()
+                    addLog("[MAP] Deactivated Map Mode - resuming HUD")
+                    latestPendingInfo?.let {
+                        appContext?.let { ctx -> sendNavigationInfo(ctx, it) }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun startMapLoop() {
+        appContext?.let { OsmMapManager.initialize(it) }
+        mapJob?.cancel()
+        mapJob = mapScope.launch {
+            while (isActive && isMapMode) {
+                try {
+                    val mapPacket = OsmMapManager.generateMapPacket()
+                    if (mapPacket != null && isMapMode) {
+                        sendMapPacket(mapPacket)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error in map loop: ${e.message}")
+                }
+                delay(5000L)
+            }
+        }
+    }
+
+    private fun stopMapLoop() {
+        mapJob?.cancel()
+        mapJob = null
+    }
+
+    fun sendMapPacket(packet: OsmMapPacket) {
+        val payload = listOf(
+            "map",
+            packet.width,
+            packet.height,
+            packet.zoom,
+            packet.speedKmh,
+            packet.headingDeg,
+            packet.rleData,
+            packet.palette
+        )
+        if (devices.isEmpty()) {
+            devices = connectIQ?.knownDevices ?: emptyList()
+        }
+        for (device in devices) {
+            for (app in registeredApps.values) {
+                try {
+                    connectIQ?.sendMessage(device, app, payload) { _, _, status ->
+                        if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
+                            _sentCount.value = _sentCount.value + 1
+                            addLog("[MAP] Sent 5s OSM map tile OK")
+                        } else {
+                            addLog("[MAP] Send map tile status: $status")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "sendMapPacket error: ${e.message}")
+                }
             }
         }
     }

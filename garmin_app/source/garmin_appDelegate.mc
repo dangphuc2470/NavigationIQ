@@ -16,7 +16,22 @@ class NavigationIQDelegate extends WatchUi.BehaviorDelegate {
         return true;
     }
 
-    // Tap screen -> Toggle 90° Clockwise Rotation
+    // Swipe Down -> Map Tab | Swipe Up -> HUD Tab
+    function onSwipe(swipeEvent as WatchUi.SwipeEvent) as Boolean {
+        if (_view != null) {
+            var dir = swipeEvent.getDirection();
+            if (dir == WatchUi.SWIPE_DOWN) {
+                _view.switchToMapTab();
+                return true;
+            } else if (dir == WatchUi.SWIPE_UP) {
+                _view.switchToHudTab();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Tap screen -> Toggle 90° Clockwise Rotation (or toggle zoom on map)
     function onTap(clickEvent as WatchUi.ClickEvent) as Boolean {
         if (_view != null) {
             var coords = clickEvent.getCoordinates();
