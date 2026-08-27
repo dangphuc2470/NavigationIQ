@@ -604,33 +604,34 @@ class NavigationIQView extends WatchUi.View {
     // 90° Clockwise Rotated String Renderer
     // In 90° CW mode, visual (vx, vy) maps to physical (319 - vy, vx)
     // -------------------------------------------------------------------------
-    private function _drawRot90String(dc as Dc, vx as Number, vy as Number, font as Graphics.FontDefinition?, text as String, color as Number) as Number {
-        if (font == null || text.length() == 0) { return 0; }
+    private function _drawRot90String(dc as Dc, vx as Number, vy as Number, fontRot as Graphics.FontDefinition?, fontUpright as Graphics.FontDefinition?, text as String, color as Number) as Number {
+        if (fontRot == null || text.length() == 0) { return 0; }
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
         var curVx = vx;
         var chars = text.toCharArray();
+        var upFont = (fontUpright != null) ? fontUpright : fontRot;
         for (var i = 0; i < chars.size(); i++) {
             var ch = chars[i].toString();
             var px = 319 - vy - 10;
             var py = curVx;
-            dc.drawText(px, py, font, ch, Graphics.TEXT_JUSTIFY_LEFT);
-            curVx += dc.getTextWidthInPixels(ch, font);
+            dc.drawText(px, py, fontRot, ch, Graphics.TEXT_JUSTIFY_LEFT);
+            curVx += dc.getTextWidthInPixels(ch, upFont);
         }
         return curVx - vx;
     }
 
-    private function _measureRot90String(dc as Dc, font as Graphics.FontDefinition?, text as String) as Number {
-        if (font == null || text.length() == 0) { return 0; }
+    private function _measureRot90String(dc as Dc, fontUpright as Graphics.FontDefinition?, text as String) as Number {
+        if (fontUpright == null || text.length() == 0) { return 0; }
         var w = 0;
         var chars = text.toCharArray();
         for (var i = 0; i < chars.size(); i++) {
             var ch = chars[i].toString();
-            w += dc.getTextWidthInPixels(ch, font);
+            w += dc.getTextWidthInPixels(ch, fontUpright);
         }
         return w;
     }
 
-    private function _wrapWithRot90Font(dc as Dc, text as String, font as Graphics.FontDefinition?, maxWidth as Number) as Array<String> {
+    private function _wrapWithRot90Font(dc as Dc, text as String, fontUpright as Graphics.FontDefinition?, maxWidth as Number) as Array<String> {
         var words = _splitWords(text);
         var lines = [] as Array<String>;
         if (words.size() == 0) {
@@ -640,7 +641,7 @@ class NavigationIQView extends WatchUi.View {
         var currentLine = words[0];
         for (var i = 1; i < words.size(); i++) {
             var candidate = currentLine + " " + words[i];
-            if (_measureRot90String(dc, font, candidate) <= maxWidth) {
+            if (_measureRot90String(dc, fontUpright, candidate) <= maxWidth) {
                 currentLine = candidate;
             } else {
                 lines.add(currentLine);
@@ -700,8 +701,9 @@ class NavigationIQView extends WatchUi.View {
         // Distance Row (Visual: vcx = 108, vcy = 60)
         var distFull = CommManager.distText;
         if (distFull.length() > 0) {
-            var fontDist = (_fontSfStreetBoldRot90 != null) ? _fontSfStreetBoldRot90 : _fontSfStreetBold;
-            _drawRot90String(dc, 108, 62, fontDist, distFull, COLOR_TEXT_WHITE);
+            var fontDistRot = (_fontSfStreetBoldRot90 != null) ? _fontSfStreetBoldRot90 : _fontSfStreetBold;
+            var fontDistUp = (_fontSfStreetBold != null) ? _fontSfStreetBold : fontDistRot;
+            _drawRot90String(dc, 108, 62, fontDistRot, fontDistUp, distFull, COLOR_TEXT_WHITE);
         }
 
         // Divider Line (Visual: vy = 102 -> Physical: px = 217)
@@ -716,22 +718,24 @@ class NavigationIQView extends WatchUi.View {
             var actionStr = split[0];
             var streetStr = split[1];
 
-            var fontAction = (_fontSfStreetBoldRot90 != null) ? _fontSfStreetBoldRot90 : _fontSfStreetBold;
-            var fontStreet = (_fontSfStreetRot90 != null) ? _fontSfStreetRot90 : _fontSfStreet;
+            var fontActionRot = (_fontSfStreetBoldRot90 != null) ? _fontSfStreetBoldRot90 : _fontSfStreetBold;
+            var fontActionUp = (_fontSfStreetBold != null) ? _fontSfStreetBold : fontActionRot;
+            var fontStreetRot = (_fontSfStreetRot90 != null) ? _fontSfStreetRot90 : _fontSfStreet;
+            var fontStreetUp = (_fontSfStreet != null) ? _fontSfStreet : fontStreetRot;
 
             var curVy = 132;
             if (actionStr.length() > 0) {
-                var actionLines = _wrapWithRot90Font(dc, actionStr, fontAction, 310);
+                var actionLines = _wrapWithRot90Font(dc, actionStr, fontActionUp, 310);
                 for (var al = 0; al < actionLines.size(); al++) {
-                    _drawRot90String(dc, 22, curVy, fontAction, actionLines[al], COLOR_TEXT_WHITE);
+                    _drawRot90String(dc, 22, curVy, fontActionRot, fontActionUp, actionLines[al], COLOR_TEXT_WHITE);
                     curVy += 32;
                 }
             }
 
             if (streetStr.length() > 0) {
-                var streetLines = _wrapWithRot90Font(dc, streetStr, fontStreet, 310);
+                var streetLines = _wrapWithRot90Font(dc, streetStr, fontStreetUp, 310);
                 for (var sl = 0; sl < streetLines.size(); sl++) {
-                    _drawRot90String(dc, 22, curVy, fontStreet, streetLines[sl], COLOR_TEXT_SILVER);
+                    _drawRot90String(dc, 22, curVy, fontStreetRot, fontStreetUp, streetLines[sl], COLOR_TEXT_SILVER);
                     curVy += 28;
                 }
             }
@@ -763,13 +767,14 @@ class NavigationIQView extends WatchUi.View {
         dc.drawRoundedRectangle(etaCapsulePx, etaCapsulePy, etaCapsulePw, etaCapsulePh, etaCapsuleR);
 
         var fontMicroRot = (_fontSfMicroRot90 != null) ? _fontSfMicroRot90 : _fontSfMicro;
+        var fontMicroUp = (_fontSfMicro != null) ? _fontSfMicro : fontMicroRot;
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        _drawRot90String(dc, 26, 286, fontMicroRot, etaStr, COLOR_TEXT_WHITE);
+        _drawRot90String(dc, 26, 286, fontMicroRot, fontMicroUp, etaStr, COLOR_TEXT_WHITE);
 
         // Live Clock Time (Visual: vx = 248, vy = 286)
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
-        _drawRot90String(dc, 248, 286, fontMicroRot, timeStr, COLOR_TEXT_SILVER);
+        _drawRot90String(dc, 248, 286, fontMicroRot, fontMicroUp, timeStr, COLOR_TEXT_SILVER);
     }
 
     // -------------------------------------------------------------------------

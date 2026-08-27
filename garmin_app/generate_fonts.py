@@ -51,7 +51,7 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
                     'w': rot_img.width, 'h': rot_img.height,
                     'xoff': rot_xoff,
                     'yoff': rot_yoff,
-                    'xadv': adv_int,
+                    'xadv': 60,
                     'img': rot_img
                 })
             else:
@@ -118,9 +118,8 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
         final_h *= 2
     
     final_img = img.crop((0, 0, sheet_w, final_h))
-    # Convert to 8-bit Grayscale Alpha channel for Garmin Connect IQ native Anti-Aliasing
-    alpha_channel = final_img.split()[3]
-    alpha_channel.save(out_png_path, "PNG")
+    # Save full 32-bit RGBA PNG matching chnl=15 for Garmin Connect IQ antialiasing
+    final_img.save(out_png_path, "PNG")
     
     png_filename = os.path.basename(out_png_path)
     with open(out_fnt_path, "w", encoding="utf-8") as f:
