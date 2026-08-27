@@ -44,14 +44,15 @@ module CommManager {
     var _alertedNear as Boolean = false;
 
     function start() as Void {
+        navText     = "";
+        distText    = "";
+        etaText     = "";
+        nextStreet  = "";
+        direction   = DIR_UNKNOWN;
+        rleBitmap   = null;
+        isActive    = false;
         try {
-            navText = "Rẽ phải vào đường Điện Biên Phủ";
-            distText = "350 m";
-            etaText = "12:15";
-            direction = DIR_RIGHT;
-            isActive = true;
-            _inferDirectionAndExit(navText);
-            nextStreet = _extractNextStreet(navText);
+            Communications.transmit("alive", null, new PhoneCommListener());
         } catch (e) {
         }
     }

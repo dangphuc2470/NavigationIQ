@@ -89,7 +89,7 @@ class NavigationIQView extends WatchUi.View {
     private var _pageTimer as Timer.Timer?;
     private var _animTick as Number = 0;
     private var _pageIndex as Number = 0;
-    private var _rotation as Number = 1; // 0 = Portrait (0°), 1 = Landscape (90° Clockwise for Left-Wrist Motorbike)
+    private var _rotation as Number = 0; // 0 = Portrait (0°), 1 = Landscape (90° Clockwise for Left-Wrist Motorbike)
     private var _fontSfStreetBold as Graphics.FontDefinition?;
     private var _fontSfStreet as Graphics.FontDefinition?;
     private var _fontSfCompactBold as Graphics.FontDefinition?;

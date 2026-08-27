@@ -155,6 +155,7 @@ object GarminManager {
     }
 
     fun loadDevices(context: Context) {
+        if (!isSdkReady) return
         val ciq = connectIQ ?: return
         try {
             val known = ciq.knownDevices ?: emptyList()
