@@ -13,12 +13,12 @@ import Toybox.Math;
 const SCREEN_W = 320;
 const SCREEN_H = 360;
 
-// 2. Main Navigation Card Layout (Full Screen Edge-to-Edge, Zero Padding)
+// 2. Main Navigation Card Layout (Edge-to-Edge Flush, Distinct Rounded Cards)
 const CARD_X = 0;
 const CARD_Y = 0;
 const CARD_W = 320;
-const CARD_H = 290;
-const CARD_RADIUS = 0;
+const CARD_H = 280;
+const CARD_RADIUS = 26;
 
 // 3. Turn Badge Geometry
 const BADGE_OFFSET_X = 52;
@@ -32,17 +32,17 @@ const DIST_UNIT_GAP = 6;
 
 // 5. Divider Line
 const DIVIDER_OFFSET_Y = 106;
-const DIVIDER_PADDING_X = 0;
+const DIVIDER_PADDING_X = 14;
 
 // 6. Navigation Text Box Geometry
 const NAV_TEXT_PADDING_X = 14;
 const NAV_TEXT_OFFSET_Y = 12;
 const NAV_TEXT_BOTTOM_PADDING = 14;
 
-// 7. Bottom Pill Bar Layout (Full Screen Edge-to-Edge)
-const BAR_Y = 292;
-const BAR_H = 68;
-const BAR_RADIUS = 0;
+// 7. Bottom Pill Bar Layout (Distinct Rounded Pill Card)
+const BAR_Y = 288;
+const BAR_H = 72;
+const BAR_RADIUS = 26;
 
 // 8. ETA Capsule Badge
 const ETA_BADGE_W = 142;
@@ -461,9 +461,9 @@ class NavigationIQView extends WatchUi.View {
         var glowRGB = theme[2] as Array<Number>;
         var etaBgColor = theme[3] as Number;
 
-        // 1. Draw Base Dark Card (Charcoal/Graphite Full Screen)
+        // 1. Draw Base Dark Card (Charcoal/Graphite with generous rounded corners)
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRectangle(CARD_X, CARD_Y, CARD_W, CARD_H);
+        dc.fillRoundedRectangle(CARD_X, CARD_Y, CARD_W, CARD_H, CARD_RADIUS);
 
         // 2. Draw Multi-Layered Ambient Glow Gradient blooming from Top-Left
         var badgeCx = CARD_X + BADGE_OFFSET_X;
@@ -471,7 +471,15 @@ class NavigationIQView extends WatchUi.View {
 
         _drawAmbientGlow(dc, badgeCx, badgeCy, glowRGB);
 
-        // 3. Left Circular Turn Badge (Solid bright milky pastel theme badge, NO outline border)
+        // 3. Clear any outer corner leak to maintain perfect round curves
+        _maskCardCorners(dc, CARD_X, CARD_Y, CARD_W, CARD_H, CARD_RADIUS);
+
+        // Card Border
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(CARD_X, CARD_Y, CARD_W, CARD_H, CARD_RADIUS);
+
+        // 4. Left Circular Turn Badge (Solid bright milky pastel theme badge, NO outline border)
         dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(badgeCx, badgeCy, BADGE_RADIUS);
 
@@ -486,7 +494,7 @@ class NavigationIQView extends WatchUi.View {
             _drawLoadingSpinner(dc, badgeCx, badgeCy, BADGE_RADIUS, accentColor);
         }
 
-        // 4. Distance Row on Top Right (Huge Bold Pure White + Baseline Aligned Muted Grey Unit)
+        // 5. Distance Row on Top Right (Huge Bold Pure White + Baseline Aligned Muted Grey Unit)
         var distFull = CommManager.distText;
         if (distFull.length() > 0) {
             var parts = _splitDist(distFull);
@@ -524,27 +532,29 @@ class NavigationIQView extends WatchUi.View {
             }
         }
 
-        // 5. Subtle Horizontal Divider Line
+        // 6. Subtle Horizontal Divider Line
         var divY = CARD_Y + DIVIDER_OFFSET_Y;
         dc.setColor(COLOR_DIVIDER, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawLine(0, divY, 320, divY);
+        dc.drawLine(CARD_X + DIVIDER_PADDING_X, divY, CARD_X + CARD_W - DIVIDER_PADDING_X, divY);
 
-        // 6. Bottom Row of Main Card: Instruction & Street Name
+        // 7. Bottom Row of Main Card: Instruction & Street Name
         var streetText = CommManager.navText;
         if (streetText.length() > 0) {
             _drawDynamicWrappedText(dc, CARD_X + NAV_TEXT_PADDING_X, divY + NAV_TEXT_OFFSET_Y, CARD_W - (NAV_TEXT_PADDING_X * 2), CARD_H - (divY - CARD_Y) - NAV_TEXT_BOTTOM_PADDING, streetText, accentColor);
         }
 
         // ---------------------------------------------------------------------
-        // 7. Bottom Section (Full Screen Edge-to-Edge)
+        // 8. Bottom Pill Bar: Distinct Rounded Card (Y: 288 to 360)
         // ---------------------------------------------------------------------
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRectangle(0, BAR_Y, 320, BAR_H);
+        dc.fillRoundedRectangle(CARD_X, BAR_Y, CARD_W, BAR_H, BAR_RADIUS);
+
+        _maskCardCorners(dc, CARD_X, BAR_Y, CARD_W, BAR_H, BAR_RADIUS);
 
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawLine(0, BAR_Y - 1, 320, BAR_Y - 1);
+        dc.drawRoundedRectangle(CARD_X, BAR_Y, CARD_W, BAR_H, BAR_RADIUS);
 
         // Left: Tinted ETA Outlined Pill Badge
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
@@ -644,7 +654,7 @@ class NavigationIQView extends WatchUi.View {
 
     // -------------------------------------------------------------------------
     // 90° Clockwise Landscape HUD (Optimized for Left-Wrist Motorbike Handlebar)
-    // Full Screen Edge-to-Edge Layout (Visual: 360 x 320, Physical: 320 x 360)
+    // 2 Distinct Generously Rounded Cards, Zero Outer Edge Padding
     // -------------------------------------------------------------------------
     private function _drawLandscapeHUD(dc as Dc) as Void {
         var theme = _getTheme(CommManager.direction);
@@ -653,23 +663,32 @@ class NavigationIQView extends WatchUi.View {
         var glowRGB = theme[2] as Array<Number>;
         var etaBgColor = theme[3] as Number;
 
-        // 1. Top Section (Visual: X: 0, Y: 0, W: 360, H: 254 -> Physical: px = 66, py = 0, pw = 254, ph = 360)
-        var cardPx = 66;
+        // Visual Canvas: Width = 360, Height = 320
+        // 1. Top Card (Visual: X: 0, Y: 0, W: 360, H: 244, R: 26 -> Physical: px = 76, py = 0, pw = 244, ph = 360)
+        var cardPx = 76;
         var cardPy = 0;
-        var cardPw = 254;
+        var cardPw = 244;
         var cardPh = 360;
+        var cardR = 26;
 
-        // Draw solid background to cover entire top of screen (eliminates any glow leak outside)
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRectangle(cardPx, cardPy, cardPw, cardPh);
+        dc.fillRoundedRectangle(cardPx, cardPy, cardPw, cardPh, cardR);
 
         // Turn Badge (Visual: vcx = 52, vcy = 52, r = 38 -> Physical: pcx = 267, pcy = 52)
         var badgePcx = 267;
         var badgePcy = 52;
         var badgeR = 38;
 
-        // Draw ambient glow - naturally blended into the edge-to-edge card background
+        // Draw ambient glow
         _drawAmbientGlow(dc, badgePcx, badgePcy, glowRGB);
+
+        // Mask outer corners of Top Card to 100% eliminate any glow leak
+        _maskCardCorners(dc, cardPx, cardPy, cardPw, cardPh, cardR);
+
+        // Top Card Border
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(cardPx, cardPy, cardPw, cardPh, cardR);
 
         // Turn Badge Circle
         dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
@@ -693,10 +712,10 @@ class NavigationIQView extends WatchUi.View {
             _drawRot90String(dc, 106, 60, fontDistRot, fontDistUp, distFull, COLOR_TEXT_WHITE);
         }
 
-        // Divider Line between Turn/Dist and Street Text (Visual: vy = 104 -> Physical: px = 215)
+        // Divider Line inside Top Card (Visual: vy = 104 -> Physical: px = 215)
         dc.setColor(COLOR_DIVIDER, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawLine(215, 0, 215, 360);
+        dc.drawLine(215, 14, 215, 346);
 
         // Navigation Instruction Text (Wrapped edge-to-edge with 14px padding)
         var streetText = CommManager.navText;
@@ -710,7 +729,7 @@ class NavigationIQView extends WatchUi.View {
             var fontStreetRot = (_fontSfStreetRot90 != null) ? _fontSfStreetRot90 : _fontSfStreet;
             var fontStreetUp = (_fontSfStreet != null) ? _fontSfStreet : fontStreetRot;
 
-            var curVy = 130;
+            var curVy = 128;
             if (actionStr.length() > 0) {
                 var actionLines = _wrapWithRot90Font(dc, actionStr, fontActionUp, 332);
                 for (var al = 0; al < actionLines.size(); al++) {
@@ -728,20 +747,21 @@ class NavigationIQView extends WatchUi.View {
             }
         }
 
-        // 2. Bottom Section (Visual: X: 0, Y: 254, W: 360, H: 66 -> Physical: px = 0, py = 0, pw = 66, ph = 360)
+        // 2. Bottom Section: Distinct Rounded Pill Card (Visual: X: 0, Y: 252, W: 360, H: 68, R: 26 -> Physical: px = 0, py = 0, pw = 68, ph = 360)
         var barPx = 0;
         var barPy = 0;
-        var barPw = 66;
+        var barPw = 68;
         var barPh = 360;
+        var barR = 26;
 
-        // Draw solid background for bottom bar (cleanly cuts off any glow bleeding downwards)
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRectangle(barPx, barPy, barPw, barPh);
+        dc.fillRoundedRectangle(barPx, barPy, barPw, barPh, barR);
 
-        // Divider Line between Top Section and Bottom Bar (Physical: px = 65)
+        _maskCardCorners(dc, barPx, barPy, barPw, barPh, barR);
+
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawLine(65, 0, 65, 360);
+        dc.drawRoundedRectangle(barPx, barPy, barPw, barPh, barR);
 
         // ETA Capsule (Visual: vx = 12, vy = 264, vw = 146, vh = 44 -> Physical: px = 12, py = 12, pw = 44, ph = 146)
         var etaCapsulePx = 12;
@@ -759,12 +779,12 @@ class NavigationIQView extends WatchUi.View {
         var fontMicroRot = (_fontSfMicroRot90 != null) ? _fontSfMicroRot90 : _fontSfMicro;
         var fontMicroUp = (_fontSfMicro != null) ? _fontSfMicro : fontMicroRot;
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        _drawRot90String(dc, 22, 288, fontMicroRot, fontMicroUp, etaStr, COLOR_TEXT_WHITE);
+        _drawRot90String(dc, 22, 286, fontMicroRot, fontMicroUp, etaStr, COLOR_TEXT_WHITE);
 
-        // Live Clock Time (Visual: vx = 260, vy = 288)
+        // Live Clock Time (Visual: vx = 260, vy = 286)
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
-        _drawRot90String(dc, 260, 288, fontMicroRot, fontMicroUp, timeStr, COLOR_TEXT_SILVER);
+        _drawRot90String(dc, 260, 286, fontMicroRot, fontMicroUp, timeStr, COLOR_TEXT_SILVER);
     }
 
     // -------------------------------------------------------------------------
