@@ -18,7 +18,7 @@ const CARD_X = 0;
 const CARD_Y = 0;
 const CARD_W = 320;
 const CARD_H = 280;
-const CARD_RADIUS = 26;
+const CARD_RADIUS = 30;
 
 // 3. Turn Badge Geometry
 const BADGE_OFFSET_X = 52;
@@ -42,7 +42,7 @@ const NAV_TEXT_BOTTOM_PADDING = 14;
 // 7. Bottom Pill Bar Layout (Distinct Rounded Pill Card)
 const BAR_Y = 288;
 const BAR_H = 72;
-const BAR_RADIUS = 26;
+const BAR_RADIUS = 30;
 
 // 8. ETA Capsule Badge
 const ETA_BADGE_W = 142;
@@ -881,12 +881,12 @@ class NavigationIQView extends WatchUi.View {
         dc.setPenWidth(1);
         dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, ETA_BADGE_W, ETA_BADGE_H, ETA_BADGE_RADIUS);
 
-        // Crisp White SF Pro Font for ETA
+        // Crisp White SF Pro Font for ETA (Shifted 1px up for optical vertical centering)
         var microFont = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
             etaBadgeX + (ETA_BADGE_W / 2),
-            etaBadgeY + (ETA_BADGE_H / 2),
+            etaBadgeY + (ETA_BADGE_H / 2) - 1,
             microFont,
             etaStr,
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
