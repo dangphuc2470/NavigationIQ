@@ -782,18 +782,18 @@ class NavigationIQView extends WatchUi.View {
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
         var etaW = _measureRot90String(dc, fontMicroUp, etaStr);
         var etaVx = 12 + (146 - etaW) / 2;
-        _drawRot90String(dc, etaVx, 298, fontMicroRot, fontMicroUp, etaStr, COLOR_TEXT_WHITE);
+        _drawRot90String(dc, etaVx, 286, fontMicroRot, fontMicroUp, etaStr, COLOR_TEXT_WHITE);
 
         // Center Bullet Dot (Visual: vx = 200, vy = 286 -> Physical: px = 33, py = 200)
         dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(33, 200, 2);
 
-        // Live Clock Time (Visual: right aligned to vx = 346, vy = 298)
+        // Live Clock Time (Visual: right aligned to vx = 346, vy = 286)
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
         var clockW = _measureRot90String(dc, fontMicroUp, timeStr);
         var clockVx = 346 - clockW;
-        _drawRot90String(dc, clockVx, 298, fontMicroRot, fontMicroUp, timeStr, COLOR_TEXT_SILVER);
+        _drawRot90String(dc, clockVx, 286, fontMicroRot, fontMicroUp, timeStr, COLOR_TEXT_SILVER);
     }
 
     // -------------------------------------------------------------------------
