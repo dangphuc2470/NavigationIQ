@@ -29,11 +29,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.phucdnh.navigationiq.garmin.GarminManager
+import com.phucdnh.navigationiq.model.NavigationInfo
 import com.phucdnh.navigationiq.service.NavNotificationService
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GarminManager.initSdk(this)
         setContent {
             MaterialTheme(
                 colorScheme = darkColorScheme(
@@ -51,6 +53,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        GarminManager.loadDevices(this)
     }
 }
 
@@ -254,15 +261,32 @@ fun MainScreen() {
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = "Chưa có chỉ đường nào đang chạy",
-                        color = Color.Gray,
-                        fontSize = 15.sp
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Gray
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Hãy mở Google Maps trên điện thoại và bấm Bắt đầu chỉ đường",
-                        color = Color.DarkGray,
-                        fontSize = 12.sp
+                        fontSize = 12.sp,
+                        color = Color.DarkGray
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            val mockInfo = NavigationInfo(
+                                units = "m",
+                                eta = "12:30",
+                                length = "5.2 km",
+                                duration = "15 phút",
+                                distance = "250 m",
+                                signs = "Rẽ trái vào đường Lê Lợi"
+                            )
+                            GarminManager.sendNavigationInfo(context, mockInfo)
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Text(text = "Gửi thử chỉ đường sang Garmin", color = Color.Black, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
