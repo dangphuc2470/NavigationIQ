@@ -117,9 +117,20 @@ class NavigationIQView extends WatchUi.View {
 
     private var _currentTab as Number = TAB_HUD;
     private var _mapZoom as Number = 16;
+    private var _panX as Number = 0;
+    private var _panY as Number = 0;
+    private var _dragStartX as Number = 0;
+    private var _dragStartY as Number = 0;
+    private var _isDragging as Boolean = false;
+
+    public function isMapTabActive() as Boolean {
+        return _currentTab == TAB_MAP;
+    }
 
     public function switchToMapTab() as Void {
         _currentTab = TAB_MAP;
+        _panX = 0;
+        _panY = 0;
         CommManager.setMapMode(true);
         WatchUi.requestUpdate();
     }
@@ -130,18 +141,68 @@ class NavigationIQView extends WatchUi.View {
         WatchUi.requestUpdate();
     }
 
-    public function toggleRotation() as Void {
-        if (_currentTab == TAB_MAP) {
-            // In map tab, tap toggles zoom level between 16 (close) and 15 (overview)
-            _mapZoom = (_mapZoom == 16) ? 15 : 16;
+    public function onMapDrag(dragEvent as WatchUi.DragEvent) as Boolean {
+        var type = dragEvent.getType();
+        var coords = dragEvent.getCoordinates();
+        if (type == WatchUi.DRAG_TYPE_START) {
+            _dragStartX = coords[0];
+            _dragStartY = coords[1];
+            _isDragging = true;
+            return true;
+        } else if (type == WatchUi.DRAG_TYPE_CONTINUE) {
+            var dx = coords[0] - _dragStartX;
+            var dy = coords[1] - _dragStartY;
+            _panX += dx;
+            _panY += dy;
+            _dragStartX = coords[0];
+            _dragStartY = coords[1];
             WatchUi.requestUpdate();
-            return;
+            return true;
+        } else if (type == WatchUi.DRAG_TYPE_STOP) {
+            _isDragging = false;
+            CommManager.requestPan(_panX, _panY);
+            WatchUi.requestUpdate();
+            return true;
         }
+        return false;
+    }
+
+    public function toggleRotation() as Void {
         _rotation = (_rotation == 0) ? 1 : 0;
         WatchUi.requestUpdate();
     }
 
     public function onScreenTap(x as Number, y as Number) as Void {
+        if (_currentTab == TAB_MAP) {
+            // Tap Zoom [+] button (Right side top: x in [265, 310], y in [100, 145])
+            if (x >= 265 && x <= 310 && y >= 100 && y <= 145) {
+                _mapZoom = (_mapZoom < 18) ? _mapZoom + 1 : 18;
+                CommManager.requestZoom(_mapZoom);
+                WatchUi.requestUpdate();
+                return;
+            }
+            // Tap Zoom [-] button (Right side bottom: x in [265, 310], y in [155, 200])
+            if (x >= 265 && x <= 310 && y >= 155 && y <= 200) {
+                _mapZoom = (_mapZoom > 14) ? _mapZoom - 1 : 14;
+                CommManager.requestZoom(_mapZoom);
+                WatchUi.requestUpdate();
+                return;
+            }
+            // Tap Recenter GPS button (Left side: x in [10, 55], y in [120, 175])
+            if (x >= 10 && x <= 55 && y >= 120 && y <= 175) {
+                _panX = 0;
+                _panY = 0;
+                CommManager.recenterMap();
+                WatchUi.requestUpdate();
+                return;
+            }
+            // Tap Bottom Pill -> Switch back to HUD
+            if (x >= 60 && x <= 260 && y >= 265 && y <= 315) {
+                switchToHudTab();
+                return;
+            }
+            return;
+        }
         toggleRotation();
     }
 
@@ -300,17 +361,20 @@ class NavigationIQView extends WatchUi.View {
 
     private function _drawMapScreen(dc as Dc) as Void {
         var fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
+        var fontBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_LARGE;
 
         var mapW = CommManager.mapWidth;
         var mapH = CommManager.mapHeight;
-        var startX = (320 - mapW) / 2;
-        var startY = 64;
+        var baseStartX = (320 - mapW) / 2;
+        var baseStartY = 64;
+        var startX = baseStartX + _panX;
+        var startY = baseStartY + _panY;
 
         // 1. Map Viewport Canvas Background & Border
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(startX - 2, startY - 2, mapW + 4, mapH + 4, 14);
+        dc.fillRoundedRectangle(baseStartX - 2, baseStartY - 2, mapW + 4, mapH + 4, 14);
 
-        // 2. Render RLE Decompressed OSM Map Pixels
+        // 2. Render RLE Decompressed OSM Map Pixels with Pan Offset
         var rle = CommManager.mapRleData;
         if (rle != null && rle.size() > 0) {
             var px = 0;
@@ -328,7 +392,16 @@ class NavigationIQView extends WatchUi.View {
                         if (px + span > mapW) {
                             span = mapW - px;
                         }
-                        dc.fillRectangle(startX + px, startY + py, span, 1);
+                        var drawX = startX + px;
+                        var drawY = startY + py;
+                        // Clip strictly inside viewport card
+                        if (drawY >= baseStartY && drawY < baseStartY + mapH) {
+                            var clipX1 = (drawX < baseStartX) ? baseStartX : drawX;
+                            var clipX2 = (drawX + span > baseStartX + mapW) ? baseStartX + mapW : drawX + span;
+                            if (clipX2 > clipX1) {
+                                dc.fillRectangle(clipX1, drawY, clipX2 - clipX1, 1);
+                            }
+                        }
                         px += span;
                         runLen -= span;
                         if (px >= mapW) {
@@ -356,42 +429,72 @@ class NavigationIQView extends WatchUi.View {
             var pulseR = 25 + ((_animTick * 2) % 35);
             dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
             dc.setPenWidth(1);
-            dc.drawCircle(160, startY + (mapH / 2), pulseR);
+            dc.drawCircle(160, baseStartY + (mapH / 2), pulseR);
 
             dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(160, startY + (mapH / 2) + 30, fontMicro, "Loading OSM Map...", Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(160, baseStartY + (mapH / 2) + 30, fontMicro, "Loading OSM Map...", Graphics.TEXT_JUSTIFY_CENTER);
         }
 
-        // Map Border
+        // Map Viewport Border
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(2);
-        dc.drawRoundedRectangle(startX - 2, startY - 2, mapW + 4, mapH + 4, 14);
+        dc.drawRoundedRectangle(baseStartX - 2, baseStartY - 2, mapW + 4, mapH + 4, 14);
 
-        // 3. Current GPS Location Pin & Pulsing Dot at Center
+        // 3. Current GPS Location Pin (Positioned relative to pan)
         var mapCenterX = startX + (mapW / 2);
         var mapCenterY = startY + (mapH / 2);
 
-        // Halo
-        dc.setColor(0x0A84FF, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(mapCenterX, mapCenterY, 8);
-        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(mapCenterX, mapCenterY, 4);
+        if (mapCenterX >= baseStartX && mapCenterX <= baseStartX + mapW &&
+            mapCenterY >= baseStartY && mapCenterY <= baseStartY + mapH) {
+            // Halo
+            dc.setColor(0x0A84FF, Graphics.COLOR_TRANSPARENT);
+            dc.fillCircle(mapCenterX, mapCenterY, 8);
+            dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.fillCircle(mapCenterX, mapCenterY, 4);
 
-        // Direction Arrow / Heading Cone
-        if (CommManager.mapHeading > 0) {
-            var rad = Math.toRadians(CommManager.mapHeading - 90);
-            var tipX = mapCenterX + (18 * Math.cos(rad)).toNumber();
-            var tipY = mapCenterY + (18 * Math.sin(rad)).toNumber();
-            var base1X = mapCenterX + (8 * Math.cos(rad + 2.5)).toNumber();
-            var base1Y = mapCenterY + (8 * Math.sin(rad + 2.5)).toNumber();
-            var base2X = mapCenterX + (8 * Math.cos(rad - 2.5)).toNumber();
-            var base2Y = mapCenterY + (8 * Math.sin(rad - 2.5)).toNumber();
+            // Direction Arrow / Heading Cone
+            if (CommManager.mapHeading > 0) {
+                var rad = Math.toRadians(CommManager.mapHeading - 90);
+                var tipX = mapCenterX + (18 * Math.cos(rad)).toNumber();
+                var tipY = mapCenterY + (18 * Math.sin(rad)).toNumber();
+                var base1X = mapCenterX + (8 * Math.cos(rad + 2.5)).toNumber();
+                var base1Y = mapCenterY + (8 * Math.sin(rad + 2.5)).toNumber();
+                var base2X = mapCenterX + (8 * Math.cos(rad - 2.5)).toNumber();
+                var base2Y = mapCenterY + (8 * Math.sin(rad - 2.5)).toNumber();
 
-            dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
-            dc.fillPolygon([[tipX, tipY], [base1X, base1Y], [base2X, base2Y]]);
+                dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
+                dc.fillPolygon([[tipX, tipY], [base1X, base1Y], [base2X, base2Y]]);
+            }
         }
 
-        // 4. Top Status Header (Speed, Zoom)
+        // 4. Interactive Glassmorphism Overlay Controls
+        // Zoom [+] Button (Right Top)
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(287, 122, 18);
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.drawCircle(287, 122, 18);
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(287, 108, fontBold, "+", Graphics.TEXT_JUSTIFY_CENTER);
+
+        // Zoom [-] Button (Right Bottom)
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(287, 175, 18);
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.drawCircle(287, 175, 18);
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(287, 161, fontBold, "-", Graphics.TEXT_JUSTIFY_CENTER);
+
+        // GPS Recenter Button (Left Middle - highlighted in Cyan if panned away)
+        var isPanned = (_panX != 0 || _panY != 0);
+        dc.setColor(isPanned ? COLOR_THEME_CYAN_BADGE : COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(33, 148, 18);
+        dc.setColor(isPanned ? COLOR_THEME_CYAN_ACCENT : COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.drawCircle(33, 148, 18);
+        dc.setColor(isPanned ? COLOR_THEME_CYAN_ACCENT : COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(33, 148, 4);
+        dc.drawCircle(33, 148, 8);
+
+        // 5. Top Status Header (Speed, Zoom Level)
         // Speed Pill (Left)
         var speedStr = Lang.format("$1$ km/h", [CommManager.mapSpeed]);
         var speedW = dc.getTextWidthInPixels(speedStr, fontMicro) + 16;
@@ -402,8 +505,9 @@ class NavigationIQView extends WatchUi.View {
         dc.setColor(COLOR_THEME_GREEN_ACCENT, Graphics.COLOR_TRANSPARENT);
         dc.drawText(16 + (speedW / 2), 16 + 2, fontMicro, speedStr, Graphics.TEXT_JUSTIFY_CENTER);
 
-        // Zoom Pill (Center/Right)
-        var zoomStr = (_mapZoom == 16) ? "500m" : "1km";
+        // Zoom Pill (Right)
+        var zoomNames = { 14 => "2km", 15 => "1km", 16 => "500m", 17 => "250m", 18 => "100m" };
+        var zoomStr = zoomNames.hasKey(_mapZoom) ? zoomNames[_mapZoom] as String : "500m";
         var zoomW = dc.getTextWidthInPixels(zoomStr, fontMicro) + 16;
         var zoomX = 320 - 16 - zoomW;
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
@@ -413,7 +517,7 @@ class NavigationIQView extends WatchUi.View {
         dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
         dc.drawText(zoomX + (zoomW / 2), 16 + 2, fontMicro, zoomStr, Graphics.TEXT_JUSTIFY_CENTER);
 
-        // 5. Bottom Navigation Bar Pill (Swipe Up to return to HUD)
+        // 6. Bottom Navigation Bar Pill (Swipe Up to return to HUD)
         var clock = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
         var bottomStr = Lang.format("^ HUD  |  $1$", [timeStr]);

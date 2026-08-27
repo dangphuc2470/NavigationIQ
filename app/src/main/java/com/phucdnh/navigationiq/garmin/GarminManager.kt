@@ -361,10 +361,35 @@ object GarminManager {
         }
     }
 
+    private var currentMapZoom = 16
+    private var currentPanDx = 0
+    private var currentPanDy = 0
+
     private fun registerAppEvents(device: IQDevice, app: IQApp) {
         connectIQ?.registerForAppEvents(device, app) { _, _, messages, _ ->
             if (messages.isNullOrEmpty()) return@registerForAppEvents
-            val msg = messages[0]?.toString() ?: return@registerForAppEvents
+            val first = messages[0]
+            if (first is List<*> && first.isNotEmpty()) {
+                val action = first[0]?.toString()
+                when (action) {
+                    "map_zoom" -> {
+                        val zoom = (first.getOrNull(1) as? Number)?.toInt() ?: 16
+                        currentMapZoom = zoom
+                        addLog("[MAP] Changed Zoom to $zoom")
+                        triggerInstantMapUpdate()
+                    }
+                    "map_pan" -> {
+                        val dx = (first.getOrNull(1) as? Number)?.toInt() ?: 0
+                        val dy = (first.getOrNull(2) as? Number)?.toInt() ?: 0
+                        currentPanDx = dx
+                        currentPanDy = dy
+                        addLog("[MAP] Pan request: dx=$dx, dy=$dy")
+                    }
+                }
+                return@registerForAppEvents
+            }
+
+            val msg = first?.toString() ?: return@registerForAppEvents
             addLog("[RECV from watch] $msg")
             when (msg) {
                 "reset", "alive" -> {
@@ -390,6 +415,26 @@ object GarminManager {
                         appContext?.let { ctx -> sendNavigationInfo(ctx, it) }
                     }
                 }
+                "map_recenter" -> {
+                    currentPanDx = 0
+                    currentPanDy = 0
+                    addLog("[MAP] Recenter GPS")
+                    triggerInstantMapUpdate()
+                }
+            }
+        }
+    }
+
+    private fun triggerInstantMapUpdate() {
+        if (!isMapMode) return
+        mapScope.launch {
+            try {
+                val mapPacket = OsmMapManager.generateMapPacket(zoom = currentMapZoom)
+                if (mapPacket != null && isMapMode) {
+                    sendMapPacket(mapPacket)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Instant map update error: ${e.message}")
             }
         }
     }
@@ -400,7 +445,7 @@ object GarminManager {
         mapJob = mapScope.launch {
             while (isActive && isMapMode) {
                 try {
-                    val mapPacket = OsmMapManager.generateMapPacket()
+                    val mapPacket = OsmMapManager.generateMapPacket(zoom = currentMapZoom)
                     if (mapPacket != null && isMapMode) {
                         sendMapPacket(mapPacket)
                     }

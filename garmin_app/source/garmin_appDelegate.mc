@@ -31,7 +31,15 @@ class NavigationIQDelegate extends WatchUi.BehaviorDelegate {
         return false;
     }
 
-    // Tap screen -> Toggle 90° Clockwise Rotation (or toggle zoom on map)
+    // Drag / Pan Map with 1 finger
+    function onDrag(dragEvent as WatchUi.DragEvent) as Boolean {
+        if (_view != null && _view.isMapTabActive()) {
+            return _view.onMapDrag(dragEvent);
+        }
+        return false;
+    }
+
+    // Tap screen -> Toggle 90° Clockwise Rotation (or tap buttons on map)
     function onTap(clickEvent as WatchUi.ClickEvent) as Boolean {
         if (_view != null) {
             var coords = clickEvent.getCoordinates();

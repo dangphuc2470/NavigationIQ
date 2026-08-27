@@ -62,6 +62,28 @@ module CommManager {
         }
     }
 
+    function requestZoom(zoom as Number) as Void {
+        mapZoom = zoom;
+        try {
+            Communications.transmit(["map_zoom", zoom], null, new PhoneCommListener());
+        } catch (e) {
+        }
+    }
+
+    function requestPan(dx as Number, dy as Number) as Void {
+        try {
+            Communications.transmit(["map_pan", dx, dy], null, new PhoneCommListener());
+        } catch (e) {
+        }
+    }
+
+    function recenterMap() as Void {
+        try {
+            Communications.transmit("map_recenter", null, new PhoneCommListener());
+        } catch (e) {
+        }
+    }
+
     function start() as Void {
         navText     = "";
         distText    = "";
