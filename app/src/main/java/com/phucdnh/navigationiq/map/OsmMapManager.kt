@@ -11,8 +11,16 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.util.LruCache
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -34,6 +42,14 @@ data class OsmMapPacket(
     val palette: List<Int>  // 16 RGB values (e.g. 0x000000, 0xFFFFFF, etc.)
 )
 
+data class OfflineDownloadState(
+    val isDownloading: Boolean = false,
+    val current: Int = 0,
+    val total: Int = 0,
+    val percent: Int = 0,
+    val statusMessage: String = "Sẵn sàng"
+)
+
 object OsmMapManager {
 
     private const val TAG = "OsmMapManager"
@@ -42,7 +58,16 @@ object OsmMapManager {
     private const val USER_AGENT = "NavigationIQ/1.0 (Android Garmin Relay)"
 
     // In-memory LRU cache for 256x256 OSM tiles
-    private val tileCache = LruCache<String, Bitmap>(30)
+    private val tileCache = LruCache<String, Bitmap>(50)
+    private var offlineDir: File? = null
+
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private val _downloadState = MutableStateFlow(OfflineDownloadState())
+    val downloadStateFlow = _downloadState.asStateFlow()
+
+    private val _storageSizeText = MutableStateFlow("0 MB (0 mảnh)")
+    val storageSizeTextFlow = _storageSizeText.asStateFlow()
 
     // 16-color dark-mode palette optimized for AMOLED Garmin display
     val DARK_PALETTE = intArrayOf(
@@ -69,6 +94,9 @@ object OsmMapManager {
 
     fun initialize(context: Context) {
         try {
+            offlineDir = File(context.filesDir, "osm_offline_tiles").apply { mkdirs() }
+            updateStorageStats()
+
             locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
             val fineLoc = try {
                 locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
@@ -209,8 +237,24 @@ object OsmMapManager {
 
     private suspend fun fetchOsmTile(z: Int, x: Int, y: Int): Bitmap? = withContext(Dispatchers.IO) {
         val cacheKey = "$z/$x/$y"
+        // 1. Check RAM Cache
         tileCache.get(cacheKey)?.let { return@withContext it }
 
+        // 2. Check Offline Storage on Disk
+        val tileFile = offlineDir?.resolve("$z/$x/$y.png")
+        if (tileFile != null && tileFile.exists() && tileFile.length() > 0) {
+            try {
+                val bitmap = BitmapFactory.decodeFile(tileFile.absolutePath)
+                if (bitmap != null) {
+                    tileCache.put(cacheKey, bitmap)
+                    return@withContext bitmap
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to decode disk tile $cacheKey: ${e.message}")
+            }
+        }
+
+        // 3. Fetch from Network if not available locally
         val tileUrl = "https://tile.openstreetmap.org/$z/$x/$y.png"
         var conn: HttpURLConnection? = null
         try {
@@ -224,8 +268,16 @@ object OsmMapManager {
 
             if (conn.responseCode == 200) {
                 val input: InputStream = conn.inputStream
-                val bitmap = BitmapFactory.decodeStream(input)
+                val bytes = input.readBytes()
                 input.close()
+
+                // Save to offline disk cache
+                tileFile?.parentFile?.mkdirs()
+                if (tileFile != null && bytes.isNotEmpty()) {
+                    FileOutputStream(tileFile).use { it.write(bytes) }
+                }
+
+                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                 if (bitmap != null) {
                     tileCache.put(cacheKey, bitmap)
                     return@withContext bitmap
@@ -237,6 +289,113 @@ object OsmMapManager {
             conn?.disconnect()
         }
         null
+    }
+
+    /**
+     * Download all zoom levels (14, 15, 16, 17) for a radius around GPS location.
+     */
+    fun startOfflineDownload(radiusKm: Double = 5.0) {
+        if (_downloadState.value.isDownloading) return
+
+        scope.launch {
+            val lat = lastKnownLocation?.latitude ?: 10.7769
+            val lon = lastKnownLocation?.longitude ?: 106.7009
+
+            val dLat = radiusKm / 111.32
+            val dLon = radiusKm / (111.32 * cos(Math.toRadians(lat)))
+            val minLat = lat - dLat
+            val maxLat = lat + dLat
+            val minLon = lon - dLon
+            val maxLon = lon + dLon
+
+            val tileTasks = mutableListOf<Triple<Int, Int, Int>>()
+            for (z in 14..17) {
+                val n = 1 shl z
+                val minX = floor((minLon + 180.0) / 360.0 * n).toInt().coerceIn(0, n - 1)
+                val maxX = floor((maxLon + 180.0) / 360.0 * n).toInt().coerceIn(0, n - 1)
+                val maxRad = Math.toRadians(maxLat)
+                val minRad = Math.toRadians(minLat)
+                val minY = floor((1.0 - ln(tan(maxRad) + 1.0 / cos(maxRad)) / Math.PI) / 2.0 * n).toInt().coerceIn(0, n - 1)
+                val maxY = floor((1.0 - ln(tan(minRad) + 1.0 / cos(minRad)) / Math.PI) / 2.0 * n).toInt().coerceIn(0, n - 1)
+                for (tx in minX..maxX) {
+                    for (ty in minY..maxY) {
+                        tileTasks.add(Triple(z, tx, ty))
+                    }
+                }
+            }
+
+            val total = tileTasks.size
+            _downloadState.value = OfflineDownloadState(
+                isDownloading = true,
+                current = 0,
+                total = total,
+                percent = 0,
+                statusMessage = "Đang bắt đầu tải $total mảnh..."
+            )
+
+            var count = 0
+            for (task in tileTasks) {
+                val z = task.first
+                val x = task.second
+                val y = task.third
+                fetchOsmTile(z, x, y)
+                count++
+                val percent = if (total > 0) (count * 100) / total else 100
+                _downloadState.value = OfflineDownloadState(
+                    isDownloading = true,
+                    current = count,
+                    total = total,
+                    percent = percent,
+                    statusMessage = "Đang tải Zoom $z: $count/$total mảnh ($percent%)"
+                )
+                delay(30L) // Polite request pacing
+            }
+
+            updateStorageStats()
+            _downloadState.value = OfflineDownloadState(
+                isDownloading = false,
+                current = total,
+                total = total,
+                percent = 100,
+                statusMessage = "Đã tải xong toàn bộ $total mảnh ngoại tuyến!"
+            )
+        }
+    }
+
+    fun clearOfflineStorage() {
+        scope.launch {
+            try {
+                offlineDir?.deleteRecursively()
+                offlineDir?.mkdirs()
+                tileCache.evictAll()
+                updateStorageStats()
+                _downloadState.value = OfflineDownloadState(
+                    isDownloading = false,
+                    current = 0,
+                    total = 0,
+                    percent = 0,
+                    statusMessage = "Đã xóa toàn bộ dữ liệu ngoại tuyến"
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Error clearing offline storage: ${e.message}")
+            }
+        }
+    }
+
+    fun updateStorageStats() {
+        scope.launch {
+            val dir = offlineDir ?: return@launch
+            var totalBytes = 0L
+            var fileCount = 0
+            dir.walkTopDown().forEach { file ->
+                if (file.isFile) {
+                    totalBytes += file.length()
+                    fileCount++
+                }
+            }
+            val mb = String.format("%.1f", totalBytes / (1024.0 * 1024.0))
+            _storageSizeText.value = "$mb MB ($fileCount mảnh)"
+        }
     }
 
     /**
