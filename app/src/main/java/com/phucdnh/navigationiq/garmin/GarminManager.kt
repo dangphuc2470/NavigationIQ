@@ -197,7 +197,9 @@ object GarminManager {
                 for (dev in devices) {
                     val name = dev.friendlyName?.takeIf { it.isNotBlank() } ?: "Garmin Watch"
                     addLog("Device: $name (${dev.status})")
-                    checkAndRegisterApps(context, dev)
+                    if (dev.status == IQDevice.IQDeviceStatus.CONNECTED) {
+                        checkAndRegisterApps(context, dev)
+                    }
                     ciq.registerForDeviceEvents(dev) { device, status ->
                         onDeviceStatusChanged(context, device, status)
                     }

@@ -10,21 +10,50 @@ class NavigationIQDelegate extends WatchUi.BehaviorDelegate {
         _view = view;
     }
 
-    // Long press UP / Back -> exit app
+    // Long press UP / Back -> back to HUD or exit app
     function onBack() as Boolean {
+        if (_view != null && _view.isMapTabActive()) {
+            _view.switchToHudTab();
+            return true;
+        }
         WatchUi.popView(WatchUi.SLIDE_DOWN);
         return true;
+    }
+
+    function onNextPage() as Boolean {
+        if (_view != null) {
+            if (_view.isMapTabActive()) {
+                _view.switchToHudTab();
+            } else {
+                _view.switchToMapTab();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    function onPreviousPage() as Boolean {
+        if (_view != null) {
+            if (_view.isMapTabActive()) {
+                _view.switchToHudTab();
+            } else {
+                _view.switchToMapTab();
+            }
+            return true;
+        }
+        return false;
     }
 
     // Swipe Down -> Map Tab | Swipe Up -> HUD Tab
     function onSwipe(swipeEvent as WatchUi.SwipeEvent) as Boolean {
         if (_view != null) {
             var dir = swipeEvent.getDirection();
-            if (dir == WatchUi.SWIPE_DOWN) {
-                _view.switchToMapTab();
-                return true;
-            } else if (dir == WatchUi.SWIPE_UP) {
-                _view.switchToHudTab();
+            if (dir == WatchUi.SWIPE_DOWN || dir == WatchUi.SWIPE_UP) {
+                if (_view.isMapTabActive()) {
+                    _view.switchToHudTab();
+                } else {
+                    _view.switchToMapTab();
+                }
                 return true;
             }
         }

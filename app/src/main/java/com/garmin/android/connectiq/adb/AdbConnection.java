@@ -53,7 +53,9 @@ public class AdbConnection {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     try {
-                        AdbConnection.this.server = new ServerSocket(AdbConnection.this.connectionPort);
+                        AdbConnection.this.server = new ServerSocket();
+                        AdbConnection.this.server.setReuseAddress(true);
+                        AdbConnection.this.server.bind(new java.net.InetSocketAddress(AdbConnection.this.connectionPort));
                         AdbConnection.this.server.setSoTimeout(5000);
                         Log.d("ConnectIQ-AdbConnection", "Waiting for simulator connection.");
                         while (!Thread.currentThread().isInterrupted()) {
@@ -76,6 +78,11 @@ public class AdbConnection {
                         adbConnection = AdbConnection.this;
                     } catch (IOException e) {
                         Log.e("ConnectIQ-AdbConnection", "Error creating server socket", e);
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ie) {
+                            break;
+                        }
                         try {
                             adbConnection = AdbConnection.this;
                         } catch (Exception unused2) {

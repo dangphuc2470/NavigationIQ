@@ -47,8 +47,8 @@ module CommManager {
     var isMapMode          as Boolean = false;
     var mapRleData         as Array<Number>? = null;
     var mapPalette         as Array<Number>? = null;
-    var mapWidth           as Number = 180;
-    var mapHeight          as Number = 180;
+    var mapWidth           as Number = 100;
+    var mapHeight          as Number = 100;
     var mapZoom            as Number = 16;
     var mapSpeed           as Number = 0;
     var mapHeading         as Number = 0;
@@ -93,15 +93,16 @@ module CommManager {
     }
 
     function start() as Void {
-        navText     = "Rẽ trái vào đường Lê Lợi";
-        distText    = "250 m";
-        etaText     = "12:30";
-        _inferDirectionAndExit(navText);
-        nextStreet  = _extractNextStreet(navText);
+        navText     = "";
+        distText    = "";
+        etaText     = "";
+        direction   = DIR_UNKNOWN;
+        exitNumber  = 0;
+        nextStreet  = "";
         rleBitmap   = null;
-        isActive    = true;
+        isActive    = false;
         mapRleData  = null;
-        lastRxTime  = System.getTimer();
+        lastRxTime  = 0;
     }
 
     function onPhoneMessage(msg as Communications.PhoneAppMessage) as Void {
@@ -132,7 +133,13 @@ module CommManager {
                 mapZoom    = (data[3] != null) ? data[3] as Number : 16;
                 mapSpeed   = (data[4] != null) ? data[4] as Number : 0;
                 mapHeading = (data[5] != null) ? data[5] as Number : 0;
-                mapRleData = (data[6] != null) ? data[6] as Array<Number> : null;
+                if (data[6] instanceof Lang.Array) {
+                    mapRleData = data[6] as Array<Number>;
+                } else if (data[6] instanceof Lang.String) {
+                    mapRleData = _decodeHexRle(data[6] as String);
+                } else {
+                    mapRleData = null;
+                }
                 if (data.size() >= 8 && data[7] != null) {
                     mapPalette = data[7] as Array<Number>;
                 }
@@ -447,6 +454,25 @@ module CommManager {
         }
 
         return -1;
+    }
+
+    function _decodeHexRle(hex as String) as Array<Number> {
+        var chars = hex.toCharArray();
+        var len = chars.size();
+        var res = new [len / 2] as Array<Number>;
+        var outIdx = 0;
+        var i = 0;
+        while (i < len - 1) {
+            var c1 = chars[i].toNumber();
+            var c2 = chars[i + 1].toNumber();
+            // '0'=48, '9'=57, 'A'=65, 'F'=70, 'a'=97, 'f'=102
+            var v1 = (c1 >= 48 && c1 <= 57) ? (c1 - 48) : ((c1 >= 65 && c1 <= 70) ? (c1 - 55) : ((c1 >= 97 && c1 <= 102) ? (c1 - 87) : 0));
+            var v2 = (c2 >= 48 && c2 <= 57) ? (c2 - 48) : ((c2 >= 65 && c2 <= 70) ? (c2 - 55) : ((c2 >= 97 && c2 <= 102) ? (c2 - 87) : 0));
+            res[outIdx] = (v1 * 16) + v2;
+            outIdx++;
+            i += 2;
+        }
+        return res;
     }
 }
 

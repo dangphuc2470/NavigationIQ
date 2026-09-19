@@ -186,27 +186,27 @@ class NavigationIQView extends WatchUi.View {
 
     public function onScreenTap(x as Number, y as Number) as Void {
         if (_currentTab == TAB_MAP) {
-            // Tap Bottom Area (y >= 260) -> Switch back to HUD immediately
-            if (y >= 260) {
+            // Tap Bottom Area (y >= 290) -> Switch back to HUD immediately
+            if (y >= 290) {
                 switchToHudTab();
                 return;
             }
-            // Tap Zoom [+] button (Right Top)
-            if (x >= 260 && y <= 148) {
+            // Tap Zoom [+] button (Right Top: x >= 255, y: 90-145)
+            if (x >= 255 && y >= 85 && y <= 145) {
                 _mapZoom = (_mapZoom < 18) ? _mapZoom + 1 : 18;
                 CommManager.requestZoom(_mapZoom);
                 WatchUi.requestUpdate();
                 return;
             }
-            // Tap Zoom [-] button (Right Bottom)
-            if (x >= 260 && y >= 152 && y <= 220) {
+            // Tap Zoom [-] button (Right Bottom: x >= 255, y: 150-205)
+            if (x >= 255 && y >= 150 && y <= 210) {
                 _mapZoom = (_mapZoom > 14) ? _mapZoom - 1 : 14;
                 CommManager.requestZoom(_mapZoom);
                 WatchUi.requestUpdate();
                 return;
             }
-            // Tap Recenter GPS button (Left)
-            if (x <= 65 && y >= 110 && y <= 190) {
+            // Tap Recenter GPS button (Left: x <= 65, y: 115-175)
+            if (x <= 65 && y >= 115 && y <= 175) {
                 _panX = 0;
                 _panY = 0;
                 CommManager.recenterMap();
@@ -383,41 +383,45 @@ class NavigationIQView extends WatchUi.View {
 
         var mapW = CommManager.mapWidth;
         var mapH = CommManager.mapHeight;
-        var baseStartX = (320 - mapW) / 2;
-        var baseStartY = 64;
+        var scale = (mapW > 0) ? (320 / mapW) : 2;
+        if (scale < 1) {
+            scale = 1;
+        }
+        var totalDrawW = mapW * scale;
+        var totalDrawH = mapH * scale;
+        var baseStartX = (320 - totalDrawW) / 2;
+        var baseStartY = (360 - totalDrawH) / 2;
         var startX = baseStartX + _panX;
         var startY = baseStartY + _panY;
 
-        // 1. Map Viewport Canvas Background & Border
-        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(baseStartX - 2, baseStartY - 2, mapW + 4, mapH + 4, 14);
-
-        // 2. Render RLE Decompressed OSM Map Pixels with Pan Offset
+        // 1. Render RLE Decompressed OSM Map Pixels Edge-to-Edge with Pan Offset
         var rle = CommManager.mapRleData;
         if (rle != null && rle.size() > 0) {
             var px = 0;
             var py = 0;
             var i = 0;
             var rleLen = rle.size();
-            while (i < rleLen - 1) {
-                var runLen = rle[i] as Number;
-                var colIdx = rle[i + 1] as Number;
-                var colRgb = _getMapPaletteColor(colIdx);
-                if (colIdx != 0) { // Optimize: skip pure black background pixels
+            while (i < rleLen - 1 && py < mapH) {
+                var runLen = (rle[i] as Number) & 0xFF;
+                var colIdx = (rle[i + 1] as Number) & 0xFF;
+                if (colIdx != 0) { // Skip pure black background pixels for AMOLED power efficiency
+                    var colRgb = _getMapPaletteColor(colIdx);
                     dc.setColor(colRgb, Graphics.COLOR_TRANSPARENT);
-                    while (runLen > 0) {
+                    while (runLen > 0 && py < mapH) {
                         var span = runLen;
                         if (px + span > mapW) {
                             span = mapW - px;
                         }
-                        var drawX = startX + px;
-                        var drawY = startY + py;
-                        // Clip strictly inside viewport card
-                        if (drawY >= baseStartY && drawY < baseStartY + mapH) {
-                            var clipX1 = (drawX < baseStartX) ? baseStartX : drawX;
-                            var clipX2 = (drawX + span > baseStartX + mapW) ? baseStartX + mapW : drawX + span;
+                        var drawX = startX + (px * scale);
+                        var drawY = startY + (py * scale);
+                        var drawW = span * scale;
+                        
+                        // Clip within screen bounds
+                        if (drawY >= 0 && drawY < 360) {
+                            var clipX1 = (drawX < 0) ? 0 : drawX;
+                            var clipX2 = (drawX + drawW > 320) ? 320 : drawX + drawW;
                             if (clipX2 > clipX1) {
-                                dc.fillRectangle(clipX1, drawY, clipX2 - clipX1, 1);
+                                dc.fillRectangle(clipX1, drawY, clipX2 - clipX1, scale);
                             }
                         }
                         px += span;
@@ -425,9 +429,6 @@ class NavigationIQView extends WatchUi.View {
                         if (px >= mapW) {
                             px = 0;
                             py++;
-                            if (py >= mapH) {
-                                break;
-                            }
                         }
                     }
                 } else {
@@ -436,119 +437,110 @@ class NavigationIQView extends WatchUi.View {
                         px -= mapW;
                         py++;
                     }
-                    if (py >= mapH) {
-                        break;
-                    }
                 }
                 i += 2;
             }
         } else {
             // Animated Radar Pulse when map is downloading
-            var pulseR = 25 + ((_animTick * 2) % 35);
+            var pulseR = 30 + ((_animTick * 2) % 45);
             dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
             dc.setPenWidth(1);
-            dc.drawCircle(160, baseStartY + (mapH / 2), pulseR);
+            dc.drawCircle(160, 180, pulseR);
 
             dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(160, baseStartY + (mapH / 2) + 30, fontMicro, "Loading OSM Map...", Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(160, 222, fontMicro, "Loading OSM Map...", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
 
-        // Map Viewport Border
-        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(2);
-        dc.drawRoundedRectangle(baseStartX - 2, baseStartY - 2, mapW + 4, mapH + 4, 14);
+        // 2. Current GPS Location Pin (Positioned relative to pan at screen center)
+        var mapCenterX = startX + (totalDrawW / 2);
+        var mapCenterY = startY + (totalDrawH / 2);
 
-        // 3. Current GPS Location Pin (Positioned relative to pan)
-        var mapCenterX = startX + (mapW / 2);
-        var mapCenterY = startY + (mapH / 2);
-
-        if (mapCenterX >= baseStartX && mapCenterX <= baseStartX + mapW &&
-            mapCenterY >= baseStartY && mapCenterY <= baseStartY + mapH) {
-            // Halo
+        if (mapCenterX >= 0 && mapCenterX <= 320 && mapCenterY >= 0 && mapCenterY <= 360) {
+            // Location Halo
             dc.setColor(0x0A84FF, Graphics.COLOR_TRANSPARENT);
-            dc.fillCircle(mapCenterX, mapCenterY, 8);
+            dc.fillCircle(mapCenterX, mapCenterY, 9);
             dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
             dc.fillCircle(mapCenterX, mapCenterY, 4);
 
             // Direction Arrow / Heading Cone
             if (CommManager.mapHeading > 0) {
                 var rad = Math.toRadians(CommManager.mapHeading - 90);
-                var tipX = mapCenterX + (18 * Math.cos(rad)).toNumber();
-                var tipY = mapCenterY + (18 * Math.sin(rad)).toNumber();
-                var base1X = mapCenterX + (8 * Math.cos(rad + 2.5)).toNumber();
-                var base1Y = mapCenterY + (8 * Math.sin(rad + 2.5)).toNumber();
-                var base2X = mapCenterX + (8 * Math.cos(rad - 2.5)).toNumber();
-                var base2Y = mapCenterY + (8 * Math.sin(rad - 2.5)).toNumber();
+                var tipX = mapCenterX + (22 * Math.cos(rad)).toNumber();
+                var tipY = mapCenterY + (22 * Math.sin(rad)).toNumber();
+                var base1X = mapCenterX + (9 * Math.cos(rad + 2.5)).toNumber();
+                var base1Y = mapCenterY + (9 * Math.sin(rad + 2.5)).toNumber();
+                var base2X = mapCenterX + (9 * Math.cos(rad - 2.5)).toNumber();
+                var base2Y = mapCenterY + (9 * Math.sin(rad - 2.5)).toNumber();
 
                 dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
                 dc.fillPolygon([[tipX, tipY], [base1X, base1Y], [base2X, base2Y]]);
             }
         }
 
-        // 4. Interactive Glassmorphism Overlay Controls
+        // 3. Floating Glassmorphism Overlay Controls
         // Zoom [+] Button (Right Top)
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(287, 122, 18);
+        dc.fillCircle(287, 115, 19);
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.drawCircle(287, 122, 18);
+        dc.drawCircle(287, 115, 19);
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(287, 108, fontBold, "+", Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(287, 111, fontBold, "+", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Zoom [-] Button (Right Bottom)
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(287, 175, 18);
+        dc.fillCircle(287, 175, 19);
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.drawCircle(287, 175, 18);
+        dc.drawCircle(287, 175, 19);
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(287, 161, fontBold, "-", Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(287, 171, fontBold, "-", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // GPS Recenter Button (Left Middle - highlighted in Cyan if panned away)
         var isPanned = (_panX != 0 || _panY != 0);
         dc.setColor(isPanned ? COLOR_THEME_CYAN_BADGE : COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(33, 148, 18);
+        dc.fillCircle(33, 145, 19);
         dc.setColor(isPanned ? COLOR_THEME_CYAN_ACCENT : COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.drawCircle(33, 148, 18);
+        dc.drawCircle(33, 145, 19);
         dc.setColor(isPanned ? COLOR_THEME_CYAN_ACCENT : COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(33, 148, 4);
-        dc.drawCircle(33, 148, 8);
+        dc.fillCircle(33, 145, 4);
+        dc.drawCircle(33, 145, 8);
 
-        // 5. Top Status Header (Speed, Zoom Level)
+        // 4. Top Status Header Floating Pills (Speed, Zoom Level)
         // Speed Pill (Left)
         var speedStr = Lang.format("$1$ km/h", [CommManager.mapSpeed]);
-        var speedW = dc.getTextWidthInPixels(speedStr, fontMicro) + 16;
+        var speedW = dc.getTextWidthInPixels(speedStr, fontMicro) + 18;
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(16, 16, speedW, 30, 15);
+        dc.fillRoundedRectangle(14, 14, speedW, 30, 15);
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.drawRoundedRectangle(16, 16, speedW, 30, 15);
+        dc.drawRoundedRectangle(14, 14, speedW, 30, 15);
         dc.setColor(COLOR_THEME_GREEN_ACCENT, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(16 + (speedW / 2), 16 + 2, fontMicro, speedStr, Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(14 + (speedW / 2), 14 + 12, fontMicro, speedStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Zoom Pill (Right)
         var zoomNames = { 14 => "2km", 15 => "1km", 16 => "500m", 17 => "250m", 18 => "100m" };
         var zoomStr = zoomNames.hasKey(_mapZoom) ? zoomNames[_mapZoom] as String : "500m";
-        var zoomW = dc.getTextWidthInPixels(zoomStr, fontMicro) + 16;
-        var zoomX = 320 - 16 - zoomW;
+        var zoomW = dc.getTextWidthInPixels(zoomStr, fontMicro) + 18;
+        var zoomX = 320 - 14 - zoomW;
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(zoomX, 16, zoomW, 30, 15);
+        dc.fillRoundedRectangle(zoomX, 14, zoomW, 30, 15);
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.drawRoundedRectangle(zoomX, 16, zoomW, 30, 15);
+        dc.drawRoundedRectangle(zoomX, 14, zoomW, 30, 15);
         dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(zoomX + (zoomW / 2), 16 + 2, fontMicro, zoomStr, Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(zoomX + (zoomW / 2), 14 + 12, fontMicro, zoomStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        // 6. Bottom Navigation Bar Pill (Swipe Up to return to HUD)
+        // 5. Bottom Navigation Floating Bar (Swipe Up / Tap to return to HUD)
         var clock = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
-        var bottomStr = Lang.format("^ HUD  |  $1$", [timeStr]);
-        var bottomW = dc.getTextWidthInPixels(bottomStr, fontMicro) + 24;
+        var bottomStr = Lang.format("HUD  |  $1$", [timeStr]);
+        var bottomW = dc.getTextWidthInPixels(bottomStr, fontMicro) + 26;
         var bottomX = (320 - bottomW) / 2;
-        var bottomY = 276;
+        var bottomY = 314;
 
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
         dc.fillRoundedRectangle(bottomX, bottomY, bottomW, 32, 16);
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
         dc.drawRoundedRectangle(bottomX, bottomY, bottomW, 32, 16);
         dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(160, bottomY + 3, fontMicro, bottomStr, Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(160, bottomY + 13, fontMicro, bottomStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
     // -------------------------------------------------------------------------
@@ -1043,24 +1035,55 @@ class NavigationIQView extends WatchUi.View {
 
             var actionLines = (actionStr.length() > 0) ? _wrapWithRot90Font(dc, actionStr, fontActionUp, 332) : [] as Array<String>;
             var streetLines = (streetStr.length() > 0) ? _wrapWithRot90Font(dc, streetStr, fontStreetUp, 332) : [] as Array<String>;
+            var hAct = 28;
+            var hStr = 24;
+            var totalH = (actionLines.size() * hAct) + (streetLines.size() * hStr);
+            var maxHeight = 124;
 
-            if (actionLines.size() > 0 && streetLines.size() > 0) {
-                // 1 action line + 1 street line: baseline 176 and 206
-                _drawRot90String(dc, 14, 176, fontActionRot, fontActionUp, actionLines[0], COLOR_TEXT_WHITE);
-                _drawRot90String(dc, 14, 206, fontStreetRot, fontStreetUp, streetLines[0], COLOR_TEXT_SILVER);
-            } else if (actionLines.size() > 0) {
-                // Only action lines
-                var curVy = 180 - ((actionLines.size() - 1) * 16) + 10;
+            if (totalH <= maxHeight) {
+                var curVy = 120 + (maxHeight - totalH) / 2 + 10;
                 for (var al = 0; al < actionLines.size(); al++) {
                     _drawRot90String(dc, 14, curVy, fontActionRot, fontActionUp, actionLines[al], COLOR_TEXT_WHITE);
-                    curVy += 32;
+                    curVy += hAct;
                 }
-            } else if (streetLines.size() > 0) {
-                // Only street lines
-                var curVy = 180 - ((streetLines.size() - 1) * 14) + 10;
                 for (var sl = 0; sl < streetLines.size(); sl++) {
                     _drawRot90String(dc, 14, curVy, fontStreetRot, fontStreetUp, streetLines[sl], COLOR_TEXT_SILVER);
-                    curVy += 28;
+                    curVy += hStr;
+                }
+            } else {
+                // In 90° CW rotation: visual vy in [120..244] maps to physical px in [75..199]
+                if (dc has :setClip) {
+                    dc.setClip(75, 0, 124, 360);
+                }
+
+                var overflow = totalH - maxHeight + 12;
+                var cycle = _animTick % 70;
+                var scrollOffset = 0;
+
+                if (cycle < 15) {
+                    scrollOffset = 0;
+                } else if (cycle < 35) {
+                    var progress = (cycle - 15).toFloat() / 20.0;
+                    scrollOffset = (progress * overflow).toNumber();
+                } else if (cycle < 50) {
+                    scrollOffset = overflow;
+                } else {
+                    var progress = (cycle - 50).toFloat() / 20.0;
+                    scrollOffset = ((1.0 - progress) * overflow).toNumber();
+                }
+
+                var curVy = 124 + 10 - scrollOffset;
+                for (var al = 0; al < actionLines.size(); al++) {
+                    _drawRot90String(dc, 14, curVy, fontActionRot, fontActionUp, actionLines[al], COLOR_TEXT_WHITE);
+                    curVy += hAct;
+                }
+                for (var sl = 0; sl < streetLines.size(); sl++) {
+                    _drawRot90String(dc, 14, curVy, fontStreetRot, fontStreetUp, streetLines[sl], COLOR_TEXT_SILVER);
+                    curVy += hStr;
+                }
+
+                if (dc has :clearClip) {
+                    dc.clearClip();
                 }
             }
         }
@@ -1500,7 +1523,96 @@ class NavigationIQView extends WatchUi.View {
 
     // -------------------------------------------------------------------------
     // Dynamic Font Scaling + Multi-Weight Typography (Bold Action + Regular Road)
+    // Supports Smooth Vertical Auto-Scroll with Pause at Top & Bottom when Overflowing
     // -------------------------------------------------------------------------
+    private function _renderScrollingBlock(
+        dc as Dc,
+        lines1 as Array<String>,
+        font1 as Graphics.FontDefinition,
+        color1 as Number,
+        h1 as Number,
+        lines2 as Array<String>?,
+        font2 as Graphics.FontDefinition?,
+        color2 as Number?,
+        h2 as Number?,
+        startX as Number,
+        startY as Number,
+        maxWidth as Number,
+        maxHeight as Number,
+        accentColor as Number
+    ) as Void {
+        var count1 = lines1.size();
+        var count2 = (lines2 != null) ? lines2.size() : 0;
+        var totalH = (count1 * h1) + (count2 * ((h2 != null) ? h2 : 0));
+
+        if (totalH <= maxHeight) {
+            var curY = startY + (maxHeight - totalH) / 2 - 4;
+            dc.setColor(color1, Graphics.COLOR_TRANSPARENT);
+            for (var i = 0; i < count1; i++) {
+                dc.drawText(startX, curY + (h1 / 2), font1, lines1[i], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+                curY += h1;
+            }
+            if (lines2 != null && font2 != null && color2 != null && h2 != null) {
+                dc.setColor(color2, Graphics.COLOR_TRANSPARENT);
+                for (var j = 0; j < count2; j++) {
+                    dc.drawText(startX, curY + (h2 / 2), font2, lines2[j], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+                    curY += h2;
+                }
+            }
+            return;
+        }
+
+        // Smooth Vertical Auto-Scroll with Pause at top and bottom
+        if (dc has :setClip) {
+            dc.setClip(startX - 2, startY, maxWidth + 4, maxHeight);
+        }
+
+        var overflow = totalH - maxHeight + 12;
+        var cycle = _animTick % 70;
+        var scrollOffset = 0;
+
+        if (cycle < 15) {
+            scrollOffset = 0;
+        } else if (cycle < 35) {
+            var progress = (cycle - 15).toFloat() / 20.0;
+            scrollOffset = (progress * overflow).toNumber();
+        } else if (cycle < 50) {
+            scrollOffset = overflow;
+        } else {
+            var progress = (cycle - 50).toFloat() / 20.0;
+            scrollOffset = ((1.0 - progress) * overflow).toNumber();
+        }
+
+        var curY = startY + 4 - scrollOffset;
+        dc.setColor(color1, Graphics.COLOR_TRANSPARENT);
+        for (var i = 0; i < count1; i++) {
+            dc.drawText(startX, curY + (h1 / 2), font1, lines1[i], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            curY += h1;
+        }
+        if (lines2 != null && font2 != null && color2 != null && h2 != null) {
+            dc.setColor(color2, Graphics.COLOR_TRANSPARENT);
+            for (var j = 0; j < count2; j++) {
+                dc.drawText(startX, curY + (h2 / 2), font2, lines2[j], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+                curY += h2;
+            }
+        }
+
+        if (dc has :clearClip) {
+            dc.clearClip();
+        }
+
+        // Subtle vertical scrollbar indicator on the right edge
+        var barX = startX + maxWidth - 3;
+        var barTrackH = maxHeight - 16;
+        var thumbH = (maxHeight.toFloat() / totalH.toFloat() * barTrackH).toNumber();
+        if (thumbH < 10) { thumbH = 10; }
+        var thumbY = startY + 8 + ((scrollOffset.toFloat() / overflow.toFloat()) * (barTrackH - thumbH)).toNumber();
+        dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(barX, startY + 8, 2, barTrackH, 1);
+        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(barX, thumbY, 2, thumbH, 1);
+    }
+
     private function _drawDynamicWrappedText(dc as Dc, startX as Number, startY as Number, maxWidth as Number, maxHeight as Number, text as String, accentColor as Number) as Void {
         var parts = _splitActionAndStreet(text);
         var actionText = parts[0];
@@ -1510,30 +1622,19 @@ class NavigationIQView extends WatchUi.View {
         var fontStreetReg = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_TINY;
         var fontCompactBold = (_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_TINY;
         var fontCompactReg = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY;
-        var fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
 
         // If single action phrase with no target road
         if (streetText.length() == 0) {
             var linesStreet = _wrapWithFont(dc, actionText, fontActionBold, maxWidth);
-            var fontHStreet = dc.getFontHeight(fontActionBold);
-            if (linesStreet.size() <= 2 && (linesStreet.size() * (fontHStreet + 2)) <= maxHeight) {
-                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-                _renderLines(dc, linesStreet, fontActionBold, startX, startY, maxHeight, fontHStreet + 2);
+            var fontHStreet = dc.getFontHeight(fontActionBold) + 2;
+            if (linesStreet.size() <= 2 && (linesStreet.size() * fontHStreet) <= maxHeight) {
+                _renderScrollingBlock(dc, linesStreet, fontActionBold, Graphics.COLOR_WHITE, fontHStreet, null, null, null, null, startX, startY, maxWidth, maxHeight, accentColor);
                 return;
             }
 
             var linesCompact = _wrapWithFont(dc, actionText, fontCompactBold, maxWidth);
-            var fontHCompact = dc.getFontHeight(fontCompactBold);
-            if (linesCompact.size() <= 3 && (linesCompact.size() * (fontHCompact + 2)) <= maxHeight) {
-                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-                _renderLines(dc, linesCompact, fontCompactBold, startX, startY, maxHeight, fontHCompact + 2);
-                return;
-            }
-
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            var linesMicro = _wrapWithFont(dc, actionText, fontMicro, maxWidth);
-            var fontHMicro = dc.getFontHeight(fontMicro);
-            _renderLines(dc, linesMicro, fontMicro, startX, startY, maxHeight, fontHMicro + 2);
+            var fontHCompact = dc.getFontHeight(fontCompactBold) + 2;
+            _renderScrollingBlock(dc, linesCompact, fontCompactBold, Graphics.COLOR_WHITE, fontHCompact, null, null, null, null, startX, startY, maxWidth, maxHeight, accentColor);
             return;
         }
 
@@ -1545,99 +1646,17 @@ class NavigationIQView extends WatchUi.View {
         var totalH = (linesAct.size() * hAct) + (linesStr.size() * hStr);
 
         if (totalH <= maxHeight) {
-            var curY = startY + (maxHeight - totalH) / 2 - 6;
-            // Primary Action in Bold Pure White
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            for (var i = 0; i < linesAct.size(); i++) {
-                dc.drawText(startX, curY + (hAct / 2), fontActionBold, linesAct[i], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-                curY += hAct;
-            }
-            // Target Road in Regular Soft Off-White
-            dc.setColor(0xE4E4E7, Graphics.COLOR_TRANSPARENT);
-            for (var j = 0; j < linesStr.size(); j++) {
-                dc.drawText(startX, curY + (hStr / 2), fontStreetReg, linesStr[j], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-                curY += hStr;
-            }
+            _renderScrollingBlock(dc, linesAct, fontActionBold, Graphics.COLOR_WHITE, hAct, linesStr, fontStreetReg, 0xE4E4E7, hStr, startX, startY, maxWidth, maxHeight, accentColor);
             return;
         }
 
-        // 2. Try Compact Weight Hierarchy (Action Bold 20px + Street Regular 18px)
+        // 2. Compact Weight Hierarchy with smooth vertical auto-scrolling
         linesAct = _wrapWithFont(dc, actionText, fontCompactBold, maxWidth);
         linesStr = _wrapWithFont(dc, streetText, fontCompactReg, maxWidth);
         hAct = dc.getFontHeight(fontCompactBold) + 2;
         hStr = dc.getFontHeight(fontCompactReg) + 2;
-        totalH = (linesAct.size() * hAct) + (linesStr.size() * hStr);
 
-        if (totalH <= maxHeight) {
-            var curY = startY + (maxHeight - totalH) / 2 - 6;
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            for (var i = 0; i < linesAct.size(); i++) {
-                dc.drawText(startX, curY + (hAct / 2), fontCompactBold, linesAct[i], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-                curY += hAct;
-            }
-            dc.setColor(0xE4E4E7, Graphics.COLOR_TRANSPARENT);
-            for (var j = 0; j < linesStr.size(); j++) {
-                dc.drawText(startX, curY + (hStr / 2), fontCompactReg, linesStr[j], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-                curY += hStr;
-            }
-            return;
-        }
-
-        // 3. Fallback to Micro font with smooth vertical auto-scroll
-        var fullText = actionText + "\n" + streetText;
-        var linesMicro = _wrapWithFont(dc, fullText, fontMicro, maxWidth);
-        var fontHMicro = dc.getFontHeight(fontMicro);
-        var lineH = fontHMicro + 2;
-        var totalLines = linesMicro.size();
-        totalH = totalLines * lineH;
-
-        if (totalH <= maxHeight) {
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            _renderLines(dc, linesMicro, fontMicro, startX, startY, maxHeight, lineH);
-        } else {
-            // Smooth Vertical Auto-Scroll with Pause at top and bottom
-            if (dc has :setClip) {
-                dc.setClip(startX - 2, startY, maxWidth + 4, maxHeight);
-            }
-
-            var overflow = totalH - maxHeight + 10;
-            var cycle = _animTick % 70;
-            var scrollOffset = 0;
-
-            if (cycle < 15) {
-                scrollOffset = 0;
-            } else if (cycle < 35) {
-                var progress = (cycle - 15).toFloat() / 20.0;
-                scrollOffset = (progress * overflow).toNumber();
-            } else if (cycle < 50) {
-                scrollOffset = overflow;
-            } else {
-                var progress = (cycle - 50).toFloat() / 20.0;
-                scrollOffset = ((1.0 - progress) * overflow).toNumber();
-            }
-
-            var renderY = startY + 4 - scrollOffset;
-            for (var j = 0; j < totalLines; j++) {
-                dc.drawText(startX, renderY + (j * lineH), fontMicro, linesMicro[j], Graphics.TEXT_JUSTIFY_LEFT);
-            }
-
-            if (dc has :clearClip) {
-                dc.clearClip();
-            }
-
-            // Subtle vertical scrollbar indicator on the right edge
-            var barX = startX + maxWidth - 3;
-            var barTrackH = maxHeight - 16;
-            var thumbH = (maxHeight.toFloat() / totalH.toFloat() * barTrackH).toNumber();
-            if (thumbH < 10) {
-                thumbH = 10;
-            }
-            var thumbY = startY + 8 + ((scrollOffset.toFloat() / overflow.toFloat()) * (barTrackH - thumbH)).toNumber();
-            dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
-            dc.fillRoundedRectangle(barX, startY + 8, 2, barTrackH, 1);
-            dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
-            dc.fillRoundedRectangle(barX, thumbY, 2, thumbH, 1);
-        }
+        _renderScrollingBlock(dc, linesAct, fontCompactBold, Graphics.COLOR_WHITE, hAct, linesStr, fontCompactReg, 0xE4E4E7, hStr, startX, startY, maxWidth, maxHeight, accentColor);
     }
 
     private function _wrapWithFont(dc as Dc, text as String, font as Graphics.FontDefinition, maxWidth as Number) as Array<String> {

@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -38,7 +39,7 @@ data class OsmMapPacket(
     val zoom: Int,
     val speedKmh: Int,
     val headingDeg: Int,
-    val rleData: List<Int>, // Sequence of [count1, colorIdx1, count2, colorIdx2, ...]
+    val rleData: String, // Compact Hex String of RLE pairs e.g. "0A060500..." (only 2-4 KB)
     val palette: List<Int>  // 16 RGB values (e.g. 0x000000, 0xFFFFFF, etc.)
 )
 
@@ -54,7 +55,7 @@ object OsmMapManager {
 
     private const val TAG = "OsmMapManager"
     private const val TILE_SIZE = 256
-    private const val MAP_DIMENSION = 180 // 180x180 px square on Garmin Venu Sq 2 (320x360 screen)
+    private const val MAP_DIMENSION = 100 // 100x100 px square (ultra-fast BLE transmission & butter smooth Garmin rendering)
     private const val USER_AGENT = "NavigationIQ/1.0 (Android Garmin Relay)"
 
     // In-memory LRU cache for 256x256 OSM tiles
@@ -69,32 +70,40 @@ object OsmMapManager {
     private val _storageSizeText = MutableStateFlow("0 MB (0 mảnh)")
     val storageSizeTextFlow = _storageSizeText.asStateFlow()
 
-    // 16-color dark-mode palette optimized for AMOLED Garmin display
-    val DARK_PALETTE = intArrayOf(
-        0x000000, // 0: Pure Black (Background / Empty)
-        0x1C1C1E, // 1: Dark Slate (Blocks / Buildings)
-        0x2C2C2E, // 2: Gray (Minor pathways)
-        0x48484A, // 3: Medium Gray (Secondary roads)
-        0x636366, // 4: Light Slate (Primary roads)
-        0x8E8E93, // 5: Silver (Highways / Main streets)
-        0xFFFFFF, // 6: Pure White (Freeways / Key labels)
-        0x0A84FF, // 7: Cyan Blue (Water / Rivers)
-        0x30D158, // 8: Emerald Green (Parks / Forests)
-        0xFFD60A, // 9: Bright Amber (Selected route / Major artery)
-        0xFF9F0A, // 10: Orange (Toll roads)
-        0xFF453A, // 11: Crimson Red (Traffic / Danger)
-        0xBF5AF2, // 12: Purple (POI)
-        0x5AC8FA, // 13: Light Blue (Lakes)
-        0x34C759, // 14: Grass
-        0x1B382B  // 15: Deep Green
+    private val _latestMapBitmap = MutableStateFlow<Bitmap?>(null)
+    val latestMapBitmapFlow = _latestMapBitmap.asStateFlow()
+
+    // 16-color ultra-high-contrast bright roads palette for AMOLED display
+    val BRIGHT_PALETTE = intArrayOf(
+        0x000000, // 0: Pure Black Background
+        0x2C2C2E, // 1: Dark Slate (Buildings)
+        0x48484A, // 2: Medium Slate
+        0x8E8E93, // 3: Medium Gray
+        0xD1D5DB, // 4: Bright Light Silver (Local Streets)
+        0xF3F4F6, // 5: Bright White Silver (Secondary Roads)
+        0xFFFFFF, // 6: Pure Solid White (Main Streets / Roads)
+        0x0A84FF, // 7: Electric Cyan Blue (Water / Rivers)
+        0x30D158, // 8: Emerald Green (Parks / Nature)
+        0xFFD60A, // 9: Bright Amber (Highways / Arteries)
+        0xFF9F0A, // 10: Orange (Expressways)
+        0xFF453A, // 11: Crimson Red
+        0xBF5AF2, // 12: Purple
+        0x5AC8FA, // 13: Light Blue
+        0x34C759, // 14: Green
+        0x14532D  // 15: Deep Pine
     )
+    val DARK_PALETTE = BRIGHT_PALETTE
 
     private var locationManager: LocationManager? = null
     private var lastKnownLocation: Location? = null
 
     fun initialize(context: Context) {
         try {
-            offlineDir = File(context.filesDir, "osm_offline_tiles").apply { mkdirs() }
+            // Remove old daytime cache if it exists
+            File(context.filesDir, "osm_offline_tiles").deleteRecursively()
+
+            offlineDir = File(context.filesDir, "carto_dark_tiles").apply { mkdirs() }
+            tileCache.evictAll()
             updateStorageStats()
 
             locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
@@ -172,6 +181,11 @@ object OsmMapManager {
             val viewportBitmap = Bitmap.createBitmap(MAP_DIMENSION, MAP_DIMENSION, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(viewportBitmap)
             canvas.drawColor(Color.BLACK)
+            val tilePaint = Paint().apply {
+                isAntiAlias = true
+                isFilterBitmap = true
+                isDither = true
+            }
 
             for (tx in minTileX..maxTileX) {
                 for (ty in minTileY..maxTileY) {
@@ -179,31 +193,63 @@ object OsmMapManager {
                     if (tile != null) {
                         val drawLeft = (tx * TILE_SIZE - minX).toFloat()
                         val drawTop = (ty * TILE_SIZE - minY).toFloat()
-                        canvas.drawBitmap(tile, drawLeft, drawTop, null)
+                        canvas.drawBitmap(tile, drawLeft, drawTop, tilePaint)
                     }
                 }
             }
 
-            // 3. Process into AMOLED Dark Mode and Quantize to 16 Palette Colors
+            // 3. Process into High-Contrast Bright Roads on Pure Black AMOLED
             val pixels = IntArray(MAP_DIMENSION * MAP_DIMENSION)
             viewportBitmap.getPixels(pixels, 0, MAP_DIMENSION, 0, 0, MAP_DIMENSION, MAP_DIMENSION)
             viewportBitmap.recycle()
 
             val indexedPixels = IntArray(pixels.size)
             for (i in pixels.indices) {
-                val c = pixels[i]
-                val r = Color.red(c)
-                val g = Color.green(c)
-                val b = Color.blue(c)
-                indexedPixels[i] = mapRgbToDarkPaletteIndex(r, g, b)
+                indexedPixels[i] = mapPixelToBrightContrast(pixels[i])
             }
 
-            // 4. Run-Length Encoding (RLE) Compression
+            // 4. Clean Subpixel Noise & Smooth Road Vectors (3x3 Majority / Mode Filter)
+            val cleanPixels = IntArray(indexedPixels.size)
+            for (y in 0 until MAP_DIMENSION) {
+                for (x in 0 until MAP_DIMENSION) {
+                    val center = indexedPixels[y * MAP_DIMENSION + x]
+                    var maxCount = 0
+                    var dominant = center
+                    val counts = IntArray(16)
+                    for (dy in -1..1) {
+                        for (dx in -1..1) {
+                            val nx = x + dx
+                            val ny = y + dy
+                            if (nx in 0 until MAP_DIMENSION && ny in 0 until MAP_DIMENSION) {
+                                val p = indexedPixels[ny * MAP_DIMENSION + nx]
+                                counts[p]++
+                                if (counts[p] > maxCount) {
+                                    maxCount = counts[p]
+                                    dominant = p
+                                }
+                            }
+                        }
+                    }
+                    // Keep center if it has at least 3 supporting neighbors, else merge into dominant surrounding cluster
+                    cleanPixels[y * MAP_DIMENSION + x] = if (counts[center] >= 3) center else dominant
+                }
+            }
+
+            // 5. Generate Ultra-Crisp High-Contrast Preview Bitmap for Android
+            val previewPixels = IntArray(cleanPixels.size)
+            for (i in cleanPixels.indices) {
+                val palIdx = cleanPixels[i]
+                previewPixels[i] = (0xFF shl 24) or BRIGHT_PALETTE[palIdx]
+            }
+            val previewBmp = Bitmap.createBitmap(previewPixels, MAP_DIMENSION, MAP_DIMENSION, Bitmap.Config.ARGB_8888)
+            _latestMapBitmap.value = previewBmp
+
+            // 6. Run-Length Encoding (RLE) Compression
             val rleList = mutableListOf<Int>()
-            var currentIdx = indexedPixels[0]
+            var currentIdx = cleanPixels[0]
             var count = 0
 
-            for (idx in indexedPixels) {
+            for (idx in cleanPixels) {
                 if (idx == currentIdx && count < 255) {
                     count++
                 } else {
@@ -218,7 +264,17 @@ object OsmMapManager {
                 rleList.add(currentIdx)
             }
 
-            Log.d(TAG, "OSM Map compressed to ${rleList.size} RLE bytes for 180x180 viewport")
+            // Convert RLE list to ultra-compact Hex String (2 chars per byte)
+            val hexChars = "0123456789ABCDEF"
+            val sb = java.lang.StringBuilder(rleList.size * 2)
+            for (item in rleList) {
+                val byteVal = item and 0xFF
+                sb.append(hexChars[byteVal shr 4])
+                sb.append(hexChars[byteVal and 0x0F])
+            }
+            val rleHexString = sb.toString()
+
+            Log.d(TAG, "OSM Map compressed to ${rleHexString.length / 2} bytes (${rleList.size / 2} runs) for ${MAP_DIMENSION}x${MAP_DIMENSION} viewport")
 
             OsmMapPacket(
                 width = MAP_DIMENSION,
@@ -226,12 +282,18 @@ object OsmMapManager {
                 zoom = zoom,
                 speedKmh = speedKmh,
                 headingDeg = headingDeg,
-                rleData = rleList,
-                palette = DARK_PALETTE.toList()
+                rleData = rleHexString,
+                palette = BRIGHT_PALETTE.toList()
             )
         } catch (e: Exception) {
             Log.e(TAG, "Error generating OSM Map packet: ${e.message}", e)
             null
+        }
+    }
+
+    fun refreshPreview(zoom: Int = 16) {
+        scope.launch {
+            generateMapPacket(zoom = zoom)
         }
     }
 
@@ -254,15 +316,17 @@ object OsmMapManager {
             }
         }
 
-        // 3. Fetch from Network if not available locally
-        val tileUrl = "https://tile.openstreetmap.org/$z/$x/$y.png"
+        // 3. Fetch from CartoDB Dark Matter (Stadia / OpenMapTiles / Stamen Dark Mode CDN - Clean No-labels)
+        val subdomains = arrayOf("a", "b", "c", "d")
+        val s = subdomains[(x + y).let { if (it < 0) -it else it } % subdomains.size]
+        val tileUrl = "https://$s.basemaps.cartocdn.com/rastertiles/dark_nolabels/$z/$x/$y.png"
         var conn: HttpURLConnection? = null
         try {
             val url = URL(tileUrl)
             conn = url.openConnection() as HttpURLConnection
             conn.setRequestProperty("User-Agent", USER_AGENT)
-            conn.connectTimeout = 4000
-            conn.readTimeout = 4000
+            conn.connectTimeout = 5000
+            conn.readTimeout = 5000
             conn.doInput = true
             conn.connect()
 
@@ -399,27 +463,76 @@ object OsmMapManager {
     }
 
     /**
-     * Maps standard OSM tile RGB colors to a high-contrast AMOLED Dark Palette.
+     * Extracts dynamic top 16 original RGB colors directly from the tile pixels.
      */
-    private fun mapRgbToDarkPaletteIndex(r: Int, g: Int, b: Int): Int {
-        // Detect Water (Blue hues) -> Slate Blue (7)
-        if (b > r + 20 && b > g) return 7
-        // Detect Parks / Nature (Green hues) -> Deep Emerald (8 or 14)
-        if (g > r + 15 && g > b + 15) return 8
-        // Detect Highways / Primary Arteries (Orange / Red / Yellow) -> Bright Amber (9 or 10)
-        if (r > 200 && g > 150 && b < 100) return 9
-        if (r > 200 && g < 120 && b < 120) return 10
+    private fun extractDynamicPalette(pixels: IntArray, maxColors: Int = 16): IntArray {
+        val hist = HashMap<Int, Int>()
+        for (c in pixels) {
+            val r = (Color.red(c) shr 4) shl 4
+            val g = (Color.green(c) shr 4) shl 4
+            val b = (Color.blue(c) shr 4) shl 4
+            val q = (r shl 16) or (g shl 8) or b
+            hist[q] = (hist[q] ?: 0) + 1
+        }
+        val sortedClusters = hist.entries.sortedByDescending { it.value }.map { it.key }
+        val palette = IntArray(maxColors)
+        for (i in 0 until maxColors) {
+            palette[i] = if (i < sortedClusters.size) sortedClusters[i] else 0x000000
+        }
+        return palette
+    }
 
-        // Invert light background / roads to dark mode
+    /**
+     * Finds closest original color in the dynamic palette using Euclidean RGB distance.
+     */
+    private fun findClosestPaletteIndex(c: Int, palette: IntArray): Int {
+        val r = Color.red(c)
+        val g = Color.green(c)
+        val b = Color.blue(c)
+        var minDiff = Int.MAX_VALUE
+        var bestIdx = 0
+        for (i in palette.indices) {
+            val pr = (palette[i] shr 16) and 0xFF
+            val pg = (palette[i] shr 8) and 0xFF
+            val pb = palette[i] and 0xFF
+            val dr = r - pr
+            val dg = g - pg
+            val db = b - pb
+            val dist = dr * dr + dg * dg + db * db
+            if (dist < minDiff) {
+                minDiff = dist
+                bestIdx = i
+                if (dist == 0) break
+            }
+        }
+        return bestIdx
+    }
+
+    /**
+     * Converts raw CartoDB Dark Matter tile pixels into crisp bright white & silver roads on pure AMOLED black.
+     */
+    private fun mapPixelToBrightContrast(c: Int): Int {
+        val r = Color.red(c)
+        val g = Color.green(c)
+        val b = Color.blue(c)
+
+        // 1. Water (Electric Cyan Blue)
+        if (b > 40 && b > r + 15 && b > g) return 7
+        // 2. Parks / Nature (Emerald Green)
+        if (g > 35 && g > r + 10 && g > b + 6) return 8
+        // 3. Highways / Primary Arteries (Bright Amber / Orange)
+        if (r > 120 && g > 70 && b < 70) return 9
+
+        // 4. Multi-level anti-aliased luminance grading (eliminates jaggies!)
         val luminance = (0.299 * r + 0.587 * g + 0.114 * b).toInt()
 
         return when {
-            luminance > 240 -> 6  // Major Road / Street -> Crisp White (6)
-            luminance > 200 -> 5  // Regular Road -> Silver (5)
-            luminance > 160 -> 4  // Secondary Pathway -> Light Slate (4)
-            luminance > 120 -> 3  // Minor Road -> Medium Gray (3)
-            luminance > 70  -> 1  // Building Outline -> Dark Slate (1)
-            else            -> 0  // Pure Background -> Black (0)
+            luminance > 110 -> 6  // Center of Road -> Pure Solid Bright White (#FFFFFF)
+            luminance > 68  -> 5  // Inner Road Body -> Bright White Silver (#F3F4F6)
+            luminance > 38  -> 4  // Anti-aliased Feather Edge -> Light Silver (#D1D5DB)
+            luminance > 22  -> 3  // Soft Border Transition -> Slate (#8E8E93)
+            luminance > 12  -> 1  // Buildings / Structures -> Dark Slate (#2C2C2E)
+            else            -> 0  // Background Land -> Pure Black (#000000)
         }
     }
 }
