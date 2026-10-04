@@ -440,6 +440,10 @@ module CommManager {
         if (lower.find("km") != null) {
             var idx = lower.find("km");
             var numStr = distStr.substring(0, idx);
+            var commaIdx = numStr.find(",");
+            if (commaIdx != null) {
+                numStr = numStr.substring(0, commaIdx) + "." + numStr.substring(commaIdx + 1, numStr.length());
+            }
             var val = numStr.toFloat();
             if (val != null) {
                 return (val * 1000).toNumber();

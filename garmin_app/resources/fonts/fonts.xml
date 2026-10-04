@@ -7,4 +7,6 @@
     <font id="SfStreetBoldRot90" filename="sf_pro_street_bold_rot90.fnt" antialias="true" />
     <font id="SfStreetRot90" filename="sf_pro_street_rot90.fnt" antialias="true" />
     <font id="SfMicroRot90" filename="sf_pro_micro_rot90.fnt" antialias="true" />
+    <font id="SfNumberHot" filename="sf_pro_number_hot.fnt" antialias="true" />
+    <font id="SfNumberMild" filename="sf_pro_number_mild.fnt" antialias="true" />
 </fonts>

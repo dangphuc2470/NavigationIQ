@@ -2,13 +2,16 @@ import os
 import sys
 from PIL import Image, ImageDraw, ImageFont
 
-def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_name, rotate_degrees=0):
+def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_name, rotate_degrees=0, chars_subset=None):
     font_base = ImageFont.truetype(font_path, font_size)
     
-    # Complete ASCII + full Vietnamese accented characters
-    ascii_chars = [chr(i) for i in range(32, 127)]
-    vn_chars = list("áàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵđÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴĐ")
-    unique_chars = list(dict.fromkeys(ascii_chars + vn_chars))
+    if chars_subset is not None:
+        unique_chars = list(dict.fromkeys(list(chars_subset)))
+    else:
+        # Complete ASCII + full Vietnamese accented characters
+        ascii_chars = [chr(i) for i in range(32, 127)]
+        vn_chars = list("áàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵđÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴĐ")
+        unique_chars = list(dict.fromkeys(ascii_chars + vn_chars))
     
     ascent_b, descent_b = font_base.getmetrics()
     line_height = ascent_b + descent_b + 4
@@ -65,8 +68,8 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
                 })
                 
     # Texture packing
-    sheet_w = 512
-    sheet_h = 512
+    sheet_w = 256 if (chars_subset is not None and len(chars_subset) <= 30) else 512
+    sheet_h = 128 if (chars_subset is not None and len(chars_subset) <= 30) else 512
     img = Image.new("RGBA", (sheet_w, sheet_h), (0, 0, 0, 0))
     
     cur_x = 2
@@ -110,10 +113,11 @@ def generate_bmfont(font_path, font_size, out_fnt_path, out_png_path, font_face_
             max_row_h = gh
             
     final_h = cur_y + max_row_h + 4
-    if final_h < 128:
-        final_h = 128
+    min_h = 64 if (chars_subset is not None and len(chars_subset) <= 30) else 128
+    if final_h < min_h:
+        final_h = min_h
     else:
-        p = 128
+        p = min_h
         while p < final_h:
             p *= 2
         final_h = p
@@ -153,4 +157,9 @@ if __name__ == "__main__":
     generate_bmfont(font_regular, 25, "garmin_app/resources/fonts/sf_pro_street_rot90.fnt", "garmin_app/resources/fonts/sf_pro_street_rot90_0.png", "SF Pro Street Rot90", rotate_degrees=90)
     generate_bmfont(font_bold, 25, "garmin_app/resources/fonts/sf_pro_micro_rot90.fnt", "garmin_app/resources/fonts/sf_pro_micro_rot90_0.png", "SF Pro Micro Rot90", rotate_degrees=90)
     
-    print("All BMFonts (Direct 1x TrueType Hinted + Precise Baseline Alignment) successfully generated!")
+    # 7. Dedicated Apple SF Pro Large Number Fonts (0-9, decimal dot, comma)
+    generate_bmfont(font_bold, 50, "garmin_app/resources/fonts/sf_pro_number_hot.fnt", "garmin_app/resources/fonts/sf_pro_number_hot_0.png", "SF Pro Number Hot", chars_subset="0123456789.,")
+    generate_bmfont(font_bold, 38, "garmin_app/resources/fonts/sf_pro_number_mild.fnt", "garmin_app/resources/fonts/sf_pro_number_mild_0.png", "SF Pro Number Mild", chars_subset="0123456789.,")
+
+    print("All BMFonts (Direct 1x TrueType Hinted + Dedicated SF Pro Numbers) successfully generated!")
+

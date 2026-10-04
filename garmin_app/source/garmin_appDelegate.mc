@@ -10,14 +10,33 @@ class NavigationIQDelegate extends WatchUi.BehaviorDelegate {
         _view = view;
     }
 
-    // Long press UP / Back -> back to HUD or exit app
+    // Back button -> exit preview mode, or back to HUD from map, or exit app
     function onBack() as Boolean {
-        if (_view != null && _view.isMapTabActive()) {
-            _view.switchToHudTab();
-            return true;
+        if (_view != null) {
+            if (_view.isPreviewModeActive()) {
+                _view.stopPreviewMode();
+                return true;
+            }
+            if (_view.isMapTabActive()) {
+                _view.switchToHudTab();
+                return true;
+            }
         }
         WatchUi.popView(WatchUi.SLIDE_DOWN);
         return true;
+    }
+
+    // Single press on Select / Action button (Top button) -> Open Settings directly
+    function onSelect() as Boolean {
+        if (_view != null) {
+            if (_view.isPreviewModeActive()) {
+                _view.stopPreviewMode();
+                return true;
+            }
+            WatchUi.pushView(new NavigationIQSettingsMenu(), new NavigationIQSettingsDelegate(_view), WatchUi.SLIDE_UP);
+            return true;
+        }
+        return false;
     }
 
     function onNextPage() as Boolean {
@@ -44,17 +63,22 @@ class NavigationIQDelegate extends WatchUi.BehaviorDelegate {
         return false;
     }
 
-    // Swipe Down -> Map Tab | Swipe Up -> HUD Tab
+    // Swipe Up -> Settings Menu | Swipe Down -> HUD Tab / Dismiss
     function onSwipe(swipeEvent as WatchUi.SwipeEvent) as Boolean {
         if (_view != null) {
             var dir = swipeEvent.getDirection();
-            if (dir == WatchUi.SWIPE_DOWN || dir == WatchUi.SWIPE_UP) {
+            if (dir == WatchUi.SWIPE_UP) {
+                WatchUi.pushView(new NavigationIQSettingsMenu(), new NavigationIQSettingsDelegate(_view), WatchUi.SLIDE_UP);
+                return true;
+            } else if (dir == WatchUi.SWIPE_DOWN) {
+                if (_view.isPreviewModeActive()) {
+                    _view.stopPreviewMode();
+                    return true;
+                }
                 if (_view.isMapTabActive()) {
                     _view.switchToHudTab();
-                } else {
-                    _view.switchToMapTab();
+                    return true;
                 }
-                return true;
             }
         }
         return false;
@@ -78,18 +102,23 @@ class NavigationIQDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onKey(keyEvent as WatchUi.KeyEvent) as Boolean {
-        if (keyEvent.getKey() == WatchUi.KEY_ENTER) {
+        var key = keyEvent.getKey();
+        if (key == WatchUi.KEY_ENTER || key == WatchUi.KEY_START) {
             if (_view != null) {
-                _view.toggleRotation();
+                if (_view.isPreviewModeActive()) {
+                    _view.stopPreviewMode();
+                    return true;
+                }
+                WatchUi.pushView(new NavigationIQSettingsMenu(), new NavigationIQSettingsDelegate(_view), WatchUi.SLIDE_UP);
+                return true;
             }
-            return true;
         }
         return false;
     }
 
     function onMenu() as Boolean {
         if (_view != null) {
-            _view.toggleRotation();
+            WatchUi.pushView(new NavigationIQSettingsMenu(), new NavigationIQSettingsDelegate(_view), WatchUi.SLIDE_UP);
         }
         return true;
     }

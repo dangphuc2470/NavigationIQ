@@ -4,6 +4,7 @@ import Toybox.Lang;
 import Toybox.System;
 import Toybox.Timer;
 import Toybox.Math;
+import Toybox.Application.Storage;
 
 // =============================================================================
 // UI CONSTANTS & DESIGN SYSTEM TOKENS (Easily Configurable)
@@ -102,6 +103,22 @@ class NavigationIQView extends WatchUi.View {
     private var _fontSfStreetBoldRot90 as Graphics.FontDefinition?;
     private var _fontSfStreetRot90 as Graphics.FontDefinition?;
     private var _fontSfMicroRot90 as Graphics.FontDefinition?;
+    private var _fontSfNumberHot as Graphics.FontDefinition?;
+    private var _fontSfNumberMild as Graphics.FontDefinition?;
+
+    private var _layoutProfile as Number = 0; // 0 = Auto, 1 = Rect (Venu Sq), 2 = Round, 3 = Instinct Crossover
+    private var _appFontSetting as Number = 0; // 0 = Auto, 1 = Apple SF Pro, 2 = Garmin Native
+
+    // Preview / Demo Mode State
+    private var _isPreviewMode as Boolean = false;
+    private var _previewIndex as Number = 0;
+    private var _previewTimerTicks as Number = 0;
+    private var _savedActive as Boolean = false;
+    private var _savedDir as Number = 0;
+    private var _savedDist as String = "";
+    private var _savedNav as String = "";
+    private var _savedEta as String = "";
+    private var _savedExit as Number = 0;
 
     function initialize() {
         View.initialize();
@@ -114,6 +131,223 @@ class NavigationIQView extends WatchUi.View {
         try { _fontSfStreetBoldRot90 = WatchUi.loadResource(Rez.Fonts.SfStreetBoldRot90) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfStreetBoldRot90: " + e.getErrorMessage()); }
         try { _fontSfStreetRot90 = WatchUi.loadResource(Rez.Fonts.SfStreetRot90) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfStreetRot90: " + e.getErrorMessage()); }
         try { _fontSfMicroRot90 = WatchUi.loadResource(Rez.Fonts.SfMicroRot90) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfMicroRot90: " + e.getErrorMessage()); }
+        reloadSettings();
+    }
+
+    public function reloadSettings() as Void {
+        var p = Storage.getValue("layout_profile");
+        if (p != null) {
+            _layoutProfile = p as Number;
+        }
+        var r = Storage.getValue("screen_rot");
+        if (r != null) {
+            _rotation = r as Number;
+        }
+        var af = Storage.getValue("app_font");
+        if (af == null) {
+            af = Storage.getValue("dist_font");
+        }
+        if (af != null) {
+            _appFontSetting = af as Number;
+        }
+        WatchUi.requestUpdate();
+    }
+
+    public function isSfFontActive() as Boolean {
+        if (_appFontSetting == 1) {
+            return true;
+        } else if (_appFontSetting == 2) {
+            return false;
+        }
+        // Auto Detect: Devices with >= 512KB RAM use Apple SF Pro, lower RAM uses Garmin Native
+        var sysStats = System.getSystemStats();
+        return (sysStats.totalMemory >= 512 * 1024);
+    }
+
+    public function isSfNumberFontActive() as Boolean {
+        return isSfFontActive();
+    }
+
+    private function _ensureSfNumberFontsLoaded() as Void {
+        if (_fontSfNumberHot == null) {
+            try {
+                _fontSfNumberHot = WatchUi.loadResource(Rez.Fonts.SfNumberHot) as Graphics.FontDefinition;
+            } catch (e) {
+                _fontSfNumberHot = null;
+            }
+        }
+        if (_fontSfNumberMild == null) {
+            try {
+                _fontSfNumberMild = WatchUi.loadResource(Rez.Fonts.SfNumberMild) as Graphics.FontDefinition;
+            } catch (e) {
+                _fontSfNumberMild = null;
+            }
+        }
+    }
+
+    private function _getDistanceFont(distNum as String, distUnit as String) as Graphics.FontDefinition {
+        if (isSfFontActive()) {
+            _ensureSfNumberFontsLoaded();
+            if (distNum.length() >= 5 && _fontSfNumberMild != null) {
+                return _fontSfNumberMild;
+            }
+            if (_fontSfNumberHot != null) {
+                return _fontSfNumberHot;
+            }
+        }
+        if (distNum.length() >= 5) {
+            return Graphics.FONT_NUMBER_MILD;
+        }
+        return Graphics.FONT_NUMBER_HOT;
+    }
+
+    // -------------------------------------------------------------------------
+    // Preview Mode Control (4s Turn Navigation Cycle)
+    // -------------------------------------------------------------------------
+    public function isPreviewModeActive() as Boolean {
+        return _isPreviewMode;
+    }
+
+    public function startPreviewMode() as Void {
+        _savedActive = CommManager.isActive;
+        _savedDir = CommManager.direction;
+        _savedDist = CommManager.distText;
+        _savedNav = CommManager.navText;
+        _savedEta = CommManager.etaText;
+        _savedExit = CommManager.exitNumber;
+
+        _isPreviewMode = true;
+        _previewIndex = 0;
+        _previewTimerTicks = 0;
+        _applyPreviewStep();
+        WatchUi.requestUpdate();
+    }
+
+    public function stopPreviewMode() as Void {
+        _isPreviewMode = false;
+        CommManager.isActive = _savedActive;
+        CommManager.direction = _savedDir;
+        CommManager.distText = _savedDist;
+        CommManager.navText = _savedNav;
+        CommManager.etaText = _savedEta;
+        CommManager.exitNumber = _savedExit;
+        WatchUi.requestUpdate();
+    }
+
+    private function _applyPreviewStep() as Void {
+        var demos = [
+            // 0. Đi thẳng (Straight) - Highway speed
+            [
+                DIR_STRAIGHT,
+                "2,8 km",
+                "Tiếp tục đi thẳng trên Quốc lộ 1A về hướng Cầu Cần Thơ",
+                "17:48",
+                0
+            ],
+            // 1. Rẽ phải (Turn Right) - Approaching junction
+            [
+                DIR_RIGHT,
+                "250 m",
+                "Rẽ phải vào đường Lê Lợi",
+                "17:44",
+                0
+            ],
+            // 2. Vòng xoay lối ra thứ 2 (Roundabout Exit 2)
+            [
+                DIR_ROUNDABOUT_2,
+                "150 m",
+                "Tại bùng binh, đi theo lối ra thứ 2 vào đường Nguyễn Huệ",
+                "17:41",
+                2
+            ],
+            // 3. Rẽ trái (Turn Left) - Immediate turn
+            [
+                DIR_LEFT,
+                "80 m",
+                "Rẽ trái vào đường Nam Kỳ Khởi Nghĩa",
+                "17:38",
+                0
+            ],
+            // 4. Quay đầu xe (U-Turn)
+            [
+                DIR_UTURN,
+                "30 m",
+                "Quay đầu xe tại điểm mở dải phân cách",
+                "17:35",
+                0
+            ],
+            // 5. Chếch sang phải (Slight Right) - Highway ramp
+            [
+                DIR_SLIGHT_RIGHT,
+                "450 m",
+                "Đi chếch sang phải vào đường gom cao tốc",
+                "17:31",
+                0
+            ],
+            // 6. Vòng xoay lối ra thứ 4 (Roundabout Exit 4) - Complex roundabout
+            [
+                DIR_ROUNDABOUT_4,
+                "120 m",
+                "Tại vòng xoay, đi theo lối ra thứ 4 vào đường Võ Văn Kiệt",
+                "17:27",
+                4
+            ],
+            // 7. Chếch sang trái (Slight Left) - Overpass
+            [
+                DIR_SLIGHT_LEFT,
+                "350 m",
+                "Đi chếch sang trái vào cầu vượt Hoàng Hoa Thám",
+                "17:23",
+                0
+            ],
+            // 8. Quẹo gắt phải (Sharp Right) - Alley turn
+            [
+                DIR_SHARP_RIGHT,
+                "45 m",
+                "Quẹo gắt phải vào đường Hẻm 128",
+                "17:19",
+                0
+            ],
+            // 9. Vòng xoay lối ra thứ 1 (Roundabout Exit 1)
+            [
+                DIR_ROUNDABOUT_1,
+                "200 m",
+                "Tại ngã sáu, đi theo lối ra thứ 1 vào đường CMT8",
+                "17:15",
+                1
+            ]
+        ];
+        var item = demos[_previewIndex % demos.size()];
+        CommManager.direction = item[0] as Number;
+        CommManager.distText = item[1] as String;
+        CommManager.navText = item[2] as String;
+        CommManager.etaText = item[3] as String;
+        CommManager.exitNumber = item[4] as Number;
+        CommManager.rleBitmap = null;
+        CommManager.isWaitingImage = false;
+        CommManager.isActive = true;
+    }
+
+    public function setRotation(rot as Number) as Void {
+        _rotation = rot;
+        WatchUi.requestUpdate();
+    }
+
+    public function getEffectiveProfile(dc as Dc) as Number {
+        if (_layoutProfile != 0) {
+            return _layoutProfile;
+        }
+        var devSettings = System.getDeviceSettings();
+        var shape = devSettings.screenShape;
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+        if (w <= 180 && h <= 180) {
+            return 3; // Instinct / Instinct Crossover
+        }
+        if (shape == System.SCREEN_SHAPE_ROUND || shape == System.SCREEN_SHAPE_SEMI_ROUND) {
+            return 2; // Round watch (Fenix, Venu, Forerunner)
+        }
+        return 1; // Rectangle (Venu Sq / Sq 2)
     }
 
     const TAB_HUD = 0;
@@ -221,8 +455,21 @@ class NavigationIQView extends WatchUi.View {
     function onLayout(dc as Dc) as Void {
     }
 
+    (:debug)
+    public function isRunningInSimulator() as Boolean {
+        return true;
+    }
+
+    (:release)
+    public function isRunningInSimulator() as Boolean {
+        return false;
+    }
+
     function onShow() as Void {
         CommManager.start();
+        if (isRunningInSimulator()) {
+            startPreviewMode();
+        }
         if (_pageTimer != null) {
             _pageTimer.start(method(:onTimerTick), 200, true);
         }
@@ -232,6 +479,13 @@ class NavigationIQView extends WatchUi.View {
         _animTick++;
         if (_animTick % 12 == 0) {
             _pageIndex++;
+        }
+        if (_isPreviewMode) {
+            _previewTimerTicks++;
+            if (_previewTimerTicks % 20 == 0) { // 20 ticks * 200ms = 4000ms (4 seconds)
+                _previewIndex++;
+                _applyPreviewStep();
+            }
         }
         WatchUi.requestUpdate();
     }
@@ -243,24 +497,36 @@ class NavigationIQView extends WatchUi.View {
 
         CommManager.checkHapticUpdate();
 
-        // True AMOLED Pure Black Background
+        var effectiveProfile = getEffectiveProfile(dc);
+
+        // True AMOLED / MIP Pure Black Background
         dc.setColor(COLOR_BG_AMOLED, COLOR_BG_AMOLED);
         dc.clear();
 
-        if (_currentTab == TAB_MAP) {
+        if (_currentTab == TAB_MAP && !_isPreviewMode) {
             _drawMapScreen(dc);
             return;
         }
 
-        if (!CommManager.isActive) {
-            _drawIdleScreen(dc);
+        if (!CommManager.isActive && !_isPreviewMode) {
+            if (effectiveProfile == 3) {
+                _drawInstinctIdleScreen(dc);
+            } else {
+                _drawIdleScreen(dc);
+            }
             return;
         }
 
-        if (_rotation == 1) {
-            _drawLandscapeHUD(dc);
+        if (effectiveProfile == 3) {
+            _drawInstinctCrossoverHUD(dc);
+        } else if (effectiveProfile == 2) {
+            _drawRoundHUD(dc);
         } else {
-            _drawUnifiedAppleHUD(dc);
+            if (_rotation == 1) {
+                _drawLandscapeHUD(dc);
+            } else {
+                _drawUnifiedAppleHUD(dc);
+            }
         }
     }
 
@@ -274,9 +540,9 @@ class NavigationIQView extends WatchUi.View {
     // Idle Standby Screen (Apple WatchOS Aesthetic with SF Pro & Glowing Pill)
     // -------------------------------------------------------------------------
     private function _drawIdleScreen(dc as Dc) as Void {
-        var fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
-        var fontBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_LARGE;
-        var fontStreet = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL;
+        var fontMicro = isSfFontActive() ? ((_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY) : Graphics.FONT_XTINY;
+        var fontBold = isSfFontActive() ? ((_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_LARGE) : Graphics.FONT_LARGE;
+        var fontStreet = isSfFontActive() ? ((_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL) : Graphics.FONT_SMALL;
 
         // 1. Top Status Pill (Dynamic Island Style)
         var isConnected = CommManager.isConnected() || (CommManager.rxCount > 0);
@@ -807,10 +1073,7 @@ class NavigationIQView extends WatchUi.View {
             var numX = CARD_X + DIST_OFFSET_X;
             var numY = badgeCy;
 
-            var numFont = Graphics.FONT_NUMBER_HOT;
-            if (distNum.length() >= 3 || distUnit.length() >= 2) {
-                numFont = Graphics.FONT_NUMBER_MILD;
-            }
+            var numFont = _getDistanceFont(distNum, distUnit);
 
             // Bold Pure White Distance Number
             dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
@@ -824,11 +1087,12 @@ class NavigationIQView extends WatchUi.View {
             // Sleek Muted Grey Unit (km / m) perfectly aligned to baseline
             var numWidth = dc.getTextWidthInPixels(distNum, numFont);
             if (distUnit.length() > 0) {
+                var unitFont = isSfFontActive() ? ((_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_MEDIUM) : Graphics.FONT_MEDIUM;
                 dc.setColor(COLOR_TEXT_UNIT, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(
                     numX + numWidth + DIST_UNIT_GAP,
-                    badgeCy,
-                    Graphics.FONT_MEDIUM,
+                    badgeCy + 5,
+                    unitFont,
                     distUnit,
                     Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
                 );
@@ -876,7 +1140,7 @@ class NavigationIQView extends WatchUi.View {
         var barCenterY = BAR_Y + (BAR_H / 2) - 2;
 
         // Crisp White SF Pro Font for ETA (Aligned with clock baseline)
-        var microFont = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
+        var microFont = isSfFontActive() ? ((_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY) : Graphics.FONT_XTINY;
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
             etaBadgeX + (ETA_BADGE_W / 2),
@@ -1352,6 +1616,15 @@ class NavigationIQView extends WatchUi.View {
             unit = "";
         }
 
+        // When using Garmin system number font, Garmin FONT_NUMBER_* drops comma ','
+        // Normalize ',' to '.' so decimal separator is never lost on Garmin font
+        if (!isSfNumberFontActive()) {
+            var commaIdx = num.find(",");
+            if (commaIdx != null) {
+                num = num.substring(0, commaIdx) + "." + num.substring(commaIdx + 1, num.length());
+            }
+        }
+
         return [num, unit] as Array<String>;
     }
 
@@ -1618,10 +1891,21 @@ class NavigationIQView extends WatchUi.View {
         var actionText = parts[0];
         var streetText = parts[1];
 
-        var fontActionBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_SMALL;
-        var fontStreetReg = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_TINY;
-        var fontCompactBold = (_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_TINY;
-        var fontCompactReg = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY;
+        var fontActionBold;
+        var fontStreetReg;
+        var fontCompactBold;
+        var fontCompactReg;
+        if (isSfFontActive()) {
+            fontActionBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_SMALL;
+            fontStreetReg = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_TINY;
+            fontCompactBold = (_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_TINY;
+            fontCompactReg = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY;
+        } else {
+            fontActionBold = Graphics.FONT_MEDIUM;
+            fontStreetReg = Graphics.FONT_SMALL;
+            fontCompactBold = Graphics.FONT_SMALL;
+            fontCompactReg = Graphics.FONT_TINY;
+        }
 
         // If single action phrase with no target road
         if (streetText.length() == 0) {
@@ -1845,5 +2129,209 @@ class NavigationIQView extends WatchUi.View {
             ];
             dc.fillPolygon(head);
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Instinct Crossover Dual-Zone High-Contrast Monochrome HUD
+    // Designed specifically for hybrid analog watch: avoids physical hands at center
+    // Top Zone (y: 0..70): Turn Badge + Distance Number
+    // Center Dead-Zone (y: 71..101): Completely Blank AMOLED / MIP Black
+    // Bottom Zone (y: 102..h): Street Name + ETA + Live Clock
+    // -------------------------------------------------------------------------
+    private function _drawInstinctCrossoverHUD(dc as Dc) as Void {
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+
+        // 1. Top Zone (y: 4 to 68)
+        var badgeCx = 34;
+        var badgeCy = 36;
+        var badgeR = 24;
+
+        // Turn Badge circle outline
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(2);
+        dc.drawCircle(badgeCx, badgeCy, badgeR);
+
+        // Turn indicator inside badge
+        if (CommManager.isWaitingImage) {
+            _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, Graphics.COLOR_WHITE);
+        } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
+            _drawRleBitmap(dc, badgeCx, badgeCy, CommManager.rleBitmap);
+        } else if (CommManager.direction != DIR_UNKNOWN) {
+            _drawVectorArrow(dc, badgeCx, badgeCy, CommManager.direction, CommManager.exitNumber, Graphics.COLOR_WHITE);
+        } else {
+            _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, Graphics.COLOR_WHITE);
+        }
+
+        // Distance text on Top Right
+        var distFull = CommManager.distText;
+        if (distFull.length() > 0) {
+            var parts = _splitDist(distFull);
+            var distNum = parts[0];
+            var distUnit = parts[1];
+
+            var numFont = Graphics.FONT_NUMBER_MILD;
+            if (distNum.length() > 3) {
+                numFont = Graphics.FONT_LARGE;
+            }
+
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(66, 36, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+
+            var numW = dc.getTextWidthInPixels(distNum, numFont);
+            if (distUnit.length() > 0) {
+                dc.drawText(66 + numW + 4, 36, Graphics.FONT_SMALL, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            }
+        }
+
+        // Top Divider Line (y = 70)
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawLine(8, 70, w - 8, 70);
+
+        // 2. CENTER DEAD-ZONE (y = 71 to 101) - LEFT 100% BLANK FOR ANALOG HANDS!
+
+        // 3. Bottom Divider Line (y = 102)
+        dc.drawLine(8, 102, w - 8, 102);
+
+        // 4. Bottom Zone (y: 104 to h)
+        var streetText = CommManager.navText;
+        if (streetText.length() > 0) {
+            var lines = _wrapWithFont(dc, streetText, Graphics.FONT_TINY, w - 16);
+            var textY = 106;
+            for (var i = 0; i < lines.size() && i < 2; i++) {
+                dc.drawText(w / 2, textY, Graphics.FONT_TINY, lines[i], Graphics.TEXT_JUSTIFY_CENTER);
+                textY += 16;
+            }
+        }
+
+        // Footer: ETA and Clock (y = h - 14)
+        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
+        var clock = System.getClockTime();
+        var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
+
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(12, h - 14, Graphics.FONT_XTINY, etaStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(w - 12, h - 14, Graphics.FONT_XTINY, timeStr, Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+
+    private function _drawInstinctIdleScreen(dc as Dc) as Void {
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+        var isConnected = CommManager.isConnected() || (CommManager.rxCount > 0);
+        var statusStr = isConnected ? "Connected" : "Ready";
+
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(w / 2, 24, Graphics.FONT_TINY, "Navigation IQ", Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(w / 2, 46, Graphics.FONT_XTINY, statusStr, Graphics.TEXT_JUSTIFY_CENTER);
+
+        // Top and Bottom lines defining center safe clearing
+        dc.drawLine(8, 70, w - 8, 70);
+        dc.drawLine(8, 102, w - 8, 102);
+
+        var clock = System.getClockTime();
+        var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
+        dc.drawText(w / 2, 116, Graphics.FONT_SMALL, "Waiting Nav...", Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(w / 2, 146, Graphics.FONT_TINY, timeStr, Graphics.TEXT_JUSTIFY_CENTER);
+    }
+
+    // -------------------------------------------------------------------------
+    // Round Screen Responsive HUD (Fenix / Forerunner / Venu round bezels)
+    // -------------------------------------------------------------------------
+    private function _drawRoundHUD(dc as Dc) as Void {
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+        var theme = _getTheme(CommManager.direction);
+        var accentColor = theme[0] as Number;
+        var badgeBgColor = theme[1] as Number;
+        var glowRGB = theme[2] as Array<Number>;
+        var etaBgColor = theme[3] as Number;
+
+        var fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
+
+        // Top Navigation Card (Centered circular inset)
+        var cardMarginX = (w * 0.08).toNumber();
+        var cardW = w - (cardMarginX * 2);
+        var cardY = (h * 0.06).toNumber();
+        var cardH = (h * 0.68).toNumber();
+        var cardR = 24;
+
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(cardMarginX, cardY, cardW, cardH, cardR);
+
+        var badgeCx = cardMarginX + 44;
+        var badgeCy = cardY + 44;
+        var badgeR = 30;
+
+        _drawAmbientGlow(dc, badgeCx, badgeCy, glowRGB);
+        _maskCardCorners(dc, cardMarginX, cardY, cardW, cardH, cardR);
+
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(cardMarginX, cardY, cardW, cardH, cardR);
+
+        dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(badgeCx, badgeCy, badgeR);
+
+        if (CommManager.isWaitingImage) {
+            _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor);
+        } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
+            _drawRleBitmap(dc, badgeCx, badgeCy, CommManager.rleBitmap);
+        } else if (CommManager.direction != DIR_UNKNOWN) {
+            _drawVectorArrow(dc, badgeCx, badgeCy, CommManager.direction, CommManager.exitNumber, accentColor);
+        } else {
+            _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor);
+        }
+
+        // Distance Row
+        var distFull = CommManager.distText;
+        if (distFull.length() > 0) {
+            var parts = _splitDist(distFull);
+            var distNum = parts[0];
+            var distUnit = parts[1];
+
+            var numFont = _getDistanceFont(distNum, distUnit);
+
+            dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(cardMarginX + 86, badgeCy, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+
+            var numWidth = dc.getTextWidthInPixels(distNum, numFont);
+            if (distUnit.length() > 0) {
+                var unitFont = isSfFontActive() ? ((_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_MEDIUM) : Graphics.FONT_MEDIUM;
+                dc.setColor(COLOR_TEXT_UNIT, Graphics.COLOR_TRANSPARENT);
+                dc.drawText(cardMarginX + 86 + numWidth + 4, badgeCy + 5, unitFont, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            }
+        }
+
+        // Divider
+        var divY = cardY + 88;
+        dc.setColor(COLOR_DIVIDER, Graphics.COLOR_TRANSPARENT);
+        dc.drawLine(cardMarginX + 12, divY, cardMarginX + cardW - 12, divY);
+
+        // Street text
+        var streetText = CommManager.navText;
+        if (streetText.length() > 0) {
+            _drawDynamicWrappedText(dc, cardMarginX + 10, divY + 4, cardW - 20, cardH - 96, streetText, accentColor);
+        }
+
+        // Bottom Pill Bar
+        var barW = (w * 0.72).toNumber();
+        var barH = (h * 0.16).toNumber();
+        var barX = (w - barW) / 2;
+        var barY = h - barH - 8;
+        var barR = barH / 2;
+
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(barX, barY, barW, barH, barR);
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.drawRoundedRectangle(barX, barY, barW, barH, barR);
+
+        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
+        var clock = System.getClockTime();
+        var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
+        var bottomInfo = Lang.format("$1$  |  $2$", [etaStr, timeStr]);
+
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(w / 2, barY + (barH / 2) - 1, fontMicro, bottomInfo, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }
