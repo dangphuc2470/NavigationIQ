@@ -6,89 +6,6 @@ import Toybox.Timer;
 import Toybox.Math;
 import Toybox.Application.Storage;
 
-// =============================================================================
-// UI CONSTANTS & DESIGN SYSTEM TOKENS (Easily Configurable)
-// =============================================================================
-
-// 1. Device Screen
-const SCREEN_W = 320;
-const SCREEN_H = 360;
-
-// 2. Main Navigation Card Layout (Edge-to-Edge Flush, Distinct Rounded Cards)
-const CARD_X = 0;
-const CARD_Y = 0;
-const CARD_W = 320;
-const CARD_H = 280;
-const CARD_RADIUS = 30;
-
-// 3. Turn Badge Geometry
-const BADGE_OFFSET_X = 52;
-const BADGE_OFFSET_Y = 52;
-const BADGE_RADIUS = 36;
-const BADGE_SPINNER_PEN_WIDTH = 6;
-
-// 4. Distance Row Layout
-const DIST_OFFSET_X = 104;
-const DIST_UNIT_GAP = 6;
-
-// 5. Divider Line
-const DIVIDER_OFFSET_Y = 106;
-const DIVIDER_PADDING_X = 14;
-
-// 6. Navigation Text Box Geometry
-const NAV_TEXT_PADDING_X = 14;
-const NAV_TEXT_OFFSET_Y = 0;
-const NAV_TEXT_BOTTOM_PADDING = 14;
-
-// 7. Bottom Pill Bar Layout (Distinct Rounded Pill Card)
-const BAR_Y = 288;
-const BAR_H = 72;
-const BAR_RADIUS = 30;
-
-// 8. ETA Capsule Badge
-const ETA_BADGE_W = 142;
-const ETA_BADGE_H = 44;
-const ETA_BADGE_RADIUS = 22;
-const ETA_BADGE_PADDING_X = 12;
-
-// 9. Ambient Glow Radial Gradient (Ultra-Smooth 120-Step Diffusion)
-const GLOW_STEPS = 120;
-const GLOW_RADIUS_FACTOR = 1.3;
-
-// 10. Color Tokens
-const COLOR_BG_AMOLED = 0x000000;
-const COLOR_BG_CARD = 0x18181B;
-const COLOR_BORDER_CARD = 0x27272A;
-const COLOR_DIVIDER = 0x27272A;
-
-const COLOR_TEXT_WHITE = 0xFFFFFF;
-const COLOR_TEXT_SILVER = 0xE4E4E7;
-const COLOR_TEXT_MUTED = 0x71717A;
-const COLOR_TEXT_UNIT = 0x94A3B8;
-
-// Theme Palettes (Milky Desaturated Pastel for True Aero HUD)
-// Straight / 2nd-3rd Exit (Teal/Cyan Theme)
-const COLOR_THEME_CYAN_ACCENT = 0x06B6D4;
-const COLOR_THEME_CYAN_BADGE = 0x4A858F;
-const COLOR_THEME_CYAN_ETA_BG = 0x1E3B42;
-const GLOW_RGB_CYAN = [0x06, 0x88, 0x99];
-
-// Turn Left / U-turn (Amber/Warm Theme)
-const COLOR_THEME_AMBER_ACCENT = 0xF59E0B;
-const COLOR_THEME_AMBER_BADGE = 0x9E7852;
-const COLOR_THEME_AMBER_ETA_BG = 0x3E3022;
-const GLOW_RGB_AMBER = [0xA8, 0x62, 0x18];
-
-// Turn Right / 1st Exit (Green Theme)
-const COLOR_THEME_GREEN_ACCENT = 0x10B981;
-const COLOR_THEME_GREEN_BADGE = 0x5C8E74;
-const COLOR_THEME_GREEN_ETA_BG = 0x243E30;
-const GLOW_RGB_GREEN = [0x10, 0x90, 0x55];
-
-// Warning / Disconnected (Red Theme)
-const COLOR_THEME_RED_ACCENT = 0xFF453A;
-const COLOR_THEME_RED_BADGE = 0x7A2A2A;
-
 class NavigationIQView extends WatchUi.View {
 
     private var _pageTimer as Timer.Timer?;
@@ -120,6 +37,19 @@ class NavigationIQView extends WatchUi.View {
     private var _savedEta as String = "";
     private var _savedExit as Number = 0;
 
+    // Tabs: 0 = Navigation HUD, 1 = Map Screen
+    private var _currentTab as Number = 0;
+    const TAB_HUD = 0;
+    const TAB_MAP = 1;
+
+    // Map Pan & Drag State
+    private var _panX as Number = 0;
+    private var _panY as Number = 0;
+    private var _dragStartX as Number = 0;
+    private var _dragStartY as Number = 0;
+    private var _isDragging as Boolean = false;
+    private var _mapZoom as Number = 16;
+
     function initialize() {
         View.initialize();
         _pageTimer = new Timer.Timer();
@@ -150,7 +80,6 @@ class NavigationIQView extends WatchUi.View {
         if (af != null) {
             _appFontSetting = af as Number;
         }
-        WatchUi.requestUpdate();
     }
 
     public function isSfFontActive() as Boolean {
@@ -159,7 +88,6 @@ class NavigationIQView extends WatchUi.View {
         } else if (_appFontSetting == 2) {
             return false;
         }
-        // Auto Detect: Devices with >= 512KB RAM use Apple SF Pro, lower RAM uses Garmin Native
         var sysStats = System.getSystemStats();
         return (sysStats.totalMemory >= 512 * 1024);
     }
@@ -219,7 +147,7 @@ class NavigationIQView extends WatchUi.View {
         _isPreviewMode = true;
         _previewIndex = 0;
         _previewTimerTicks = 0;
-        _applyPreviewStep();
+        PreviewManager.applyStep(_previewIndex);
         WatchUi.requestUpdate();
     }
 
@@ -234,132 +162,46 @@ class NavigationIQView extends WatchUi.View {
         WatchUi.requestUpdate();
     }
 
-    private function _applyPreviewStep() as Void {
-        var demos = [
-            // 0. Đi thẳng (Straight) - Highway speed
-            [
-                DIR_STRAIGHT,
-                "2,8 km",
-                "Tiếp tục đi thẳng trên Quốc lộ 1A về hướng Cầu Cần Thơ",
-                "17:48",
-                0
-            ],
-            // 1. Rẽ phải (Turn Right) - Approaching junction
-            [
-                DIR_RIGHT,
-                "250 m",
-                "Rẽ phải vào đường Lê Lợi",
-                "17:44",
-                0
-            ],
-            // 2. Vòng xoay lối ra thứ 2 (Roundabout Exit 2)
-            [
-                DIR_ROUNDABOUT_2,
-                "150 m",
-                "Tại bùng binh, đi theo lối ra thứ 2 vào đường Nguyễn Huệ",
-                "17:41",
-                2
-            ],
-            // 3. Rẽ trái (Turn Left) - Immediate turn
-            [
-                DIR_LEFT,
-                "80 m",
-                "Rẽ trái vào đường Nam Kỳ Khởi Nghĩa",
-                "17:38",
-                0
-            ],
-            // 4. Quay đầu xe (U-Turn)
-            [
-                DIR_UTURN,
-                "30 m",
-                "Quay đầu xe tại điểm mở dải phân cách",
-                "17:35",
-                0
-            ],
-            // 5. Chếch sang phải (Slight Right) - Highway ramp
-            [
-                DIR_SLIGHT_RIGHT,
-                "450 m",
-                "Đi chếch sang phải vào đường gom cao tốc",
-                "17:31",
-                0
-            ],
-            // 6. Vòng xoay lối ra thứ 4 (Roundabout Exit 4) - Complex roundabout
-            [
-                DIR_ROUNDABOUT_4,
-                "120 m",
-                "Tại vòng xoay, đi theo lối ra thứ 4 vào đường Võ Văn Kiệt",
-                "17:27",
-                4
-            ],
-            // 7. Chếch sang trái (Slight Left) - Overpass
-            [
-                DIR_SLIGHT_LEFT,
-                "350 m",
-                "Đi chếch sang trái vào cầu vượt Hoàng Hoa Thám",
-                "17:23",
-                0
-            ],
-            // 8. Quẹo gắt phải (Sharp Right) - Alley turn
-            [
-                DIR_SHARP_RIGHT,
-                "45 m",
-                "Quẹo gắt phải vào đường Hẻm 128",
-                "17:19",
-                0
-            ],
-            // 9. Vòng xoay lối ra thứ 1 (Roundabout Exit 1)
-            [
-                DIR_ROUNDABOUT_1,
-                "200 m",
-                "Tại ngã sáu, đi theo lối ra thứ 1 vào đường CMT8",
-                "17:15",
-                1
-            ]
-        ];
-        var item = demos[_previewIndex % demos.size()];
-        CommManager.direction = item[0] as Number;
-        CommManager.distText = item[1] as String;
-        CommManager.navText = item[2] as String;
-        CommManager.etaText = item[3] as String;
-        CommManager.exitNumber = item[4] as Number;
-        CommManager.rleBitmap = null;
-        CommManager.isWaitingImage = false;
-        CommManager.isActive = true;
+    public function togglePreviewMode() as Void {
+        if (_isPreviewMode) {
+            stopPreviewMode();
+        } else {
+            startPreviewMode();
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Device Profile Resolution
+    // -------------------------------------------------------------------------
+    public function getEffectiveProfile(dc as Dc) as Number {
+        if (_layoutProfile > 0) {
+            return _layoutProfile;
+        }
+        var devSettings = System.getDeviceSettings();
+        if (devSettings has :screenShape) {
+            if (devSettings.screenShape == System.SCREEN_SHAPE_ROUND) {
+                return 2;
+            }
+        }
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+        if (w == 176 && h == 176) {
+            return 3;
+        }
+        return 1;
     }
 
     public function setRotation(rot as Number) as Void {
         _rotation = rot;
+        Storage.setValue("screen_rot", _rotation);
         WatchUi.requestUpdate();
     }
 
-    public function getEffectiveProfile(dc as Dc) as Number {
-        if (_layoutProfile != 0) {
-            return _layoutProfile;
-        }
-        var devSettings = System.getDeviceSettings();
-        var shape = devSettings.screenShape;
-        var w = dc.getWidth();
-        var h = dc.getHeight();
-        if (w <= 180 && h <= 180) {
-            return 3; // Instinct / Instinct Crossover
-        }
-        if (shape == System.SCREEN_SHAPE_ROUND || shape == System.SCREEN_SHAPE_SEMI_ROUND) {
-            return 2; // Round watch (Fenix, Venu, Forerunner)
-        }
-        return 1; // Rectangle (Venu Sq / Sq 2)
+    public function toggleRotation() as Void {
+        _rotation = (_rotation == 0) ? 1 : 0;
+        Storage.setValue("screen_rot", _rotation);
+        WatchUi.requestUpdate();
     }
-
-    const TAB_HUD = 0;
-    const TAB_MAP = 1;
-
-    private var _currentTab as Number = TAB_HUD;
-    private var _mapZoom as Number = 16;
-    private var _panX as Number = 0;
-    private var _panY as Number = 0;
-    private var _dragStartX as Number = 0;
-    private var _dragStartY as Number = 0;
-    private var _isDragging as Boolean = false;
 
     public function isMapTabActive() as Boolean {
         return _currentTab == TAB_MAP;
@@ -376,6 +218,11 @@ class NavigationIQView extends WatchUi.View {
     public function switchToHudTab() as Void {
         _currentTab = TAB_HUD;
         CommManager.setMapMode(false);
+        WatchUi.requestUpdate();
+    }
+
+    public function toggleTab() as Void {
+        _currentTab = (_currentTab == TAB_HUD) ? TAB_MAP : TAB_HUD;
         WatchUi.requestUpdate();
     }
 
@@ -407,39 +254,29 @@ class NavigationIQView extends WatchUi.View {
             } else {
                 CommManager.requestPan(_panX, _panY);
             }
-            WatchUi.requestUpdate();
             return true;
         }
         return false;
     }
 
-    public function toggleRotation() as Void {
-        _rotation = (_rotation == 0) ? 1 : 0;
-        WatchUi.requestUpdate();
-    }
-
     public function onScreenTap(x as Number, y as Number) as Void {
         if (_currentTab == TAB_MAP) {
-            // Tap Bottom Area (y >= 290) -> Switch back to HUD immediately
             if (y >= 290) {
                 switchToHudTab();
                 return;
             }
-            // Tap Zoom [+] button (Right Top: x >= 255, y: 90-145)
             if (x >= 255 && y >= 85 && y <= 145) {
                 _mapZoom = (_mapZoom < 18) ? _mapZoom + 1 : 18;
                 CommManager.requestZoom(_mapZoom);
                 WatchUi.requestUpdate();
                 return;
             }
-            // Tap Zoom [-] button (Right Bottom: x >= 255, y: 150-205)
             if (x >= 255 && y >= 150 && y <= 210) {
                 _mapZoom = (_mapZoom > 14) ? _mapZoom - 1 : 14;
                 CommManager.requestZoom(_mapZoom);
                 WatchUi.requestUpdate();
                 return;
             }
-            // Tap Recenter GPS button (Left: x <= 65, y: 115-175)
             if (x <= 65 && y >= 115 && y <= 175) {
                 _panX = 0;
                 _panY = 0;
@@ -482,9 +319,9 @@ class NavigationIQView extends WatchUi.View {
         }
         if (_isPreviewMode) {
             _previewTimerTicks++;
-            if (_previewTimerTicks % 20 == 0) { // 20 ticks * 200ms = 4000ms (4 seconds)
+            if (_previewTimerTicks % 20 == 0) { // 20 ticks * 200ms = 4000ms (4s)
                 _previewIndex++;
-                _applyPreviewStep();
+                PreviewManager.applyStep(_previewIndex);
             }
         }
         WatchUi.requestUpdate();
@@ -499,7 +336,6 @@ class NavigationIQView extends WatchUi.View {
 
         var effectiveProfile = getEffectiveProfile(dc);
 
-        // True AMOLED / MIP Pure Black Background
         dc.setColor(COLOR_BG_AMOLED, COLOR_BG_AMOLED);
         dc.clear();
 
@@ -537,91 +373,679 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // Idle Standby Screen (Apple WatchOS Aesthetic with SF Pro & Glowing Pill)
+    // Idle Standby Screen
     // -------------------------------------------------------------------------
     private function _drawIdleScreen(dc as Dc) as Void {
         var fontMicro = isSfFontActive() ? ((_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY) : Graphics.FONT_XTINY;
         var fontBold = isSfFontActive() ? ((_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_LARGE) : Graphics.FONT_LARGE;
         var fontStreet = isSfFontActive() ? ((_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL) : Graphics.FONT_SMALL;
 
-        // 1. Top Status Pill (Dynamic Island Style)
         var isConnected = CommManager.isConnected() || (CommManager.rxCount > 0);
         var statusStr = isConnected ? Lang.format("Connected ($1$)", [CommManager.rxCount]) : "Ready";
         var strW = dc.getTextWidthInPixels(statusStr, fontMicro);
-        var pillW = strW + 36;
-        var pillH = 34;
+        var pillW = strW + 28;
         var pillX = (320 - pillW) / 2;
         var pillY = 16;
-        var pillR = 17;
 
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(pillX, pillY, pillW, pillH, pillR);
+        dc.fillRoundedRectangle(pillX, pillY, pillW, 30, 15);
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawRoundedRectangle(pillX, pillY, pillW, pillH, pillR);
+        dc.drawRoundedRectangle(pillX, pillY, pillW, 30, 15);
 
-        // Status Dot: Green when connected, Muted Gray when ready/disconnected
         var dotColor = isConnected ? COLOR_THEME_GREEN_ACCENT : COLOR_TEXT_MUTED;
         dc.setColor(dotColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(pillX + 14, pillY + 17, 4);
+        dc.fillCircle(pillX + 13, pillY + 15, 4);
 
-        // Status Text
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(pillX + 24, pillY + 4, fontMicro, statusStr, Graphics.TEXT_JUSTIFY_LEFT);
+        dc.drawText(pillX + 22, pillY + 14, fontMicro, statusStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        // 2. Center Compass Orb (Original Ambient Cyan Glow Gradient)
         var cx = 160;
-        var cy = 132;
-        var orbR = 42;
+        var cy = 135;
+        var r = 50;
 
-        _drawAmbientGlow(dc, cx, cy, GLOW_RGB_CYAN);
-
-        dc.setColor(COLOR_THEME_CYAN_BADGE, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(cx, cy, orbR);
-        dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(2);
-        dc.drawCircle(cx, cy, orbR);
-
-        // Modern 3D Navigation Arrow
-        var arrowPts = [
-            [cx, cy - 26],
-            [cx + 15, cy + 16],
-            [cx, cy + 8],
-            [cx - 15, cy + 16]
-        ];
-        dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
-        dc.fillPolygon(arrowPts);
-
-        // 3. Title (SF Pro Street Bold - Pure White)
-        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(160, 190, fontBold, "Navigation IQ", Graphics.TEXT_JUSTIFY_CENTER);
-
-        // 4. Subtitle (SF Pro Regular - Silver Muted)
-        dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(160, 226, fontStreet, "Waiting for navigation", Graphics.TEXT_JUSTIFY_CENTER);
-
-        // 5. Bottom WatchOS Clock Pill (with Clean Status Dot)
-        var clockTime = System.getClockTime();
-        var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
-        var clockW = dc.getTextWidthInPixels(timeStr, fontMicro);
-        var clockPillW = clockW + 42;
-        var clockPillH = 32;
-        var clockPillX = (320 - clockPillW) / 2;
-        var clockPillY = 268;
-        var clockPillR = 16;
+        VectorArrowRenderer.drawAmbientGlow(dc, cx, cy, GLOW_RGB_CYAN);
 
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(clockPillX, clockPillY, clockPillW, clockPillH, clockPillR);
+        dc.fillCircle(cx, cy, r);
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawRoundedRectangle(clockPillX, clockPillY, clockPillW, clockPillH, clockPillR);
+        dc.drawCircle(cx, cy, r);
 
-        // Status dot inside clock pill
-        dc.setColor(dotColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(clockPillX + 13, clockPillY + 16, 3);
+        dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
+        dc.fillPolygon([
+            [cx, cy - 26],
+            [cx + 20, cy + 20],
+            [cx, cy + 10],
+            [cx - 20, cy + 20]
+        ]);
+
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(160, 215, fontBold, "Navigation IQ", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(clockPillX + 22 + (clockW / 2), clockPillY - 5, fontMicro, timeStr, Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(160, 246, fontStreet, "Waiting for navigation", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+        var clockTime = System.getClockTime();
+        var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
+
+        var bottomStr = timeStr;
+        var bottomW = dc.getTextWidthInPixels(bottomStr, fontMicro) + 26;
+        var bottomX = (320 - bottomW) / 2;
+        var bottomY = 314;
+
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(bottomX, bottomY, bottomW, 32, 16);
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.drawRoundedRectangle(bottomX, bottomY, bottomW, 32, 16);
+        dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(160, bottomY + 13, fontMicro, bottomStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+
+    // -------------------------------------------------------------------------
+    // Unified Apple Watch Style Aero HUD with Ambient Glow Gradient
+    // -------------------------------------------------------------------------
+    private function _drawUnifiedAppleHUD(dc as Dc) as Void {
+        var theme = getNavTheme(CommManager.direction);
+        var accentColor = theme[0] as Number;
+        var badgeBgColor = theme[1] as Number;
+        var glowRGB = theme[2] as Array<Number>;
+        var etaBgColor = theme[3] as Number;
+
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(CARD_X, CARD_Y, CARD_W, CARD_H, CARD_RADIUS);
+
+        var badgeCx = CARD_X + BADGE_OFFSET_X;
+        var badgeCy = CARD_Y + BADGE_OFFSET_Y;
+
+        VectorArrowRenderer.drawAmbientGlow(dc, badgeCx, badgeCy, glowRGB);
+        VectorArrowRenderer.maskCardCorners(dc, CARD_X, CARD_Y, CARD_W, CARD_H, CARD_RADIUS);
+
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(CARD_X, CARD_Y, CARD_W, CARD_H, CARD_RADIUS);
+
+        dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(badgeCx, badgeCy, BADGE_RADIUS);
+
+        if (CommManager.isWaitingImage) {
+            VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, BADGE_RADIUS, accentColor, _animTick);
+        } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
+            VectorArrowRenderer.drawRleBitmap(dc, badgeCx, badgeCy, CommManager.rleBitmap);
+        } else if (CommManager.direction != DIR_UNKNOWN) {
+            VectorArrowRenderer.drawVectorArrow(dc, badgeCx, badgeCy, CommManager.direction, CommManager.exitNumber, accentColor);
+        } else {
+            VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, BADGE_RADIUS, accentColor, _animTick);
+        }
+
+        var distFull = CommManager.distText;
+        if (distFull.length() > 0) {
+            var parts = TextRenderer.splitDist(distFull, isSfNumberFontActive());
+            var distNum = parts[0];
+            var distUnit = parts[1];
+
+            var numX = CARD_X + DIST_OFFSET_X;
+            var numY = badgeCy;
+            var numFont = _getDistanceFont(distNum, distUnit);
+
+            dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(
+                numX, numY,
+                numFont,
+                distNum,
+                Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
+            );
+
+            // Bold Silver Unit (km / m / mi / ft) prominently aligned to baseline
+            var numWidth = dc.getTextWidthInPixels(distNum, numFont);
+            if (distUnit.length() > 0) {
+                var unitFont = isSfFontActive() ? ((_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_LARGE) : Graphics.FONT_MEDIUM;
+                dc.setColor(COLOR_TEXT_UNIT, Graphics.COLOR_TRANSPARENT);
+                dc.drawText(
+                    numX + numWidth + DIST_UNIT_GAP,
+                    badgeCy + 5,
+                    unitFont,
+                    distUnit,
+                    Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
+                );
+            }
+        }
+
+        var divY = CARD_Y + DIVIDER_OFFSET_Y;
+        dc.setColor(COLOR_DIVIDER, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawLine(CARD_X + DIVIDER_PADDING_X, divY, CARD_X + CARD_W - DIVIDER_PADDING_X, divY);
+
+        var streetText = CommManager.navText;
+        if (streetText.length() > 0) {
+            _drawDynamicWrappedText(dc, CARD_X + NAV_TEXT_PADDING_X, divY + NAV_TEXT_OFFSET_Y, CARD_W - (NAV_TEXT_PADDING_X * 2), CARD_H - (divY - CARD_Y) - NAV_TEXT_BOTTOM_PADDING, streetText, accentColor);
+        }
+
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(CARD_X, BAR_Y, CARD_W, BAR_H, BAR_RADIUS);
+        VectorArrowRenderer.maskCardCorners(dc, CARD_X, BAR_Y, CARD_W, BAR_H, BAR_RADIUS);
+
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(CARD_X, BAR_Y, CARD_W, BAR_H, BAR_RADIUS);
+
+        var etaBadgeX = CARD_X + ETA_BADGE_PADDING_X;
+        var etaBadgeY = BAR_Y + ((BAR_H - ETA_BADGE_H) / 2);
+
+        dc.setColor(etaBgColor, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(etaBadgeX, etaBadgeY, ETA_BADGE_W, ETA_BADGE_H, ETA_BADGE_RADIUS);
+
+        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, ETA_BADGE_W, ETA_BADGE_H, ETA_BADGE_RADIUS);
+
+        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
+        var etaCenterY = BAR_Y + (BAR_H / 2) - 1;
+        TextRenderer.drawMicroText(dc, etaBadgeX + (ETA_BADGE_W / 2), etaCenterY, etaStr, COLOR_TEXT_WHITE, true);
+
+        dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(CARD_X + 178, etaCenterY, 2);
+
+        var clockTime = System.getClockTime();
+        var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
+        TextRenderer.drawMicroText(dc, CARD_X + 276, etaCenterY, timeStr, COLOR_TEXT_SILVER, false);
+    }
+
+    // -------------------------------------------------------------------------
+    // Dynamic Font Scaling + Multi-Weight Typography
+    // -------------------------------------------------------------------------
+    private function _renderScrollingBlock(
+        dc as Dc,
+        lines1 as Array<String>,
+        font1 as Graphics.FontDefinition,
+        color1 as Number,
+        h1 as Number,
+        lines2 as Array<String>?,
+        font2 as Graphics.FontDefinition?,
+        color2 as Number?,
+        h2 as Number?,
+        startX as Number,
+        startY as Number,
+        maxWidth as Number,
+        maxHeight as Number,
+        accentColor as Number
+    ) as Void {
+        var count1 = lines1.size();
+        var count2 = (lines2 != null) ? lines2.size() : 0;
+        var totalH = (count1 * h1) + (count2 * ((h2 != null) ? h2 : 0));
+
+        if (totalH <= maxHeight) {
+            var curY = startY + (maxHeight - totalH) / 2 - 4;
+            dc.setColor(color1, Graphics.COLOR_TRANSPARENT);
+            for (var i = 0; i < count1; i++) {
+                dc.drawText(startX, curY + (h1 / 2), font1, lines1[i], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+                curY += h1;
+            }
+            if (lines2 != null && font2 != null && color2 != null && h2 != null) {
+                dc.setColor(color2, Graphics.COLOR_TRANSPARENT);
+                for (var j = 0; j < count2; j++) {
+                    dc.drawText(startX, curY + (h2 / 2), font2, lines2[j], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+                    curY += h2;
+                }
+            }
+            return;
+        }
+
+        if (dc has :setClip) {
+            dc.setClip(startX - 2, startY, maxWidth + 4, maxHeight);
+        }
+
+        var overflow = totalH - maxHeight + 12;
+        var cycle = _animTick % 70;
+        var scrollOffset = 0;
+
+        if (cycle < 15) {
+            scrollOffset = 0;
+        } else if (cycle < 35) {
+            var progress = (cycle - 15).toFloat() / 20.0;
+            scrollOffset = (progress * overflow).toNumber();
+        } else if (cycle < 50) {
+            scrollOffset = overflow;
+        } else {
+            var progress = (cycle - 50).toFloat() / 20.0;
+            scrollOffset = ((1.0 - progress) * overflow).toNumber();
+        }
+
+        var curY = startY + 4 - scrollOffset;
+        dc.setColor(color1, Graphics.COLOR_TRANSPARENT);
+        for (var i = 0; i < count1; i++) {
+            dc.drawText(startX, curY + (h1 / 2), font1, lines1[i], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            curY += h1;
+        }
+        if (lines2 != null && font2 != null && color2 != null && h2 != null) {
+            dc.setColor(color2, Graphics.COLOR_TRANSPARENT);
+            for (var j = 0; j < count2; j++) {
+                dc.drawText(startX, curY + (h2 / 2), font2, lines2[j], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+                curY += h2;
+            }
+        }
+
+        if (dc has :clearClip) {
+            dc.clearClip();
+        }
+
+        var barX = startX + maxWidth - 3;
+        var barTrackH = maxHeight - 16;
+        var thumbH = (maxHeight.toFloat() / totalH.toFloat() * barTrackH).toNumber();
+        if (thumbH < 10) { thumbH = 10; }
+        var thumbY = startY + 8 + ((scrollOffset.toFloat() / overflow.toFloat()) * (barTrackH - thumbH)).toNumber();
+        dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(barX, startY + 8, 2, barTrackH, 1);
+        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(barX, thumbY, 2, thumbH, 1);
+    }
+
+    private function _drawDynamicWrappedText(dc as Dc, startX as Number, startY as Number, maxWidth as Number, maxHeight as Number, text as String, accentColor as Number) as Void {
+        var parts = TextRenderer.splitActionAndStreet(text);
+        var actionText = parts[0];
+        var streetText = parts[1];
+
+        var fontActionBold;
+        var fontStreetReg;
+        var fontCompactBold;
+        var fontCompactReg;
+        if (isSfFontActive()) {
+            fontActionBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_SMALL;
+            fontStreetReg = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_TINY;
+            fontCompactBold = (_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_TINY;
+            fontCompactReg = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY;
+        } else {
+            fontActionBold = Graphics.FONT_MEDIUM;
+            fontStreetReg = Graphics.FONT_SMALL;
+            fontCompactBold = Graphics.FONT_SMALL;
+            fontCompactReg = Graphics.FONT_TINY;
+        }
+
+        if (streetText.length() == 0) {
+            var linesStreet = TextRenderer.wrapWithFont(dc, actionText, fontActionBold, maxWidth);
+            var fontHStreet = dc.getFontHeight(fontActionBold) + 2;
+            if (linesStreet.size() <= 2 && (linesStreet.size() * fontHStreet) <= maxHeight) {
+                _renderScrollingBlock(dc, linesStreet, fontActionBold, Graphics.COLOR_WHITE, fontHStreet, null, null, null, null, startX, startY, maxWidth, maxHeight, accentColor);
+                return;
+            }
+
+            var linesCompact = TextRenderer.wrapWithFont(dc, actionText, fontCompactBold, maxWidth);
+            var fontHCompact = dc.getFontHeight(fontCompactBold) + 2;
+            _renderScrollingBlock(dc, linesCompact, fontCompactBold, Graphics.COLOR_WHITE, fontHCompact, null, null, null, null, startX, startY, maxWidth, maxHeight, accentColor);
+            return;
+        }
+
+        var linesAct = TextRenderer.wrapWithFont(dc, actionText, fontActionBold, maxWidth);
+        var linesStr = TextRenderer.wrapWithFont(dc, streetText, fontStreetReg, maxWidth);
+        var hAct = dc.getFontHeight(fontActionBold) + 2;
+        var hStr = dc.getFontHeight(fontStreetReg) + 2;
+        var totalH = (linesAct.size() * hAct) + (linesStr.size() * hStr);
+
+        if (totalH <= maxHeight) {
+            _renderScrollingBlock(dc, linesAct, fontActionBold, Graphics.COLOR_WHITE, hAct, linesStr, fontStreetReg, 0xE4E4E7, hStr, startX, startY, maxWidth, maxHeight, accentColor);
+            return;
+        }
+
+        linesAct = TextRenderer.wrapWithFont(dc, actionText, fontCompactBold, maxWidth);
+        linesStr = TextRenderer.wrapWithFont(dc, streetText, fontCompactReg, maxWidth);
+        hAct = dc.getFontHeight(fontCompactBold) + 2;
+        hStr = dc.getFontHeight(fontCompactReg) + 2;
+
+        _renderScrollingBlock(dc, linesAct, fontCompactBold, Graphics.COLOR_WHITE, hAct, linesStr, fontCompactReg, 0xE4E4E7, hStr, startX, startY, maxWidth, maxHeight, accentColor);
+    }
+
+    // -------------------------------------------------------------------------
+    // Landscape Mode HUD (90° Clockwise)
+    // -------------------------------------------------------------------------
+    private function _drawLandscapeHUD(dc as Dc) as Void {
+        var theme = getNavTheme(CommManager.direction);
+        var accentColor = theme[0] as Number;
+        var badgeBgColor = theme[1] as Number;
+        var glowRGB = theme[2] as Array<Number>;
+        var etaBgColor = theme[3] as Number;
+
+        var cardPx = 68;
+        var cardPy = 0;
+        var cardPw = 252;
+        var cardPh = 360;
+        var cardR = 26;
+
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(cardPx, cardPy, cardPw, cardPh, cardR);
+
+        var badgeVx = 48;
+        var badgeVy = 48;
+        var badgeR = 34;
+        var badgePx = 360 - badgeVy - 24;
+        var badgePy = badgeVx;
+
+        VectorArrowRenderer.drawAmbientGlow(dc, badgePx, badgePy, glowRGB);
+        VectorArrowRenderer.maskCardCorners(dc, cardPx, cardPy, cardPw, cardPh, cardR);
+
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(cardPx, cardPy, cardPw, cardPh, cardR);
+
+        dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(badgePx, badgePy, badgeR);
+
+        if (CommManager.isWaitingImage) {
+            VectorArrowRenderer.drawLoadingSpinner(dc, badgePx, badgePy, badgeR, accentColor, _animTick);
+        } else if (CommManager.direction != DIR_UNKNOWN) {
+            VectorArrowRenderer.drawVectorArrowRot90(dc, badgePx, badgePy, CommManager.direction, CommManager.exitNumber, accentColor);
+        } else {
+            VectorArrowRenderer.drawLoadingSpinner(dc, badgePx, badgePy, badgeR, accentColor, _animTick);
+        }
+
+        var distFull = CommManager.distText;
+        if (distFull.length() > 0) {
+            var parts = TextRenderer.splitDist(distFull, isSfNumberFontActive());
+            var distNum = parts[0];
+            var distUnit = parts[1];
+
+            var numFontRot = (_fontSfStreetBoldRot90 != null) ? _fontSfStreetBoldRot90 : _fontSfStreetBold;
+            var numFontUp = (_fontSfStreetBold != null) ? _fontSfStreetBold : numFontRot;
+            var numX = 98;
+            var numY = 48;
+
+            TextRenderer.drawRot90String(dc, numX, numY, numFontRot, numFontUp, distNum, COLOR_TEXT_WHITE);
+
+            var numW = TextRenderer.measureRot90String(dc, numFontUp, distNum);
+            if (distUnit.length() > 0) {
+                var unitFontRot = (_fontSfStreetRot90 != null) ? _fontSfStreetRot90 : _fontSfStreet;
+                var unitFontUp = (_fontSfStreet != null) ? _fontSfStreet : unitFontRot;
+                TextRenderer.drawRot90String(dc, numX + numW + 4, numY, unitFontRot, unitFontUp, distUnit, COLOR_TEXT_UNIT);
+            }
+        }
+
+        var fontActionRot = (_fontSfStreetBoldRot90 != null) ? _fontSfStreetBoldRot90 : _fontSfStreetBold;
+        var fontActionUp = (_fontSfStreetBold != null) ? _fontSfStreetBold : fontActionRot;
+        var fontStreetRot = (_fontSfStreetRot90 != null) ? _fontSfStreetRot90 : _fontSfStreet;
+        var fontStreetUp = (_fontSfStreet != null) ? _fontSfStreet : fontStreetRot;
+
+        var fullText = CommManager.navText;
+        if (fullText.length() > 0) {
+            var parts = TextRenderer.splitActionAndStreet(fullText);
+            var actionStr = parts[0];
+            var streetStr = parts[1];
+
+            var actionLines = (actionStr.length() > 0) ? TextRenderer.wrapWithRot90Font(dc, actionStr, fontActionUp, 332) : [] as Array<String>;
+            var streetLines = (streetStr.length() > 0) ? TextRenderer.wrapWithRot90Font(dc, streetStr, fontStreetUp, 332) : [] as Array<String>;
+            var hAct = 28;
+            var hStr = 24;
+            var totalH = (actionLines.size() * hAct) + (streetLines.size() * hStr);
+            var maxHeight = 124;
+
+            if (totalH <= maxHeight) {
+                var curVy = 120 + (maxHeight - totalH) / 2 + 10;
+                for (var al = 0; al < actionLines.size(); al++) {
+                    TextRenderer.drawRot90String(dc, 14, curVy, fontActionRot, fontActionUp, actionLines[al], COLOR_TEXT_WHITE);
+                    curVy += hAct;
+                }
+                for (var sl = 0; sl < streetLines.size(); sl++) {
+                    TextRenderer.drawRot90String(dc, 14, curVy, fontStreetRot, fontStreetUp, streetLines[sl], COLOR_TEXT_SILVER);
+                    curVy += hStr;
+                }
+            } else {
+                if (dc has :setClip) {
+                    dc.setClip(75, 0, 124, 360);
+                }
+
+                var overflow = totalH - maxHeight + 12;
+                var cycle = _animTick % 70;
+                var scrollOffset = 0;
+
+                if (cycle < 15) {
+                    scrollOffset = 0;
+                } else if (cycle < 35) {
+                    var progress = (cycle - 15).toFloat() / 20.0;
+                    scrollOffset = (progress * overflow).toNumber();
+                } else if (cycle < 50) {
+                    scrollOffset = overflow;
+                } else {
+                    var progress = (cycle - 50).toFloat() / 20.0;
+                    scrollOffset = ((1.0 - progress) * overflow).toNumber();
+                }
+
+                var curVy = 124 + 10 - scrollOffset;
+                for (var al = 0; al < actionLines.size(); al++) {
+                    TextRenderer.drawRot90String(dc, 14, curVy, fontActionRot, fontActionUp, actionLines[al], COLOR_TEXT_WHITE);
+                    curVy += hAct;
+                }
+                for (var sl = 0; sl < streetLines.size(); sl++) {
+                    TextRenderer.drawRot90String(dc, 14, curVy, fontStreetRot, fontStreetUp, streetLines[sl], COLOR_TEXT_SILVER);
+                    curVy += hStr;
+                }
+
+                if (dc has :clearClip) {
+                    dc.clearClip();
+                }
+            }
+        }
+
+        var barPx = 0;
+        var barPy = 0;
+        var barPw = 68;
+        var barPh = 360;
+        var barR = 26;
+
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(barPx, barPy, barPw, barPh, barR);
+        VectorArrowRenderer.maskCardCorners(dc, barPx, barPy, barPw, barPh, barR);
+
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(barPx, barPy, barPw, barPh, barR);
+
+        var etaCapsulePx = 11;
+        var etaCapsulePy = 12;
+        var etaCapsulePw = 44;
+        var etaCapsulePh = 146;
+        var etaCapsuleR = 22;
+
+        dc.setColor(etaBgColor, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(etaCapsulePx, etaCapsulePy, etaCapsulePw, etaCapsulePh, etaCapsuleR);
+        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(etaCapsulePx, etaCapsulePy, etaCapsulePw, etaCapsulePh, etaCapsuleR);
+
+        var fontMicroRot = (_fontSfMicroRot90 != null) ? _fontSfMicroRot90 : _fontSfMicro;
+        var fontMicroUp = (_fontSfMicro != null) ? _fontSfMicro : fontMicroRot;
+        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
+        var etaW = TextRenderer.measureRot90String(dc, fontMicroUp, etaStr);
+        var etaVx = 12 + (146 - etaW) / 2;
+        TextRenderer.drawRot90String(dc, etaVx, 296, fontMicroRot, fontMicroUp, etaStr, COLOR_TEXT_WHITE);
+
+        dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(33, 200, 2);
+
+        var clockTime = System.getClockTime();
+        var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
+        var clockW = TextRenderer.measureRot90String(dc, fontMicroUp, timeStr);
+        var clockVx = 346 - clockW;
+        TextRenderer.drawRot90String(dc, clockVx, 296, fontMicroRot, fontMicroUp, timeStr, COLOR_TEXT_SILVER);
+    }
+
+    // -------------------------------------------------------------------------
+    // Instinct Crossover HUD
+    // -------------------------------------------------------------------------
+    private function _drawInstinctCrossoverHUD(dc as Dc) as Void {
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+
+        var badgeCx = 34;
+        var badgeCy = 36;
+        var badgeR = 24;
+
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(2);
+        dc.drawCircle(badgeCx, badgeCy, badgeR);
+
+        if (CommManager.isWaitingImage) {
+            VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, Graphics.COLOR_WHITE, _animTick);
+        } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
+            VectorArrowRenderer.drawRleBitmap(dc, badgeCx, badgeCy, CommManager.rleBitmap);
+        } else if (CommManager.direction != DIR_UNKNOWN) {
+            VectorArrowRenderer.drawVectorArrow(dc, badgeCx, badgeCy, CommManager.direction, CommManager.exitNumber, Graphics.COLOR_WHITE);
+        } else {
+            VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, Graphics.COLOR_WHITE, _animTick);
+        }
+
+        var distFull = CommManager.distText;
+        if (distFull.length() > 0) {
+            var parts = TextRenderer.splitDist(distFull, isSfNumberFontActive());
+            var distNum = parts[0];
+            var distUnit = parts[1];
+
+            var numFont = Graphics.FONT_NUMBER_MILD;
+            if (distNum.length() > 3) {
+                numFont = Graphics.FONT_LARGE;
+            }
+
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(66, 36, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+
+            var numW = dc.getTextWidthInPixels(distNum, numFont);
+            if (distUnit.length() > 0) {
+                dc.drawText(66 + numW + 4, 36, Graphics.FONT_SMALL, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            }
+        }
+
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawLine(8, 70, w - 8, 70);
+        dc.drawLine(8, 102, w - 8, 102);
+
+        var streetText = CommManager.navText;
+        if (streetText.length() > 0) {
+            var lines = TextRenderer.wrapWithFont(dc, streetText, Graphics.FONT_TINY, w - 16);
+            var textY = 106;
+            for (var i = 0; i < lines.size() && i < 2; i++) {
+                dc.drawText(w / 2, textY, Graphics.FONT_TINY, lines[i], Graphics.TEXT_JUSTIFY_CENTER);
+                textY += 16;
+            }
+        }
+
+        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
+        var clock = System.getClockTime();
+        var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
+
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(12, h - 14, Graphics.FONT_XTINY, etaStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(w - 12, h - 14, Graphics.FONT_XTINY, timeStr, Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+
+    private function _drawInstinctIdleScreen(dc as Dc) as Void {
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+        var isConnected = CommManager.isConnected() || (CommManager.rxCount > 0);
+        var statusStr = isConnected ? "Connected" : "Ready";
+
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(w / 2, 24, Graphics.FONT_TINY, "Navigation IQ", Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(w / 2, 46, Graphics.FONT_XTINY, statusStr, Graphics.TEXT_JUSTIFY_CENTER);
+
+        dc.drawLine(8, 70, w - 8, 70);
+        dc.drawLine(8, 102, w - 8, 102);
+
+        var clock = System.getClockTime();
+        var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
+        dc.drawText(w / 2, 116, Graphics.FONT_SMALL, "Waiting Nav...", Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(w / 2, 146, Graphics.FONT_TINY, timeStr, Graphics.TEXT_JUSTIFY_CENTER);
+    }
+
+    // -------------------------------------------------------------------------
+    // Round Screen Responsive HUD
+    // -------------------------------------------------------------------------
+    private function _drawRoundHUD(dc as Dc) as Void {
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+        var theme = getNavTheme(CommManager.direction);
+        var accentColor = theme[0] as Number;
+        var badgeBgColor = theme[1] as Number;
+        var glowRGB = theme[2] as Array<Number>;
+        var etaBgColor = theme[3] as Number;
+
+        var fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
+        var fontBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_SMALL;
+        var fontStreet = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_TINY;
+
+        var badgeCx = w / 2;
+        var badgeCy = 52;
+        var badgeR = 36;
+
+        VectorArrowRenderer.drawAmbientGlow(dc, badgeCx, badgeCy, glowRGB);
+
+        dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(badgeCx, badgeCy, badgeR);
+
+        if (CommManager.isWaitingImage) {
+            VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor, _animTick);
+        } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
+            VectorArrowRenderer.drawRleBitmap(dc, badgeCx, badgeCy, CommManager.rleBitmap);
+        } else if (CommManager.direction != DIR_UNKNOWN) {
+            VectorArrowRenderer.drawVectorArrow(dc, badgeCx, badgeCy, CommManager.direction, CommManager.exitNumber, accentColor);
+        } else {
+            VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor, _animTick);
+        }
+
+        var distFull = CommManager.distText;
+        if (distFull.length() > 0) {
+            var parts = TextRenderer.splitDist(distFull, isSfNumberFontActive());
+            var distNum = parts[0];
+            var distUnit = parts[1];
+
+            var numFont = _getDistanceFont(distNum, distUnit);
+            var numW = dc.getTextWidthInPixels(distNum, numFont);
+            var unitW = (distUnit.length() > 0) ? dc.getTextWidthInPixels(distUnit, fontStreet) : 0;
+            var totalDistW = numW + 6 + unitW;
+            var startDistX = (w - totalDistW) / 2;
+
+            dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(startDistX, 108, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+
+            if (distUnit.length() > 0) {
+                dc.setColor(COLOR_TEXT_UNIT, Graphics.COLOR_TRANSPARENT);
+                dc.drawText(startDistX + numW + 6, 114, fontStreet, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            }
+        }
+
+        var streetText = CommManager.navText;
+        if (streetText.length() > 0) {
+            var parts = TextRenderer.splitActionAndStreet(streetText);
+            var actionText = parts[0];
+            var street = parts[1];
+
+            dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(w / 2, 146, fontBold, actionText, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+            if (street.length() > 0) {
+                dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
+                dc.drawText(w / 2, 172, fontStreet, street, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            }
+        }
+
+        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
+        var clock = System.getClockTime();
+        var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
+
+        var pillW = 180;
+        var pillH = 34;
+        var pillX = (w - pillW) / 2;
+        var pillY = h - 46;
+
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(pillX, pillY, pillW, pillH, 17);
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.drawRoundedRectangle(pillX, pillY, pillW, pillH, 17);
+
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(pillX + 46, pillY + 16, fontMicro, etaStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+        dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(w / 2, pillY + 16, 2);
+
+        dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(pillX + 134, pillY + 16, fontMicro, timeStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
     // -------------------------------------------------------------------------
@@ -682,7 +1106,6 @@ class NavigationIQView extends WatchUi.View {
                         var drawY = startY + (py * scale);
                         var drawW = span * scale;
                         
-                        // Clip within screen bounds
                         if (drawY >= 0 && drawY < 360) {
                             var clipX1 = (drawX < 0) ? 0 : drawX;
                             var clipX2 = (drawX + drawW > 320) ? 320 : drawX + drawW;
@@ -707,7 +1130,6 @@ class NavigationIQView extends WatchUi.View {
                 i += 2;
             }
         } else {
-            // Animated Radar Pulse when map is downloading
             var pulseR = 30 + ((_animTick * 2) % 45);
             dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
             dc.setPenWidth(1);
@@ -717,18 +1139,15 @@ class NavigationIQView extends WatchUi.View {
             dc.drawText(160, 222, fontMicro, "Loading OSM Map...", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
 
-        // 2. Current GPS Location Pin (Positioned relative to pan at screen center)
         var mapCenterX = startX + (totalDrawW / 2);
         var mapCenterY = startY + (totalDrawH / 2);
 
         if (mapCenterX >= 0 && mapCenterX <= 320 && mapCenterY >= 0 && mapCenterY <= 360) {
-            // Location Halo
             dc.setColor(0x0A84FF, Graphics.COLOR_TRANSPARENT);
             dc.fillCircle(mapCenterX, mapCenterY, 9);
             dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
             dc.fillCircle(mapCenterX, mapCenterY, 4);
 
-            // Direction Arrow / Heading Cone
             if (CommManager.mapHeading > 0) {
                 var rad = Math.toRadians(CommManager.mapHeading - 90);
                 var tipX = mapCenterX + (22 * Math.cos(rad)).toNumber();
@@ -743,7 +1162,7 @@ class NavigationIQView extends WatchUi.View {
             }
         }
 
-        // 3. Floating Glassmorphism Overlay Controls
+        // Floating Glassmorphism Overlay Controls
         // Zoom [+] Button (Right Top)
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(287, 115, 19);
@@ -770,8 +1189,7 @@ class NavigationIQView extends WatchUi.View {
         dc.fillCircle(33, 145, 4);
         dc.drawCircle(33, 145, 8);
 
-        // 4. Top Status Header Floating Pills (Speed, Zoom Level)
-        // Speed Pill (Left)
+        // Top Status Header Floating Pills (Speed, Zoom Level)
         var speedStr = Lang.format("$1$ km/h", [CommManager.mapSpeed]);
         var speedW = dc.getTextWidthInPixels(speedStr, fontMicro) + 18;
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
@@ -781,7 +1199,6 @@ class NavigationIQView extends WatchUi.View {
         dc.setColor(COLOR_THEME_GREEN_ACCENT, Graphics.COLOR_TRANSPARENT);
         dc.drawText(14 + (speedW / 2), 14 + 12, fontMicro, speedStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        // Zoom Pill (Right)
         var zoomNames = { 14 => "2km", 15 => "1km", 16 => "500m", 17 => "250m", 18 => "100m" };
         var zoomStr = zoomNames.hasKey(_mapZoom) ? zoomNames[_mapZoom] as String : "500m";
         var zoomW = dc.getTextWidthInPixels(zoomStr, fontMicro) + 18;
@@ -790,1548 +1207,27 @@ class NavigationIQView extends WatchUi.View {
         dc.fillRoundedRectangle(zoomX, 14, zoomW, 30, 15);
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
         dc.drawRoundedRectangle(zoomX, 14, zoomW, 30, 15);
-        dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(zoomX + (zoomW / 2), 14 + 12, fontMicro, zoomStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        // 5. Bottom Navigation Floating Bar (Swipe Up / Tap to return to HUD)
-        var clock = System.getClockTime();
-        var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
-        var bottomStr = Lang.format("HUD  |  $1$", [timeStr]);
-        var bottomW = dc.getTextWidthInPixels(bottomStr, fontMicro) + 26;
-        var bottomX = (320 - bottomW) / 2;
-        var bottomY = 314;
+        // Bottom Mini Turn Maneuver Pill (Y: 294 to 344)
+        var navW = 296;
+        var navH = 50;
+        var navX = (320 - navW) / 2;
+        var navY = 294;
 
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(bottomX, bottomY, bottomW, 32, 16);
+        dc.fillRoundedRectangle(navX, navY, navW, navH, 20);
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.drawRoundedRectangle(bottomX, bottomY, bottomW, 32, 16);
-        dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(160, bottomY + 13, fontMicro, bottomStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-    }
+        dc.drawRoundedRectangle(navX, navY, navW, navH, 20);
 
-    // -------------------------------------------------------------------------
-    // Theme Palette Selector (Bright Milky Desaturated Pastel Badge + Glow)
-    // -------------------------------------------------------------------------
-    private function _getTheme(dir as Number) as Array<Object> {
-        if (dir == DIR_STRAIGHT || dir == DIR_ROUNDABOUT_2 || dir == DIR_ROUNDABOUT_3) {
-            // Straight Ahead / 2nd-3rd Exit: Bright Milky Pastel Teal/Cyan Badge
-            return [COLOR_THEME_CYAN_ACCENT, COLOR_THEME_CYAN_BADGE, GLOW_RGB_CYAN, COLOR_THEME_CYAN_ETA_BG] as Array<Object>;
-        } else if (dir == DIR_LEFT || dir == DIR_SLIGHT_LEFT || dir == DIR_SHARP_LEFT ||
-                   dir == DIR_ROUNDABOUT_4 || dir == DIR_ROUNDABOUT_5 || dir == DIR_UTURN) {
-            // Turn Left / U-turn: Bright Milky Pastel Amber/Taupe Badge
-            return [COLOR_THEME_AMBER_ACCENT, COLOR_THEME_AMBER_BADGE, GLOW_RGB_AMBER, COLOR_THEME_AMBER_ETA_BG] as Array<Object>;
-        } else if (dir == DIR_RIGHT || dir == DIR_SLIGHT_RIGHT || dir == DIR_SHARP_RIGHT ||
-                   dir == DIR_ROUNDABOUT_1) {
-            // Turn Right / 1st Exit: Bright Milky Pastel Jade/Sage Badge
-            return [COLOR_THEME_GREEN_ACCENT, COLOR_THEME_GREEN_BADGE, GLOW_RGB_GREEN, COLOR_THEME_GREEN_ETA_BG] as Array<Object>;
-        } else {
-            // Default Cyan Theme
-            return [COLOR_THEME_CYAN_ACCENT, COLOR_THEME_CYAN_BADGE, GLOW_RGB_CYAN, COLOR_THEME_CYAN_ETA_BG] as Array<Object>;
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Ultra-Smooth 120-Step RGB Concentric Ambient Glow Renderer (Zero Color Banding)
-    // -------------------------------------------------------------------------
-    private function _drawAmbientGlow(dc as Dc, cx as Number, cy as Number, srcRGB as Array<Number>) as Void {
-        var bgR = 0x18;
-        var bgG = 0x18;
-        var bgB = 0x1B;
-        var srcR = srcRGB[0];
-        var srcG = srcRGB[1];
-        var srcB = srcRGB[2];
-
-        // 120 ultra-fine concentric steps (radius step 1.3px for butter-smooth diffusion)
-        for (var step = GLOW_STEPS; step >= 1; step--) {
-            var r = (step * GLOW_RADIUS_FACTOR).toNumber();
-            var t = (1.0 - (step.toFloat() / GLOW_STEPS.toFloat()));
-            var factor = Math.pow(t, 2.6) * 0.98; // Cubic-Exponential ease-out falloff
-
-            var curR = (bgR + (srcR - bgR) * factor).toNumber();
-            var curG = (bgG + (srcG - bgG) * factor).toNumber();
-            var curB = (bgB + (srcB - bgB) * factor).toNumber();
-            var col = (curR << 16) | (curG << 8) | curB;
-
-            dc.setColor(col, Graphics.COLOR_TRANSPARENT);
-            dc.fillCircle(cx, cy, r);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Mask Card Outer Corners to Pure AMOLED Black
-    // -------------------------------------------------------------------------
-    private function _maskCardCorners(dc as Dc, x as Number, y as Number, w as Number, h as Number, r as Number) as Void {
-        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
-        var r2 = (r * r).toFloat();
-        for (var i = 0; i < r; i++) {
-            var dy = (r - i).toFloat();
-            var dx = (r - Math.sqrt(r2 - (dy * dy))).toNumber();
-            if (dx > 0) {
-                // Top-Left corner mask
-                dc.drawLine(x, y + i, x + dx, y + i);
-                // Top-Right corner mask
-                dc.drawLine(x + w - 1 - dx, y + i, x + w - 1, y + i);
-                // Bottom-Left corner mask
-                dc.drawLine(x, y + h - 1 - i, x + dx, y + h - 1 - i);
-                // Bottom-Right corner mask
-                dc.drawLine(x + w - 1 - dx, y + h - 1 - i, x + w - 1, y + h - 1 - i);
-            }
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Razor-Sharp 7-Segment Digital Typography Engine (Uniform Grid)
-    // -------------------------------------------------------------------------
-    private function _drawMicroText(dc as Dc, targetX as Number, centerY as Number, text as String, color as Number, isCentered as Boolean) as Void {
-        var digitW = 7;
-        var digitH = 12;
-        var midY = 6;
-        var spacing = 3;
-        var colonW = 3;
-        var spaceW = 4;
-
-        var totalW = 0;
-        for (var i = 0; i < text.length(); i++) {
-            var ch = text.substring(i, i + 1);
-            if (ch.equals(":")) {
-                totalW += colonW + spacing;
-            } else if (ch.equals(" ")) {
-                totalW += spaceW + spacing;
-            } else {
-                totalW += digitW + spacing;
-            }
-        }
-        if (totalW > 0) {
-            totalW -= spacing;
+        if (CommManager.direction != DIR_UNKNOWN) {
+            VectorArrowRenderer.drawVectorArrow(dc, navX + 28, navY + 25, CommManager.direction, CommManager.exitNumber, COLOR_THEME_CYAN_ACCENT);
         }
 
-        var startX = isCentered ? (targetX - (totalW / 2)) : (targetX - totalW);
-        var topY = centerY - (digitH / 2);
-
-        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(2);
-
-        var curX = startX;
-        for (var i = 0; i < text.length(); i++) {
-            var ch = text.substring(i, i + 1);
-            var x = curX;
-            var y = topY;
-            var w = digitW;
-            var h = digitH;
-
-            if (ch.equals(":")) {
-                dc.fillCircle(x + 1, y + 3, 1);
-                dc.fillCircle(x + 1, y + 8, 1);
-                curX += colonW + spacing;
-                continue;
-            } else if (ch.equals(" ")) {
-                curX += spaceW + spacing;
-                continue;
-            } else if (ch.equals("-")) {
-                dc.drawLine(x, y + midY, x + w - 1, y + midY);
-                curX += w + spacing;
-                continue;
-            } else if (ch.equals("E") || ch.equals("e")) {
-                // Segments: a, f, e, g, d
-                dc.drawLine(x, y, x + w - 1, y);
-                dc.drawLine(x, y, x, y + h - 1);
-                dc.drawLine(x, y + midY, x + w - 1, y + midY);
-                dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
-                curX += w + spacing;
-                continue;
-            } else if (ch.equals("T") || ch.equals("t")) {
-                // Segment a + centered vertical bar
-                dc.drawLine(x, y, x + w - 1, y);
-                dc.drawLine(x + (w / 2), y, x + (w / 2), y + h - 1);
-                curX += w + spacing;
-                continue;
-            } else if (ch.equals("A") || ch.equals("a")) {
-                // Segments: a, f, e, b, c, g (8 without bottom bar)
-                dc.drawLine(x, y, x + w - 1, y);
-                dc.drawLine(x, y, x, y + h - 1);
-                dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
-                dc.drawLine(x, y + midY, x + w - 1, y + midY);
-                curX += w + spacing;
-                continue;
-            }
-
-            var d = ch.toNumber();
-            if (d == 0) {
-                // Segments: a, b, c, d, e, f
-                dc.drawLine(x, y, x + w - 1, y);
-                dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
-                dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
-                dc.drawLine(x, y, x, y + h - 1);
-            } else if (d == 1) {
-                // Segments: b, c (Pure straight vertical bar on right side)
-                dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
-            } else if (d == 2) {
-                // Segments: a, b, g, e, d
-                dc.drawLine(x, y, x + w - 1, y);
-                dc.drawLine(x + w - 1, y, x + w - 1, y + midY);
-                dc.drawLine(x, y + midY, x + w - 1, y + midY);
-                dc.drawLine(x, y + midY, x, y + h - 1);
-                dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
-            } else if (d == 3) {
-                // Segments: a, b, c, d, g
-                dc.drawLine(x, y, x + w - 1, y);
-                dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
-                dc.drawLine(x, y + midY, x + w - 1, y + midY);
-                dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
-            } else if (d == 4) {
-                // Segments: f, g, b, c
-                dc.drawLine(x, y, x, y + midY);
-                dc.drawLine(x, y + midY, x + w - 1, y + midY);
-                dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
-            } else if (d == 5) {
-                // Segments: a, f, g, c, d
-                dc.drawLine(x, y, x + w - 1, y);
-                dc.drawLine(x, y, x, y + midY);
-                dc.drawLine(x, y + midY, x + w - 1, y + midY);
-                dc.drawLine(x + w - 1, y + midY, x + w - 1, y + h - 1);
-                dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
-            } else if (d == 6) {
-                // Segments: a, f, e, d, c, g
-                dc.drawLine(x, y, x + w - 1, y);
-                dc.drawLine(x, y, x, y + h - 1);
-                dc.drawLine(x, y + midY, x + w - 1, y + midY);
-                dc.drawLine(x + w - 1, y + midY, x + w - 1, y + h - 1);
-                dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
-            } else if (d == 7) {
-                // Segments: a, b, c
-                dc.drawLine(x, y, x + w - 1, y);
-                dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
-            } else if (d == 8) {
-                // Segments: a, b, c, d, e, f, g (All segments)
-                dc.drawLine(x, y, x + w - 1, y);
-                dc.drawLine(x, y, x, y + h - 1);
-                dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
-                dc.drawLine(x, y + midY, x + w - 1, y + midY);
-                dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
-            } else if (d == 9) {
-                // Segments: a, b, c, d, f, g
-                dc.drawLine(x, y, x + w - 1, y);
-                dc.drawLine(x, y, x, y + midY);
-                dc.drawLine(x + w - 1, y, x + w - 1, y + h - 1);
-                dc.drawLine(x, y + midY, x + w - 1, y + midY);
-                dc.drawLine(x, y + h - 1, x + w - 1, y + h - 1);
-            }
-            curX += w + spacing;
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Unified Apple Watch Style Aero HUD with Ambient Glow Gradient
-    // -------------------------------------------------------------------------
-    private function _drawUnifiedAppleHUD(dc as Dc) as Void {
-        var theme = _getTheme(CommManager.direction);
-        var accentColor = theme[0] as Number;
-        var badgeBgColor = theme[1] as Number;
-        var glowRGB = theme[2] as Array<Number>;
-        var etaBgColor = theme[3] as Number;
-
-        // 1. Draw Base Dark Card (Charcoal/Graphite with generous rounded corners)
-        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(CARD_X, CARD_Y, CARD_W, CARD_H, CARD_RADIUS);
-
-        // 2. Draw Multi-Layered Ambient Glow Gradient blooming from Top-Left
-        var badgeCx = CARD_X + BADGE_OFFSET_X;
-        var badgeCy = CARD_Y + BADGE_OFFSET_Y;
-
-        _drawAmbientGlow(dc, badgeCx, badgeCy, glowRGB);
-
-        // 3. Clear any outer corner leak to maintain perfect round curves
-        _maskCardCorners(dc, CARD_X, CARD_Y, CARD_W, CARD_H, CARD_RADIUS);
-
-        // Card Border
-        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawRoundedRectangle(CARD_X, CARD_Y, CARD_W, CARD_H, CARD_RADIUS);
-
-        // 4. Left Circular Turn Badge (Solid bright milky pastel theme badge, NO outline border)
-        dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(badgeCx, badgeCy, BADGE_RADIUS);
-
-        // Draw Real Google Maps RLE Bitmap, Vector Arrow or Spinner inside Badge
-        if (CommManager.isWaitingImage) {
-            _drawLoadingSpinner(dc, badgeCx, badgeCy, BADGE_RADIUS, accentColor);
-        } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
-            _drawRleBitmap(dc, badgeCx, badgeCy, CommManager.rleBitmap);
-        } else if (CommManager.direction != DIR_UNKNOWN) {
-            _drawVectorArrow(dc, badgeCx, badgeCy, CommManager.direction, CommManager.exitNumber, accentColor);
-        } else {
-            _drawLoadingSpinner(dc, badgeCx, badgeCy, BADGE_RADIUS, accentColor);
-        }
-
-        // 5. Distance Row on Top Right (Huge Bold Pure White + Baseline Aligned Muted Grey Unit)
-        var distFull = CommManager.distText;
-        if (distFull.length() > 0) {
-            var parts = _splitDist(distFull);
-            var distNum = parts[0];
-            var distUnit = parts[1];
-
-            var numX = CARD_X + DIST_OFFSET_X;
-            var numY = badgeCy;
-
-            var numFont = _getDistanceFont(distNum, distUnit);
-
-            // Bold Pure White Distance Number
+        if (CommManager.distText.length() > 0) {
             dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(
-                numX, numY,
-                numFont,
-                distNum,
-                Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
-            );
-
-            // Sleek Muted Grey Unit (km / m) perfectly aligned to baseline
-            var numWidth = dc.getTextWidthInPixels(distNum, numFont);
-            if (distUnit.length() > 0) {
-                var unitFont = isSfFontActive() ? ((_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_MEDIUM) : Graphics.FONT_MEDIUM;
-                dc.setColor(COLOR_TEXT_UNIT, Graphics.COLOR_TRANSPARENT);
-                dc.drawText(
-                    numX + numWidth + DIST_UNIT_GAP,
-                    badgeCy + 5,
-                    unitFont,
-                    distUnit,
-                    Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
-                );
-            }
+            dc.drawText(navX + 60, navY + 24, fontBold, CommManager.distText, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         }
-
-        // 6. Subtle Horizontal Divider Line
-        var divY = CARD_Y + DIVIDER_OFFSET_Y;
-        dc.setColor(COLOR_DIVIDER, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawLine(CARD_X + DIVIDER_PADDING_X, divY, CARD_X + CARD_W - DIVIDER_PADDING_X, divY);
-
-        // 7. Bottom Row of Main Card: Instruction & Street Name
-        var streetText = CommManager.navText;
-        if (streetText.length() > 0) {
-            _drawDynamicWrappedText(dc, CARD_X + NAV_TEXT_PADDING_X, divY + NAV_TEXT_OFFSET_Y, CARD_W - (NAV_TEXT_PADDING_X * 2), CARD_H - (divY - CARD_Y) - NAV_TEXT_BOTTOM_PADDING, streetText, accentColor);
-        }
-
-        // ---------------------------------------------------------------------
-        // 8. Bottom Pill Bar: Distinct Rounded Card (Y: 288 to 360)
-        // ---------------------------------------------------------------------
-        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(CARD_X, BAR_Y, CARD_W, BAR_H, BAR_RADIUS);
-
-        _maskCardCorners(dc, CARD_X, BAR_Y, CARD_W, BAR_H, BAR_RADIUS);
-
-        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawRoundedRectangle(CARD_X, BAR_Y, CARD_W, BAR_H, BAR_RADIUS);
-
-        // Left: Tinted ETA Outlined Pill Badge
-        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        var etaBadgeX = CARD_X + ETA_BADGE_PADDING_X;
-        var etaBadgeY = BAR_Y + (BAR_H - ETA_BADGE_H) / 2;
-
-        // Subtle tinted theme background
-        dc.setColor(etaBgColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(etaBadgeX, etaBadgeY, ETA_BADGE_W, ETA_BADGE_H, ETA_BADGE_RADIUS);
-
-        // Outlined border with theme accent
-        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, ETA_BADGE_W, ETA_BADGE_H, ETA_BADGE_RADIUS);
-
-        var barCenterY = BAR_Y + (BAR_H / 2) - 2;
-
-        // Crisp White SF Pro Font for ETA (Aligned with clock baseline)
-        var microFont = isSfFontActive() ? ((_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY) : Graphics.FONT_XTINY;
-        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(
-            etaBadgeX + (ETA_BADGE_W / 2),
-            barCenterY,
-            microFont,
-            etaStr,
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-        );
-
-        // Center: Subtle Bullet Dot (Aligned with same vertical center)
-        var dotX = etaBadgeX + ETA_BADGE_W + 16;
-        dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(dotX, barCenterY, 2.5);
-
-        // Right: Crisp White SF Pro Live Clock Time (Aligned with same vertical center)
-        var clockTime = System.getClockTime();
-        var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
-        dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(
-            CARD_X + CARD_W - 18,
-            barCenterY,
-            microFont,
-            timeStr,
-            Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER
-        );
-    }
-
-    // -------------------------------------------------------------------------
-    // 90° Clockwise Rotated String Renderer
-    // In 90° CW mode, visual (vx, vy) maps to physical (319 - vy, vx)
-    // -------------------------------------------------------------------------
-    private function _drawRot90String(dc as Dc, vx as Number, vy as Number, fontRot as Graphics.FontDefinition?, fontUpright as Graphics.FontDefinition?, text as String, color as Number) as Number {
-        if (fontRot == null || text.length() == 0) { return 0; }
-        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-        var curVx = vx;
-        var chars = text.toCharArray();
-        var upFont = (fontUpright != null) ? fontUpright : fontRot;
-        for (var i = 0; i < chars.size(); i++) {
-            var ch = chars[i].toString();
-            var px = 319 - vy - 10;
-            var py = curVx;
-            dc.drawText(px, py, fontRot, ch, Graphics.TEXT_JUSTIFY_LEFT);
-            curVx += dc.getTextWidthInPixels(ch, upFont);
-        }
-        return curVx - vx;
-    }
-
-    private function _measureRot90String(dc as Dc, fontUpright as Graphics.FontDefinition?, text as String) as Number {
-        if (fontUpright == null || text.length() == 0) { return 0; }
-        var w = 0;
-        var chars = text.toCharArray();
-        for (var i = 0; i < chars.size(); i++) {
-            var ch = chars[i].toString();
-            w += dc.getTextWidthInPixels(ch, fontUpright);
-        }
-        return w;
-    }
-
-    private function _wrapWithRot90Font(dc as Dc, text as String, fontUpright as Graphics.FontDefinition?, maxWidth as Number) as Array<String> {
-        var words = _splitWords(text);
-        var lines = [] as Array<String>;
-        if (words.size() == 0) {
-            return lines;
-        }
-
-        var currentLine = words[0];
-        for (var i = 1; i < words.size(); i++) {
-            var candidate = currentLine + " " + words[i];
-            if (_measureRot90String(dc, fontUpright, candidate) <= maxWidth) {
-                currentLine = candidate;
-            } else {
-                lines.add(currentLine);
-                currentLine = words[i];
-            }
-        }
-        lines.add(currentLine);
-        return lines;
-    }
-
-    // -------------------------------------------------------------------------
-    // 90° Clockwise Landscape HUD (Optimized for Left-Wrist Motorbike Handlebar)
-    // 2 Distinct Generously Rounded Cards, Zero Outer Edge Padding
-    // -------------------------------------------------------------------------
-    private function _drawLandscapeHUD(dc as Dc) as Void {
-        var theme = _getTheme(CommManager.direction);
-        var accentColor = theme[0] as Number;
-        var badgeBgColor = theme[1] as Number;
-        var glowRGB = theme[2] as Array<Number>;
-        var etaBgColor = theme[3] as Number;
-
-        // Visual Canvas: Width = 360, Height = 320
-        // 1. Top Card (Visual: X: 0, Y: 0, W: 360, H: 244, R: 26 -> Physical: px = 76, py = 0, pw = 244, ph = 360)
-        var cardPx = 76;
-        var cardPy = 0;
-        var cardPw = 244;
-        var cardPh = 360;
-        var cardR = 26;
-
-        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(cardPx, cardPy, cardPw, cardPh, cardR);
-
-        // Turn Badge (Visual: vcx = 52, vcy = 52, r = 38 -> Physical: pcx = 267, pcy = 52)
-        var badgePcx = 267;
-        var badgePcy = 52;
-        var badgeR = 38;
-
-        // Draw ambient glow
-        _drawAmbientGlow(dc, badgePcx, badgePcy, glowRGB);
-
-        // Mask outer corners of Top Card to 100% eliminate any glow leak
-        _maskCardCorners(dc, cardPx, cardPy, cardPw, cardPh, cardR);
-
-        // Top Card Border
-        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawRoundedRectangle(cardPx, cardPy, cardPw, cardPh, cardR);
-
-        // Turn Badge Circle
-        dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(badgePcx, badgePcy, badgeR);
-
-        if (CommManager.isWaitingImage) {
-            _drawLoadingSpinner(dc, badgePcx, badgePcy, badgeR, accentColor);
-        } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
-            _drawRleBitmapRot90(dc, badgePcx, badgePcy, CommManager.rleBitmap);
-        } else if (CommManager.direction != DIR_UNKNOWN) {
-            _drawVectorArrowRot90(dc, badgePcx, badgePcy, CommManager.direction, CommManager.exitNumber, accentColor);
-        } else {
-            _drawLoadingSpinner(dc, badgePcx, badgePcy, badgeR, accentColor);
-        }
-
-        // Distance Row (Aligned optically with Turn Badge center vy = 71)
-        var distFull = CommManager.distText;
-        if (distFull.length() > 0) {
-            var fontDistRot = (_fontSfStreetBoldRot90 != null) ? _fontSfStreetBoldRot90 : _fontSfStreetBold;
-            var fontDistUp = (_fontSfStreetBold != null) ? _fontSfStreetBold : fontDistRot;
-            _drawRot90String(dc, 114, 82, fontDistRot, fontDistUp, distFull, COLOR_TEXT_WHITE);
-        }
-
-        // Divider Line inside Top Card (Visual: vy = 116 -> Physical: px = 203)
-        dc.setColor(COLOR_DIVIDER, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawLine(203, 16, 203, 344);
-
-        // Navigation Instruction Text (Symmetrically centered within vy = 116..244: 38px top/bottom margins)
-        var streetText = CommManager.navText;
-        if (streetText.length() > 0) {
-            var split = _splitActionAndStreet(streetText);
-            var actionStr = split[0];
-            var streetStr = split[1];
-
-            var fontActionRot = (_fontSfStreetBoldRot90 != null) ? _fontSfStreetBoldRot90 : _fontSfStreetBold;
-            var fontActionUp = (_fontSfStreetBold != null) ? _fontSfStreetBold : fontActionRot;
-            var fontStreetRot = (_fontSfStreetRot90 != null) ? _fontSfStreetRot90 : _fontSfStreet;
-            var fontStreetUp = (_fontSfStreet != null) ? _fontSfStreet : fontStreetRot;
-
-            var actionLines = (actionStr.length() > 0) ? _wrapWithRot90Font(dc, actionStr, fontActionUp, 332) : [] as Array<String>;
-            var streetLines = (streetStr.length() > 0) ? _wrapWithRot90Font(dc, streetStr, fontStreetUp, 332) : [] as Array<String>;
-            var hAct = 28;
-            var hStr = 24;
-            var totalH = (actionLines.size() * hAct) + (streetLines.size() * hStr);
-            var maxHeight = 124;
-
-            if (totalH <= maxHeight) {
-                var curVy = 120 + (maxHeight - totalH) / 2 + 10;
-                for (var al = 0; al < actionLines.size(); al++) {
-                    _drawRot90String(dc, 14, curVy, fontActionRot, fontActionUp, actionLines[al], COLOR_TEXT_WHITE);
-                    curVy += hAct;
-                }
-                for (var sl = 0; sl < streetLines.size(); sl++) {
-                    _drawRot90String(dc, 14, curVy, fontStreetRot, fontStreetUp, streetLines[sl], COLOR_TEXT_SILVER);
-                    curVy += hStr;
-                }
-            } else {
-                // In 90° CW rotation: visual vy in [120..244] maps to physical px in [75..199]
-                if (dc has :setClip) {
-                    dc.setClip(75, 0, 124, 360);
-                }
-
-                var overflow = totalH - maxHeight + 12;
-                var cycle = _animTick % 70;
-                var scrollOffset = 0;
-
-                if (cycle < 15) {
-                    scrollOffset = 0;
-                } else if (cycle < 35) {
-                    var progress = (cycle - 15).toFloat() / 20.0;
-                    scrollOffset = (progress * overflow).toNumber();
-                } else if (cycle < 50) {
-                    scrollOffset = overflow;
-                } else {
-                    var progress = (cycle - 50).toFloat() / 20.0;
-                    scrollOffset = ((1.0 - progress) * overflow).toNumber();
-                }
-
-                var curVy = 124 + 10 - scrollOffset;
-                for (var al = 0; al < actionLines.size(); al++) {
-                    _drawRot90String(dc, 14, curVy, fontActionRot, fontActionUp, actionLines[al], COLOR_TEXT_WHITE);
-                    curVy += hAct;
-                }
-                for (var sl = 0; sl < streetLines.size(); sl++) {
-                    _drawRot90String(dc, 14, curVy, fontStreetRot, fontStreetUp, streetLines[sl], COLOR_TEXT_SILVER);
-                    curVy += hStr;
-                }
-
-                if (dc has :clearClip) {
-                    dc.clearClip();
-                }
-            }
-        }
-
-        // 2. Bottom Section: Distinct Rounded Pill Card (Visual: X: 0, Y: 252, W: 360, H: 68, R: 26 -> Physical: px = 0, py = 0, pw = 68, ph = 360)
-        var barPx = 0;
-        var barPy = 0;
-        var barPw = 68;
-        var barPh = 360;
-        var barR = 26;
-
-        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(barPx, barPy, barPw, barPh, barR);
-
-        _maskCardCorners(dc, barPx, barPy, barPw, barPh, barR);
-
-        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawRoundedRectangle(barPx, barPy, barPw, barPh, barR);
-
-        // ETA Capsule (Visual: vx = 12, vy = 264, vw = 146, vh = 44 -> Physical: px = 11, py = 12, pw = 44, ph = 146)
-        var etaCapsulePx = 11;
-        var etaCapsulePy = 12;
-        var etaCapsulePw = 44;
-        var etaCapsulePh = 146;
-        var etaCapsuleR = 22;
-
-        dc.setColor(etaBgColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(etaCapsulePx, etaCapsulePy, etaCapsulePw, etaCapsulePh, etaCapsuleR);
-        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawRoundedRectangle(etaCapsulePx, etaCapsulePy, etaCapsulePw, etaCapsulePh, etaCapsuleR);
-
-        var fontMicroRot = (_fontSfMicroRot90 != null) ? _fontSfMicroRot90 : _fontSfMicro;
-        var fontMicroUp = (_fontSfMicro != null) ? _fontSfMicro : fontMicroRot;
-        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        var etaW = _measureRot90String(dc, fontMicroUp, etaStr);
-        var etaVx = 12 + (146 - etaW) / 2;
-        _drawRot90String(dc, etaVx, 296, fontMicroRot, fontMicroUp, etaStr, COLOR_TEXT_WHITE);
-
-        // Center Bullet Dot (Visual: vx = 200, vy = 286 -> Physical: px = 33, py = 200)
-        dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(33, 200, 2);
-
-        // Live Clock Time (Visual: right aligned to vx = 346, vy = 296)
-        var clockTime = System.getClockTime();
-        var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
-        var clockW = _measureRot90String(dc, fontMicroUp, timeStr);
-        var clockVx = 346 - clockW;
-        _drawRot90String(dc, clockVx, 296, fontMicroRot, fontMicroUp, timeStr, COLOR_TEXT_SILVER);
-    }
-
-    // -------------------------------------------------------------------------
-    // RLE Bitmap 90° Clockwise Rotated Renderer
-    // In 90° CW mode: px = cx - (y - h/2), py = cy + (x - w/2)
-    // -------------------------------------------------------------------------
-    private function _drawRleBitmapRot90(dc as Dc, cx as Number, cy as Number, rleData as Array<Number>) as Void {
-        dc.setPenWidth(1);
-        var w = rleData[0];
-        var h = rleData[1];
-        var startPy = cy - (w / 2);
-
-        var curX = 0;
-        var curY = 0;
-        var idx = 2;
-        var len = rleData.size();
-
-        while (idx < len - 1) {
-            var color = rleData[idx];
-            var count = rleData[idx + 1];
-            idx += 2;
-
-            if (color != 0) {
-                dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT);
-                var rem = count;
-                while (rem > 0) {
-                    var canFit = w - curX;
-                    var drawSpan = (rem < canFit) ? rem : canFit;
-                    var px = cx - (curY - (h / 2));
-                    var py = startPy + curX;
-                    dc.drawLine(px, py, px, py + drawSpan - 1);
-                    curX += drawSpan;
-                    if (curX >= w) {
-                        curX = 0;
-                        curY++;
-                    }
-                    rem -= drawSpan;
-                }
-            } else {
-                curX += count;
-                while (curX >= w) {
-                    curX -= w;
-                    curY++;
-                }
-            }
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Vector Arrow 90° Clockwise Rotated Renderer
-    // Maps each point (cx + dx, cy + dy) -> (cx - dy, cy + dx)
-    // -------------------------------------------------------------------------
-    private function _drawVectorArrowRot90(dc as Dc, cx as Number, cy as Number, dir as Number, exitNum as Number, arrowAccent as Number) as Void {
-        dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT);
-
-        if (dir == DIR_RIGHT || dir == DIR_SHARP_RIGHT) {
-            // Turn Right -> in 90° CW: straight towards hand, then turn UP towards buttons (3 o'clock)
-            dc.setPenWidth(9);
-            dc.drawLine(cx - 16, cy - 10, cx + 2, cy - 10);
-            dc.drawLine(cx + 2, cy - 10, cx + 2, cy + 8);
-            var head = [
-                [cx - 10, cy + 8],
-                [cx + 2, cy + 22],
-                [cx + 14, cy + 8]
-            ];
-            dc.fillPolygon(head);
-        }
-        else if (dir == DIR_LEFT || dir == DIR_SHARP_LEFT) {
-            // Turn Left -> in 90° CW: straight towards hand, then turn DOWN towards bezel (9 o'clock)
-            dc.setPenWidth(9);
-            dc.drawLine(cx - 16, cy + 10, cx + 2, cy + 10);
-            dc.drawLine(cx + 2, cy + 10, cx + 2, cy - 8);
-            var head = [
-                [cx - 10, cy - 8],
-                [cx + 2, cy - 22],
-                [cx + 14, cy - 8]
-            ];
-            dc.fillPolygon(head);
-        }
-        else if (dir == DIR_SLIGHT_RIGHT) {
-            dc.setPenWidth(9);
-            dc.drawLine(cx - 16, cy - 6, cx - 4, cy - 6);
-            dc.drawLine(cx - 4, cy - 6, cx + 8, cy + 8);
-            var head = [
-                [cx - 2, cy + 16],
-                [cx + 16, cy + 18],
-                [cx + 18, cy + 2]
-            ];
-            dc.fillPolygon(head);
-        }
-        else if (dir == DIR_SLIGHT_LEFT) {
-            dc.setPenWidth(9);
-            dc.drawLine(cx - 16, cy + 6, cx - 4, cy + 6);
-            dc.drawLine(cx - 4, cy + 6, cx + 8, cy - 8);
-            var head = [
-                [cx + 18, cy - 2],
-                [cx + 16, cy - 18],
-                [cx - 2, cy - 16]
-            ];
-            dc.fillPolygon(head);
-        }
-        else if (dir == DIR_UTURN) {
-            dc.setPenWidth(8);
-            dc.drawLine(cx - 16, cy - 10, cx + 4, cy - 10);
-            dc.drawLine(cx + 4, cy - 10, cx + 4, cy + 10);
-            dc.drawLine(cx + 4, cy + 10, cx - 8, cy + 10);
-            var head = [
-                [cx - 6, cy + 1],
-                [cx - 20, cy + 10],
-                [cx - 6, cy + 19]
-            ];
-            dc.fillPolygon(head);
-        }
-        else {
-            // Straight Ahead -> in 90° CW: points right (towards hand)
-            dc.setPenWidth(9);
-            dc.drawLine(cx - 16, cy, cx + 6, cy);
-            var head = [
-                [cx + 4, cy - 14],
-                [cx + 22, cy],
-                [cx + 4, cy + 14]
-            ];
-            dc.fillPolygon(head);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Smooth Loading Spinner when waiting for new maneuver (Bold 6px, No Center Dot)
-    // -------------------------------------------------------------------------
-    private function _drawLoadingSpinner(dc as Dc, cx as Number, cy as Number, radius as Number, accent as Number) as Void {
-        var startDeg = (_animTick * 25) % 360;
-        dc.setColor(accent, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(BADGE_SPINNER_PEN_WIDTH);
-        if (dc has :drawArc) {
-            dc.drawArc(cx, cy, radius - 10, Graphics.ARC_CLOCKWISE, startDeg, (startDeg + 110) % 360);
-        } else {
-            dc.drawCircle(cx, cy, radius - 10);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // RLE Bitmap Renderer (Renders real Google Maps bitmap on Garmin DC)
-    // -------------------------------------------------------------------------
-    private function _drawRleBitmap(dc as Dc, cx as Number, cy as Number, rleData as Array<Number>) as Void {
-        dc.setPenWidth(1);
-        var w = rleData[0];
-        var h = rleData[1];
-        var startX = cx - (w / 2);
-        var startY = cy - (h / 2);
-
-        var curX = 0;
-        var curY = 0;
-        var idx = 2;
-        var len = rleData.size();
-
-        while (idx < len - 1) {
-            var color = rleData[idx];
-            var count = rleData[idx + 1];
-            idx += 2;
-
-            if (color != 0) {
-                dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT);
-                var rem = count;
-                while (rem > 0) {
-                    var canFit = w - curX;
-                    var drawSpan = (rem < canFit) ? rem : canFit;
-                    dc.drawLine(startX + curX, startY + curY, startX + curX + drawSpan - 1, startY + curY);
-                    curX += drawSpan;
-                    if (curX >= w) {
-                        curX = 0;
-                        curY++;
-                    }
-                    rem -= drawSpan;
-                }
-            } else {
-                curX += count;
-                while (curX >= w) {
-                    curX -= w;
-                    curY++;
-                }
-            }
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Split Distance string into [Number, Unit] safely
-    // -------------------------------------------------------------------------
-    private function _splitDist(distStr as String) as Array<String> {
-        var num = "";
-        var unit = "";
-        var hitSpace = false;
-
-        for (var i = 0; i < distStr.length(); i++) {
-            var ch = distStr.substring(i, i + 1);
-            if (ch.equals(" ") || ch.equals("\n") || ch.equals("\t")) {
-                if (num.length() > 0) {
-                    hitSpace = true;
-                }
-                continue;
-            }
-
-            var isDigit = (ch.equals("0") || ch.equals("1") || ch.equals("2") || ch.equals("3") ||
-                           ch.equals("4") || ch.equals("5") || ch.equals("6") || ch.equals("7") ||
-                           ch.equals("8") || ch.equals("9") || ch.equals(".") || ch.equals(","));
-
-            if (isDigit && !hitSpace) {
-                num = num + ch;
-            } else {
-                hitSpace = true;
-                unit = unit + ch;
-            }
-        }
-
-        if (num.length() == 0 && unit.length() > 0) {
-            num = unit;
-            unit = "";
-        }
-
-        // When using Garmin system number font, Garmin FONT_NUMBER_* drops comma ','
-        // Normalize ',' to '.' so decimal separator is never lost on Garmin font
-        if (!isSfNumberFontActive()) {
-            var commaIdx = num.find(",");
-            if (commaIdx != null) {
-                num = num.substring(0, commaIdx) + "." + num.substring(commaIdx + 1, num.length());
-            }
-        }
-
-        return [num, unit] as Array<String>;
-    }
-
-    // -------------------------------------------------------------------------
-    // Capitalize First Character Helper (Full ASCII & 100% Vietnamese Accents)
-    // -------------------------------------------------------------------------
-    private function _capitalize(str as String) as String {
-        if (str.length() == 0) {
-            return str;
-        }
-        var chars = str.toCharArray();
-        var code = chars[0].toNumber();
-        var rest = str.substring(1, str.length());
-
-        // 1. Standard Latin 'a'..'z' -> 'A'..'Z' (Instant O(1) ASCII math)
-        if (code >= 97 && code <= 122) {
-            var upperChar = (code - 32).toChar();
-            return upperChar.toString() + rest;
-        }
-
-        // 2. Full Vietnamese Unicode Accented Characters Mapping
-        var lowerVn = "aáàảãạăắằẳẵặâấầẩẫậeéèẻẽẹêếềểễệiíìỉĩịoóòỏõọôốồổỗộơớờởỡợuúùủũụưứừửữựyýỳỷỹỵđ";
-        var upperVn = "AÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬEÉÈẺẼẸÊẾỀỂỄỆIÍÌỈĨỊOÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢUÚÙỦŨỤƯỨỪỬỮỰYÝỲỶỸỴĐ";
-        var firstChar = str.substring(0, 1);
-        var idx = lowerVn.find(firstChar);
-        if (idx != null && idx >= 0) {
-            return upperVn.substring(idx, idx + 1) + rest;
-        }
-
-        return str;
-    }
-
-    // -------------------------------------------------------------------------
-    // Optional Instruction Simplifier (For future user settings toggle)
-    // -------------------------------------------------------------------------
-    private function _simplifyInstructionText(text as String) as String {
-        // Reserved for future user preferences (e.g. optional preposition stripping)
-        return text;
-    }
-
-    // -------------------------------------------------------------------------
-    // Intelligent Navigation Instruction Splitter (Preserves 100% Text Intact)
-    // Full English & Vietnamese Support; Capitalizes Action Phrase for Clean Typography.
-    // -------------------------------------------------------------------------
-    private function _splitActionAndStreet(text as String) as Array<String> {
-        // 1. Check for manual newline
-        var nlIdx = text.find("\n");
-        if (nlIdx != null && nlIdx > 0) {
-            var act = _capitalize(text.substring(0, nlIdx));
-            var str = text.substring(nlIdx + 1, text.length());
-            return [act, str] as Array<String>;
-        }
-
-        // 2. English Roundabout Pattern: "At ..., take the Nth exit onto ..."
-        var takeIdx = text.find("take the ");
-        if (takeIdx == null) {
-            takeIdx = text.find("Take the ");
-        }
-        if (takeIdx != null && takeIdx > 0) {
-            var prefix = text.substring(0, takeIdx);
-            var afterTake = text.substring(takeIdx, text.length());
-            var exitOntoIdx = afterTake.find(" onto ");
-            var actStr = afterTake;
-            var suffix = "";
-            if (exitOntoIdx != null) {
-                actStr = afterTake.substring(0, exitOntoIdx);
-                suffix = afterTake.substring(exitOntoIdx + 1, afterTake.length());
-            }
-            var fullRemaining = prefix;
-            if (suffix.length() > 0) {
-                fullRemaining = (prefix.length() > 0) ? (prefix + suffix) : suffix;
-            }
-            return [_capitalize(actStr), fullRemaining] as Array<String>;
-        }
-
-        // 3. Vietnamese Roundabout Pattern: "Tại ..., đi theo lối ra thứ N vào ..."
-        var vnRoundKeywords = ["đi theo lối ra ", "Đi theo lối ra ", "vào lối ra ", "Vào lối ra "];
-        for (var k = 0; k < vnRoundKeywords.size(); k++) {
-            var kw = vnRoundKeywords[k];
-            var rIdx = text.find(kw);
-            if (rIdx != null && rIdx > 0) {
-                var prefix = text.substring(0, rIdx);
-                var afterRound = text.substring(rIdx, text.length());
-                var vaoIdx = afterRound.find(" vào ");
-                var actStr = afterRound;
-                var suffix = "";
-                if (vaoIdx != null) {
-                    actStr = afterRound.substring(0, vaoIdx);
-                    suffix = afterRound.substring(vaoIdx + 1, afterRound.length());
-                }
-                var fullRemaining = prefix;
-                if (suffix.length() > 0) {
-                    fullRemaining = (prefix.length() > 0) ? (prefix + suffix) : suffix;
-                }
-                return [_capitalize(actStr), fullRemaining] as Array<String>;
-            }
-        }
-
-        // 4. Known Action Verb Prefixes (Priority order: longest phrases first)
-        var actionPrefixes = [
-            "Turn sharp right",
-            "Turn sharp left",
-            "Turn slight right",
-            "Turn slight left",
-            "Slight right",
-            "Slight left",
-            "Sharp right",
-            "Sharp left",
-            "Turn right",
-            "Turn left",
-            "Keep right",
-            "Keep left",
-            "Make a U-turn",
-            "Head northeast",
-            "Head northwest",
-            "Head southeast",
-            "Head southwest",
-            "Head north",
-            "Head south",
-            "Head east",
-            "Head west",
-            "Take the",
-            "Continue onto",
-            "Continue straight",
-            "Continue",
-            "Đi chếch sang phải",
-            "Đi chếch sang trái",
-            "Rẽ ngoặt sang phải",
-            "Rẽ ngoặt sang trái",
-            "Rẽ phải",
-            "Rẽ trái",
-            "Quay đầu xe",
-            "Quay đầu",
-            "Đi về hướng Đông Bắc",
-            "Đi về hướng Tây Bắc",
-            "Đi về hướng Đông Nam",
-            "Đi về hướng Tây Nam",
-            "Đi về hướng Bắc",
-            "Đi về hướng Nam",
-            "Đi về hướng Đông",
-            "Đi về hướng Tây",
-            "Đi về hướng",
-            "Tiếp tục đi thẳng",
-            "Đi theo lối ra",
-            "Đi dọc theo",
-            "Đi thẳng",
-            "Nhập vào",
-            "Tiếp tục"
-        ];
-
-        for (var i = 0; i < actionPrefixes.size(); i++) {
-            var pfx = actionPrefixes[i];
-            var pfxLen = pfx.length();
-            if (text.length() >= pfxLen) {
-                var sub = text.substring(0, pfxLen);
-                if (sub.equals(pfx)) {
-                    var act = pfx;
-                    var remaining = text.substring(pfxLen, text.length());
-                    if (remaining.length() > 0 && remaining.substring(0, 1).equals(" ")) {
-                        remaining = remaining.substring(1, remaining.length());
-                    }
-                    return [_capitalize(act), remaining] as Array<String>;
-                }
-            }
-        }
-
-        return [_capitalize(text), ""] as Array<String>;
-    }
-
-    // -------------------------------------------------------------------------
-    // Dynamic Font Scaling + Multi-Weight Typography (Bold Action + Regular Road)
-    // Supports Smooth Vertical Auto-Scroll with Pause at Top & Bottom when Overflowing
-    // -------------------------------------------------------------------------
-    private function _renderScrollingBlock(
-        dc as Dc,
-        lines1 as Array<String>,
-        font1 as Graphics.FontDefinition,
-        color1 as Number,
-        h1 as Number,
-        lines2 as Array<String>?,
-        font2 as Graphics.FontDefinition?,
-        color2 as Number?,
-        h2 as Number?,
-        startX as Number,
-        startY as Number,
-        maxWidth as Number,
-        maxHeight as Number,
-        accentColor as Number
-    ) as Void {
-        var count1 = lines1.size();
-        var count2 = (lines2 != null) ? lines2.size() : 0;
-        var totalH = (count1 * h1) + (count2 * ((h2 != null) ? h2 : 0));
-
-        if (totalH <= maxHeight) {
-            var curY = startY + (maxHeight - totalH) / 2 - 4;
-            dc.setColor(color1, Graphics.COLOR_TRANSPARENT);
-            for (var i = 0; i < count1; i++) {
-                dc.drawText(startX, curY + (h1 / 2), font1, lines1[i], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-                curY += h1;
-            }
-            if (lines2 != null && font2 != null && color2 != null && h2 != null) {
-                dc.setColor(color2, Graphics.COLOR_TRANSPARENT);
-                for (var j = 0; j < count2; j++) {
-                    dc.drawText(startX, curY + (h2 / 2), font2, lines2[j], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-                    curY += h2;
-                }
-            }
-            return;
-        }
-
-        // Smooth Vertical Auto-Scroll with Pause at top and bottom
-        if (dc has :setClip) {
-            dc.setClip(startX - 2, startY, maxWidth + 4, maxHeight);
-        }
-
-        var overflow = totalH - maxHeight + 12;
-        var cycle = _animTick % 70;
-        var scrollOffset = 0;
-
-        if (cycle < 15) {
-            scrollOffset = 0;
-        } else if (cycle < 35) {
-            var progress = (cycle - 15).toFloat() / 20.0;
-            scrollOffset = (progress * overflow).toNumber();
-        } else if (cycle < 50) {
-            scrollOffset = overflow;
-        } else {
-            var progress = (cycle - 50).toFloat() / 20.0;
-            scrollOffset = ((1.0 - progress) * overflow).toNumber();
-        }
-
-        var curY = startY + 4 - scrollOffset;
-        dc.setColor(color1, Graphics.COLOR_TRANSPARENT);
-        for (var i = 0; i < count1; i++) {
-            dc.drawText(startX, curY + (h1 / 2), font1, lines1[i], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-            curY += h1;
-        }
-        if (lines2 != null && font2 != null && color2 != null && h2 != null) {
-            dc.setColor(color2, Graphics.COLOR_TRANSPARENT);
-            for (var j = 0; j < count2; j++) {
-                dc.drawText(startX, curY + (h2 / 2), font2, lines2[j], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-                curY += h2;
-            }
-        }
-
-        if (dc has :clearClip) {
-            dc.clearClip();
-        }
-
-        // Subtle vertical scrollbar indicator on the right edge
-        var barX = startX + maxWidth - 3;
-        var barTrackH = maxHeight - 16;
-        var thumbH = (maxHeight.toFloat() / totalH.toFloat() * barTrackH).toNumber();
-        if (thumbH < 10) { thumbH = 10; }
-        var thumbY = startY + 8 + ((scrollOffset.toFloat() / overflow.toFloat()) * (barTrackH - thumbH)).toNumber();
-        dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(barX, startY + 8, 2, barTrackH, 1);
-        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(barX, thumbY, 2, thumbH, 1);
-    }
-
-    private function _drawDynamicWrappedText(dc as Dc, startX as Number, startY as Number, maxWidth as Number, maxHeight as Number, text as String, accentColor as Number) as Void {
-        var parts = _splitActionAndStreet(text);
-        var actionText = parts[0];
-        var streetText = parts[1];
-
-        var fontActionBold;
-        var fontStreetReg;
-        var fontCompactBold;
-        var fontCompactReg;
-        if (isSfFontActive()) {
-            fontActionBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_SMALL;
-            fontStreetReg = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_TINY;
-            fontCompactBold = (_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_TINY;
-            fontCompactReg = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY;
-        } else {
-            fontActionBold = Graphics.FONT_MEDIUM;
-            fontStreetReg = Graphics.FONT_SMALL;
-            fontCompactBold = Graphics.FONT_SMALL;
-            fontCompactReg = Graphics.FONT_TINY;
-        }
-
-        // If single action phrase with no target road
-        if (streetText.length() == 0) {
-            var linesStreet = _wrapWithFont(dc, actionText, fontActionBold, maxWidth);
-            var fontHStreet = dc.getFontHeight(fontActionBold) + 2;
-            if (linesStreet.size() <= 2 && (linesStreet.size() * fontHStreet) <= maxHeight) {
-                _renderScrollingBlock(dc, linesStreet, fontActionBold, Graphics.COLOR_WHITE, fontHStreet, null, null, null, null, startX, startY, maxWidth, maxHeight, accentColor);
-                return;
-            }
-
-            var linesCompact = _wrapWithFont(dc, actionText, fontCompactBold, maxWidth);
-            var fontHCompact = dc.getFontHeight(fontCompactBold) + 2;
-            _renderScrollingBlock(dc, linesCompact, fontCompactBold, Graphics.COLOR_WHITE, fontHCompact, null, null, null, null, startX, startY, maxWidth, maxHeight, accentColor);
-            return;
-        }
-
-        // 1. Try Standard Weight Hierarchy (Action Bold 24px + Street Regular 22px)
-        var linesAct = _wrapWithFont(dc, actionText, fontActionBold, maxWidth);
-        var linesStr = _wrapWithFont(dc, streetText, fontStreetReg, maxWidth);
-        var hAct = dc.getFontHeight(fontActionBold) + 2;
-        var hStr = dc.getFontHeight(fontStreetReg) + 2;
-        var totalH = (linesAct.size() * hAct) + (linesStr.size() * hStr);
-
-        if (totalH <= maxHeight) {
-            _renderScrollingBlock(dc, linesAct, fontActionBold, Graphics.COLOR_WHITE, hAct, linesStr, fontStreetReg, 0xE4E4E7, hStr, startX, startY, maxWidth, maxHeight, accentColor);
-            return;
-        }
-
-        // 2. Compact Weight Hierarchy with smooth vertical auto-scrolling
-        linesAct = _wrapWithFont(dc, actionText, fontCompactBold, maxWidth);
-        linesStr = _wrapWithFont(dc, streetText, fontCompactReg, maxWidth);
-        hAct = dc.getFontHeight(fontCompactBold) + 2;
-        hStr = dc.getFontHeight(fontCompactReg) + 2;
-
-        _renderScrollingBlock(dc, linesAct, fontCompactBold, Graphics.COLOR_WHITE, hAct, linesStr, fontCompactReg, 0xE4E4E7, hStr, startX, startY, maxWidth, maxHeight, accentColor);
-    }
-
-    private function _wrapWithFont(dc as Dc, text as String, font as Graphics.FontDefinition, maxWidth as Number) as Array<String> {
-        var words = _splitWords(text);
-        var lines = [] as Array<String>;
-        var curLine = "";
-
-        for (var i = 0; i < words.size(); i++) {
-            var word = words[i];
-            var testLine = (curLine.length() == 0) ? word : (curLine + " " + word);
-            var width = dc.getTextWidthInPixels(testLine, font);
-
-            if (width > maxWidth && curLine.length() > 0) {
-                lines.add(curLine);
-                curLine = word;
-            } else {
-                curLine = testLine;
-            }
-        }
-
-        if (curLine.length() > 0) {
-            lines.add(curLine);
-        }
-
-        return lines;
-    }
-
-    private function _renderLines(dc as Dc, lines as Array<String>, font as Graphics.FontDefinition, startX as Number, startY as Number, maxHeight as Number, lineH as Number) as Void {
-        var totalH = lines.size() * lineH;
-        var renderY = startY;
-        if (maxHeight > totalH) {
-            renderY = startY + (maxHeight - totalH) / 2 - 6;
-        }
-        for (var j = 0; j < lines.size(); j++) {
-            dc.drawText(startX, renderY + (j * lineH), font, lines[j], Graphics.TEXT_JUSTIFY_LEFT);
-        }
-    }
-
-    private function _splitWords(text as String) as Array<String> {
-        var words = [] as Array<String>;
-        var cur = "";
-        var chars = text.toCharArray();
-        for (var i = 0; i < chars.size(); i++) {
-            var ch = chars[i].toString();
-            if (ch.equals(" ") || ch.equals("\n") || ch.equals("\t")) {
-                if (cur.length() > 0) {
-                    words.add(cur);
-                    cur = "";
-                }
-            } else {
-                cur = cur + ch;
-            }
-        }
-        if (cur.length() > 0) {
-            words.add(cur);
-        }
-        return words;
-    }
-
-    // -------------------------------------------------------------------------
-    // High-Precision Vector Turn Arrow Engine
-    // -------------------------------------------------------------------------
-    private function _drawVectorArrow(dc as Dc, cx as Number, cy as Number, dir as Number, exitNum as Number, arrowAccent as Number) as Void {
-        cy = cy - 4;
-        dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT);
-
-        // --- ROUNDABOUT WITH EXACT ANGLES ---
-        if (dir >= DIR_ROUNDABOUT_1 && dir <= DIR_ROUNDABOUT_5) {
-            dc.setPenWidth(5);
-            dc.setColor(0x52525B, Graphics.COLOR_TRANSPARENT);
-            dc.drawCircle(cx, cy - 2, 14);
-
-            dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT);
-            dc.setPenWidth(7);
-            dc.drawLine(cx - 7, cy + 18, cx - 7, cy + 9);
-
-            if (dir == DIR_ROUNDABOUT_1) {
-                dc.drawLine(cx + 7, cy - 7, cx + 17, cy - 17);
-                var head = [
-                    [cx + 7, cy - 19],
-                    [cx + 23, cy - 23],
-                    [cx + 19, cy - 7]
-                ];
-                dc.fillPolygon(head);
-            } else if (dir == DIR_ROUNDABOUT_2) {
-                dc.drawLine(cx + 11, cy - 2, cx + 19, cy - 2);
-                var head = [
-                    [cx + 17, cy - 10],
-                    [cx + 27, cy - 2],
-                    [cx + 17, cy + 6]
-                ];
-                dc.fillPolygon(head);
-            } else if (dir == DIR_ROUNDABOUT_3) {
-                dc.drawLine(cx, cy - 13, cx, cy - 21);
-                var head = [
-                    [cx - 8, cy - 19],
-                    [cx, cy - 29],
-                    [cx + 8, cy - 19]
-                ];
-                dc.fillPolygon(head);
-            } else if (dir == DIR_ROUNDABOUT_4) {
-                dc.drawLine(cx - 11, cy - 2, cx - 19, cy - 2);
-                var head = [
-                    [cx - 17, cy - 10],
-                    [cx - 27, cy - 2],
-                    [cx - 17, cy + 6]
-                ];
-                dc.fillPolygon(head);
-            } else {
-                dc.drawLine(cx - 7, cy + 6, cx - 17, cy + 16);
-                var head = [
-                    [cx - 19, cy + 8],
-                    [cx - 23, cy + 23],
-                    [cx - 8, cy + 19]
-                ];
-                dc.fillPolygon(head);
-            }
-            return;
-        }
-
-        // --- STANDARD MANEUVER ARROWS ---
-        if (dir == DIR_LEFT || dir == DIR_SHARP_LEFT) {
-            dc.setPenWidth(9);
-            dc.drawLine(cx + 10, cy + 18, cx + 10, cy - 2);
-            dc.drawLine(cx + 10, cy - 2, cx - 8, cy - 2);
-            var head = [
-                [cx - 8, cy - 14],
-                [cx - 22, cy - 2],
-                [cx - 8, cy + 10]
-            ];
-            dc.fillPolygon(head);
-        }
-        else if (dir == DIR_RIGHT || dir == DIR_SHARP_RIGHT) {
-            dc.setPenWidth(9);
-            dc.drawLine(cx - 10, cy + 18, cx - 10, cy - 2);
-            dc.drawLine(cx - 10, cy - 2, cx + 8, cy - 2);
-            var head = [
-                [cx + 8, cy - 14],
-                [cx + 22, cy - 2],
-                [cx + 8, cy + 10]
-            ];
-            dc.fillPolygon(head);
-        }
-        else if (dir == DIR_SLIGHT_LEFT) {
-            dc.setPenWidth(9);
-            dc.drawLine(cx + 6, cy + 18, cx + 6, cy + 4);
-            dc.drawLine(cx + 6, cy + 4, cx - 8, cy - 8);
-            var head = [
-                [cx - 16, cy - 2],
-                [cx - 18, cy - 18],
-                [cx - 2, cy - 16]
-            ];
-            dc.fillPolygon(head);
-        }
-        else if (dir == DIR_SLIGHT_RIGHT) {
-            dc.setPenWidth(9);
-            dc.drawLine(cx - 6, cy + 18, cx - 6, cy + 4);
-            dc.drawLine(cx - 6, cy + 4, cx + 8, cy - 8);
-            var head = [
-                [cx + 2, cy - 16],
-                [cx + 18, cy - 18],
-                [cx + 16, cy - 2]
-            ];
-            dc.fillPolygon(head);
-        }
-        else if (dir == DIR_UTURN) {
-            dc.setPenWidth(8);
-            dc.drawLine(cx + 10, cy + 18, cx + 10, cy - 4);
-            dc.drawLine(cx + 10, cy - 4, cx - 10, cy - 4);
-            dc.drawLine(cx - 10, cy - 4, cx - 10, cy + 8);
-            var head = [
-                [cx - 19, cy + 6],
-                [cx - 10, cy + 20],
-                [cx - 1, cy + 6]
-            ];
-            dc.fillPolygon(head);
-        }
-        else {
-            // Straight Ahead
-            dc.setPenWidth(9);
-            dc.drawLine(cx, cy + 18, cx, cy - 6);
-            var head = [
-                [cx - 14, cy - 4],
-                [cx, cy - 22],
-                [cx + 14, cy - 4]
-            ];
-            dc.fillPolygon(head);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Instinct Crossover Dual-Zone High-Contrast Monochrome HUD
-    // Designed specifically for hybrid analog watch: avoids physical hands at center
-    // Top Zone (y: 0..70): Turn Badge + Distance Number
-    // Center Dead-Zone (y: 71..101): Completely Blank AMOLED / MIP Black
-    // Bottom Zone (y: 102..h): Street Name + ETA + Live Clock
-    // -------------------------------------------------------------------------
-    private function _drawInstinctCrossoverHUD(dc as Dc) as Void {
-        var w = dc.getWidth();
-        var h = dc.getHeight();
-
-        // 1. Top Zone (y: 4 to 68)
-        var badgeCx = 34;
-        var badgeCy = 36;
-        var badgeR = 24;
-
-        // Turn Badge circle outline
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(2);
-        dc.drawCircle(badgeCx, badgeCy, badgeR);
-
-        // Turn indicator inside badge
-        if (CommManager.isWaitingImage) {
-            _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, Graphics.COLOR_WHITE);
-        } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
-            _drawRleBitmap(dc, badgeCx, badgeCy, CommManager.rleBitmap);
-        } else if (CommManager.direction != DIR_UNKNOWN) {
-            _drawVectorArrow(dc, badgeCx, badgeCy, CommManager.direction, CommManager.exitNumber, Graphics.COLOR_WHITE);
-        } else {
-            _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, Graphics.COLOR_WHITE);
-        }
-
-        // Distance text on Top Right
-        var distFull = CommManager.distText;
-        if (distFull.length() > 0) {
-            var parts = _splitDist(distFull);
-            var distNum = parts[0];
-            var distUnit = parts[1];
-
-            var numFont = Graphics.FONT_NUMBER_MILD;
-            if (distNum.length() > 3) {
-                numFont = Graphics.FONT_LARGE;
-            }
-
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(66, 36, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-
-            var numW = dc.getTextWidthInPixels(distNum, numFont);
-            if (distUnit.length() > 0) {
-                dc.drawText(66 + numW + 4, 36, Graphics.FONT_SMALL, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-            }
-        }
-
-        // Top Divider Line (y = 70)
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawLine(8, 70, w - 8, 70);
-
-        // 2. CENTER DEAD-ZONE (y = 71 to 101) - LEFT 100% BLANK FOR ANALOG HANDS!
-
-        // 3. Bottom Divider Line (y = 102)
-        dc.drawLine(8, 102, w - 8, 102);
-
-        // 4. Bottom Zone (y: 104 to h)
-        var streetText = CommManager.navText;
-        if (streetText.length() > 0) {
-            var lines = _wrapWithFont(dc, streetText, Graphics.FONT_TINY, w - 16);
-            var textY = 106;
-            for (var i = 0; i < lines.size() && i < 2; i++) {
-                dc.drawText(w / 2, textY, Graphics.FONT_TINY, lines[i], Graphics.TEXT_JUSTIFY_CENTER);
-                textY += 16;
-            }
-        }
-
-        // Footer: ETA and Clock (y = h - 14)
-        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        var clock = System.getClockTime();
-        var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
-
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(12, h - 14, Graphics.FONT_XTINY, etaStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(w - 12, h - 14, Graphics.FONT_XTINY, timeStr, Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
-    }
-
-    private function _drawInstinctIdleScreen(dc as Dc) as Void {
-        var w = dc.getWidth();
-        var h = dc.getHeight();
-        var isConnected = CommManager.isConnected() || (CommManager.rxCount > 0);
-        var statusStr = isConnected ? "Connected" : "Ready";
-
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, 24, Graphics.FONT_TINY, "Navigation IQ", Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(w / 2, 46, Graphics.FONT_XTINY, statusStr, Graphics.TEXT_JUSTIFY_CENTER);
-
-        // Top and Bottom lines defining center safe clearing
-        dc.drawLine(8, 70, w - 8, 70);
-        dc.drawLine(8, 102, w - 8, 102);
-
-        var clock = System.getClockTime();
-        var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
-        dc.drawText(w / 2, 116, Graphics.FONT_SMALL, "Waiting Nav...", Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(w / 2, 146, Graphics.FONT_TINY, timeStr, Graphics.TEXT_JUSTIFY_CENTER);
-    }
-
-    // -------------------------------------------------------------------------
-    // Round Screen Responsive HUD (Fenix / Forerunner / Venu round bezels)
-    // -------------------------------------------------------------------------
-    private function _drawRoundHUD(dc as Dc) as Void {
-        var w = dc.getWidth();
-        var h = dc.getHeight();
-        var theme = _getTheme(CommManager.direction);
-        var accentColor = theme[0] as Number;
-        var badgeBgColor = theme[1] as Number;
-        var glowRGB = theme[2] as Array<Number>;
-        var etaBgColor = theme[3] as Number;
-
-        var fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
-
-        // Top Navigation Card (Centered circular inset)
-        var cardMarginX = (w * 0.08).toNumber();
-        var cardW = w - (cardMarginX * 2);
-        var cardY = (h * 0.06).toNumber();
-        var cardH = (h * 0.68).toNumber();
-        var cardR = 24;
-
-        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(cardMarginX, cardY, cardW, cardH, cardR);
-
-        var badgeCx = cardMarginX + 44;
-        var badgeCy = cardY + 44;
-        var badgeR = 30;
-
-        _drawAmbientGlow(dc, badgeCx, badgeCy, glowRGB);
-        _maskCardCorners(dc, cardMarginX, cardY, cardW, cardH, cardR);
-
-        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawRoundedRectangle(cardMarginX, cardY, cardW, cardH, cardR);
-
-        dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(badgeCx, badgeCy, badgeR);
-
-        if (CommManager.isWaitingImage) {
-            _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor);
-        } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
-            _drawRleBitmap(dc, badgeCx, badgeCy, CommManager.rleBitmap);
-        } else if (CommManager.direction != DIR_UNKNOWN) {
-            _drawVectorArrow(dc, badgeCx, badgeCy, CommManager.direction, CommManager.exitNumber, accentColor);
-        } else {
-            _drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor);
-        }
-
-        // Distance Row
-        var distFull = CommManager.distText;
-        if (distFull.length() > 0) {
-            var parts = _splitDist(distFull);
-            var distNum = parts[0];
-            var distUnit = parts[1];
-
-            var numFont = _getDistanceFont(distNum, distUnit);
-
-            dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(cardMarginX + 86, badgeCy, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-
-            var numWidth = dc.getTextWidthInPixels(distNum, numFont);
-            if (distUnit.length() > 0) {
-                var unitFont = isSfFontActive() ? ((_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_MEDIUM) : Graphics.FONT_MEDIUM;
-                dc.setColor(COLOR_TEXT_UNIT, Graphics.COLOR_TRANSPARENT);
-                dc.drawText(cardMarginX + 86 + numWidth + 4, badgeCy + 5, unitFont, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-            }
-        }
-
-        // Divider
-        var divY = cardY + 88;
-        dc.setColor(COLOR_DIVIDER, Graphics.COLOR_TRANSPARENT);
-        dc.drawLine(cardMarginX + 12, divY, cardMarginX + cardW - 12, divY);
-
-        // Street text
-        var streetText = CommManager.navText;
-        if (streetText.length() > 0) {
-            _drawDynamicWrappedText(dc, cardMarginX + 10, divY + 4, cardW - 20, cardH - 96, streetText, accentColor);
-        }
-
-        // Bottom Pill Bar
-        var barW = (w * 0.72).toNumber();
-        var barH = (h * 0.16).toNumber();
-        var barX = (w - barW) / 2;
-        var barY = h - barH - 8;
-        var barR = barH / 2;
-
-        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(barX, barY, barW, barH, barR);
-        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.drawRoundedRectangle(barX, barY, barW, barH, barR);
-
-        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        var clock = System.getClockTime();
-        var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
-        var bottomInfo = Lang.format("$1$  |  $2$", [etaStr, timeStr]);
-
-        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, barY + (barH / 2) - 1, fontMicro, bottomInfo, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }
