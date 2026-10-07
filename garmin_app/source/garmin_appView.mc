@@ -566,10 +566,11 @@ class NavigationIQView extends WatchUi.View {
             if (!isSfFontActive()) {
                 streetText = TextRenderer.stripAccents(streetText);
             }
-            var navPadX = (cardW * 0.05).toNumber();
+            var navPadX = (cardW * 0.055).toNumber();
+            if (navPadX < 18) { navPadX = 18; }
             var availTextH = cardH - (divY - cardY) - (cardH * 0.05).toNumber();
             if (availTextH < 20) { availTextH = 20; }
-            _drawDynamicWrappedText(dc, cardX + navPadX, divY + 4, cardW - (navPadX * 2), availTextH, streetText, accentColor, true);
+            _drawDynamicWrappedText(dc, cardX + navPadX, divY + 6, cardW - (navPadX * 2), availTextH, streetText, accentColor, false);
         }
 
         var barRadius = barH / 2;
