@@ -1,6 +1,7 @@
 import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Math;
+import Toybox.System;
 
 // =============================================================================
 // VECTOR ARROW & GRAPHICS SHAPE RENDERER
@@ -372,20 +373,36 @@ class VectorArrowRenderer {
     }
 
     // -------------------------------------------------------------------------
-    // Ultra-Smooth 120-Step RGB Concentric Ambient Glow Renderer
+    // Concentric Ambient Glow Renderer (AMOLED Only, Pure Black Canvas)
     // -------------------------------------------------------------------------
     public static function drawAmbientGlow(dc as Dc, cx as Number, cy as Number, srcRGB as Array<Number>) as Void {
-        var bgR = 0x18;
-        var bgG = 0x18;
-        var bgB = 0x1B;
+        // Skip glow on MIP displays (Fenix 7, FR55, Instinct) to prevent 64-color dithering banding
+        var devSettings = System.getDeviceSettings();
+        var isAmoled = false;
+        if (devSettings has :requiresBurnInProtection) {
+            isAmoled = devSettings.requiresBurnInProtection;
+        }
+        if (!isAmoled) {
+            return;
+        }
+
+        var bgR = 0x00;
+        var bgG = 0x00;
+        var bgB = 0x00;
         var srcR = srcRGB[0];
         var srcG = srcRGB[1];
         var srcB = srcRGB[2];
 
-        for (var step = GLOW_STEPS; step >= 1; step--) {
-            var r = (step * GLOW_RADIUS_FACTOR).toNumber();
-            var t = (1.0 - (step.toFloat() / GLOW_STEPS.toFloat()));
-            var factor = Math.pow(t, 2.6) * 0.98;
+        var steps = 24;
+        var w = dc.getWidth();
+        var maxR = (w * 0.20).toNumber();
+        if (maxR < 36) { maxR = 36; }
+        if (maxR > 84) { maxR = 84; }
+
+        for (var step = steps; step >= 1; step--) {
+            var r = ((step.toFloat() / steps.toFloat()) * maxR).toNumber();
+            var t = (1.0 - (step.toFloat() / steps.toFloat()));
+            var factor = Math.pow(t, 2.8) * 0.95;
 
             var curR = (bgR + (srcR - bgR) * factor).toNumber();
             var curG = (bgG + (srcG - bgG) * factor).toNumber();

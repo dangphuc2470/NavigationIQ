@@ -46,9 +46,9 @@ const ETA_BADGE_H = 38;
 const ETA_BADGE_RADIUS = 19;
 const ETA_BADGE_PADDING_X = 10;
 
-// 9. Ambient Glow Radial Gradient (Ultra-Smooth 120-Step Diffusion)
-const GLOW_STEPS = 120;
-const GLOW_RADIUS_FACTOR = 1.3;
+// 9. Ambient Glow Radial Gradient (AMOLED Subtle Bloom)
+const GLOW_STEPS = 24;
+const GLOW_RADIUS_FACTOR = 0.8;
 
 // 10. Color Tokens
 const COLOR_BG_AMOLED = 0x000000;

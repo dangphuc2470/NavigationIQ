@@ -559,10 +559,13 @@ class NavigationIQView extends WatchUi.View {
 
         var streetText = CommManager.navText;
         if (streetText.length() > 0) {
-            var navPadX = (cardW * 0.045).toNumber();
+            if (!isSfFontActive()) {
+                streetText = TextRenderer.stripAccents(streetText);
+            }
+            var navPadX = (cardW * 0.05).toNumber();
             var availTextH = cardH - (divY - cardY) - (cardH * 0.05).toNumber();
             if (availTextH < 20) { availTextH = 20; }
-            _drawDynamicWrappedText(dc, cardX + navPadX, divY + 4, cardW - (navPadX * 2), availTextH, streetText, accentColor);
+            _drawDynamicWrappedText(dc, cardX + navPadX, divY + 4, cardW - (navPadX * 2), availTextH, streetText, accentColor, true);
         }
 
         var barRadius = barH / 2;
@@ -626,7 +629,7 @@ class NavigationIQView extends WatchUi.View {
         dc as Dc,
         block1 as Array,
         block2 as Array?,
-        bounds as Array<Number>,
+        bounds as Array,
         accentColor as Number
     ) as Void {
         var lines1 = block1[0] as Array<String>;
@@ -639,10 +642,14 @@ class NavigationIQView extends WatchUi.View {
         var color2 = (block2 != null) ? (block2[2] as Number) : null;
         var h2 = (block2 != null) ? (block2[3] as Number) : null;
 
-        var startX = bounds[0];
-        var startY = bounds[1];
-        var maxWidth = bounds[2];
-        var maxHeight = bounds[3];
+        var startX = bounds[0] as Number;
+        var startY = bounds[1] as Number;
+        var maxWidth = bounds[2] as Number;
+        var maxHeight = bounds[3] as Number;
+        var isCenter = (bounds.size() > 4) ? (bounds[4] as Boolean) : false;
+
+        var drawX = isCenter ? (startX + (maxWidth / 2)) : startX;
+        var textJustify = isCenter ? (Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER) : (Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
         var count1 = lines1.size();
         var count2 = (lines2 != null) ? lines2.size() : 0;
@@ -652,13 +659,13 @@ class NavigationIQView extends WatchUi.View {
             var curY = startY + (maxHeight - totalH) / 2 - 4;
             dc.setColor(color1, Graphics.COLOR_TRANSPARENT);
             for (var i = 0; i < count1; i++) {
-                dc.drawText(startX, curY + (h1 / 2), font1, lines1[i], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+                dc.drawText(drawX, curY + (h1 / 2), font1, lines1[i], textJustify);
                 curY += h1;
             }
             if (lines2 != null && font2 != null && color2 != null && h2 != null) {
                 dc.setColor(color2, Graphics.COLOR_TRANSPARENT);
                 for (var j = 0; j < count2; j++) {
-                    dc.drawText(startX, curY + (h2 / 2), font2, lines2[j], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+                    dc.drawText(drawX, curY + (h2 / 2), font2, lines2[j], textJustify);
                     curY += h2;
                 }
             }
@@ -688,13 +695,13 @@ class NavigationIQView extends WatchUi.View {
         var curY = startY + 4 - scrollOffset;
         dc.setColor(color1, Graphics.COLOR_TRANSPARENT);
         for (var i = 0; i < count1; i++) {
-            dc.drawText(startX, curY + (h1 / 2), font1, lines1[i], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            dc.drawText(drawX, curY + (h1 / 2), font1, lines1[i], textJustify);
             curY += h1;
         }
         if (lines2 != null && font2 != null && color2 != null && h2 != null) {
             dc.setColor(color2, Graphics.COLOR_TRANSPARENT);
             for (var j = 0; j < count2; j++) {
-                dc.drawText(startX, curY + (h2 / 2), font2, lines2[j], Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+                dc.drawText(drawX, curY + (h2 / 2), font2, lines2[j], textJustify);
                 curY += h2;
             }
         }
@@ -714,7 +721,7 @@ class NavigationIQView extends WatchUi.View {
         dc.fillRoundedRectangle(barX, thumbY, 2, thumbH, 1);
     }
 
-    private function _drawDynamicWrappedText(dc as Dc, startX as Number, startY as Number, maxWidth as Number, maxHeight as Number, text as String, accentColor as Number) as Void {
+    private function _drawDynamicWrappedText(dc as Dc, startX as Number, startY as Number, maxWidth as Number, maxHeight as Number, text as String, accentColor as Number, isCenter as Boolean) as Void {
         var parts = TextRenderer.splitActionAndStreet(text);
         var actionText = parts[0];
         var streetText = parts[1];
@@ -735,7 +742,7 @@ class NavigationIQView extends WatchUi.View {
             fontCompactReg = Graphics.FONT_TINY;
         }
 
-        var bounds = [startX, startY, maxWidth, maxHeight] as Array<Number>;
+        var bounds = [startX, startY, maxWidth, maxHeight, isCenter] as Array;
 
         if (streetText.length() == 0) {
             var linesStreet = TextRenderer.wrapWithFont(dc, actionText, fontActionBold, maxWidth);
@@ -949,10 +956,10 @@ class NavigationIQView extends WatchUi.View {
         var w = dc.getWidth();
         var h = dc.getHeight();
 
-        // 1. Badge (turn arrow) - inside circular sub-window on top-right (X=142, Y=34)
-        var badgeCx = 142;
-        var badgeCy = 34;
-        var badgeR = 24;
+        // 1. Badge (turn arrow) - precisely inside hardware sub-window circle (X=144, Y=31, R=26)
+        var badgeCx = 144;
+        var badgeCy = 31;
+        var badgeR = 26;
 
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(2);
@@ -968,7 +975,8 @@ class NavigationIQView extends WatchUi.View {
             VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, Graphics.COLOR_WHITE, _animTick);
         }
 
-        // 2. Top Left Area (X = 8 to 114): Distance (Row 1) & ETA/Clock (Row 2)
+        // 2. Top Left Area (X = 14 to 110): Distance (Row 1) & ETA (Row 2)
+        var leftMargin = 14;
         var distFull = CommManager.distText;
         var distNum = "";
         var distUnit = "";
@@ -986,22 +994,18 @@ class NavigationIQView extends WatchUi.View {
         // Row 1: Distance
         if (distNum.length() > 0) {
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(8, 24, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            dc.drawText(leftMargin, 24, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
-            var numW = dc.getTextWidthInPixels(distNum, numFont);
+            var numWidth = dc.getTextWidthInPixels(distNum, numFont);
             if (distUnit.length() > 0) {
-                dc.drawText(8 + numW + 3, 26, Graphics.FONT_SMALL, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+                dc.drawText(leftMargin + numWidth + 3, 26, Graphics.FONT_SMALL, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
             }
         }
 
-        // Row 2: ETA & Clock (Right below distance, above divider line Y = 70)
+        // Row 2: ETA (Compact display cleanly avoiding sub-window bounding box)
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        var clock = System.getClockTime();
-        var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
-        var infoTopStr = etaStr + "  " + timeStr;
-
         dc.setColor(0xE4E4E7, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(8, 52, Graphics.FONT_XTINY, infoTopStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(leftMargin, 50, Graphics.FONT_XTINY, etaStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // 3. Divider lines for physical watch hands zone
         var divY1 = 70;
@@ -1103,14 +1107,13 @@ class NavigationIQView extends WatchUi.View {
 
     private function _drawInstinctIdleScreen(dc as Dc) as Void {
         var w = dc.getWidth();
-        var h = dc.getHeight();
         var isConnected = CommManager.isConnected() || (CommManager.rxCount > 0);
         var statusStr = isConnected ? "Connected" : "Ready";
 
-        // Right sub-window circle (status icon)
-        var subCx = 142;
-        var subCy = 34;
-        var subR = 24;
+        // Right sub-window circle (status icon, X=144, Y=31, R=26)
+        var subCx = 144;
+        var subCy = 31;
+        var subR = 26;
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(2);
         dc.drawCircle(subCx, subCy, subR);
@@ -1123,9 +1126,10 @@ class NavigationIQView extends WatchUi.View {
             [subCx - 9, subCy + 8]
         ]);
 
+        var leftMargin = 14;
         // Left area: App Title & Connection status
-        dc.drawText(8, 22, Graphics.FONT_TINY, "Navigation IQ", Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(8, 46, Graphics.FONT_XTINY, statusStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(leftMargin, 22, Graphics.FONT_TINY, "Navigation IQ", Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(leftMargin, 46, Graphics.FONT_XTINY, statusStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
         dc.drawLine(8, 70, w - 8, 70);
         dc.drawLine(8, 102, w - 8, 102);
@@ -1148,28 +1152,61 @@ class NavigationIQView extends WatchUi.View {
         var glowRGB = theme[2] as Array<Number>;
         var etaBgColor = theme[3] as Number;
 
-        var fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
-        var fontBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_SMALL;
-        var fontStreet = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_TINY;
+        var isTiny = (w <= 218);
+        var isMid = (w > 218 && w <= 280);
 
-        // Adaptive typography for smaller round screens (e.g. 240x240, 260x260)
-        if (w <= 280 && isSfFontActive()) {
-            if (_fontSfCompactBold != null) { fontBold = _fontSfCompactBold; }
-            if (_fontSfCompact != null) { fontStreet = _fontSfCompact; }
+        var fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
+        var fontBold;
+        var fontStreet;
+
+        if (isTiny) {
+            fontBold = Graphics.FONT_TINY;
+            fontStreet = Graphics.FONT_XTINY;
+            fontMicro = Graphics.FONT_XTINY;
+        } else if (isMid) {
+            if (isSfFontActive()) {
+                fontBold = (_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_SMALL;
+                fontStreet = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY;
+            } else {
+                fontBold = Graphics.FONT_SMALL;
+                fontStreet = Graphics.FONT_XTINY;
+                fontMicro = Graphics.FONT_XTINY;
+            }
+        } else {
+            fontBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_SMALL;
+            fontStreet = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_TINY;
         }
 
-        var pillH = (h * 0.082).toNumber();
-        if (pillH < 26) { pillH = 26; }
-        if (pillH > 36) { pillH = 36; }
-        var pillY = (h * 0.81).toNumber();
+        var pillH;
+        var pillY;
+        var badgeR;
+        var badgeCy;
 
-        var badgeR = (h * 0.082).toNumber();
-        if (badgeR < 20) { badgeR = 20; }
-        if (badgeR > 36) { badgeR = 36; }
+        if (isTiny) {
+            pillH = 22;
+            pillY = (h * 0.77).toNumber();
+            badgeR = 17;
+            badgeCy = 23;
+        } else if (isMid) {
+            pillH = 24;
+            pillY = (h * 0.76).toNumber();
+            badgeR = (h * 0.082).toNumber();
+            if (badgeR < 20) { badgeR = 20; }
+            badgeCy = (h * 0.125).toNumber();
+        } else {
+            pillH = (h * 0.082).toNumber();
+            if (pillH < 26) { pillH = 26; }
+            if (pillH > 36) { pillH = 36; }
+            pillY = (h * 0.81).toNumber();
+
+            badgeR = (h * 0.082).toNumber();
+            if (badgeR < 20) { badgeR = 20; }
+            if (badgeR > 36) { badgeR = 36; }
+            badgeCy = (h * 0.125).toNumber();
+            if (badgeCy < 28) { badgeCy = 28; }
+        }
 
         var badgeCx = w / 2;
-        var badgeCy = (h * 0.125).toNumber();
-        if (badgeCy < 28) { badgeCy = 28; }
 
         VectorArrowRenderer.drawAmbientGlow(dc, badgeCx, badgeCy, glowRGB);
 
@@ -1187,46 +1224,55 @@ class NavigationIQView extends WatchUi.View {
         }
 
         var distFull = CommManager.distText;
+        var distYVal = 0;
         if (distFull.length() > 0) {
             var parts = TextRenderer.splitDist(distFull, isSfNumberFontActive());
             var distNum = parts[0];
             var distUnit = parts[1];
 
-            var numFont = _getDistanceFont(distNum, distUnit);
+            var numFont = isTiny ? Graphics.FONT_MEDIUM : _getDistanceFont(distNum, distUnit);
             var numW = dc.getTextWidthInPixels(distNum, numFont);
-            var unitFont = isSfFontActive() ? ((_fontSfUnit != null) ? _fontSfUnit : fontStreet) : Graphics.FONT_LARGE;
+            var unitFont = isTiny ? Graphics.FONT_XTINY : (isSfFontActive() ? ((_fontSfUnit != null) ? _fontSfUnit : fontStreet) : Graphics.FONT_LARGE);
             var unitW = (distUnit.length() > 0) ? dc.getTextWidthInPixels(distUnit, unitFont) : 0;
-            var totalDistW = numW + 6 + unitW;
+            var gap = isTiny ? 3 : 6;
+            var totalDistW = numW + gap + unitW;
             var startDistX = (w - totalDistW) / 2;
 
-            var distY = badgeCy + badgeR + (h * 0.080).toNumber();
+            distYVal = isTiny ? (badgeCy + badgeR + 13) : (badgeCy + badgeR + (h * 0.080).toNumber());
             dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(startDistX, distY, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            dc.drawText(startDistX, distYVal, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
             if (distUnit.length() > 0) {
                 dc.setColor(COLOR_TEXT_UNIT, Graphics.COLOR_TRANSPARENT);
-                dc.drawText(startDistX + numW + 6, distY + 6, unitFont, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+                dc.drawText(startDistX + numW + gap, distYVal + (isTiny ? 3 : 6), unitFont, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
             }
         }
 
         var streetText = CommManager.navText;
         if (streetText.length() > 0) {
+            // Strip accents on devices with system fonts lacking Vietnamese Unicode
+            if (!isSfFontActive()) {
+                streetText = TextRenderer.stripAccents(streetText);
+            }
+
             var parts = TextRenderer.splitActionAndStreet(streetText);
             var actionText = parts[0];
             var street = parts[1];
 
-            var maxTextW = (w * 0.82).toNumber();
+            var maxTextW = isTiny ? (w * 0.88).toNumber() : (w * 0.82).toNumber();
             var linesAct = TextRenderer.wrapWithFont(dc, actionText, fontBold, maxTextW);
             var linesStr = (street.length() > 0) ? TextRenderer.wrapWithFont(dc, street, fontStreet, maxTextW) : [] as Array<String>;
 
-            var hAct = dc.getFontHeight(fontBold) + 2;
-            var hStr = dc.getFontHeight(fontStreet) + 2;
+            var hAct = dc.getFontHeight(fontBold) + (isTiny ? 0 : 2);
+            var hStr = dc.getFontHeight(fontStreet) + (isTiny ? 0 : 2);
             var totalTextH = (linesAct.size() * hAct) + (linesStr.size() * hStr);
 
-            var distYVal = badgeCy + badgeR + (h * 0.080).toNumber();
-            var minTextY = distYVal + (h * 0.075).toNumber();
-            var maxTextH = pillY - 8 - minTextY;
-            if (maxTextH < 20) { maxTextH = 20; }
+            if (distYVal == 0) {
+                distYVal = badgeCy + badgeR + (h * 0.080).toNumber();
+            }
+            var minTextY = isTiny ? (distYVal + 11) : (isMid ? (distYVal + (h * 0.065).toNumber()) : (distYVal + (h * 0.075).toNumber()));
+            var maxTextH = pillY - (isTiny ? 4 : 6) - minTextY;
+            if (maxTextH < 16) { maxTextH = 16; }
 
             if (totalTextH <= maxTextH) {
                 var startTextY = minTextY + ((maxTextH - totalTextH) / 2);
@@ -1245,7 +1291,7 @@ class NavigationIQView extends WatchUi.View {
             } else {
                 // Smooth vertical auto-scroll when text is long
                 if (dc has :setClip) {
-                    dc.setClip((w * 0.08).toNumber(), minTextY, (w * 0.84).toNumber(), maxTextH);
+                    dc.setClip((w * 0.06).toNumber(), minTextY, (w * 0.88).toNumber(), maxTextH);
                 }
 
                 var overflow = totalTextH - maxTextH + 8;
@@ -1283,15 +1329,15 @@ class NavigationIQView extends WatchUi.View {
                 }
 
                 // Vertical scrollbar indicator on right side
-                var barTrackH = maxTextH - 16;
-                if (barTrackH < 10) { barTrackH = 10; }
+                var barTrackH = maxTextH - 12;
+                if (barTrackH < 8) { barTrackH = 8; }
                 var thumbH = (maxTextH.toFloat() / totalTextH.toFloat() * barTrackH).toNumber();
-                if (thumbH < 10) { thumbH = 10; }
-                var thumbY = minTextY + 8 + ((scrollOffset.toFloat() / overflow.toFloat()) * (barTrackH - thumbH)).toNumber();
-                var barX = (w * 0.92).toNumber();
+                if (thumbH < 8) { thumbH = 8; }
+                var thumbY = minTextY + 6 + ((scrollOffset.toFloat() / overflow.toFloat()) * (barTrackH - thumbH)).toNumber();
+                var barX = (w * 0.93).toNumber();
 
                 dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
-                dc.fillRoundedRectangle(barX, minTextY + 8, 2, barTrackH, 1);
+                dc.fillRoundedRectangle(barX, minTextY + 6, 2, barTrackH, 1);
                 dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
                 dc.fillRoundedRectangle(barX, thumbY, 2, thumbH, 1);
             }
@@ -1303,8 +1349,8 @@ class NavigationIQView extends WatchUi.View {
 
         var etaW = dc.getTextWidthInPixels(etaStr, fontMicro);
         var timeW = dc.getTextWidthInPixels(timeStr, fontMicro);
-        var centerGap = (w > 300) ? 20 : 12;
-        var padX = (w > 300) ? 14 : 10;
+        var centerGap = (w > 300) ? 20 : (isTiny ? 8 : 10);
+        var padX = (w > 300) ? 14 : (isTiny ? 6 : 8);
 
         var contentW = etaW + centerGap + timeW;
         var pillW = contentW + (padX * 2);
@@ -1321,7 +1367,7 @@ class NavigationIQView extends WatchUi.View {
         var dotX = leftTextX + etaW + (centerGap / 2);
 
         dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(dotX, pillCy, 2.5);
+        dc.fillCircle(dotX, pillCy, isTiny ? 1.5 : 2.5);
 
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(leftTextX, pillCy, fontMicro, etaStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
