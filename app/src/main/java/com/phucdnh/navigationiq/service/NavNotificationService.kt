@@ -1,12 +1,24 @@
 package com.phucdnh.navigationiq.service
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
+import android.content.Context
+import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ServiceInfo
+import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import com.phucdnh.navigationiq.MainActivity
+import com.phucdnh.navigationiq.R
 import com.phucdnh.navigationiq.garmin.BluetoothStateReceiver
 import com.phucdnh.navigationiq.garmin.GarminManager
+import com.phucdnh.navigationiq.map.OsmMapManager
 import com.phucdnh.navigationiq.model.NavigationInfo
 import com.phucdnh.navigationiq.parser.GoogleMapsParser
 import com.phucdnh.navigationiq.parser.NotificationParser
@@ -27,6 +39,8 @@ class NavNotificationService : NotificationListenerService() {
         private const val TAG = "NavNotificationService"
         const val GOOGLE_MAPS_PACKAGE = "com.google.android.apps.maps"
         const val OSMAND_PACKAGE = "net.osmand"
+        private const val NOTIFICATION_CHANNEL_ID = "navigation_iq_service_channel"
+        private const val NOTIFICATION_ID = 2470
 
         var isConnected: Boolean = false
             private set
@@ -43,6 +57,8 @@ class NavNotificationService : NotificationListenerService() {
         super.onCreate()
         Log.i(TAG, "NavNotificationService created")
 
+        createNotificationChannel()
+
         // Register Bluetooth state receiver to auto-reconnect Garmin after BT toggle
         val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
         registerReceiver(btReceiver, filter)
@@ -55,6 +71,7 @@ class NavNotificationService : NotificationListenerService() {
 
         // Initialize (or re-use) the Garmin SDK on listener connect
         GarminManager.initSdk(this)
+        updateStatusNotification(null, false)
 
         try {
             activeNotifications?.forEach { sbn -> onNotificationPosted(sbn) }
@@ -67,6 +84,11 @@ class NavNotificationService : NotificationListenerService() {
         super.onListenerDisconnected()
         Log.i(TAG, "NavNotificationService disconnected")
         isConnected = false
+        try {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } catch (e: Exception) {
+            // Ignore
+        }
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
@@ -90,6 +112,7 @@ class NavNotificationService : NotificationListenerService() {
                     }
 
                     _currentNavigationInfo.value = navInfo
+                    updateStatusNotification(navInfo, true)
                     GarminManager.sendNavigationInfo(this@NavNotificationService, navInfo)
                     Log.d(TAG, "Dispatched nav update: ${navInfo.distance} -> ${navInfo.signs} (ETA: ${navInfo.eta})")
                 }
@@ -106,7 +129,9 @@ class NavNotificationService : NotificationListenerService() {
             Log.i(TAG, "Navigation notification removed, sending end signal")
             startDuration = ""
             _currentNavigationInfo.value = null
+            OsmMapManager.stopLocationUpdates()
             GarminManager.sendNavigationEnd(this)
+            updateStatusNotification(null, false)
         }
     }
 
@@ -114,6 +139,82 @@ class NavNotificationService : NotificationListenerService() {
         super.onDestroy()
         isConnected = false
         unregisterReceiver(btReceiver)
+        OsmMapManager.stopLocationUpdates()
         Log.i(TAG, "NavNotificationService destroyed")
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                "Navigation IQ Service",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Duy trì kết nối nền và đồng bộ chỉ đường với đồng hồ Garmin"
+                setShowBadge(false)
+            }
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+            manager?.createNotificationChannel(channel)
+        }
+    }
+
+    private fun updateStatusNotification(navInfo: NavigationInfo?, isNavigating: Boolean) {
+        try {
+            val contentIntent = PendingIntent.getActivity(
+                this,
+                0,
+                Intent(this, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            val title = if (isNavigating && navInfo != null) {
+                "Navigation IQ: ${navInfo.signs}"
+            } else {
+                "Navigation IQ"
+            }
+
+            val text = if (isNavigating && navInfo != null) {
+                "${navInfo.distance} • Đến lúc ${navInfo.eta}"
+            } else {
+                "Sẵn sàng kết nối và đồng bộ đồng hồ Garmin"
+            }
+
+            val builder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setContentIntent(contentIntent)
+                .setOngoing(isNavigating)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setCategory(if (isNavigating) NotificationCompat.CATEGORY_NAVIGATION else NotificationCompat.CATEGORY_SERVICE)
+                .setOnlyAlertOnce(true)
+
+            val notification = builder.build()
+
+            if (isNavigating) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val fgsType = ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+                    try {
+                        startForeground(NOTIFICATION_ID, notification, fgsType)
+                    } catch (e: Exception) {
+                        Log.w(TAG, "startForeground with types failed, fallback: ${e.message}")
+                        startForeground(NOTIFICATION_ID, notification)
+                    }
+                } else {
+                    startForeground(NOTIFICATION_ID, notification)
+                }
+            } else {
+                try {
+                    stopForeground(STOP_FOREGROUND_DETACH)
+                } catch (e: Exception) {
+                    // Ignore
+                }
+                NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, notification)
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to update status notification: ${e.message}")
+        }
     }
 }

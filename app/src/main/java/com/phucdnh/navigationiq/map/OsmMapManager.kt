@@ -96,6 +96,16 @@ object OsmMapManager {
 
     private var locationManager: LocationManager? = null
     private var lastKnownLocation: Location? = null
+    private var isListeningGps = false
+
+    private val locationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) {
+            lastKnownLocation = location
+        }
+        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
+    }
 
     fun initialize(context: Context) {
         try {
@@ -118,27 +128,40 @@ object OsmMapManager {
                 null
             }
             lastKnownLocation = fineLoc ?: coarseLoc
-
-            // Register continuous listener for accurate 5s location
-            try {
-                locationManager?.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER,
-                    3000L,
-                    5f,
-                    object : LocationListener {
-                        override fun onLocationChanged(location: Location) {
-                            lastKnownLocation = location
-                        }
-                        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-                        override fun onProviderEnabled(provider: String) {}
-                        override fun onProviderDisabled(provider: String) {}
-                    }
-                )
-            } catch (e: SecurityException) {
-                Log.w(TAG, "Location permission not granted for GPS updates: ${e.message}")
-            }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to init LocationManager: ${e.message}")
+        }
+    }
+
+    fun startLocationUpdates(context: Context? = null) {
+        if (isListeningGps) return
+        if (locationManager == null && context != null) {
+            locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+        }
+        try {
+            locationManager?.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                3000L,
+                5f,
+                locationListener
+            )
+            isListeningGps = true
+            Log.d(TAG, "GPS location listener registered")
+        } catch (e: SecurityException) {
+            Log.w(TAG, "Location permission not granted for GPS updates: ${e.message}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start GPS updates: ${e.message}")
+        }
+    }
+
+    fun stopLocationUpdates() {
+        if (!isListeningGps) return
+        try {
+            locationManager?.removeUpdates(locationListener)
+            isListeningGps = false
+            Log.d(TAG, "GPS location listener unregistered")
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to remove location updates: ${e.message}")
         }
     }
 

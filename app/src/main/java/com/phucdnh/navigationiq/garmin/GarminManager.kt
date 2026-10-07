@@ -459,11 +459,14 @@ object GarminManager {
         heartbeatJob = mapScope.launch {
             while (isActive) {
                 val now = System.currentTimeMillis()
-                _isHeartbeatLive.value = (now - lastWatchRxTime < 15_000L && lastWatchRxTime > 0L)
+                val isAlive = (now - lastWatchRxTime < 25_000L && lastWatchRxTime > 0L)
+                _isHeartbeatLive.value = isAlive
                 if (!isMapMode && latestPendingInfo == null && isSdkReady) {
                     sendPing()
                 }
-                delay(8000L)
+                // When watch app is actively replying, ping every 15s. When idle, ping every 30s to conserve battery and avoid OS kill.
+                val pingInterval = if (isAlive) 15_000L else 30_000L
+                delay(pingInterval)
             }
         }
     }
@@ -504,7 +507,10 @@ object GarminManager {
     }
 
     private fun startMapLoop() {
-        appContext?.let { OsmMapManager.initialize(it) }
+        appContext?.let {
+            OsmMapManager.initialize(it)
+            OsmMapManager.startLocationUpdates(it)
+        }
         mapJob?.cancel()
         mapJob = mapScope.launch {
             while (isActive && isMapMode) {
@@ -524,6 +530,7 @@ object GarminManager {
     private fun stopMapLoop() {
         mapJob?.cancel()
         mapJob = null
+        OsmMapManager.stopLocationUpdates()
     }
 
     fun sendMapPacket(packet: OsmMapPacket) {

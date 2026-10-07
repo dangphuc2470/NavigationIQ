@@ -3,11 +3,16 @@ package com.phucdnh.navigationiq
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.PowerManager
 import android.provider.Settings
 import android.text.TextUtils
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -78,6 +83,22 @@ class MainActivity : ComponentActivity() {
 fun MainScreen() {
     val context = LocalContext.current
     var isNotificationPermissionGranted by remember { mutableStateOf(isNotificationServiceEnabled(context)) }
+    var isBatteryOptIgnored by remember { mutableStateOf(isBatteryOptimizationIgnored(context)) }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                isNotificationPermissionGranted = isNotificationServiceEnabled(context)
+                isBatteryOptIgnored = isBatteryOptimizationIgnored(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     val currentNavInfo by NavNotificationService.currentNavigationInfo.collectAsState()
     val isHeartbeatLive by GarminManager.isHeartbeatLiveFlow.collectAsState()
     val watchName by GarminManager.watchNameFlow.collectAsState()
@@ -180,6 +201,62 @@ fun MainScreen() {
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A84FF))
                         ) {
                             Text(text = "Cấp quyền ngay", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        }
+                    }
+                }
+            }
+        }
+
+        // Card 1b: Battery Optimization Status
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF1C1C1E)),
+                border = BorderStroke(1.dp, Color(0xFF2C2C2E))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = if (isBatteryOptIgnored) Icons.Default.CheckCircle else Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = if (isBatteryOptIgnored) Color(0xFF30D158) else Color(0xFFFF9F0A),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (isBatteryOptIgnored) "Tối ưu hóa pin: ĐÃ TẮT (Không hạn chế)" else "Tối ưu hóa pin: Đang bật (Cần tắt)",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp,
+                            color = Color.White
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = if (isBatteryOptIgnored)
+                            "Ứng dụng được hệ thống cho phép chạy nền liên tục mà không bị hạn chế khi tắt màn hình."
+                        else
+                            "Cần chuyển chế độ pin sang 'Không hạn chế' (Unrestricted) để Android không tự ngắt kết nối Garmin khi tắt màn hình.",
+                        fontSize = 12.sp,
+                        color = Color(0xFF8E8E93)
+                    )
+                    if (!isBatteryOptIgnored) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Button(
+                            onClick = {
+                                try {
+                                    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                                        data = Uri.parse("package:${context.packageName}")
+                                    }
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {
+                                    context.startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+                                }
+                            },
+                            shape = RoundedCornerShape(50),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9F0A))
+                        ) {
+                            Text(text = "Tắt tối ưu hóa pin", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         }
                     }
                 }
@@ -652,4 +729,9 @@ fun isNotificationServiceEnabled(context: Context): Boolean {
         }
     }
     return false
+}
+
+fun isBatteryOptimizationIgnored(context: Context): Boolean {
+    val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+    return pm?.isIgnoringBatteryOptimizations(context.packageName) == true
 }
