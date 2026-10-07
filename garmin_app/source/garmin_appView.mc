@@ -949,9 +949,9 @@ class NavigationIQView extends WatchUi.View {
         var w = dc.getWidth();
         var h = dc.getHeight();
 
-        // 1. Badge (turn arrow) - inside circular sub-window
-        var badgeCx = 34;
-        var badgeCy = 36;
+        // 1. Badge (turn arrow) - inside circular sub-window on top-right (X=142, Y=34)
+        var badgeCx = 142;
+        var badgeCy = 34;
         var badgeR = 24;
 
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
@@ -968,7 +968,7 @@ class NavigationIQView extends WatchUi.View {
             VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, Graphics.COLOR_WHITE, _animTick);
         }
 
-        // 2. Top Right Area (X = 66 to w - 4): Distance (Row 1) & ETA/Clock (Row 2)
+        // 2. Top Left Area (X = 8 to 114): Distance (Row 1) & ETA/Clock (Row 2)
         var distFull = CommManager.distText;
         var distNum = "";
         var distUnit = "";
@@ -986,11 +986,11 @@ class NavigationIQView extends WatchUi.View {
         // Row 1: Distance
         if (distNum.length() > 0) {
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(66, 24, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            dc.drawText(8, 24, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
             var numW = dc.getTextWidthInPixels(distNum, numFont);
             if (distUnit.length() > 0) {
-                dc.drawText(66 + numW + 3, 26, Graphics.FONT_SMALL, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+                dc.drawText(8 + numW + 3, 26, Graphics.FONT_SMALL, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
             }
         }
 
@@ -1001,7 +1001,7 @@ class NavigationIQView extends WatchUi.View {
         var infoTopStr = etaStr + "  " + timeStr;
 
         dc.setColor(0xE4E4E7, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(66, 52, Graphics.FONT_XTINY, infoTopStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(8, 52, Graphics.FONT_XTINY, infoTopStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // 3. Divider lines for physical watch hands zone
         var divY1 = 70;
@@ -1107,9 +1107,25 @@ class NavigationIQView extends WatchUi.View {
         var isConnected = CommManager.isConnected() || (CommManager.rxCount > 0);
         var statusStr = isConnected ? "Connected" : "Ready";
 
+        // Right sub-window circle (status icon)
+        var subCx = 142;
+        var subCy = 34;
+        var subR = 24;
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, 24, Graphics.FONT_TINY, "Navigation IQ", Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(w / 2, 46, Graphics.FONT_XTINY, statusStr, Graphics.TEXT_JUSTIFY_CENTER);
+        dc.setPenWidth(2);
+        dc.drawCircle(subCx, subCy, subR);
+
+        // Navigation arrow icon inside sub-window
+        dc.fillPolygon([
+            [subCx, subCy - 12],
+            [subCx + 9, subCy + 8],
+            [subCx, subCy + 3],
+            [subCx - 9, subCy + 8]
+        ]);
+
+        // Left area: App Title & Connection status
+        dc.drawText(8, 22, Graphics.FONT_TINY, "Navigation IQ", Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(8, 46, Graphics.FONT_XTINY, statusStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
         dc.drawLine(8, 70, w - 8, 70);
         dc.drawLine(8, 102, w - 8, 102);
