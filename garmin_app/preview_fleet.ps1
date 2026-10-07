@@ -1,34 +1,113 @@
 # =============================================================================
-# NavigationIQ - Automated Fleet Preview & Screen Capture Script
+# NavigationIQ - Automated Headless Fleet Preview & Screen Capture Script
 # =============================================================================
 
 param (
-    [switch]$Interactive = $false, # Dừng lại chờ người dùng bấm phím Enter sau mỗi máy
-    [int]$WaitSeconds = 5,         # Thời gian chờ (giây) để app load và chạy Preview Mode
-    [string[]]$DeviceList = @()    # Tùy chọn chỉ định danh sách thiết bị cụ thể (ví dụ: -DeviceList fr965, fenix7)
+    [int]$WaitSeconds = 6,              # Thời gian chờ (giây) để app render UI trước khi chụp
+    [string[]]$DeviceList = @(),        # Danh sách thiết bị cụ thể (nếu để trống sẽ chạy dàn mặc định)
+    [switch]$KeepSimulatorOpen = $false # Giữ simulator mở sau khi chạy xong hay đóng lại
 )
 
 $ErrorActionPreference = "Stop"
 
-# 1. Cấu hình môi trường
+# 1. Cấu hình môi trường Java & Garmin SDK
 $JavaBin = "C:\Program Files\Android\Android Studio\jbr\bin"
 if (Test-Path "$JavaBin\java.exe") {
     $env:Path = "$JavaBin;" + $env:Path
 }
 
 $SdkBin = "$env:APPDATA\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-9.2.0-2026-06-09-92a1605b2\bin"
-$Key = "developer_key.der"
-$Jungle = "monkey.jungle"
+$Key = Join-Path $PSScriptRoot "developer_key.der"
+$Jungle = Join-Path $PSScriptRoot "monkey.jungle"
 $OutDir = Join-Path $PSScriptRoot "screenshots"
 
 if (!(Test-Path $OutDir)) {
     New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
 }
 
-# 2. Dàn thiết bị đại diện cho toàn bộ các phân khúc màn hình trong manifest.xml
+# 2. Khai báo Win32 PrintWindow Background Capture Helper
+$csharpCode = @"
+using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
+
+public class ScreenCaptureHelper {
+    public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+    [DllImport("user32.dll")]
+    public static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+    [DllImport("user32.dll")]
+    public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+    [DllImport("user32.dll")]
+    public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+    [DllImport("user32.dll")]
+    public static extern bool IsWindowVisible(IntPtr hWnd);
+    [DllImport("user32.dll")]
+    public static extern bool PrintWindow(IntPtr hwnd, IntPtr hdcBmp, uint nFlags);
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RECT {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
+    public static IntPtr FindVisibleWindow(int pid) {
+        IntPtr found = IntPtr.Zero;
+        EnumWindows((hWnd, lParam) => {
+            uint procId;
+            GetWindowThreadProcessId(hWnd, out procId);
+            if (procId == pid && IsWindowVisible(hWnd)) {
+                RECT r;
+                GetWindowRect(hWnd, out r);
+                int w = r.Right - r.Left;
+                int h = r.Bottom - r.Top;
+                if (w > 100 && h > 100) {
+                    found = hWnd;
+                    return false;
+                }
+            }
+            return true;
+        }, IntPtr.Zero);
+        return found;
+    }
+
+    public static bool CaptureSimulator(int pid, string filePath) {
+        IntPtr hWnd = FindVisibleWindow(pid);
+        if (hWnd == IntPtr.Zero) return false;
+
+        RECT rect;
+        if (!GetWindowRect(hWnd, out rect)) return false;
+
+        int width = rect.Right - rect.Left;
+        int height = rect.Bottom - rect.Top;
+        if (width <= 50 || height <= 50) return false;
+
+        using (Bitmap bmp = new Bitmap(width, height)) {
+            using (Graphics g = Graphics.FromImage(bmp)) {
+                IntPtr hdc = g.GetHdc();
+                try {
+                    PrintWindow(hWnd, hdc, 2); // 2 = PW_RENDERFULLCONTENT
+                } finally {
+                    g.ReleaseHdc(hdc);
+                }
+            }
+            bmp.Save(filePath, ImageFormat.Png);
+        }
+        return true;
+    }
+}
+"@
+
+if (-not ([System.Management.Automation.PSTypeName]'ScreenCaptureHelper').Type) {
+    Add-Type -TypeDefinition $csharpCode -ReferencedAssemblies System.Drawing, System.Windows.Forms
+}
+
+# 3. Dàn thiết bị đại diện tiêu biểu (phủ trọn mọi kích thước màn hình)
 $DefaultFleet = @(
     "venusq2",           # 1. Vuông AMOLED 320x360 (Venu Sq 2)
-    "venu2",             # 2. Tròn AMOLED 416x416 chuẩn (Venu 2/3, FR265)
+    "venu2",             # 2. Tròn AMOLED 416x416 chuẩn (Venu 2, Venu 3, FR265)
     "fr965",             # 3. Tròn AMOLED 454x454 siêu lớn (Forerunner 965, Epix Pro 51mm)
     "fr165",             # 4. Tròn AMOLED 390x390 gọn gàng (FR165, FR265s, Venu 3s)
     "fenix7",            # 5. Tròn MIP 260x260 kinh điển (Fenix 7, FR255, FR955)
@@ -39,101 +118,71 @@ $DefaultFleet = @(
     "instinctcrossover"  # 10. Hybrid cơ học 176x176 (Instinct Crossover)
 )
 
-$Devices = if ($DeviceList.Count -gt 0) { $DeviceList } else { $DefaultFleet }
-
-# 3. Khai báo Win32 API để định vị cửa sổ Simulator và chụp ảnh màn hình
-Add-Type -AssemblyName System.Drawing, System.Windows.Forms
-if (-not ([System.Management.Automation.PSTypeName]'WinApi').Type) {
-    Add-Type @"
-    using System;
-    using System.Runtime.InteropServices;
-    public class WinApi {
-        [DllImport("user32.dll")]
-        public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-        [DllImport("user32.dll")]
-        public static extern bool SetForegroundWindow(IntPtr hWnd);
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RECT {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
-    }
-"@
-}
-
-function Capture-SimulatorWindow([string]$SavePath) {
-    $simProc = Get-Process "simulator" -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne 0 } | Select-Object -First 1
-    if (!$simProc) {
-        Write-Warning "Khong tim thay handle cua so Simulator de chup anh."
-        return
-    }
-
-    [WinApi]::SetForegroundWindow($simProc.MainWindowHandle) | Out-Null
-    Start-Sleep -Milliseconds 400
-
-    $rect = New-Object WinApi+RECT
-    [WinApi]::GetWindowRect($simProc.MainWindowHandle, [ref]$rect) | Out-Null
-
-    $width = $rect.Right - $rect.Left
-    $height = $rect.Bottom - $rect.Top
-
-    if ($width -gt 50 -and $height -gt 50) {
-        $bitmap = New-Object System.Drawing.Bitmap($width, $height)
-        $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-        $graphics.CopyFromScreen($rect.Left, $rect.Top, 0, 0, (New-Object System.Drawing.Size($width, $height)))
-        $bitmap.Save($SavePath, [System.Drawing.Imaging.ImageFormat]::Png)
-        $graphics.Dispose()
-        $bitmap.Dispose()
-        Write-Host " [V] Da chup anh luu vao: $SavePath" -ForegroundColor Green
-    }
+$Devices = if ($DeviceList.Count -gt 0) { 
+    ($DeviceList | ForEach-Object { $_ -split ',' }).Trim() | Where-Object { $_ -ne "" } 
+} else { 
+    $DefaultFleet 
 }
 
 Write-Host "=================================================================" -ForegroundColor Cyan
-Write-Host " BAT DAU CHAY PREVIEW FULL THIET BI NAVIGATION IQ " -ForegroundColor Cyan
+Write-Host " TU DONG CHAY PREVIEW & CHUP ANH TOAN BO DAN THIET BI GARMIN" -ForegroundColor Cyan
+Write-Host " Tong cong: $($Devices.Count) thiet bi" -ForegroundColor Cyan
+Write-Host " Thu muc anh dau ra: $OutDir" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
 
 # 4. Đảm bảo Simulator đã được bật
-$sim = Get-Process "simulator" -ErrorAction SilentlyContinue
-if (!$sim) {
-    Write-Host "[1/3] Khoi dong Garmin Connect IQ Simulator..." -ForegroundColor Yellow
-    Start-Process "$SdkBin\simulator.exe"
+$simProc = Get-Process "simulator" -ErrorAction SilentlyContinue | Select-Object -First 1
+if (!$simProc) {
+    Write-Host "[1/2] Khoi dong Garmin Connect IQ Simulator..." -ForegroundColor Yellow
+    $simProc = Start-Process "$SdkBin\simulator.exe" -PassThru
     Start-Sleep -Seconds 4
 } else {
-    Write-Host "[1/3] Simulator da duoc mo san sang." -ForegroundColor Gray
+    Write-Host "[1/2] Simulator da san sang (PID: $($simProc.Id))." -ForegroundColor Gray
 }
 
-# 5. Duyệt qua từng thiết bị
+# 5. Duyệt qua từng thiết bị để build, nạp và chụp ảnh
 $binDir = Join-Path $PSScriptRoot "bin"
 if (!(Test-Path $binDir)) { New-Item -ItemType Directory -Path $binDir -Force | Out-Null }
 
 $idx = 1
-foreach ($dev in $Devices) {
-    Write-Host "`n[$idx/$($Devices.Count)] Dang xu ly thiet bi: $dev" -ForegroundColor Cyan
-    $prg = Join-Path $binDir "preview_$dev.prg"
+$successCount = 0
 
-    Write-Host "  -> Dang bien dich app cho $dev..." -ForegroundColor Gray
-    & "$SdkBin\monkeyc.bat" -o $prg -f $Jungle -y $Key -d $dev
-    if ($LASTEXITCODE -ne 0) {
+foreach ($dev in $Devices) {
+    Write-Host "`n[$idx/$($Devices.Count)] Dang xu ly: $dev" -ForegroundColor Cyan
+    $prg = Join-Path $binDir "fleet_$dev.prg"
+    $shotPath = Join-Path $OutDir "$($dev)_preview.png"
+
+    # A. Biên dịch
+    Write-Host "  -> Bien dich app cho $dev..." -ForegroundColor Gray
+    & "$SdkBin\monkeyc.bat" -o $prg -f $Jungle -y $Key -d $dev 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0 -or !(Test-Path $prg)) {
         Write-Host "  [X] Loi bien dich cho $dev" -ForegroundColor Red
+        $idx++
         continue
     }
 
-    Write-Host "  -> Nap app vao Simulator..." -ForegroundColor Gray
+    # B. Nạp vào Simulator
+    Write-Host "  -> Nap vao Simulator va render Preview HUD..." -ForegroundColor Gray
     $doProc = Start-Process -FilePath "$SdkBin\monkeydo.bat" -ArgumentList "`"$prg`"", "$dev" -PassThru -WindowStyle Hidden
-    
-    Write-Host "  -> Dang doi $WaitSeconds giay de PreviewManager hien thi UI..." -ForegroundColor Yellow
+
+    # C. Đợi simulator nạp và chạy qua các bước điều hướng
     Start-Sleep -Seconds $WaitSeconds
 
-    $shotPath = Join-Path $OutDir "$($dev)_preview.png"
-    Capture-SimulatorWindow -SavePath $shotPath
-
-    if ($Interactive) {
-        Read-Host "  [?] Nhan Enter de chuyen qua thiet bi ke tiep..."
+    # D. Chụp ảnh nền qua PrintWindow API
+    $currentSim = Get-Process "simulator" -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($currentSim) {
+        $captured = [ScreenCaptureHelper]::CaptureSimulator($currentSim.Id, $shotPath)
+        if ($captured -and (Test-Path $shotPath)) {
+            Write-Host "  [V] Da chup thanh cong: $shotPath" -ForegroundColor Green
+            $successCount++
+        } else {
+            Write-Host "  [!] Khong the chup cua so cho $dev" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "  [!] Khong tim thay process simulator" -ForegroundColor Yellow
     }
 
-    # Dung tien trinh monkeydo cu truoc khi chuyen sang device tiep theo
+    # E. Dừng monkeydo tiến trình vừa rồi
     if ($doProc -and !$doProc.HasExited) {
         Stop-Process -Id $doProc.Id -Force -ErrorAction SilentlyContinue
     }
@@ -141,7 +190,13 @@ foreach ($dev in $Devices) {
     $idx++
 }
 
+# 6. Dọn dẹp simulator nếu không yêu cầu giữ mở
+if (!$KeepSimulatorOpen) {
+    Get-Process "simulator" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+    Write-Host "`n[Duy tri tai nguyen] Da dong Simulator sau khi chup xong." -ForegroundColor Gray
+}
+
 Write-Host "`n=================================================================" -ForegroundColor Green
-Write-Host " HOAN TAT KIEM TRA FULL THIET BI!" -ForegroundColor Green
-Write-Host " Tat ca anh man hinh da duoc luu tai: $OutDir" -ForegroundColor Green
+Write-Host " HOAN TAT! Da chup thanh cong $successCount/$($Devices.Count) thiet bi." -ForegroundColor Green
+Write-Host " Thu muc chua anh: $OutDir" -ForegroundColor Green
 Write-Host "=================================================================" -ForegroundColor Green
