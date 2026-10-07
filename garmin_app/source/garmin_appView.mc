@@ -70,12 +70,16 @@ class NavigationIQView extends WatchUi.View {
 
     public function reloadSettings() as Void {
         var p = Storage.getValue("layout_profile");
-        if (p != null) {
+        if (p != null && !isRunningInSimulator()) {
             _layoutProfile = p as Number;
+        } else {
+            _layoutProfile = 0;
         }
         var r = Storage.getValue("screen_rot");
-        if (r != null) {
+        if (r != null && !isRunningInSimulator()) {
             _rotation = r as Number;
+        } else {
+            _rotation = 0;
         }
         var af = Storage.getValue("app_font");
         if (af == null) {
