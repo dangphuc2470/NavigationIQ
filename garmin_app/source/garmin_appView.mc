@@ -488,18 +488,13 @@ class NavigationIQView extends WatchUi.View {
         var cardX = 0;
         var cardY = 0;
         var barY = cardH + gap;
-        var cardRadius = (cardW * 0.088).toNumber();
-        if (cardRadius > 28) { cardRadius = 28; }
-        if (cardRadius < 16) { cardRadius = 16; }
+
 
         var theme = getNavTheme(CommManager.direction);
         var accentColor = theme[0] as Number;
         var badgeBgColor = theme[1] as Number;
         var glowRGB = theme[2] as Array<Number>;
         var etaBgColor = theme[3] as Number;
-
-        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(cardX, cardY, cardW, cardH, cardRadius);
 
         var badgeRadius = (cardW * 0.11).toNumber();
         if (badgeRadius > 36) { badgeRadius = 36; }
@@ -509,11 +504,6 @@ class NavigationIQView extends WatchUi.View {
         var badgeCy = cardY + (cardH * 0.18).toNumber();
 
         VectorArrowRenderer.drawAmbientGlow(dc, badgeCx, badgeCy, glowRGB);
-        VectorArrowRenderer.maskCardCorners(dc, cardX, cardY, cardW, cardH, cardRadius);
-
-        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawRoundedRectangle(cardX, cardY, cardW, cardH, cardRadius);
 
         dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(badgeCx, badgeCy, badgeRadius);
