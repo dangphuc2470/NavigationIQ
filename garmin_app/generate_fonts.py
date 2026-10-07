@@ -161,5 +161,8 @@ if __name__ == "__main__":
     generate_bmfont(font_bold, 50, "garmin_app/resources/fonts/sf_pro_number_hot.fnt", "garmin_app/resources/fonts/sf_pro_number_hot_0.png", "SF Pro Number Hot", chars_subset="0123456789.,")
     generate_bmfont(font_bold, 38, "garmin_app/resources/fonts/sf_pro_number_mild.fnt", "garmin_app/resources/fonts/sf_pro_number_mild_0.png", "SF Pro Number Mild", chars_subset="0123456789.,")
 
-    print("All BMFonts (Direct 1x TrueType Hinted + Dedicated SF Pro Numbers) successfully generated!")
+    # 8. Dedicated Apple SF Pro Large Distance Unit Font (km, m, mi, ft) - Size: 36px Bold
+    generate_bmfont(font_bold, 36, "garmin_app/resources/fonts/sf_pro_unit.fnt", "garmin_app/resources/fonts/sf_pro_unit_0.png", "SF Pro Unit", chars_subset="kmftmiKMFTMI ")
+
+    print("All BMFonts (Direct 1x TrueType Hinted + Dedicated SF Pro Numbers & Units) successfully generated!")
 

@@ -9,4 +9,5 @@
     <font id="SfMicroRot90" filename="sf_pro_micro_rot90.fnt" antialias="true" />
     <font id="SfNumberHot" filename="sf_pro_number_hot.fnt" antialias="true" />
     <font id="SfNumberMild" filename="sf_pro_number_mild.fnt" antialias="true" />
+    <font id="SfUnit" filename="sf_pro_unit.fnt" antialias="true" />
 </fonts>
