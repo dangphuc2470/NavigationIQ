@@ -3,7 +3,7 @@
 # =============================================================================
 
 param (
-    [int]$WaitSeconds = 6,              # Thời gian chờ (giây) để app render UI trước khi chụp
+    [int]$WaitSeconds = 3,              # Thời gian chờ (giây) để app render UI trước khi chụp
     [string[]]$DeviceList = @(),        # Danh sách thiết bị cụ thể (nếu để trống sẽ chạy dàn mặc định)
     [switch]$KeepSimulatorOpen = $false # Giữ simulator mở sau khi chạy xong hay đóng lại
 )

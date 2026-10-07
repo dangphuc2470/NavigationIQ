@@ -961,10 +961,10 @@ class NavigationIQView extends WatchUi.View {
         var w = dc.getWidth();
         var h = dc.getHeight();
 
-        // 1. Badge (turn arrow) - precisely inside hardware sub-window circle (X=144, Y=31, R=26)
-        var badgeCx = 144;
-        var badgeCy = 31;
-        var badgeR = 26;
+        // 1. Badge (turn arrow) - inside sub-window with safe padding from right edge (X=138, Y=33, R=23)
+        var badgeCx = 138;
+        var badgeCy = 33;
+        var badgeR = 23;
 
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(2);
@@ -1042,9 +1042,9 @@ class NavigationIQView extends WatchUi.View {
             // Strip accents so Vietnamese renders cleanly on Instinct system fonts
             var streetText = TextRenderer.stripAccents(rawNavText);
 
-            var fontBold = isCrossover ? Graphics.FONT_SMALL : Graphics.FONT_MEDIUM;
-            var fontStreet = isCrossover ? Graphics.FONT_TINY : Graphics.FONT_SMALL;
-            var maxW = w - 16;
+            var fontBold = Graphics.FONT_SMALL;
+            var fontStreet = Graphics.FONT_TINY;
+            var maxW = w - 30;
 
             var parts = TextRenderer.splitActionAndStreet(streetText);
             var actionText = parts[0];
@@ -1128,10 +1128,10 @@ class NavigationIQView extends WatchUi.View {
         var isConnected = CommManager.isConnected() || (CommManager.rxCount > 0);
         var statusStr = isConnected ? "Connected" : "Ready";
 
-        // Right sub-window circle (status icon, X=144, Y=31, R=26)
-        var subCx = 144;
-        var subCy = 31;
-        var subR = 26;
+        // Right sub-window circle (status icon, X=138, Y=33, R=23)
+        var subCx = 138;
+        var subCy = 33;
+        var subR = 23;
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(2);
         dc.drawCircle(subCx, subCy, subR);
@@ -1332,18 +1332,18 @@ class NavigationIQView extends WatchUi.View {
                 }
 
                 var overflow = totalTextH - maxTextH + 8;
-                var cycle = _animTick % 36;
+                var cycle = _animTick % 50;
                 var scrollOffset = 0;
 
-                if (cycle < 10) {
+                if (cycle < 20) {
                     scrollOffset = 0;
-                } else if (cycle < 24) {
-                    var progress = (cycle - 10).toFloat() / 14.0;
+                } else if (cycle < 36) {
+                    var progress = (cycle - 20).toFloat() / 16.0;
                     scrollOffset = (progress * overflow).toNumber();
-                } else if (cycle < 30) {
+                } else if (cycle < 43) {
                     scrollOffset = overflow;
                 } else {
-                    var progress = (cycle - 30).toFloat() / 6.0;
+                    var progress = (cycle - 43).toFloat() / 7.0;
                     scrollOffset = ((1.0 - progress) * overflow).toNumber();
                 }
 

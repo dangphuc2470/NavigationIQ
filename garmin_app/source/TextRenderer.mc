@@ -279,7 +279,22 @@ class TextRenderer {
             "Đi dọc theo",
             "Đi thẳng",
             "Nhập vào",
-            "Tiếp tục"
+            "Tiếp tục",
+            "Tiep tuc di thang",
+            "Di chech sang phai",
+            "Di chech sang trai",
+            "Re ngoat sang phai",
+            "Re ngoat sang trai",
+            "Re phai",
+            "Re trai",
+            "Quay dau xe",
+            "Quay dau",
+            "Di ve huong",
+            "Di theo loi ra",
+            "Di doc theo",
+            "Di thang",
+            "Nhap vao",
+            "Tiep tuc"
         ];
 
         for (var i = 0; i < actionPrefixes.size(); i++) {
