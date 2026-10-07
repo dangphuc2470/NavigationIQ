@@ -1,6 +1,7 @@
 import Toybox.Application;
 import Toybox.Communications;
 import Toybox.Attention;
+import Toybox.ActivityRecording;
 import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.System;
@@ -54,6 +55,65 @@ module CommManager {
     var mapHeading         as Number = 0;
     var mapRxCount         as Number = 0;
     var lastRxTime         as Number = 0;
+
+    // In-App Toast Notification Banner State
+    var toastAppName   as String = "";
+    var toastSender    as String = "";
+    var toastMessage   as String = "";
+    var toastExpiry    as Number = 0;
+
+    // Automatic Activity Session (Garmin OS "During Activity" DND suppression)
+    var _session as ActivityRecording.Session? = null;
+    var isAutoActivitySuppression as Boolean = true;
+
+    function showToastNotification(app as String, sender as String, msg as String, durSec as Number) as Void {
+        toastAppName = app;
+        toastSender = sender;
+        toastMessage = msg;
+        toastExpiry = System.getTimer() + (durSec * 1000);
+        if (Attention has :vibrate) {
+            try {
+                var vibeProfile = [new Attention.VibeProfile(60, 200)];
+                Attention.vibrate(vibeProfile);
+            } catch (e) {}
+        }
+    }
+
+    function isToastActive() as Boolean {
+        return (toastExpiry > 0 && System.getTimer() < toastExpiry && toastMessage.length() > 0);
+    }
+
+    function startActivitySession() as Void {
+        if (!isAutoActivitySuppression) {
+            return;
+        }
+        if (Toybox has :ActivityRecording) {
+            if (_session == null || !_session.isRecording()) {
+                try {
+                    _session = ActivityRecording.createSession({
+                        :name => "Navigation",
+                        :sport => ActivityRecording.SPORT_GENERIC,
+                        :subSport => ActivityRecording.SUB_SPORT_GENERIC
+                    });
+                    _session.start();
+                } catch (e) {
+                    System.println("ERR session: " + e.getErrorMessage());
+                }
+            }
+        }
+    }
+
+    function stopActivitySession() as Void {
+        if (_session != null) {
+            try {
+                if (_session.isRecording()) {
+                    _session.stop();
+                }
+                _session.discard();
+            } catch (e) {}
+            _session = null;
+        }
+    }
 
     function isConnected() as Boolean {
         if (lastRxTime <= 0) {
@@ -149,6 +209,20 @@ module CommManager {
             }
         }
 
+        // Toast / In-app notification packet from Android:
+        // ["toast", appName, sender, message, durationSec]
+        if (data instanceof Lang.Array && data.size() >= 4) {
+            if (data[0] instanceof Lang.String && (data[0].equals("toast") || data[0].equals("notif"))) {
+                var appName = (data[1] != null) ? data[1] as String : "";
+                var sender = (data[2] != null) ? data[2] as String : "";
+                var msg = (data[3] != null) ? data[3] as String : "";
+                var dur = (data.size() >= 5 && data[4] != null) ? data[4] as Number : 5;
+                showToastNotification(appName, sender, msg, dur);
+                WatchUi.requestUpdate();
+                return;
+            }
+        }
+
         // End-of-navigation signal
         if (data instanceof Lang.Array && data.size() == 1) {
             if (data[0] instanceof Lang.String && data[0].equals("naviend")) {
@@ -197,6 +271,9 @@ module CommManager {
             }
 
             if (navText.length() > 0 || distText.length() > 0) {
+                if (!isActive) {
+                    startActivitySession();
+                }
                 isActive = true;
             }
         }
@@ -236,6 +313,8 @@ module CommManager {
         isActive    = false;
         _alertedFar  = false;
         _alertedNear = false;
+        toastExpiry = 0;
+        stopActivitySession();
         try {
             Application.Storage.deleteValue("navText");
             Application.Storage.deleteValue("distText");

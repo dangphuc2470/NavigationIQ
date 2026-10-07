@@ -94,32 +94,86 @@ class NavNotificationService : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (sbn == null) return
         val pkg = sbn.packageName ?: return
-        if (pkg != GOOGLE_MAPS_PACKAGE && pkg != OSMAND_PACKAGE && !pkg.contains("map", ignoreCase = true)) {
+        // 1. Navigation notification handling (Google Maps, OsmAnd)
+        if (pkg == GOOGLE_MAPS_PACKAGE || pkg == OSMAND_PACKAGE || pkg.contains("map", ignoreCase = true)) {
+            serviceScope.launch {
+                try {
+                    val parsedValues = NotificationParser.parse(this@NavNotificationService, sbn)
+                    val navInfo = GoogleMapsParser.parse(this@NavNotificationService, parsedValues)
+
+                    if (navInfo != null && navInfo.hasDirections()) {
+                        if (startDuration.isEmpty()) {
+                            startDuration = navInfo.duration
+                        }
+                        if (!navInfo.setProgress(this@NavNotificationService, startDuration)) {
+                            startDuration = navInfo.duration
+                        }
+
+                        _currentNavigationInfo.value = navInfo
+                        updateStatusNotification(navInfo, true)
+                        GarminManager.sendNavigationInfo(this@NavNotificationService, navInfo)
+                        Log.d(TAG, "Dispatched nav update: ${navInfo.distance} -> ${navInfo.signs} (ETA: ${navInfo.eta})")
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error in onNotificationPosted: ${e.message}")
+                }
+            }
             return
         }
 
-        serviceScope.launch {
-            try {
-                val parsedValues = NotificationParser.parse(this@NavNotificationService, sbn)
-                val navInfo = GoogleMapsParser.parse(this@NavNotificationService, parsedValues)
+        // 2. Incoming messaging notification (Zalo, Messenger, SMS...) while navigation is active
+        if (_currentNavigationInfo.value != null) {
+            handleMessagingNotification(sbn)
+        }
+    }
 
-                if (navInfo != null && navInfo.hasDirections()) {
-                    if (startDuration.isEmpty()) {
-                        startDuration = navInfo.duration
-                    }
-                    if (!navInfo.setProgress(this@NavNotificationService, startDuration)) {
-                        startDuration = navInfo.duration
-                    }
+    private fun handleMessagingNotification(sbn: StatusBarNotification) {
+        val pkg = sbn.packageName ?: return
+        val notif = sbn.notification ?: return
 
-                    _currentNavigationInfo.value = navInfo
-                    updateStatusNotification(navInfo, true)
-                    GarminManager.sendNavigationInfo(this@NavNotificationService, navInfo)
-                    Log.d(TAG, "Dispatched nav update: ${navInfo.distance} -> ${navInfo.signs} (ETA: ${navInfo.eta})")
-                }
+        val isMessageCategory = notif.category == android.app.Notification.CATEGORY_MESSAGE
+        val isChatApp = when (pkg) {
+            "com.zing.zalo",
+            "com.facebook.orca", "com.facebook.mlite",
+            "org.telegram.messenger",
+            "com.whatsapp",
+            "com.google.android.apps.messaging", "com.samsung.android.messaging",
+            "jp.naver.line.android", "com.viber.voip",
+            "com.skype.raider", "com.microsoft.teams" -> true
+            else -> false
+        }
+
+        if (!isMessageCategory && !isChatApp) {
+            return
+        }
+
+        val extras = notif.extras ?: return
+        val sender = extras.getCharSequence(android.app.Notification.EXTRA_TITLE)?.toString()?.trim() ?: ""
+        val message = extras.getCharSequence(android.app.Notification.EXTRA_TEXT)?.toString()?.trim()
+            ?: extras.getCharSequence(android.app.Notification.EXTRA_BIG_TEXT)?.toString()?.trim()
+            ?: ""
+
+        if (sender.isEmpty() && message.isEmpty()) {
+            return
+        }
+
+        val appName = when (pkg) {
+            "com.zing.zalo" -> "Zalo"
+            "com.facebook.orca", "com.facebook.mlite" -> "Messenger"
+            "org.telegram.messenger" -> "Telegram"
+            "com.whatsapp" -> "WhatsApp"
+            "com.google.android.apps.messaging", "com.samsung.android.messaging" -> "SMS"
+            "jp.naver.line.android" -> "Line"
+            "com.viber.voip" -> "Viber"
+            else -> try {
+                packageManager.getApplicationLabel(packageManager.getApplicationInfo(pkg, 0)).toString()
             } catch (e: Exception) {
-                Log.e(TAG, "Error in onNotificationPosted: ${e.message}")
+                "Chat"
             }
         }
+
+        Log.d(TAG, "Forwarding chat message as watch banner: [$appName] $sender: $message")
+        GarminManager.sendToastNotification(appName, sender, message, durationSec = 5)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {

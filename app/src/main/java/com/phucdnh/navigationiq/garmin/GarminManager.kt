@@ -565,6 +565,26 @@ object GarminManager {
         }
     }
 
+    fun sendToastNotification(appName: String, sender: String, message: String, durationSec: Int = 5) {
+        val payload = listOf("toast", appName, sender, message, durationSec)
+        if (devices.isEmpty()) {
+            devices = connectIQ?.knownDevices ?: emptyList()
+        }
+        for (device in devices) {
+            for (app in registeredApps.values) {
+                try {
+                    connectIQ?.sendMessage(device, app, payload) { _, _, status ->
+                        if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
+                            addLog("[TOAST] Sent in-app banner to watch: $appName - $sender")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "sendToastNotification error: ${e.message}")
+                }
+            }
+        }
+    }
+
     private var lastPromptTime = 0L
 
     fun promptOpenWatchApp(device: IQDevice, app: IQApp) {

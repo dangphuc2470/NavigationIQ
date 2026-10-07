@@ -562,14 +562,17 @@ class NavigationIQView extends WatchUi.View {
         dc.drawLine(cardX + divPaddingX, divY, cardX + cardW - divPaddingX, divY);
 
         var streetText = CommManager.navText;
-        if (streetText.length() > 0) {
+        var navPadX = (cardW * 0.055).toNumber();
+        if (navPadX < 18) { navPadX = 18; }
+        var availTextH = cardH - (divY - cardY) - (cardH * 0.05).toNumber();
+        if (availTextH < 20) { availTextH = 20; }
+
+        if (CommManager.isToastActive()) {
+            _drawNotificationToast(dc, cardX + navPadX, divY + 6, cardW - (navPadX * 2), availTextH, false);
+        } else if (streetText.length() > 0) {
             if (!isSfFontActive()) {
                 streetText = TextRenderer.stripAccents(streetText);
             }
-            var navPadX = (cardW * 0.055).toNumber();
-            if (navPadX < 18) { navPadX = 18; }
-            var availTextH = cardH - (divY - cardY) - (cardH * 0.05).toNumber();
-            if (availTextH < 20) { availTextH = 20; }
             _drawDynamicWrappedText(dc, cardX + navPadX, divY + 6, cardW - (navPadX * 2), availTextH, streetText, accentColor, false);
         }
 
@@ -780,6 +783,63 @@ class NavigationIQView extends WatchUi.View {
         hStr = dc.getFontHeight(fontCompactReg) + 2;
 
         _renderScrollingBlock(dc, [linesAct, fontCompactBold, Graphics.COLOR_WHITE, hAct], [linesStr, fontCompactReg, 0xE4E4E7, hStr], bounds, accentColor);
+    }
+
+    // -------------------------------------------------------------------------
+    // In-App Notification Toast Banner (Compact Non-Intrusive Overlay)
+    // -------------------------------------------------------------------------
+    private function _drawNotificationToast(dc as Dc, startX as Number, startY as Number, maxWidth as Number, maxHeight as Number, isCenter as Boolean) as Void {
+        var appName = CommManager.toastAppName;
+        var sender = CommManager.toastSender;
+        var message = CommManager.toastMessage;
+
+        var headerText = (appName.length() > 0 && sender.length() > 0) ? (appName + " - " + sender) : (appName.length() > 0 ? appName : sender);
+        if (!isSfFontActive()) {
+            headerText = TextRenderer.stripAccents(headerText);
+            message = TextRenderer.stripAccents(message);
+        }
+
+        var fontHeader = isSfFontActive() ? ((_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_TINY) : Graphics.FONT_TINY;
+        var fontBody = isSfFontActive() ? ((_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY) : Graphics.FONT_XTINY;
+
+        var padX = 8;
+        var padY = 6;
+        var contentW = maxWidth - (padX * 2);
+
+        var linesBody = TextRenderer.wrapWithFont(dc, message, fontBody, contentW);
+        var hHeader = dc.getFontHeight(fontHeader);
+        var hBody = dc.getFontHeight(fontBody);
+        var maxBodyLines = ((maxHeight - hHeader - (padY * 2)) / (hBody + 1)).toNumber();
+        if (maxBodyLines < 1) { maxBodyLines = 1; }
+
+        var totalToastH = hHeader + 4 + (linesBody.size() > maxBodyLines ? maxBodyLines : linesBody.size()) * (hBody + 1) + (padY * 2);
+        if (totalToastH > maxHeight) { totalToastH = maxHeight; }
+
+        var toastY = startY + ((maxHeight - totalToastH) / 2);
+        var toastX = startX;
+
+        // Background card & modern border
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(toastX, toastY, maxWidth, totalToastH, 8);
+        dc.setColor(0x38BDF8, Graphics.COLOR_TRANSPARENT); // Sky blue accent border
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(toastX, toastY, maxWidth, totalToastH, 8);
+
+        // Header: App + Sender
+        var textAnchorX = isCenter ? (toastX + maxWidth / 2) : (toastX + padX);
+        var justify = isCenter ? Graphics.TEXT_JUSTIFY_CENTER : Graphics.TEXT_JUSTIFY_LEFT;
+
+        dc.setColor(0x38BDF8, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(textAnchorX, toastY + padY, fontHeader, headerText, justify);
+
+        // Body: Message lines
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+        var curY = toastY + padY + hHeader + 3;
+        var limit = linesBody.size() > maxBodyLines ? maxBodyLines : linesBody.size();
+        for (var i = 0; i < limit; i++) {
+            dc.drawText(textAnchorX, curY, fontBody, linesBody[i], justify);
+            curY += (hBody + 1);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1036,7 +1096,12 @@ class NavigationIQView extends WatchUi.View {
             textZoneH = h - textZoneTop - 3;
         }
 
-        // 4. Bottom Navigation Text Zone (100% dedicated to instructions)
+        // 4. Bottom Navigation Text Zone (100% dedicated to instructions or incoming message)
+        if (CommManager.isToastActive()) {
+            _drawNotificationToast(dc, 12, textZoneTop, w - 24, textZoneH, true);
+            return;
+        }
+
         var rawNavText = CommManager.navText;
         if (rawNavText.length() > 0) {
             // Strip accents so Vietnamese renders cleanly on Instinct system fonts
@@ -1285,7 +1350,16 @@ class NavigationIQView extends WatchUi.View {
         }
 
         var streetText = CommManager.navText;
-        if (streetText.length() > 0) {
+        if (distYVal == 0) {
+            distYVal = badgeCy + badgeR + (h * 0.075).toNumber();
+        }
+        var minTextY = isTiny ? (distYVal + 18) : (isMid ? (distYVal + (h * 0.120).toNumber()) : (distYVal + (h * 0.080).toNumber()));
+        var maxTextH = pillY - (isTiny ? 4 : 6) - minTextY;
+        if (maxTextH < 16) { maxTextH = 16; }
+
+        if (CommManager.isToastActive()) {
+            _drawNotificationToast(dc, (w * 0.08).toNumber(), minTextY, (w * 0.84).toNumber(), maxTextH, true);
+        } else if (streetText.length() > 0) {
             // Strip accents on devices with system fonts lacking Vietnamese Unicode
             if (!isSfFontActive()) {
                 streetText = TextRenderer.stripAccents(streetText);
@@ -1303,13 +1377,6 @@ class NavigationIQView extends WatchUi.View {
             var hAct = dc.getFontHeight(fontBold) + linePad;
             var hStr = dc.getFontHeight(fontStreet) + linePad;
             var totalTextH = (linesAct.size() * hAct) + (linesStr.size() * hStr);
-
-            if (distYVal == 0) {
-                distYVal = badgeCy + badgeR + (h * 0.075).toNumber();
-            }
-            var minTextY = isTiny ? (distYVal + 18) : (isMid ? (distYVal + (h * 0.120).toNumber()) : (distYVal + (h * 0.080).toNumber()));
-            var maxTextH = pillY - (isTiny ? 4 : 6) - minTextY;
-            if (maxTextH < 16) { maxTextH = 16; }
 
             if (totalTextH <= maxTextH) {
                 var startTextY = minTextY + ((maxTextH - totalTextH) / 2);
