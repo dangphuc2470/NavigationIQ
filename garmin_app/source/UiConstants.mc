@@ -13,8 +13,8 @@ const SCREEN_H = 360;
 const CARD_X = 0;
 const CARD_Y = 0;
 const CARD_W = 320;
-const CARD_H = 280;
-const CARD_RADIUS = 30;
+const CARD_H = 294;
+const CARD_RADIUS = 28;
 
 // 3. Turn Badge Geometry
 const BADGE_OFFSET_X = 52;
@@ -35,16 +35,16 @@ const NAV_TEXT_PADDING_X = 14;
 const NAV_TEXT_OFFSET_Y = 0;
 const NAV_TEXT_BOTTOM_PADDING = 14;
 
-// 7. Bottom Pill Bar Layout (Distinct Rounded Pill Card)
-const BAR_Y = 288;
-const BAR_H = 72;
-const BAR_RADIUS = 30;
+// 7. Bottom Pill Bar Layout (Distinct Rounded Pill Card - Compact & Balanced)
+const BAR_Y = 302;
+const BAR_H = 52;
+const BAR_RADIUS = 26;
 
-// 8. ETA Capsule Badge
-const ETA_BADGE_W = 142;
-const ETA_BADGE_H = 44;
-const ETA_BADGE_RADIUS = 22;
-const ETA_BADGE_PADDING_X = 12;
+// 8. ETA Capsule Badge (Symmetric in left half of 320px screen)
+const ETA_BADGE_W = 138;
+const ETA_BADGE_H = 38;
+const ETA_BADGE_RADIUS = 19;
+const ETA_BADGE_PADDING_X = 10;
 
 // 9. Ambient Glow Radial Gradient (Ultra-Smooth 120-Step Diffusion)
 const GLOW_STEPS = 120;

@@ -12,89 +12,161 @@ class VectorArrowRenderer {
     // High-Precision Vector Turn Arrow Engine
     // -------------------------------------------------------------------------
     public static function drawVectorArrow(dc as Dc, cx as Number, cy as Number, dir as Number, exitNum as Number, arrowAccent as Number) as Void {
-        cy = cy - 4;
         dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT);
 
         // --- ROUNDABOUT WITH SEAMLESS CURVED ARC ---
         if (dir >= DIR_ROUNDABOUT_1 && dir <= DIR_ROUNDABOUT_5) {
-            var roundR = 14;
-            var roundCy = cy - 2;
+            var isSmall = (dc.getWidth() <= 200);
 
-            // 1. Subtle background track of the roundabout island
-            dc.setPenWidth(3);
-            dc.setColor(0x3F3F46, Graphics.COLOR_TRANSPARENT);
-            dc.drawCircle(cx, roundCy, roundR);
+            if (isSmall) {
+                // Compact Roundabout (Instinct Crossover, radius ~24)
+                // Center slightly offset (+2) so bottom entrance (cy+16) and top exit arrow (cy-14) are balanced
+                var roundR = 8;
+                var roundCy = cy + 2;
 
-            // 2. Active route path in bright pure white
-            dc.setColor(0xFFFFFF, Graphics.COLOR_TRANSPARENT);
-            dc.setPenWidth(6);
+                // 1. Background ring (1px white line for clear visibility on 1-bit monochrome MIP)
+                dc.setPenWidth(1);
+                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+                dc.drawCircle(cx, roundCy, roundR);
 
-            // Entrance branch from bottom
-            dc.drawLine(cx - 5, cy + 18, cx - 5, roundCy + 13);
+                // 2. Active route path (4px prominent white stroke)
+                dc.setPenWidth(4);
 
-            if (dir == DIR_ROUNDABOUT_1) {
-                // Exit 1: Turn right (leaves at ~15° / 2 o'clock)
-                if (dc has :drawArc) {
-                    dc.drawArc(cx, roundCy, roundR, Graphics.ARC_COUNTER_CLOCKWISE, 250, 15);
+                // Entrance branch from bottom
+                dc.drawLine(cx - 3, roundCy + 14, cx - 3, roundCy + 6);
+
+                if (dir == DIR_ROUNDABOUT_1) {
+                    if (dc has :drawArc) {
+                        dc.drawArc(cx, roundCy, roundR, Graphics.ARC_COUNTER_CLOCKWISE, 250, 15);
+                    }
+                    dc.drawLine(cx + 6, roundCy - 2, cx + 10, roundCy - 2);
+                    var head = [
+                        [cx + 9, roundCy - 6],
+                        [cx + 15, roundCy - 2],
+                        [cx + 9, roundCy + 2]
+                    ];
+                    dc.fillPolygon(head);
+                } else if (dir == DIR_ROUNDABOUT_2) {
+                    if (dc has :drawArc) {
+                        dc.drawArc(cx, roundCy, roundR, Graphics.ARC_COUNTER_CLOCKWISE, 250, 90);
+                    }
+                    dc.drawLine(cx, roundCy - 7, cx, roundCy - 11);
+                    var head = [
+                        [cx - 4, roundCy - 10],
+                        [cx, roundCy - 16],
+                        [cx + 4, roundCy - 10]
+                    ];
+                    dc.fillPolygon(head);
+                } else if (dir == DIR_ROUNDABOUT_3) {
+                    if (dc has :drawArc) {
+                        dc.drawArc(cx, roundCy, roundR, Graphics.ARC_COUNTER_CLOCKWISE, 250, 145);
+                    }
+                    dc.drawLine(cx - 5, roundCy - 5, cx - 9, roundCy - 9);
+                    var head = [
+                        [cx - 5, roundCy - 11],
+                        [cx - 14, roundCy - 14],
+                        [cx - 11, roundCy - 5]
+                    ];
+                    dc.fillPolygon(head);
+                } else if (dir == DIR_ROUNDABOUT_4) {
+                    if (dc has :drawArc) {
+                        dc.drawArc(cx, roundCy, roundR, Graphics.ARC_COUNTER_CLOCKWISE, 250, 200);
+                    }
+                    dc.drawLine(cx - 7, roundCy + 2, cx - 11, roundCy + 2);
+                    var head = [
+                        [cx - 9, roundCy - 2],
+                        [cx - 15, roundCy + 2],
+                        [cx - 9, roundCy + 6]
+                    ];
+                    dc.fillPolygon(head);
+                } else {
+                    if (dc has :drawArc) {
+                        dc.drawArc(cx, roundCy, roundR, Graphics.ARC_COUNTER_CLOCKWISE, 250, 240);
+                    }
+                    dc.drawLine(cx - 5, roundCy + 5, cx - 9, roundCy + 9);
+                    var head = [
+                        [cx - 11, roundCy + 5],
+                        [cx - 13, roundCy + 14],
+                        [cx - 5, roundCy + 12]
+                    ];
+                    dc.fillPolygon(head);
                 }
-                dc.drawLine(cx + 12, roundCy - 4, cx + 20, roundCy - 4);
-                var head = [
-                    [cx + 17, roundCy - 12],
-                    [cx + 27, roundCy - 4],
-                    [cx + 17, roundCy + 4]
-                ];
-                dc.fillPolygon(head);
-            } else if (dir == DIR_ROUNDABOUT_2) {
-                // Exit 2: Straight ahead (leaves at 90° / 12 o'clock)
-                if (dc has :drawArc) {
-                    dc.drawArc(cx, roundCy, roundR, Graphics.ARC_COUNTER_CLOCKWISE, 250, 90);
-                }
-                dc.drawLine(cx, roundCy - 13, cx, roundCy - 21);
-                var head = [
-                    [cx - 8, roundCy - 19],
-                    [cx, roundCy - 29],
-                    [cx + 8, roundCy - 19]
-                ];
-                dc.fillPolygon(head);
-            } else if (dir == DIR_ROUNDABOUT_3) {
-                // Exit 3: Straight / Left (leaves at 135° or 180°)
-                if (dc has :drawArc) {
-                    dc.drawArc(cx, roundCy, roundR, Graphics.ARC_COUNTER_CLOCKWISE, 250, 150);
-                }
-                dc.drawLine(cx - 9, roundCy - 9, cx - 18, roundCy - 18);
-                var head = [
-                    [cx - 8, roundCy - 21],
-                    [cx - 24, roundCy - 24],
-                    [cx - 21, roundCy - 8]
-                ];
-                dc.fillPolygon(head);
-            } else if (dir == DIR_ROUNDABOUT_4) {
-                // Exit 4: Left (leaves at 180° / 9 o'clock)
-                if (dc has :drawArc) {
-                    dc.drawArc(cx, roundCy, roundR, Graphics.ARC_COUNTER_CLOCKWISE, 250, 195);
-                }
-                dc.drawLine(cx - 12, roundCy + 3, cx - 20, roundCy + 3);
-                var head = [
-                    [cx - 17, roundCy - 5],
-                    [cx - 27, roundCy + 3],
-                    [cx - 17, roundCy + 11]
-                ];
-                dc.fillPolygon(head);
             } else {
-                // Exit 5: U-turn around roundabout (leaves at 225° / 7 o'clock)
-                if (dc has :drawArc) {
-                    dc.drawArc(cx, roundCy, roundR, Graphics.ARC_COUNTER_CLOCKWISE, 250, 235);
+                // Full-size Roundabout (Venu 2, Venu Sq 2, radius ~36)
+                // Center slightly offset (+2) so bottom entrance (cy+21) and top exit arrow (cy-21) are perfectly balanced
+                var roundR = 13;
+                var roundCy = cy + 2;
+
+                dc.setPenWidth(3);
+                dc.setColor(0x3F3F46, Graphics.COLOR_TRANSPARENT);
+                dc.drawCircle(cx, roundCy, roundR);
+
+                dc.setColor(arrowAccent, Graphics.COLOR_TRANSPARENT);
+                dc.setPenWidth(6);
+
+                dc.drawLine(cx - 4, roundCy + 19, cx - 4, roundCy + 10);
+
+                if (dir == DIR_ROUNDABOUT_1) {
+                    if (dc has :drawArc) {
+                        dc.drawArc(cx, roundCy, roundR, Graphics.ARC_COUNTER_CLOCKWISE, 250, 15);
+                    }
+                    dc.drawLine(cx + 9, roundCy - 3, cx + 15, roundCy - 3);
+                    var head = [
+                        [cx + 13, roundCy - 9],
+                        [cx + 22, roundCy - 3],
+                        [cx + 13, roundCy + 3]
+                    ];
+                    dc.fillPolygon(head);
+                } else if (dir == DIR_ROUNDABOUT_2) {
+                    if (dc has :drawArc) {
+                        dc.drawArc(cx, roundCy, roundR, Graphics.ARC_COUNTER_CLOCKWISE, 250, 90);
+                    }
+                    dc.drawLine(cx, roundCy - 11, cx, roundCy - 17);
+                    var head = [
+                        [cx - 6, roundCy - 15],
+                        [cx, roundCy - 23],
+                        [cx + 6, roundCy - 15]
+                    ];
+                    dc.fillPolygon(head);
+                } else if (dir == DIR_ROUNDABOUT_3) {
+                    if (dc has :drawArc) {
+                        dc.drawArc(cx, roundCy, roundR, Graphics.ARC_COUNTER_CLOCKWISE, 250, 150);
+                    }
+                    dc.drawLine(cx - 8, roundCy - 8, cx - 14, roundCy - 14);
+                    var head = [
+                        [cx - 8, roundCy - 17],
+                        [cx - 20, roundCy - 20],
+                        [cx - 17, roundCy - 8]
+                    ];
+                    dc.fillPolygon(head);
+                } else if (dir == DIR_ROUNDABOUT_4) {
+                    if (dc has :drawArc) {
+                        dc.drawArc(cx, roundCy, roundR, Graphics.ARC_COUNTER_CLOCKWISE, 250, 195);
+                    }
+                    dc.drawLine(cx - 10, roundCy + 3, cx - 16, roundCy + 3);
+                    var head = [
+                        [cx - 13, roundCy - 3],
+                        [cx - 22, roundCy + 3],
+                        [cx - 13, roundCy + 9]
+                    ];
+                    dc.fillPolygon(head);
+                } else {
+                    if (dc has :drawArc) {
+                        dc.drawArc(cx, roundCy, roundR, Graphics.ARC_COUNTER_CLOCKWISE, 250, 235);
+                    }
+                    dc.drawLine(cx - 7, roundCy + 7, cx - 13, roundCy + 13);
+                    var head = [
+                        [cx - 15, roundCy + 7],
+                        [cx - 19, roundCy + 19],
+                        [cx - 7, roundCy + 15]
+                    ];
+                    dc.fillPolygon(head);
                 }
-                dc.drawLine(cx - 9, roundCy + 9, cx - 17, roundCy + 17);
-                var head = [
-                    [cx - 19, roundCy + 9],
-                    [cx - 23, roundCy + 23],
-                    [cx - 9, roundCy + 19]
-                ];
-                dc.fillPolygon(head);
             }
             return;
         }
+
+        cy = cy - 4;
 
         // --- STANDARD MANEUVER ARROWS ---
         if (dir == DIR_LEFT || dir == DIR_SHARP_LEFT) {

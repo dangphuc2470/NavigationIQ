@@ -22,6 +22,7 @@ class NavigationIQView extends WatchUi.View {
     private var _fontSfMicroRot90 as Graphics.FontDefinition?;
     private var _fontSfNumberHot as Graphics.FontDefinition?;
     private var _fontSfNumberMild as Graphics.FontDefinition?;
+    private var _fontSfUnit as Graphics.FontDefinition?;
 
     private var _layoutProfile as Number = 0; // 0 = Auto, 1 = Rect (Venu Sq), 2 = Round, 3 = Instinct Crossover
     private var _appFontSetting as Number = 0; // 0 = Auto, 1 = Apple SF Pro, 2 = Garmin Native
@@ -53,15 +54,18 @@ class NavigationIQView extends WatchUi.View {
     function initialize() {
         View.initialize();
         _pageTimer = new Timer.Timer();
-        try { _fontSfStreetBold = WatchUi.loadResource(Rez.Fonts.SfStreetBold) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfStreetBold: " + e.getErrorMessage()); }
-        try { _fontSfStreet = WatchUi.loadResource(Rez.Fonts.SfStreet) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfStreet: " + e.getErrorMessage()); }
-        try { _fontSfCompactBold = WatchUi.loadResource(Rez.Fonts.SfCompactBold) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfCompactBold: " + e.getErrorMessage()); }
-        try { _fontSfCompact = WatchUi.loadResource(Rez.Fonts.SfCompact) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfCompact: " + e.getErrorMessage()); }
-        try { _fontSfMicro = WatchUi.loadResource(Rez.Fonts.SfMicro) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfMicro: " + e.getErrorMessage()); }
-        try { _fontSfStreetBoldRot90 = WatchUi.loadResource(Rez.Fonts.SfStreetBoldRot90) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfStreetBoldRot90: " + e.getErrorMessage()); }
-        try { _fontSfStreetRot90 = WatchUi.loadResource(Rez.Fonts.SfStreetRot90) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfStreetRot90: " + e.getErrorMessage()); }
-        try { _fontSfMicroRot90 = WatchUi.loadResource(Rez.Fonts.SfMicroRot90) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfMicroRot90: " + e.getErrorMessage()); }
         reloadSettings();
+        if (isSfFontActive()) {
+            try { _fontSfStreetBold = WatchUi.loadResource(Rez.Fonts.SfStreetBold) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfStreetBold: " + e.getErrorMessage()); }
+            try { _fontSfStreet = WatchUi.loadResource(Rez.Fonts.SfStreet) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfStreet: " + e.getErrorMessage()); }
+            try { _fontSfCompactBold = WatchUi.loadResource(Rez.Fonts.SfCompactBold) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfCompactBold: " + e.getErrorMessage()); }
+            try { _fontSfCompact = WatchUi.loadResource(Rez.Fonts.SfCompact) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfCompact: " + e.getErrorMessage()); }
+            try { _fontSfMicro = WatchUi.loadResource(Rez.Fonts.SfMicro) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfMicro: " + e.getErrorMessage()); }
+            try { _fontSfStreetBoldRot90 = WatchUi.loadResource(Rez.Fonts.SfStreetBoldRot90) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfStreetBoldRot90: " + e.getErrorMessage()); }
+            try { _fontSfStreetRot90 = WatchUi.loadResource(Rez.Fonts.SfStreetRot90) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfStreetRot90: " + e.getErrorMessage()); }
+            try { _fontSfMicroRot90 = WatchUi.loadResource(Rez.Fonts.SfMicroRot90) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfMicroRot90: " + e.getErrorMessage()); }
+            try { _fontSfUnit = WatchUi.loadResource(Rez.Fonts.SfUnit) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfUnit: " + e.getErrorMessage()); }
+        }
     }
 
     public function reloadSettings() as Void {
@@ -83,12 +87,15 @@ class NavigationIQView extends WatchUi.View {
     }
 
     public function isSfFontActive() as Boolean {
+        var sysStats = System.getSystemStats();
+        if (sysStats.totalMemory < 128 * 1024) {
+            return false;
+        }
         if (_appFontSetting == 1) {
             return true;
         } else if (_appFontSetting == 2) {
             return false;
         }
-        var sysStats = System.getSystemStats();
         return (sysStats.totalMemory >= 512 * 1024);
     }
 
@@ -319,7 +326,7 @@ class NavigationIQView extends WatchUi.View {
         }
         if (_isPreviewMode) {
             _previewTimerTicks++;
-            if (_previewTimerTicks % 20 == 0) { // 20 ticks * 200ms = 4000ms (4s)
+            if (_previewTimerTicks % 36 == 0) { // 36 ticks * 200ms = 7200ms (7.2s)
                 _previewIndex++;
                 PreviewManager.applyStep(_previewIndex);
             }
@@ -376,16 +383,26 @@ class NavigationIQView extends WatchUi.View {
     // Idle Standby Screen
     // -------------------------------------------------------------------------
     private function _drawIdleScreen(dc as Dc) as Void {
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+        var isRound = (getEffectiveProfile(dc) == 2);
+
         var fontMicro = isSfFontActive() ? ((_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY) : Graphics.FONT_XTINY;
         var fontBold = isSfFontActive() ? ((_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_LARGE) : Graphics.FONT_LARGE;
         var fontStreet = isSfFontActive() ? ((_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL) : Graphics.FONT_SMALL;
+
+        var cx = w / 2;
+        var cy = isRound ? (h * 0.38).toNumber() : 135;
+        var r = (w < 340) ? 44 : 50;
+
+        VectorArrowRenderer.drawAmbientGlow(dc, cx, cy, GLOW_RGB_CYAN);
 
         var isConnected = CommManager.isConnected() || (CommManager.rxCount > 0);
         var statusStr = isConnected ? Lang.format("Connected ($1$)", [CommManager.rxCount]) : "Ready";
         var strW = dc.getTextWidthInPixels(statusStr, fontMicro);
         var pillW = strW + 28;
-        var pillX = (320 - pillW) / 2;
-        var pillY = 16;
+        var pillX = (w - pillW) / 2;
+        var pillY = isRound ? (h * 0.08).toNumber() : 16;
 
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
         dc.fillRoundedRectangle(pillX, pillY, pillW, 30, 15);
@@ -398,12 +415,6 @@ class NavigationIQView extends WatchUi.View {
 
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(pillX + 22, pillY + 14, fontMicro, statusStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-
-        var cx = 160;
-        var cy = 135;
-        var r = 50;
-
-        VectorArrowRenderer.drawAmbientGlow(dc, cx, cy, GLOW_RGB_CYAN);
 
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(cx, cy, r);
@@ -419,32 +430,50 @@ class NavigationIQView extends WatchUi.View {
             [cx - 20, cy + 20]
         ]);
 
+        var textSpacing = isRound ? 32 : 28;
+        var titleY = cy + r + (isRound ? 30 : 26);
+        var subTitleY = titleY + textSpacing;
+
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(160, 215, fontBold, "Navigation IQ", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(cx, titleY, fontBold, "Navigation IQ", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(160, 246, fontStreet, "Waiting for navigation", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(cx, subTitleY, fontStreet, "Waiting for navigation", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
 
         var bottomStr = timeStr;
         var bottomW = dc.getTextWidthInPixels(bottomStr, fontMicro) + 26;
-        var bottomX = (320 - bottomW) / 2;
-        var bottomY = 314;
+        var bottomH = 32;
+        var bottomX = (w - bottomW) / 2;
+        var bottomY = isRound ? (h * 0.82).toNumber() : (h - 46);
 
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(bottomX, bottomY, bottomW, 32, 16);
+        dc.fillRoundedRectangle(bottomX, bottomY, bottomW, bottomH, 16);
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.drawRoundedRectangle(bottomX, bottomY, bottomW, 32, 16);
+        dc.drawRoundedRectangle(bottomX, bottomY, bottomW, bottomH, 16);
         dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(160, bottomY + 13, fontMicro, bottomStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(cx, bottomY + 15, fontMicro, bottomStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
     // -------------------------------------------------------------------------
     // Unified Apple Watch Style Aero HUD with Ambient Glow Gradient
     // -------------------------------------------------------------------------
     private function _drawUnifiedAppleHUD(dc as Dc) as Void {
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+
+        var cardW = (w <= 320) ? w : 320;
+        var cardH = CARD_H;
+        var barH = BAR_H;
+        var gap = 8;
+        var totalH = cardH + gap + barH;
+
+        var cardX = (w - cardW) / 2;
+        var cardY = (h > totalH) ? ((h - totalH) / 2) : 0;
+        var barY = cardY + cardH + gap;
+
         var theme = getNavTheme(CommManager.direction);
         var accentColor = theme[0] as Number;
         var badgeBgColor = theme[1] as Number;
@@ -452,17 +481,17 @@ class NavigationIQView extends WatchUi.View {
         var etaBgColor = theme[3] as Number;
 
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(CARD_X, CARD_Y, CARD_W, CARD_H, CARD_RADIUS);
+        dc.fillRoundedRectangle(cardX, cardY, cardW, cardH, CARD_RADIUS);
 
-        var badgeCx = CARD_X + BADGE_OFFSET_X;
-        var badgeCy = CARD_Y + BADGE_OFFSET_Y;
+        var badgeCx = cardX + BADGE_OFFSET_X;
+        var badgeCy = cardY + BADGE_OFFSET_Y;
 
         VectorArrowRenderer.drawAmbientGlow(dc, badgeCx, badgeCy, glowRGB);
-        VectorArrowRenderer.maskCardCorners(dc, CARD_X, CARD_Y, CARD_W, CARD_H, CARD_RADIUS);
+        VectorArrowRenderer.maskCardCorners(dc, cardX, cardY, cardW, cardH, CARD_RADIUS);
 
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawRoundedRectangle(CARD_X, CARD_Y, CARD_W, CARD_H, CARD_RADIUS);
+        dc.drawRoundedRectangle(cardX, cardY, cardW, cardH, CARD_RADIUS);
 
         dc.setColor(badgeBgColor, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(badgeCx, badgeCy, BADGE_RADIUS);
@@ -483,7 +512,7 @@ class NavigationIQView extends WatchUi.View {
             var distNum = parts[0];
             var distUnit = parts[1];
 
-            var numX = CARD_X + DIST_OFFSET_X;
+            var numX = cardX + DIST_OFFSET_X;
             var numY = badgeCy;
             var numFont = _getDistanceFont(distNum, distUnit);
 
@@ -498,11 +527,11 @@ class NavigationIQView extends WatchUi.View {
             // Bold Silver Unit (km / m / mi / ft) prominently aligned to baseline
             var numWidth = dc.getTextWidthInPixels(distNum, numFont);
             if (distUnit.length() > 0) {
-                var unitFont = isSfFontActive() ? ((_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_LARGE) : Graphics.FONT_MEDIUM;
+                var unitFont = isSfFontActive() ? ((_fontSfUnit != null) ? _fontSfUnit : Graphics.FONT_LARGE) : Graphics.FONT_LARGE;
                 dc.setColor(COLOR_TEXT_UNIT, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(
                     numX + numWidth + DIST_UNIT_GAP,
-                    badgeCy + 5,
+                    badgeCy + 6,
                     unitFont,
                     distUnit,
                     Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
@@ -510,26 +539,26 @@ class NavigationIQView extends WatchUi.View {
             }
         }
 
-        var divY = CARD_Y + DIVIDER_OFFSET_Y;
+        var divY = cardY + DIVIDER_OFFSET_Y;
         dc.setColor(COLOR_DIVIDER, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawLine(CARD_X + DIVIDER_PADDING_X, divY, CARD_X + CARD_W - DIVIDER_PADDING_X, divY);
+        dc.drawLine(cardX + DIVIDER_PADDING_X, divY, cardX + cardW - DIVIDER_PADDING_X, divY);
 
         var streetText = CommManager.navText;
         if (streetText.length() > 0) {
-            _drawDynamicWrappedText(dc, CARD_X + NAV_TEXT_PADDING_X, divY + NAV_TEXT_OFFSET_Y, CARD_W - (NAV_TEXT_PADDING_X * 2), CARD_H - (divY - CARD_Y) - NAV_TEXT_BOTTOM_PADDING, streetText, accentColor);
+            _drawDynamicWrappedText(dc, cardX + NAV_TEXT_PADDING_X, divY + NAV_TEXT_OFFSET_Y, cardW - (NAV_TEXT_PADDING_X * 2), cardH - (divY - cardY) - NAV_TEXT_BOTTOM_PADDING, streetText, accentColor);
         }
 
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(CARD_X, BAR_Y, CARD_W, BAR_H, BAR_RADIUS);
-        VectorArrowRenderer.maskCardCorners(dc, CARD_X, BAR_Y, CARD_W, BAR_H, BAR_RADIUS);
+        dc.fillRoundedRectangle(cardX, barY, cardW, barH, BAR_RADIUS);
+        VectorArrowRenderer.maskCardCorners(dc, cardX, barY, cardW, barH, BAR_RADIUS);
 
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
-        dc.drawRoundedRectangle(CARD_X, BAR_Y, CARD_W, BAR_H, BAR_RADIUS);
+        dc.drawRoundedRectangle(cardX, barY, cardW, barH, BAR_RADIUS);
 
-        var etaBadgeX = CARD_X + ETA_BADGE_PADDING_X;
-        var etaBadgeY = BAR_Y + ((BAR_H - ETA_BADGE_H) / 2);
+        var etaBadgeX = cardX + ETA_BADGE_PADDING_X;
+        var etaBadgeY = barY + ((barH - ETA_BADGE_H) / 2);
 
         dc.setColor(etaBgColor, Graphics.COLOR_TRANSPARENT);
         dc.fillRoundedRectangle(etaBadgeX, etaBadgeY, ETA_BADGE_W, ETA_BADGE_H, ETA_BADGE_RADIUS);
@@ -538,16 +567,35 @@ class NavigationIQView extends WatchUi.View {
         dc.setPenWidth(1);
         dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, ETA_BADGE_W, ETA_BADGE_H, ETA_BADGE_RADIUS);
 
+        var barCenterY = barY + (barH / 2);
+        var microFont = isSfFontActive() ? ((_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY) : Graphics.FONT_XTINY;
+
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        var etaCenterY = BAR_Y + (BAR_H / 2) - 1;
-        TextRenderer.drawMicroText(dc, etaBadgeX + (ETA_BADGE_W / 2), etaCenterY, etaStr, COLOR_TEXT_WHITE, true);
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(
+            etaBadgeX + (ETA_BADGE_W / 2),
+            barCenterY,
+            microFont,
+            etaStr,
+            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+        );
 
+        // Center Bullet Dot: Exactly at the horizontal center of the card
+        var dotX = cardX + (cardW / 2);
         dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(CARD_X + 178, etaCenterY, 2);
+        dc.fillCircle(dotX, barCenterY, 2.5);
 
+        // Right Column: Live Clock centered in the right half of the card
         var clockTime = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
-        TextRenderer.drawMicroText(dc, CARD_X + 276, etaCenterY, timeStr, COLOR_TEXT_SILVER, false);
+        dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(
+            dotX + ((cardX + cardW - dotX) / 2),
+            barCenterY,
+            microFont,
+            timeStr,
+            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+        );
     }
 
     // -------------------------------------------------------------------------
@@ -555,20 +603,26 @@ class NavigationIQView extends WatchUi.View {
     // -------------------------------------------------------------------------
     private function _renderScrollingBlock(
         dc as Dc,
-        lines1 as Array<String>,
-        font1 as Graphics.FontDefinition,
-        color1 as Number,
-        h1 as Number,
-        lines2 as Array<String>?,
-        font2 as Graphics.FontDefinition?,
-        color2 as Number?,
-        h2 as Number?,
-        startX as Number,
-        startY as Number,
-        maxWidth as Number,
-        maxHeight as Number,
+        block1 as Array,
+        block2 as Array?,
+        bounds as Array<Number>,
         accentColor as Number
     ) as Void {
+        var lines1 = block1[0] as Array<String>;
+        var font1 = block1[1] as Graphics.FontDefinition;
+        var color1 = block1[2] as Number;
+        var h1 = block1[3] as Number;
+
+        var lines2 = (block2 != null) ? (block2[0] as Array<String>) : null;
+        var font2 = (block2 != null) ? (block2[1] as Graphics.FontDefinition) : null;
+        var color2 = (block2 != null) ? (block2[2] as Number) : null;
+        var h2 = (block2 != null) ? (block2[3] as Number) : null;
+
+        var startX = bounds[0];
+        var startY = bounds[1];
+        var maxWidth = bounds[2];
+        var maxHeight = bounds[3];
+
         var count1 = lines1.size();
         var count2 = (lines2 != null) ? lines2.size() : 0;
         var totalH = (count1 * h1) + (count2 * ((h2 != null) ? h2 : 0));
@@ -660,17 +714,19 @@ class NavigationIQView extends WatchUi.View {
             fontCompactReg = Graphics.FONT_TINY;
         }
 
+        var bounds = [startX, startY, maxWidth, maxHeight] as Array<Number>;
+
         if (streetText.length() == 0) {
             var linesStreet = TextRenderer.wrapWithFont(dc, actionText, fontActionBold, maxWidth);
             var fontHStreet = dc.getFontHeight(fontActionBold) + 2;
             if (linesStreet.size() <= 2 && (linesStreet.size() * fontHStreet) <= maxHeight) {
-                _renderScrollingBlock(dc, linesStreet, fontActionBold, Graphics.COLOR_WHITE, fontHStreet, null, null, null, null, startX, startY, maxWidth, maxHeight, accentColor);
+                _renderScrollingBlock(dc, [linesStreet, fontActionBold, Graphics.COLOR_WHITE, fontHStreet], null, bounds, accentColor);
                 return;
             }
 
             var linesCompact = TextRenderer.wrapWithFont(dc, actionText, fontCompactBold, maxWidth);
             var fontHCompact = dc.getFontHeight(fontCompactBold) + 2;
-            _renderScrollingBlock(dc, linesCompact, fontCompactBold, Graphics.COLOR_WHITE, fontHCompact, null, null, null, null, startX, startY, maxWidth, maxHeight, accentColor);
+            _renderScrollingBlock(dc, [linesCompact, fontCompactBold, Graphics.COLOR_WHITE, fontHCompact], null, bounds, accentColor);
             return;
         }
 
@@ -681,7 +737,7 @@ class NavigationIQView extends WatchUi.View {
         var totalH = (linesAct.size() * hAct) + (linesStr.size() * hStr);
 
         if (totalH <= maxHeight) {
-            _renderScrollingBlock(dc, linesAct, fontActionBold, Graphics.COLOR_WHITE, hAct, linesStr, fontStreetReg, 0xE4E4E7, hStr, startX, startY, maxWidth, maxHeight, accentColor);
+            _renderScrollingBlock(dc, [linesAct, fontActionBold, Graphics.COLOR_WHITE, hAct], [linesStr, fontStreetReg, 0xE4E4E7, hStr], bounds, accentColor);
             return;
         }
 
@@ -690,7 +746,7 @@ class NavigationIQView extends WatchUi.View {
         hAct = dc.getFontHeight(fontCompactBold) + 2;
         hStr = dc.getFontHeight(fontCompactReg) + 2;
 
-        _renderScrollingBlock(dc, linesAct, fontCompactBold, Graphics.COLOR_WHITE, hAct, linesStr, fontCompactReg, 0xE4E4E7, hStr, startX, startY, maxWidth, maxHeight, accentColor);
+        _renderScrollingBlock(dc, [linesAct, fontCompactBold, Graphics.COLOR_WHITE, hAct], [linesStr, fontCompactReg, 0xE4E4E7, hStr], bounds, accentColor);
     }
 
     // -------------------------------------------------------------------------
@@ -872,6 +928,7 @@ class NavigationIQView extends WatchUi.View {
         var w = dc.getWidth();
         var h = dc.getHeight();
 
+        // 1. Badge (turn arrow) - inside circular sub-window
         var badgeCx = 34;
         var badgeCy = 36;
         var badgeR = 24;
@@ -890,48 +947,137 @@ class NavigationIQView extends WatchUi.View {
             VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, Graphics.COLOR_WHITE, _animTick);
         }
 
+        // 2. Top Right Area (X = 66 to w - 4): Distance (Row 1) & ETA/Clock (Row 2)
         var distFull = CommManager.distText;
+        var distNum = "";
+        var distUnit = "";
         if (distFull.length() > 0) {
-            var parts = TextRenderer.splitDist(distFull, isSfNumberFontActive());
-            var distNum = parts[0];
-            var distUnit = parts[1];
+            var parts = TextRenderer.splitDist(distFull, false);
+            distNum = parts[0];
+            distUnit = parts[1];
+        }
 
-            var numFont = Graphics.FONT_NUMBER_MILD;
-            if (distNum.length() > 3) {
-                numFont = Graphics.FONT_LARGE;
-            }
+        var numFont = Graphics.FONT_NUMBER_MILD;
+        if (distNum.length() > 3) {
+            numFont = Graphics.FONT_LARGE;
+        }
 
+        // Row 1: Distance
+        if (distNum.length() > 0) {
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(66, 36, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            dc.drawText(66, 24, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
             var numW = dc.getTextWidthInPixels(distNum, numFont);
             if (distUnit.length() > 0) {
-                dc.drawText(66 + numW + 4, 36, Graphics.FONT_SMALL, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+                dc.drawText(66 + numW + 3, 26, Graphics.FONT_SMALL, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
             }
         }
 
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawLine(8, 70, w - 8, 70);
-        dc.drawLine(8, 102, w - 8, 102);
-
-        var streetText = CommManager.navText;
-        if (streetText.length() > 0) {
-            var lines = TextRenderer.wrapWithFont(dc, streetText, Graphics.FONT_TINY, w - 16);
-            var textY = 106;
-            for (var i = 0; i < lines.size() && i < 2; i++) {
-                dc.drawText(w / 2, textY, Graphics.FONT_TINY, lines[i], Graphics.TEXT_JUSTIFY_CENTER);
-                textY += 16;
-            }
-        }
-
+        // Row 2: ETA & Clock (Right below distance, above divider line Y = 70)
         var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
         var clock = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
+        var infoTopStr = etaStr + "  " + timeStr;
 
+        dc.setColor(0xE4E4E7, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(66, 52, Graphics.FONT_XTINY, infoTopStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+
+        // 3. Divider lines for physical watch hands zone
+        var divY1 = 70;
+        var divY2 = 102;
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(12, h - 14, Graphics.FONT_XTINY, etaStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(w - 12, h - 14, Graphics.FONT_XTINY, timeStr, Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.setPenWidth(1);
+        dc.drawLine(8, divY1, w - 8, divY1);
+        dc.drawLine(8, divY2, w - 8, divY2);
+
+        // 4. Bottom Navigation Text Zone (Y: 104 to h - 4 = 172, height = 68px)
+        // 100% dedicated to navigation instructions, unaccented for clean ASCII display!
+        var rawNavText = CommManager.navText;
+        if (rawNavText.length() > 0) {
+            // Strip accents so Vietnamese renders cleanly on Instinct system fonts
+            var streetText = TextRenderer.stripAccents(rawNavText);
+
+            var fontBold = Graphics.FONT_SMALL;
+            var fontStreet = Graphics.FONT_TINY;
+            var maxW = w - 16;
+            var textZoneTop = divY2 + 3;
+            var textZoneH = h - textZoneTop - 3;
+
+            var parts = TextRenderer.splitActionAndStreet(streetText);
+            var actionText = parts[0];
+            var street = parts[1];
+
+            var linesAct = TextRenderer.wrapWithFont(dc, actionText, fontBold, maxW);
+            var linesStr = (street.length() > 0) ? TextRenderer.wrapWithFont(dc, street, fontStreet, maxW) : [] as Array<String>;
+
+            var hAct = dc.getFontHeight(fontBold) + 1;
+            var hStr = dc.getFontHeight(fontStreet) + 1;
+            var totalTextH = (linesAct.size() * hAct) + (linesStr.size() * hStr);
+
+            if (totalTextH <= textZoneH) {
+                var curY = textZoneTop + (textZoneH - totalTextH) / 2;
+                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+                for (var i = 0; i < linesAct.size(); i++) {
+                    dc.drawText(w / 2, curY, fontBold, linesAct[i], Graphics.TEXT_JUSTIFY_CENTER);
+                    curY += hAct;
+                }
+
+                dc.setColor(0xE4E4E7, Graphics.COLOR_TRANSPARENT);
+                for (var j = 0; j < linesStr.size(); j++) {
+                    dc.drawText(w / 2, curY, fontStreet, linesStr[j], Graphics.TEXT_JUSTIFY_CENTER);
+                    curY += hStr;
+                }
+            } else {
+                // Smooth vertical auto-scroll when text is long
+                if (dc has :setClip) {
+                    dc.setClip(2, textZoneTop, w - 4, textZoneH);
+                }
+
+                var overflow = totalTextH - textZoneH + 6;
+                var cycle = _animTick % 36;
+                var scrollOffset = 0;
+
+                if (cycle < 10) {
+                    scrollOffset = 0;
+                } else if (cycle < 24) {
+                    var progress = (cycle - 10).toFloat() / 14.0;
+                    scrollOffset = (progress * overflow).toNumber();
+                } else if (cycle < 30) {
+                    scrollOffset = overflow;
+                } else {
+                    var progress = (cycle - 30).toFloat() / 6.0;
+                    scrollOffset = ((1.0 - progress) * overflow).toNumber();
+                }
+
+                var curY = textZoneTop + 2 - scrollOffset;
+
+                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+                for (var i = 0; i < linesAct.size(); i++) {
+                    dc.drawText(w / 2, curY, fontBold, linesAct[i], Graphics.TEXT_JUSTIFY_CENTER);
+                    curY += hAct;
+                }
+
+                dc.setColor(0xE4E4E7, Graphics.COLOR_TRANSPARENT);
+                for (var j = 0; j < linesStr.size(); j++) {
+                    dc.drawText(w / 2, curY, fontStreet, linesStr[j], Graphics.TEXT_JUSTIFY_CENTER);
+                    curY += hStr;
+                }
+
+                if (dc has :clearClip) {
+                    dc.clearClip();
+                }
+
+                // Vertical scrollbar indicator on right edge
+                var barTrackH = textZoneH - 12;
+                var thumbH = (textZoneH.toFloat() / totalTextH.toFloat() * barTrackH).toNumber();
+                if (thumbH < 6) { thumbH = 6; }
+                var thumbY = textZoneTop + 6 + ((scrollOffset.toFloat() / overflow.toFloat()) * (barTrackH - thumbH)).toNumber();
+
+                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+                dc.setPenWidth(1);
+                dc.drawLine(w - 4, thumbY, w - 4, thumbY + thumbH);
+            }
+        }
     }
 
     private function _drawInstinctIdleScreen(dc as Dc) as Void {
@@ -969,9 +1115,12 @@ class NavigationIQView extends WatchUi.View {
         var fontBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_SMALL;
         var fontStreet = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_TINY;
 
+        var pillH = 34;
+        var pillY = (h * 0.80).toNumber();
+
         var badgeCx = w / 2;
-        var badgeCy = 52;
-        var badgeR = 36;
+        var badgeCy = 48;
+        var badgeR = 34;
 
         VectorArrowRenderer.drawAmbientGlow(dc, badgeCx, badgeCy, glowRGB);
 
@@ -996,16 +1145,18 @@ class NavigationIQView extends WatchUi.View {
 
             var numFont = _getDistanceFont(distNum, distUnit);
             var numW = dc.getTextWidthInPixels(distNum, numFont);
-            var unitW = (distUnit.length() > 0) ? dc.getTextWidthInPixels(distUnit, fontStreet) : 0;
+            var unitFont = isSfFontActive() ? ((_fontSfUnit != null) ? _fontSfUnit : fontStreet) : Graphics.FONT_LARGE;
+            var unitW = (distUnit.length() > 0) ? dc.getTextWidthInPixels(distUnit, unitFont) : 0;
             var totalDistW = numW + 6 + unitW;
             var startDistX = (w - totalDistW) / 2;
 
+            var distY = 120;
             dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(startDistX, 108, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            dc.drawText(startDistX, distY, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
             if (distUnit.length() > 0) {
                 dc.setColor(COLOR_TEXT_UNIT, Graphics.COLOR_TRANSPARENT);
-                dc.drawText(startDistX + numW + 6, 114, fontStreet, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+                dc.drawText(startDistX + numW + 6, distY + 6, unitFont, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
             }
         }
 
@@ -1015,12 +1166,82 @@ class NavigationIQView extends WatchUi.View {
             var actionText = parts[0];
             var street = parts[1];
 
-            dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(w / 2, 146, fontBold, actionText, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            var maxTextW = (w * 0.82).toNumber();
+            var linesAct = TextRenderer.wrapWithFont(dc, actionText, fontBold, maxTextW);
+            var linesStr = (street.length() > 0) ? TextRenderer.wrapWithFont(dc, street, fontStreet, maxTextW) : [] as Array<String>;
 
-            if (street.length() > 0) {
+            var hAct = dc.getFontHeight(fontBold) + 2;
+            var hStr = dc.getFontHeight(fontStreet) + 2;
+            var totalTextH = (linesAct.size() * hAct) + (linesStr.size() * hStr);
+
+            var minTextY = 152;
+            var maxTextH = pillY - 10 - minTextY;
+
+            if (totalTextH <= maxTextH) {
+                var startTextY = minTextY + ((maxTextH - totalTextH) / 2);
+                var curY = startTextY;
+                dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+                for (var i = 0; i < linesAct.size(); i++) {
+                    dc.drawText(w / 2, curY, fontBold, linesAct[i], Graphics.TEXT_JUSTIFY_CENTER);
+                    curY += hAct;
+                }
+
                 dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-                dc.drawText(w / 2, 172, fontStreet, street, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+                for (var j = 0; j < linesStr.size(); j++) {
+                    dc.drawText(w / 2, curY, fontStreet, linesStr[j], Graphics.TEXT_JUSTIFY_CENTER);
+                    curY += hStr;
+                }
+            } else {
+                // Smooth vertical auto-scroll when text is long
+                if (dc has :setClip) {
+                    dc.setClip((w * 0.08).toNumber(), minTextY, (w * 0.84).toNumber(), maxTextH);
+                }
+
+                var overflow = totalTextH - maxTextH + 8;
+                var cycle = _animTick % 36;
+                var scrollOffset = 0;
+
+                if (cycle < 10) {
+                    scrollOffset = 0;
+                } else if (cycle < 24) {
+                    var progress = (cycle - 10).toFloat() / 14.0;
+                    scrollOffset = (progress * overflow).toNumber();
+                } else if (cycle < 30) {
+                    scrollOffset = overflow;
+                } else {
+                    var progress = (cycle - 30).toFloat() / 6.0;
+                    scrollOffset = ((1.0 - progress) * overflow).toNumber();
+                }
+
+                var curY = minTextY + 2 - scrollOffset;
+
+                dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+                for (var i = 0; i < linesAct.size(); i++) {
+                    dc.drawText(w / 2, curY, fontBold, linesAct[i], Graphics.TEXT_JUSTIFY_CENTER);
+                    curY += hAct;
+                }
+
+                dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
+                for (var j = 0; j < linesStr.size(); j++) {
+                    dc.drawText(w / 2, curY, fontStreet, linesStr[j], Graphics.TEXT_JUSTIFY_CENTER);
+                    curY += hStr;
+                }
+
+                if (dc has :clearClip) {
+                    dc.clearClip();
+                }
+
+                // Vertical scrollbar indicator on right side
+                var barTrackH = maxTextH - 16;
+                var thumbH = (maxTextH.toFloat() / totalTextH.toFloat() * barTrackH).toNumber();
+                if (thumbH < 10) { thumbH = 10; }
+                var thumbY = minTextY + 8 + ((scrollOffset.toFloat() / overflow.toFloat()) * (barTrackH - thumbH)).toNumber();
+                var barX = (w * 0.92).toNumber();
+
+                dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
+                dc.fillRoundedRectangle(barX, minTextY + 8, 2, barTrackH, 1);
+                dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+                dc.fillRoundedRectangle(barX, thumbY, 2, thumbH, 1);
             }
         }
 
@@ -1028,24 +1249,33 @@ class NavigationIQView extends WatchUi.View {
         var clock = System.getClockTime();
         var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
 
-        var pillW = 180;
-        var pillH = 34;
+        var etaW = dc.getTextWidthInPixels(etaStr, fontMicro);
+        var timeW = dc.getTextWidthInPixels(timeStr, fontMicro);
+        var centerGap = 20;
+        var padX = 14;
+
+        var contentW = etaW + centerGap + timeW;
+        var pillW = contentW + (padX * 2);
         var pillX = (w - pillW) / 2;
-        var pillY = h - 46;
+        var pillCy = pillY + (pillH / 2);
 
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(pillX, pillY, pillW, pillH, 17);
+        dc.fillRoundedRectangle(pillX, pillY, pillW, pillH, pillH / 2);
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.drawRoundedRectangle(pillX, pillY, pillW, pillH, 17);
+        dc.drawRoundedRectangle(pillX, pillY, pillW, pillH, pillH / 2);
 
-        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(pillX + 46, pillY + 16, fontMicro, etaStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        var leftTextX = pillX + padX;
+        var rightTextX = pillX + pillW - padX;
+        var dotX = leftTextX + etaW + (centerGap / 2);
 
         dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(w / 2, pillY + 16, 2);
+        dc.fillCircle(dotX, pillCy, 2.5);
+
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(leftTextX, pillCy, fontMicro, etaStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
         dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(pillX + 134, pillY + 16, fontMicro, timeStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(rightTextX, pillCy, fontMicro, timeStr, Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
     // -------------------------------------------------------------------------

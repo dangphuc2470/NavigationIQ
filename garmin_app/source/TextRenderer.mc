@@ -9,6 +9,65 @@ import Toybox.System;
 class TextRenderer {
 
     // -------------------------------------------------------------------------
+    // Replace All Substrings Helper
+    // -------------------------------------------------------------------------
+    public static function replaceAll(orig as String, search as String, rep as String) as String {
+        var idx = orig.find(search);
+        if (idx == null) {
+            return orig;
+        }
+        var searchLen = search.length();
+        var result = "";
+        var current = orig;
+        while (idx != null) {
+            result += current.substring(0, idx) + rep;
+            current = current.substring(idx + searchLen, current.length());
+            idx = current.find(search);
+        }
+        result += current;
+        return result;
+    }
+
+    // -------------------------------------------------------------------------
+    // Strip Vietnamese Accents Helper (Full Unicode to ASCII standard)
+    // -------------------------------------------------------------------------
+    public static function stripAccents(str as String) as String {
+        if (str.length() == 0) {
+            return str;
+        }
+
+        var accents = [
+            "á", "à", "ả", "ã", "ạ", "ă", "ắ", "ằ", "ẳ", "ẵ", "ặ", "â", "ấ", "ầ", "ẩ", "ẫ", "ậ",
+            "Á", "À", "Ả", "Ã", "Ạ", "Ă", "Ắ", "Ằ", "Ẳ", "Ẵ", "Ặ", "Â", "Ấ", "Ầ", "Ẩ", "Ẫ", "Ậ",
+            "đ", "Đ", "é", "è", "ẻ", "ẽ", "ẹ", "ê", "ế", "ề", "ể", "ễ", "ệ", "É", "È", "Ẻ", "Ẽ",
+            "Ẹ", "Ê", "Ế", "Ề", "Ể", "Ễ", "Ệ", "í", "ì", "ỉ", "ĩ", "ị", "Í", "Ì", "Ỉ", "Ĩ", "Ị",
+            "ó", "ò", "ỏ", "õ", "ọ", "ô", "ố", "ồ", "ổ", "ỗ", "ộ", "ơ", "ớ", "ờ", "ở", "ỡ", "ợ",
+            "Ó", "Ò", "Ỏ", "Õ", "Ọ", "Ô", "Ố", "Ồ", "Ổ", "Ỗ", "Ộ", "Ơ", "Ớ", "Ờ", "Ở", "Ỡ", "Ợ",
+            "ú", "ù", "ủ", "ũ", "ụ", "ư", "ứ", "ừ", "ử", "ữ", "ự", "Ú", "Ù", "Ủ", "Ũ", "Ụ", "Ư",
+            "Ứ", "Ừ", "Ử", "Ữ", "Ự", "ý", "ỳ", "ỷ", "ỹ", "ỵ", "Ý", "Ỳ", "Ỷ", "Ỹ", "Ỵ"
+        ];
+        var baseChars = [
+            "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a",
+            "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A",
+            "d", "D", "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", "e", "E", "E", "E", "E",
+            "E", "E", "E", "E", "E", "E", "E", "i", "i", "i", "i", "i", "I", "I", "I", "I", "I",
+            "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o", "o",
+            "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O",
+            "u", "u", "u", "u", "u", "u", "u", "u", "u", "u", "u", "U", "U", "U", "U", "U", "U",
+            "U", "U", "U", "U", "U", "y", "y", "y", "y", "y", "Y", "Y", "Y", "Y", "Y"
+        ];
+
+        var res = str;
+        for (var i = 0; i < accents.size(); i++) {
+            var src = accents[i];
+            if (res.find(src) != null) {
+                res = replaceAll(res, src, baseChars[i]);
+            }
+        }
+        return res;
+    }
+
+    // -------------------------------------------------------------------------
     // Capitalize First Character Helper (Full ASCII & 100% Vietnamese Accents)
     // -------------------------------------------------------------------------
     public static function capitalize(str as String) as String {
