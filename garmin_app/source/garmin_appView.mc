@@ -961,10 +961,11 @@ class NavigationIQView extends WatchUi.View {
         var w = dc.getWidth();
         var h = dc.getHeight();
 
-        // 1. Badge (turn arrow) - inside sub-window with safe padding from right edge (X=138, Y=33, R=23)
-        var badgeCx = 138;
-        var badgeCy = 33;
-        var badgeR = 23;
+        // 1. Badge (turn arrow) - precisely placed inside device sub-window
+        var isCrossover = (WatchUi.View has :setClockHandPosition);
+        var badgeCx = isCrossover ? 138 : 144;
+        var badgeCy = isCrossover ? 33 : 31;
+        var badgeR = isCrossover ? 23 : 26;
 
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(2);
@@ -980,8 +981,8 @@ class NavigationIQView extends WatchUi.View {
             VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, Graphics.COLOR_WHITE, _animTick);
         }
 
-        // 2. Top Left Area (X = 14 to 110): Distance (Row 1) & ETA (Row 2)
-        var leftMargin = 14;
+        // 2. Top Left Area: Distance (Row 1) & ETA (Row 2) with safe left padding
+        var leftMargin = isCrossover ? 16 : 20;
         var distFull = CommManager.distText;
         var distNum = "";
         var distUnit = "";
@@ -1013,7 +1014,6 @@ class NavigationIQView extends WatchUi.View {
         dc.drawText(leftMargin, 50, Graphics.FONT_XTINY, etaStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // 3. Divider line(s) - Instinct Crossover has physical watch hands zone, Instinct 2 has none!
-        var isCrossover = (WatchUi.View has :setClockHandPosition);
         var textZoneTop;
         var textZoneH;
 
@@ -1128,10 +1128,11 @@ class NavigationIQView extends WatchUi.View {
         var isConnected = CommManager.isConnected() || (CommManager.rxCount > 0);
         var statusStr = isConnected ? "Connected" : "Ready";
 
-        // Right sub-window circle (status icon, X=138, Y=33, R=23)
-        var subCx = 138;
-        var subCy = 33;
-        var subR = 23;
+        // Right sub-window circle (status icon, Crossover: 138, 33, 23; Instinct 2: 144, 31, 26)
+        var isCrossover = (WatchUi.View has :setClockHandPosition);
+        var subCx = isCrossover ? 138 : 144;
+        var subCy = isCrossover ? 33 : 31;
+        var subR = isCrossover ? 23 : 26;
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(2);
         dc.drawCircle(subCx, subCy, subR);
@@ -1144,12 +1145,11 @@ class NavigationIQView extends WatchUi.View {
             [subCx - 9, subCy + 8]
         ]);
 
-        var leftMargin = 14;
+        var leftMargin = isCrossover ? 16 : 20;
         // Left area: App Title & Connection status
         dc.drawText(leftMargin, 22, Graphics.FONT_TINY, "Navigation IQ", Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         dc.drawText(leftMargin, 46, Graphics.FONT_XTINY, statusStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        var isCrossover = (WatchUi.View has :setClockHandPosition);
         if (isCrossover) {
             dc.drawLine(8, 70, w - 8, 70);
             dc.drawLine(8, 102, w - 8, 102);
@@ -1274,7 +1274,7 @@ class NavigationIQView extends WatchUi.View {
             var totalDistW = numW + gap + unitW;
             var startDistX = (w - totalDistW) / 2;
 
-            distYVal = isTiny ? (badgeCy + badgeR + 13) : (badgeCy + badgeR + (h * 0.080).toNumber());
+            distYVal = isTiny ? (badgeCy + badgeR + 13) : (badgeCy + badgeR + (h * 0.075).toNumber());
             dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
             dc.drawText(startDistX, distYVal, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
@@ -1305,9 +1305,9 @@ class NavigationIQView extends WatchUi.View {
             var totalTextH = (linesAct.size() * hAct) + (linesStr.size() * hStr);
 
             if (distYVal == 0) {
-                distYVal = badgeCy + badgeR + (h * 0.080).toNumber();
+                distYVal = badgeCy + badgeR + (h * 0.075).toNumber();
             }
-            var minTextY = isTiny ? (distYVal + 11) : (isMid ? (distYVal + (h * 0.065).toNumber()) : (distYVal + (h * 0.060).toNumber()));
+            var minTextY = isTiny ? (distYVal + 18) : (isMid ? (distYVal + (h * 0.120).toNumber()) : (distYVal + (h * 0.080).toNumber()));
             var maxTextH = pillY - (isTiny ? 4 : 6) - minTextY;
             if (maxTextH < 16) { maxTextH = 16; }
 
