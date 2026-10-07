@@ -23,6 +23,8 @@ class NavigationIQView extends WatchUi.View {
     private var _fontSfNumberHot as Graphics.FontDefinition?;
     private var _fontSfNumberMild as Graphics.FontDefinition?;
     private var _fontSfUnit as Graphics.FontDefinition?;
+    private var _fontSfLargeBold as Graphics.FontDefinition?;
+    private var _fontSfLarge as Graphics.FontDefinition?;
 
     private var _layoutProfile as Number = 0; // 0 = Auto, 1 = Rect (Venu Sq), 2 = Round, 3 = Instinct Crossover
     private var _appFontSetting as Number = 0; // 0 = Auto, 1 = Apple SF Pro, 2 = Garmin Native
@@ -65,6 +67,8 @@ class NavigationIQView extends WatchUi.View {
             try { _fontSfStreetRot90 = WatchUi.loadResource(Rez.Fonts.SfStreetRot90) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfStreetRot90: " + e.getErrorMessage()); }
             try { _fontSfMicroRot90 = WatchUi.loadResource(Rez.Fonts.SfMicroRot90) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfMicroRot90: " + e.getErrorMessage()); }
             try { _fontSfUnit = WatchUi.loadResource(Rez.Fonts.SfUnit) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfUnit: " + e.getErrorMessage()); }
+            try { _fontSfLargeBold = WatchUi.loadResource(Rez.Fonts.SfLargeBold) as Graphics.FontDefinition; } catch (e) { _fontSfLargeBold = null; }
+            try { _fontSfLarge = WatchUi.loadResource(Rez.Fonts.SfLarge) as Graphics.FontDefinition; } catch (e) { _fontSfLarge = null; }
         }
     }
 
@@ -1007,26 +1011,39 @@ class NavigationIQView extends WatchUi.View {
         dc.setColor(0xE4E4E7, Graphics.COLOR_TRANSPARENT);
         dc.drawText(leftMargin, 50, Graphics.FONT_XTINY, etaStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        // 3. Divider lines for physical watch hands zone
-        var divY1 = 70;
-        var divY2 = 102;
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawLine(8, divY1, w - 8, divY1);
-        dc.drawLine(8, divY2, w - 8, divY2);
+        // 3. Divider line(s) - Instinct Crossover has physical watch hands zone, Instinct 2 has none!
+        var isCrossover = (WatchUi.View has :setClockHandPosition);
+        var textZoneTop;
+        var textZoneH;
 
-        // 4. Bottom Navigation Text Zone (Y: 104 to h - 4 = 172, height = 68px)
-        // 100% dedicated to navigation instructions, unaccented for clean ASCII display!
+        if (isCrossover) {
+            var divY1 = 70;
+            var divY2 = 102;
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.setPenWidth(1);
+            dc.drawLine(8, divY1, w - 8, divY1);
+            dc.drawLine(8, divY2, w - 8, divY2);
+            textZoneTop = divY2 + 3;
+            textZoneH = h - textZoneTop - 3;
+        } else {
+            // Instinct 2: No analog hands! Single clean divider at Y=64, dedicating 105px to navigation text!
+            var divY = 64;
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.setPenWidth(1);
+            dc.drawLine(8, divY, w - 8, divY);
+            textZoneTop = divY + 3;
+            textZoneH = h - textZoneTop - 3;
+        }
+
+        // 4. Bottom Navigation Text Zone (100% dedicated to instructions)
         var rawNavText = CommManager.navText;
         if (rawNavText.length() > 0) {
             // Strip accents so Vietnamese renders cleanly on Instinct system fonts
             var streetText = TextRenderer.stripAccents(rawNavText);
 
-            var fontBold = Graphics.FONT_SMALL;
-            var fontStreet = Graphics.FONT_TINY;
+            var fontBold = isCrossover ? Graphics.FONT_SMALL : Graphics.FONT_MEDIUM;
+            var fontStreet = isCrossover ? Graphics.FONT_TINY : Graphics.FONT_SMALL;
             var maxW = w - 16;
-            var textZoneTop = divY2 + 3;
-            var textZoneH = h - textZoneTop - 3;
 
             var parts = TextRenderer.splitActionAndStreet(streetText);
             var actionText = parts[0];
@@ -1131,13 +1148,21 @@ class NavigationIQView extends WatchUi.View {
         dc.drawText(leftMargin, 22, Graphics.FONT_TINY, "Navigation IQ", Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         dc.drawText(leftMargin, 46, Graphics.FONT_XTINY, statusStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        dc.drawLine(8, 70, w - 8, 70);
-        dc.drawLine(8, 102, w - 8, 102);
-
-        var clock = System.getClockTime();
-        var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
-        dc.drawText(w / 2, 116, Graphics.FONT_SMALL, "Waiting Nav...", Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(w / 2, 146, Graphics.FONT_TINY, timeStr, Graphics.TEXT_JUSTIFY_CENTER);
+        var isCrossover = (WatchUi.View has :setClockHandPosition);
+        if (isCrossover) {
+            dc.drawLine(8, 70, w - 8, 70);
+            dc.drawLine(8, 102, w - 8, 102);
+            var clock = System.getClockTime();
+            var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
+            dc.drawText(w / 2, 116, Graphics.FONT_SMALL, "Waiting Nav...", Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(w / 2, 146, Graphics.FONT_TINY, timeStr, Graphics.TEXT_JUSTIFY_CENTER);
+        } else {
+            dc.drawLine(8, 64, w - 8, 64);
+            var clock = System.getClockTime();
+            var timeStr = Lang.format("$1$:$2$", [clock.hour.format("%02d"), clock.min.format("%02d")]);
+            dc.drawText(w / 2, 88, Graphics.FONT_MEDIUM, "Waiting Nav...", Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(w / 2, 128, Graphics.FONT_SMALL, timeStr, Graphics.TEXT_JUSTIFY_CENTER);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1150,12 +1175,12 @@ class NavigationIQView extends WatchUi.View {
         var accentColor = theme[0] as Number;
         var badgeBgColor = theme[1] as Number;
         var glowRGB = theme[2] as Array<Number>;
-        var etaBgColor = theme[3] as Number;
 
         var isTiny = (w <= 218);
         var isMid = (w > 218 && w <= 280);
+        var isLarge = (w >= 400);
 
-        var fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
+        var fontMicro;
         var fontBold;
         var fontStreet;
 
@@ -1164,15 +1189,25 @@ class NavigationIQView extends WatchUi.View {
             fontStreet = Graphics.FONT_XTINY;
             fontMicro = Graphics.FONT_XTINY;
         } else if (isMid) {
+            fontMicro = Graphics.FONT_XTINY;
             if (isSfFontActive()) {
                 fontBold = (_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_SMALL;
                 fontStreet = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY;
             } else {
                 fontBold = Graphics.FONT_SMALL;
                 fontStreet = Graphics.FONT_XTINY;
-                fontMicro = Graphics.FONT_XTINY;
+            }
+        } else if (isLarge) {
+            fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
+            if (isSfFontActive()) {
+                fontBold = (_fontSfLargeBold != null) ? _fontSfLargeBold : ((_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_LARGE);
+                fontStreet = (_fontSfLarge != null) ? _fontSfLarge : ((_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_MEDIUM);
+            } else {
+                fontBold = Graphics.FONT_LARGE;
+                fontStreet = Graphics.FONT_MEDIUM;
             }
         } else {
+            fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
             fontBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_SMALL;
             fontStreet = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_TINY;
         }
@@ -1263,14 +1298,15 @@ class NavigationIQView extends WatchUi.View {
             var linesAct = TextRenderer.wrapWithFont(dc, actionText, fontBold, maxTextW);
             var linesStr = (street.length() > 0) ? TextRenderer.wrapWithFont(dc, street, fontStreet, maxTextW) : [] as Array<String>;
 
-            var hAct = dc.getFontHeight(fontBold) + (isTiny ? 0 : 2);
-            var hStr = dc.getFontHeight(fontStreet) + (isTiny ? 0 : 2);
+            var linePad = isLarge ? 5 : (isTiny ? 0 : 2);
+            var hAct = dc.getFontHeight(fontBold) + linePad;
+            var hStr = dc.getFontHeight(fontStreet) + linePad;
             var totalTextH = (linesAct.size() * hAct) + (linesStr.size() * hStr);
 
             if (distYVal == 0) {
                 distYVal = badgeCy + badgeR + (h * 0.080).toNumber();
             }
-            var minTextY = isTiny ? (distYVal + 11) : (isMid ? (distYVal + (h * 0.065).toNumber()) : (distYVal + (h * 0.075).toNumber()));
+            var minTextY = isTiny ? (distYVal + 11) : (isMid ? (distYVal + (h * 0.065).toNumber()) : (distYVal + (h * 0.060).toNumber()));
             var maxTextH = pillY - (isTiny ? 4 : 6) - minTextY;
             if (maxTextH < 16) { maxTextH = 16; }
 

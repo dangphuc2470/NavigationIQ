@@ -373,19 +373,9 @@ class VectorArrowRenderer {
     }
 
     // -------------------------------------------------------------------------
-    // Concentric Ambient Glow Renderer (AMOLED Only, Pure Black Canvas)
+    // Concentric Ambient Glow Radial Gradient (Signature App Bloom into Pure Black)
     // -------------------------------------------------------------------------
     public static function drawAmbientGlow(dc as Dc, cx as Number, cy as Number, srcRGB as Array<Number>) as Void {
-        // Skip glow on MIP displays (Fenix 7, FR55, Instinct) to prevent 64-color dithering banding
-        var devSettings = System.getDeviceSettings();
-        var isAmoled = false;
-        if (devSettings has :requiresBurnInProtection) {
-            isAmoled = devSettings.requiresBurnInProtection;
-        }
-        if (!isAmoled) {
-            return;
-        }
-
         var bgR = 0x00;
         var bgG = 0x00;
         var bgB = 0x00;
@@ -393,16 +383,16 @@ class VectorArrowRenderer {
         var srcG = srcRGB[1];
         var srcB = srcRGB[2];
 
-        var steps = 24;
+        var steps = 32;
         var w = dc.getWidth();
-        var maxR = (w * 0.20).toNumber();
-        if (maxR < 36) { maxR = 36; }
-        if (maxR > 84) { maxR = 84; }
+        var maxR = (w * 0.30).toNumber();
+        if (maxR < 50) { maxR = 50; }
+        if (maxR > 130) { maxR = 130; }
 
         for (var step = steps; step >= 1; step--) {
             var r = ((step.toFloat() / steps.toFloat()) * maxR).toNumber();
             var t = (1.0 - (step.toFloat() / steps.toFloat()));
-            var factor = Math.pow(t, 2.8) * 0.95;
+            var factor = Math.pow(t, 2.0) * 0.90;
 
             var curR = (bgR + (srcR - bgR) * factor).toNumber();
             var curG = (bgG + (srcG - bgG) * factor).toNumber();
