@@ -1,14 +1,5 @@
 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Dark Background -->
     <rect width="40" height="40" rx="8" fill="#0C1C14"/>
-    
-    <!-- BLE Radar Wave Inner -->
-    <path d="M 14 17 A 7.5 7.5 0 0 1 26 17" stroke="#22C55E" stroke-width="1.8" stroke-linecap="round" stroke-opacity="0.8"/>
-    <!-- BLE Radar Wave Outer -->
-    <path d="M 11 15 A 11 11 0 0 1 29 15" stroke="#22C55E" stroke-width="1.4" stroke-linecap="round" stroke-opacity="0.45"/>
-    
-    <!-- Nav Arrow Left Wing (White) -->
-    <path d="M 20 12 L 15 24 L 20 21 Z" fill="#F5F5F2"/>
-    <!-- Nav Arrow Right Wing (Mint Green) -->
-    <path d="M 20 12 L 20 21 L 25 24 Z" fill="#22C55E"/>
+    <path d="M 20 9 L 14 26 L 20 22 Z" fill="#FFFFFF"/>
+    <path d="M 20 9 L 20 22 L 26 26 Z" fill="#10B981"/>
 </svg>
