@@ -401,7 +401,7 @@ class NavigationIQView extends WatchUi.View {
         if (r < 24) { r = 24; }
         if (r > 50) { r = 50; }
 
-        VectorArrowRenderer.drawAmbientGlow(dc, cx, cy, GLOW_RGB_CYAN);
+        VectorArrowRenderer.drawAmbientGlow(dc, cx, cy, GLOW_RGB_GREEN);
 
         var isConnected = CommManager.isConnected() || (CommManager.rxCount > 0);
         var statusStr = isConnected ? "Connected" : "Ready";
@@ -437,12 +437,18 @@ class NavigationIQView extends WatchUi.View {
         var aY2 = (20 * arrowScale).toNumber();
         var aY3 = (10 * arrowScale).toNumber();
 
-        dc.setColor(COLOR_THEME_CYAN_ACCENT, Graphics.COLOR_TRANSPARENT);
+        // 2-Tone Navigation Arrowhead (Left: Pure White, Right: Mint Green)
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.fillPolygon([
+            [cx, cy - aY1],
+            [cx, cy + aY3],
+            [cx - aX2, cy + aY2]
+        ]);
+        dc.setColor(COLOR_THEME_GREEN_ACCENT, Graphics.COLOR_TRANSPARENT);
         dc.fillPolygon([
             [cx, cy - aY1],
             [cx + aX2, cy + aY2],
-            [cx, cy + aY3],
-            [cx - aX2, cy + aY2]
+            [cx, cy + aY3]
         ]);
 
         var titleY = cy + r + (h * 0.07).toNumber();

@@ -89,7 +89,7 @@ const COLOR_THEME_RED_BADGE = 0x7A2A2A;
 // -----------------------------------------------------------------------------
 function getNavTheme(dir as Number) as Array<Object> {
     if (dir == DIR_STRAIGHT || dir == DIR_ROUNDABOUT_2 || dir == DIR_ROUNDABOUT_3) {
-        return [COLOR_THEME_CYAN_ACCENT, COLOR_THEME_CYAN_BADGE, GLOW_RGB_CYAN, COLOR_THEME_CYAN_ETA_BG] as Array<Object>;
+        return [COLOR_THEME_GREEN_ACCENT, COLOR_THEME_GREEN_BADGE, GLOW_RGB_GREEN, COLOR_THEME_GREEN_ETA_BG] as Array<Object>;
     } else if (dir == DIR_LEFT || dir == DIR_SLIGHT_LEFT || dir == DIR_SHARP_LEFT ||
                dir == DIR_ROUNDABOUT_4 || dir == DIR_ROUNDABOUT_5 || dir == DIR_UTURN) {
         return [COLOR_THEME_AMBER_ACCENT, COLOR_THEME_AMBER_BADGE, GLOW_RGB_AMBER, COLOR_THEME_AMBER_ETA_BG] as Array<Object>;
@@ -97,6 +97,6 @@ function getNavTheme(dir as Number) as Array<Object> {
                dir == DIR_ROUNDABOUT_1) {
         return [COLOR_THEME_GREEN_ACCENT, COLOR_THEME_GREEN_BADGE, GLOW_RGB_GREEN, COLOR_THEME_GREEN_ETA_BG] as Array<Object>;
     } else {
-        return [COLOR_THEME_CYAN_ACCENT, COLOR_THEME_CYAN_BADGE, GLOW_RGB_CYAN, COLOR_THEME_CYAN_ETA_BG] as Array<Object>;
+        return [COLOR_THEME_GREEN_ACCENT, COLOR_THEME_GREEN_BADGE, GLOW_RGB_GREEN, COLOR_THEME_GREEN_ETA_BG] as Array<Object>;
     }
 }
