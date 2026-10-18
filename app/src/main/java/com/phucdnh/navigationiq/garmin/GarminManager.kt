@@ -39,6 +39,12 @@ object GarminManager {
     // NavigationIQ Beta Watch App ID (Backward compatibility for beta testers)
     const val NAVIQ_BETA_APP_ID = "e24767ea-b254-4f25-9391-ff4c409a037c"
 
+    // Garmin Connect IQ Store URL
+    const val GARMIN_STORE_URL = "https://apps.garmin.com/apps/c2c48dd7-47e7-4fac-98e2-6762d57ff181"
+
+    // Open Source GitHub Repository URL
+    const val GITHUB_REPO_URL = "https://github.com/dangphuc2470/NavigationIQ"
+
     val SUPPORTED_APP_IDS = listOf(
         NAVIQ_APP_ID,
         NAVIQ_BETA_APP_ID

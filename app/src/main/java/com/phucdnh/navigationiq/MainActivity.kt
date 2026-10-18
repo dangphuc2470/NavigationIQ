@@ -53,6 +53,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LightMode
@@ -1717,6 +1718,22 @@ fun SystemSettingsPage(
                     HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
 
                     AppleSettingsRow(
+                        icon = Icons.Default.Download,
+                        iconTint = palette.green,
+                        title = if (isVi) "Cài đặt ứng dụng trên đồng hồ" else "Install Garmin Watch App",
+                        subtitle = if (isVi) "Mở Connect IQ Store để tải Navigation IQ" else "Download Navigation IQ from Connect IQ Store",
+                        badgeText = "STORE",
+                        badgeColor = palette.blue,
+                        showChevron = true,
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(GarminManager.GARMIN_STORE_URL))
+                            context.startActivity(intent)
+                        }
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
+
+                    AppleSettingsRow(
                         icon = Icons.Default.Refresh,
                         iconTint = palette.blue,
                         title = if (isVi) "Quét lại danh sách thiết bị" else "Rescan Paired Devices",
@@ -1872,6 +1889,20 @@ fun SystemSettingsPage(
                         iconTint = palette.textSecondary,
                         title = "Watch App UUID",
                         subtitle = GarminManager.NAVIQ_APP_ID
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
+
+                    AppleSettingsRow(
+                        icon = Icons.Default.Code,
+                        iconTint = palette.blue,
+                        title = if (isVi) "Mã nguồn mở GitHub" else "Open Source on GitHub",
+                        subtitle = "dangphuc2470/NavigationIQ",
+                        showChevron = true,
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(GarminManager.GITHUB_REPO_URL))
+                            context.startActivity(intent)
+                        }
                     )
                 }
             }
