@@ -180,8 +180,8 @@ enum class AppPage(
     COCKPIT(
         titleEn = "Navigation",
         titleVi = "Điều hướng",
-        headerTitleEn = "Navigation",
-        headerTitleVi = "Điều hướng",
+        headerTitleEn = "Dashboard",
+        headerTitleVi = "Bảng điều khiển",
         headerSubtitleEn = "Turn-by-turn HUD & route simulation",
         headerSubtitleVi = "Trung tâm chỉ đường & Mô phỏng lộ trình",
         icon = Icons.Default.Navigation
@@ -564,7 +564,7 @@ fun AppleFloatingHeader(
     var menu by remember { mutableStateOf(false) }
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
-            Text("WATCH COMPANION", fontSize = 9.sp, letterSpacing = 3.sp,
+            Text("NAVIGATION IQ", fontSize = 9.sp, letterSpacing = 3.sp,
                 fontWeight = FontWeight.Bold, color = palette.blue)
             Text(page.headerTitle(isVi), fontSize = 34.sp, lineHeight = 40.sp,
                 fontWeight = FontWeight.ExtraBold, color = palette.textPrimary)
