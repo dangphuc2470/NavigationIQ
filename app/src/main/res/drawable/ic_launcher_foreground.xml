@@ -7,17 +7,17 @@
     <!-- Navigation Arrowhead (Left Wing - Deep Forest Green) -->
     <path
         android:fillColor="#1B4332"
-        android:pathData="M 54,27 L 33,72 L 54,60.5 Z" />
+        android:pathData="M 54,28 L 33,73 L 54,61.5 Z" />
 
     <!-- Navigation Arrowhead (Right Wing - Vivid Mint Emerald) -->
     <path
         android:fillColor="#10B981"
-        android:pathData="M 54,27 L 54,60.5 L 75,72 Z" />
+        android:pathData="M 54,28 L 54,61.5 L 75,73 Z" />
 
     <!-- Center Spine Divider -->
     <path
         android:strokeColor="#FFFFFF"
         android:strokeWidth="0.6"
         android:strokeAlpha="0.7"
-        android:pathData="M 54,27 L 54,60.5" />
+        android:pathData="M 54,28 L 54,61.5" />
 </vector>
