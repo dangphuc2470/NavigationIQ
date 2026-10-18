@@ -12,7 +12,7 @@ class SettingsProfileMenu extends WatchUi.Menu2 {
         }
         
         addItem(new WatchUi.MenuItem("Auto Detect", "Detect from device", "prof_0", {}));
-        addItem(new WatchUi.MenuItem("Venu Sq (Rect)", "320x360 Edge-to-Edge", "prof_1", {}));
+        addItem(new WatchUi.MenuItem("Square Watch", "Venu Sq, Venu 2 sq, Venu X1", "prof_1", {}));
         addItem(new WatchUi.MenuItem("Round Watch", "Fenix / FR / Venu", "prof_2", {}));
         addItem(new WatchUi.MenuItem("Instinct Crossover", "Dual-Zone Center Clear", "prof_3", {}));
     }
@@ -85,6 +85,50 @@ class SettingsFontDelegate extends WatchUi.Menu2InputDelegate {
     }
 }
 
+class SettingsTextPresetMenu extends WatchUi.Menu2 {
+    function initialize() {
+        Menu2.initialize({ :title => "Text Size" });
+        addItem(new WatchUi.MenuItem("Balanced", "Default balanced HUD", "preset_0", {}));
+        addItem(new WatchUi.MenuItem("Street Focus", "Larger street name", "preset_1", {}));
+        addItem(new WatchUi.MenuItem("Distance Focus", "Huge distance number", "preset_2", {}));
+        addItem(new WatchUi.MenuItem("Large Text", "Maximum visibility", "preset_3", {}));
+    }
+}
+
+class SettingsTextPresetDelegate extends WatchUi.Menu2InputDelegate {
+    private var _view as NavigationIQView?;
+
+    function initialize(view as NavigationIQView?) {
+        Menu2InputDelegate.initialize();
+        _view = view;
+    }
+
+    function onSelect(item as WatchUi.MenuItem) as Void {
+        var id = item.getId() as String;
+        if (id.equals("preset_0")) {
+            Storage.setValue("text_preset", 0);
+            CommManager.textPreset = 0;
+        } else if (id.equals("preset_1")) {
+            Storage.setValue("text_preset", 1);
+            CommManager.textPreset = 1;
+        } else if (id.equals("preset_2")) {
+            Storage.setValue("text_preset", 2);
+            CommManager.textPreset = 2;
+        } else if (id.equals("preset_3")) {
+            Storage.setValue("text_preset", 3);
+            CommManager.textPreset = 3;
+        }
+        if (_view != null) {
+            _view.reloadSettings();
+        }
+        WatchUi.popView(WatchUi.SLIDE_RIGHT);
+    }
+
+    function onBack() as Void {
+        WatchUi.popView(WatchUi.SLIDE_RIGHT);
+    }
+}
+
 class NavigationIQSettingsMenu extends WatchUi.Menu2 {
     function initialize() {
         Menu2.initialize({ :title => "Settings" });
@@ -92,7 +136,7 @@ class NavigationIQSettingsMenu extends WatchUi.Menu2 {
     }
 
     private function _buildItems() as Void {
-        var profileNames = ["Auto Detect", "Venu Sq (Rect)", "Round Watch", "Instinct Crossover"];
+        var profileNames = ["Auto Detect", "Square Watch", "Round Watch", "Instinct Crossover"];
         var curProf = Storage.getValue("layout_profile");
         if (curProf == null || curProf < 0 || curProf > 3) {
             curProf = 0;
@@ -110,6 +154,14 @@ class NavigationIQSettingsMenu extends WatchUi.Menu2 {
         var fontNames = ["Auto Detect", "Apple SF Pro", "Garmin Native"];
         var fontSub = fontNames[fontChoice as Number];
         addItem(new WatchUi.MenuItem("Font", fontSub, "menu_font", {}));
+
+        var presetChoice = Storage.getValue("text_preset");
+        if (presetChoice == null || presetChoice < 0 || presetChoice > 3) {
+            presetChoice = 0;
+        }
+        var presetNames = ["Balanced", "Street Focus", "Distance Focus", "Large Text"];
+        var presetSub = presetNames[presetChoice as Number];
+        addItem(new WatchUi.MenuItem("Text Size", presetSub, "menu_text_preset", {}));
 
         addItem(new WatchUi.MenuItem("Preview Mode", "Demo turn navigation (4s)", "menu_preview", {}));
 
@@ -142,6 +194,8 @@ class NavigationIQSettingsDelegate extends WatchUi.Menu2InputDelegate {
             WatchUi.pushView(new SettingsProfileMenu(), new SettingsProfileDelegate(_view), WatchUi.SLIDE_LEFT);
         } else if (id.equals("menu_font")) {
             WatchUi.pushView(new SettingsFontMenu(), new SettingsFontDelegate(_view), WatchUi.SLIDE_LEFT);
+        } else if (id.equals("menu_text_preset")) {
+            WatchUi.pushView(new SettingsTextPresetMenu(), new SettingsTextPresetDelegate(_view), WatchUi.SLIDE_LEFT);
         } else if (id.equals("menu_preview")) {
             WatchUi.popView(WatchUi.SLIDE_DOWN);
             if (_view != null) {

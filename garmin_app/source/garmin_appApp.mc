@@ -29,9 +29,15 @@ class NavigationIQApp extends Application.AppBase {
         CommManager.onPhoneMessageRaw(msg.data);
     }
 
+    private var _mainView as NavigationIQView? = null;
+
     function getInitialView() as [Views] or [Views, InputDelegates] {
-        var view = new NavigationIQView();
-        return [ view, new NavigationIQDelegate(view) ];
+        _mainView = new NavigationIQView();
+        return [ _mainView, new NavigationIQDelegate(_mainView) ];
+    }
+
+    function getMainView() as NavigationIQView? {
+        return _mainView;
     }
 
 }

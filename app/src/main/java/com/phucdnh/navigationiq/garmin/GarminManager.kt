@@ -429,25 +429,10 @@ object GarminManager {
                     isWatchAppAlive = false
                     _isHeartbeatLive.value = false
                 }
-                "map_on" -> {
-                    isMapMode = true
-                    addLog("[MAP] Activated Map Mode on watch - starting 5s loop")
-                    startMapLoop()
-                }
-                "map_off" -> {
-                    isMapMode = false
-                    stopMapLoop()
-                    addLog("[MAP] Deactivated Map Mode - resuming HUD")
-                    latestPendingInfo?.let {
-                        appContext?.let { ctx -> sendNavigationInfo(ctx, it) }
-                    }
-                }
-                "map_recenter" -> {
-                    currentPanDx = 0
-                    currentPanDy = 0
-                    addLog("[MAP] Recenter GPS")
-                    triggerInstantMapUpdate()
-                }
+                // Map mode disabled by user request
+                // "map_on" -> { ... }
+                // "map_off" -> { ... }
+                // "map_recenter" -> { ... }
             }
         }
     }
@@ -507,6 +492,8 @@ object GarminManager {
     }
 
     private fun startMapLoop() {
+        // Map mode loop disabled by user request
+        /*
         appContext?.let {
             OsmMapManager.initialize(it)
             OsmMapManager.startLocationUpdates(it)
@@ -525,12 +512,13 @@ object GarminManager {
                 delay(5000L)
             }
         }
+        */
     }
 
     private fun stopMapLoop() {
         mapJob?.cancel()
         mapJob = null
-        OsmMapManager.stopLocationUpdates()
+        // OsmMapManager.stopLocationUpdates()
     }
 
     fun sendMapPacket(packet: OsmMapPacket) {
@@ -597,6 +585,76 @@ object GarminManager {
             }
         } catch (e: Exception) {
             Log.e(TAG, "openApplication exception: ${e.message}")
+        }
+    }
+
+    /**
+     * Send Text Size & Layout Preset to Garmin Watch
+     * 0 = Balanced, 1 = Street Focus, 2 = Distance Focus, 3 = Large Text
+     */
+    fun sendTextPreset(presetId: Int, onComplete: ((Boolean) -> Unit)? = null) {
+        if (devices.isEmpty()) {
+            devices = connectIQ?.knownDevices ?: emptyList()
+        }
+        val payload = listOf("set_text_preset", presetId)
+        var anyDispatched = false
+        for (device in devices) {
+            for (app in registeredApps.values) {
+                try {
+                    connectIQ?.sendMessage(device, app, payload) { _, _, status ->
+                        val success = (status == ConnectIQ.IQMessageStatus.SUCCESS)
+                        if (success) {
+                            addLog("[PRESET] Set text size preset to $presetId OK")
+                            lastWatchRxTime = System.currentTimeMillis()
+                            _isHeartbeatLive.value = true
+                        } else {
+                            addLog("[PRESET] Set text size failed: $status")
+                        }
+                        onComplete?.invoke(success)
+                    }
+                    anyDispatched = true
+                } catch (e: Exception) {
+                    addLog("[PRESET] Error sending preset: ${e.message}")
+                }
+            }
+        }
+        if (!anyDispatched) {
+            onComplete?.invoke(false)
+        }
+    }
+
+    /**
+     * Send Watch Layout Profile to Garmin Watch
+     * 0 = Auto Detect, 1 = Rect (Venu Sq / X1), 2 = Round (Fenix / Venu 2), 3 = Instinct Crossover
+     */
+    fun sendLayoutProfile(profileId: Int, onComplete: ((Boolean) -> Unit)? = null) {
+        if (devices.isEmpty()) {
+            devices = connectIQ?.knownDevices ?: emptyList()
+        }
+        val payload = listOf("set_layout_profile", profileId)
+        var anyDispatched = false
+        for (device in devices) {
+            for (app in registeredApps.values) {
+                try {
+                    connectIQ?.sendMessage(device, app, payload) { _, _, status ->
+                        val success = (status == ConnectIQ.IQMessageStatus.SUCCESS)
+                        if (success) {
+                            addLog("[PROFILE] Set layout profile to $profileId OK")
+                            lastWatchRxTime = System.currentTimeMillis()
+                            _isHeartbeatLive.value = true
+                        } else {
+                            addLog("[PROFILE] Set layout profile failed: $status")
+                        }
+                        onComplete?.invoke(success)
+                    }
+                    anyDispatched = true
+                } catch (e: Exception) {
+                    addLog("[PROFILE] Error sending profile: ${e.message}")
+                }
+            }
+        }
+        if (!anyDispatched) {
+            onComplete?.invoke(false)
         }
     }
 

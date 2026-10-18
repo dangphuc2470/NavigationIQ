@@ -21,7 +21,7 @@ class NavigationIQApp extends Application.AppBase {
     }
     [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc"; @line = 10; @symbol_functiondef = [initialize,10,13,23]; ]
     function initialize() as Void {
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_10_26_18_4_start:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_10_26_15_4_start:
 [ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 11 8 ]
         symbol [ AppBase %tmp.2 11 8 15 ];
         %tmp.2 = getv ? :AppBase;
@@ -53,211 +53,116 @@ D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_12_61_14_8_sta
 D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_12_61_14_8_stop:
         goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_12_8_14_8_if_end;
 D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_12_8_14_8_if_end:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 15 8 ]
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_15_8_17_8_if_stmt:
-        symbol [ Communications %tmp.15 15 12 26 ];
-        %tmp.15 = getm $.Toybox.Communications;
-        %tmp.17 = const :setMailboxListener;
-        symbol [ setMailboxListener %tmp.17 15 32 50 const ];
-        %tmp.18 = canhazplz %tmp.15 %tmp.17;
-        bf %tmp.18 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_15_8_17_8_if_end;
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_15_8_17_8_if_true:
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_15_52_17_8_start:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 16 12 ]
-        symbol [ Communications %tmp.19 16 12 26 ];
-        %tmp.19 = getm $.Toybox.Communications;
-        symbol [ setMailboxListener %tmp.20 16 27 45 ];
-        %tmp.20 = getv function %tmp.19 :setMailboxListener;
-        %tmp.21 = self;
-        symbol [ method %tmp.22 16 46 52 ];
-        %tmp.22 = getv function %tmp.21 :method;
-        %tmp.24 = const :onMailboxMessage;
-        symbol [ onMailboxMessage %tmp.24 16 54 70 const ];
-        %tmp.25 = invoke %tmp.21 %tmp.22(%tmp.24);
-        invoke %tmp.19 %tmp.20(%tmp.25);
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_15_52_17_8_stop:
-        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_15_8_17_8_if_end;
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_15_8_17_8_if_end:
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_10_26_18_4_stop:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_10_26_15_4_stop:
     }
-    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc"; @line = 20; @symbol_functiondef = [onStart,20,13,20]; @symbol_param<0> = [state,20,21,26]; @symbol_param<0>_type<0> = [Dictionary,20,30,40]; ]
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc"; @line = 17; @symbol_functiondef = [onStart,17,13,20]; @symbol_param<0> = [state,17,21,26]; @symbol_param<0>_type<0> = [Dictionary,17,30,40]; ]
     function onStart(state as Dictionary or Null) as Void {
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_20_51_28_4_start:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 21 8 ]
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_21_8_23_8_if_stmt:
-        symbol [ Communications %tmp.1 21 12 26 ];
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_17_51_22_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 18 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_18_8_20_8_if_stmt:
+        symbol [ Communications %tmp.1 18 12 26 ];
         %tmp.1 = getm $.Toybox.Communications;
         %tmp.3 = const :registerForPhoneAppMessages;
-        symbol [ registerForPhoneAppMessages %tmp.3 21 32 59 const ];
+        symbol [ registerForPhoneAppMessages %tmp.3 18 32 59 const ];
         %tmp.4 = canhazplz %tmp.1 %tmp.3;
-        bf %tmp.4 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_21_8_23_8_if_end;
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_21_8_23_8_if_true:
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_21_61_23_8_start:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 22 12 ]
-        symbol [ Communications %tmp.5 22 12 26 ];
+        bf %tmp.4 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_18_8_20_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_18_8_20_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_18_61_20_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 19 12 ]
+        symbol [ Communications %tmp.5 19 12 26 ];
         %tmp.5 = getm $.Toybox.Communications;
-        symbol [ registerForPhoneAppMessages %tmp.6 22 27 54 ];
+        symbol [ registerForPhoneAppMessages %tmp.6 19 27 54 ];
         %tmp.6 = getv function %tmp.5 :registerForPhoneAppMessages;
         %tmp.7 = self;
-        symbol [ method %tmp.8 22 55 61 ];
+        symbol [ method %tmp.8 19 55 61 ];
         %tmp.8 = getv function %tmp.7 :method;
         %tmp.10 = const :onPhoneMessage;
-        symbol [ onPhoneMessage %tmp.10 22 63 77 const ];
+        symbol [ onPhoneMessage %tmp.10 19 63 77 const ];
         %tmp.11 = invoke %tmp.7 %tmp.8(%tmp.10);
         invoke %tmp.5 %tmp.6(%tmp.11);
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_21_61_23_8_stop:
-        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_21_8_23_8_if_end;
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_21_8_23_8_if_end:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 24 8 ]
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_24_8_26_8_if_stmt:
-        symbol [ Communications %tmp.12 24 12 26 ];
-        %tmp.12 = getm $.Toybox.Communications;
-        %tmp.14 = const :setMailboxListener;
-        symbol [ setMailboxListener %tmp.14 24 32 50 const ];
-        %tmp.15 = canhazplz %tmp.12 %tmp.14;
-        bf %tmp.15 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_24_8_26_8_if_end;
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_24_8_26_8_if_true:
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_24_52_26_8_start:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 25 12 ]
-        symbol [ Communications %tmp.16 25 12 26 ];
-        %tmp.16 = getm $.Toybox.Communications;
-        symbol [ setMailboxListener %tmp.17 25 27 45 ];
-        %tmp.17 = getv function %tmp.16 :setMailboxListener;
-        %tmp.18 = self;
-        symbol [ method %tmp.19 25 46 52 ];
-        %tmp.19 = getv function %tmp.18 :method;
-        %tmp.21 = const :onMailboxMessage;
-        symbol [ onMailboxMessage %tmp.21 25 54 70 const ];
-        %tmp.22 = invoke %tmp.18 %tmp.19(%tmp.21);
-        invoke %tmp.16 %tmp.17(%tmp.22);
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_24_52_26_8_stop:
-        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_24_8_26_8_if_end;
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_24_8_26_8_if_end:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 27 8 ]
-        symbol [ CommManager %tmp.24 27 8 19 ];
-        %tmp.24 = getv ? :CommManager;
-        symbol [ start %tmp.25 27 20 25 ];
-        %tmp.25 = getv function %tmp.24 :start;
-        invoke %tmp.24 %tmp.25();
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_20_51_28_4_stop:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_18_61_20_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_18_8_20_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_18_8_20_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 21 8 ]
+        symbol [ CommManager %tmp.13 21 8 19 ];
+        %tmp.13 = getv ? :CommManager;
+        symbol [ start %tmp.14 21 20 25 ];
+        %tmp.14 = getv function %tmp.13 :start;
+        invoke %tmp.13 %tmp.14();
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_17_51_22_4_stop:
     }
-    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc"; @line = 30; @symbol_functiondef = [onStop,30,13,19]; @symbol_param<0> = [state,30,20,25]; @symbol_param<0>_type<0> = [Dictionary,30,29,39]; ]
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc"; @line = 24; @symbol_functiondef = [onStop,24,13,19]; @symbol_param<0> = [state,24,20,25]; @symbol_param<0>_type<0> = [Dictionary,24,29,39]; ]
     function onStop(state as Dictionary or Null) as Void {
     }
-    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc"; @line = 33; @symbol_functiondef = [onPhoneMessage,33,13,27]; @symbol_param<0> = [msg,33,28,31]; @symbol_param<0>_type<0> = [Communications,33,35,49]; @symbol_param<0>_type<1> = [PhoneAppMessage,33,50,65]; ]
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc"; @line = 27; @symbol_functiondef = [onPhoneMessage,27,13,27]; @symbol_param<0> = [msg,27,28,31]; @symbol_param<0>_type<0> = [Communications,27,35,49]; @symbol_param<0>_type<1> = [PhoneAppMessage,27,50,65]; ]
     function onPhoneMessage(msg as Communications.PhoneAppMessage) as Void {
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_33_75_36_4_start:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 34 8 ]
-        symbol [ System %tmp.1 34 8 14 ];
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_27_75_30_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 28 8 ]
+        symbol [ System %tmp.1 28 8 14 ];
         %tmp.1 = getm $.Toybox.System;
-        symbol [ println %tmp.2 34 15 22 ];
+        symbol [ println %tmp.2 28 15 22 ];
         %tmp.2 = getv function %tmp.1 :println;
-        %tmp.3 = ">>> IQ App received message: ";
+        %tmp.3 = ">>> IQ App received msg.data: ";
         %tmp.4 = lgetv %msg;
-        symbol [ msg %tmp.4 34 57 60 ];
-        symbol [ data %tmp.5 34 61 65 ];
+        symbol [ msg %tmp.4 28 58 61 ];
+        symbol [ data %tmp.5 28 62 66 ];
         %tmp.5 = getv %tmp.4 :data;
         %tmp.6 = add %tmp.3 %tmp.5;
         invoke %tmp.1 %tmp.2(%tmp.6);
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 35 8 ]
-        symbol [ CommManager %tmp.8 35 8 19 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 29 8 ]
+        symbol [ CommManager %tmp.8 29 8 19 ];
         %tmp.8 = getv ? :CommManager;
-        symbol [ onPhoneMessage %tmp.9 35 20 34 ];
-        %tmp.9 = getv function %tmp.8 :onPhoneMessage;
+        symbol [ onPhoneMessageRaw %tmp.9 29 20 37 ];
+        %tmp.9 = getv function %tmp.8 :onPhoneMessageRaw;
         %tmp.10 = lgetv %msg;
-        symbol [ msg %tmp.10 35 35 38 ];
-        invoke %tmp.8 %tmp.9(%tmp.10);
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_33_75_36_4_stop:
+        symbol [ msg %tmp.10 29 38 41 ];
+        symbol [ data %tmp.11 29 42 46 ];
+        %tmp.11 = getv %tmp.10 :data;
+        invoke %tmp.8 %tmp.9(%tmp.11);
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_27_75_30_4_stop:
     }
-    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc"; @line = 38; @symbol_functiondef = [onMailboxMessage,38,13,29]; @symbol_param<0> = [iter,38,30,34]; @symbol_param<0>_type<0> = [Communications,38,38,52]; @symbol_param<0>_type<1> = [MailboxIterator,38,53,68]; ]
-    function onMailboxMessage(iter as Communications.MailboxIterator) as Void {
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_38_78_45_4_start:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 39 8 ]
-        [ "D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_38_78_45_4_start" "D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_38_78_45_4_stop" ]
-        %msg.1 = local;
-        symbol [ msg %msg.1 39 12 15 ];
-        %tmp.1 = lgetv %iter;
-        symbol [ iter %tmp.1 39 18 22 ];
-        symbol [ next %tmp.2 39 23 27 ];
-        %tmp.2 = getv function %tmp.1 :next;
-        %tmp.3 = invoke %tmp.1 %tmp.2();
-        lputv %msg.1 %tmp.3;
-        symbol [ msg %msg.1 39 12 15 ];
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 40 8 ]
-        while @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_40_8_44_8_while_test @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_40_8_44_8_while_end;
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_40_8_44_8_while_test:
-        %tmp.4 = lgetv %msg.1;
-        symbol [ msg %tmp.4 40 15 18 ];
-        %tmp.5 = null;
-        %tmp.6 = ne %tmp.4 %tmp.5;
-        bf %tmp.6 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_40_8_44_8_while_end;
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_40_8_44_8_while_begin:
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_40_28_44_8_start:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 41 12 ]
-        symbol [ System %tmp.7 41 12 18 ];
-        %tmp.7 = getm $.Toybox.System;
-        symbol [ println %tmp.8 41 19 26 ];
-        %tmp.8 = getv function %tmp.7 :println;
-        %tmp.9 = ">>> IQ App received mailbox msg: ";
-        %tmp.10 = lgetv %msg.1;
-        symbol [ msg %tmp.10 41 65 68 ];
-        %tmp.11 = as %tmp.10 { (!Null) };
-        %tmp.12 = add %tmp.9 %tmp.11;
-        invoke %tmp.7 %tmp.8(%tmp.12);
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 42 12 ]
-        symbol [ CommManager %tmp.14 42 12 23 ];
-        %tmp.14 = getv ? :CommManager;
-        symbol [ onPhoneMessageRaw %tmp.15 42 24 41 ];
-        %tmp.15 = getv function %tmp.14 :onPhoneMessageRaw;
-        %tmp.16 = lgetv %msg.1;
-        symbol [ msg %tmp.16 42 42 45 ];
-        %tmp.17 = as %tmp.16 { (!Null) };
-        invoke %tmp.14 %tmp.15(%tmp.17);
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 43 12 ]
-        %tmp.18 = lgetv %iter;
-        symbol [ iter %tmp.18 43 18 22 ];
-        symbol [ next %tmp.19 43 23 27 ];
-        %tmp.19 = getv function %tmp.18 :next;
-        %tmp.20 = invoke %tmp.18 %tmp.19();
-        lputv %msg.1 %tmp.20;
-        symbol [ msg %msg.1 43 12 15 ];
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_40_28_44_8_stop:
-        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_40_8_44_8_while_test;
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_40_8_44_8_while_end:
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_38_78_45_4_stop:
-    }
-    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc"; @line = 47; @symbol_functiondef = [getInitialView,47,13,27]; @symbol_return<0> = [Views,47,34,39]; @symbol_return<1> = [Views,47,45,50]; @symbol_return<2> = [InputDelegates,47,52,66]; ]
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc"; @line = 32; @symbol_functiondef = [getInitialView,32,13,27]; @symbol_return<0> = [Views,32,34,39]; @symbol_return<1> = [Views,32,45,50]; @symbol_return<2> = [InputDelegates,32,52,66]; ]
     function getInitialView() as [Views] or [Views, InputDelegates] {
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_47_68_49_4_start:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 48 8 ]
-        %tmp.1 = newa 2;
-        symbol [ NavigationIQView %tmp.5 48 21 37 ];
-        %tmp.5 = getv ? :NavigationIQView;
-        %tmp.2 = newc %tmp.5 ();
-        %tmp.6 = dup %tmp.1;
-        %tmp.7 = aputv %tmp.6 0 %tmp.2;
-        symbol [ NavigationIQDelegate %tmp.11 48 45 65 ];
-        %tmp.11 = getv ? :NavigationIQDelegate;
-        %tmp.8 = newc %tmp.11 ();
-        %tmp.12 = dup %tmp.7;
-        %tmp.13 = aputv %tmp.12 1 %tmp.8;
-        ret %tmp.13;
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_47_68_49_4_stop:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_32_68_35_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 33 8 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_32_68_35_4_start" "D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_32_68_35_4_stop" ]
+        %view.1 = local;
+        symbol [ view %view.1 33 12 16 ];
+        symbol [ NavigationIQView %tmp.4 33 23 39 ];
+        %tmp.4 = getv ? :NavigationIQView;
+        %tmp.1 = newc %tmp.4 ();
+        lputv %view.1 %tmp.1;
+        symbol [ view %view.1 33 12 16 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 34 8 ]
+        %tmp.5 = newa 2;
+        %tmp.6 = lgetv %view.1;
+        symbol [ view %tmp.6 34 17 21 ];
+        %tmp.7 = dup %tmp.5;
+        %tmp.8 = aputv %tmp.7 0 %tmp.6;
+        symbol [ NavigationIQDelegate %tmp.12 34 27 47 ];
+        %tmp.12 = getv ? :NavigationIQDelegate;
+        %tmp.13 = lgetv %view.1;
+        symbol [ view %tmp.13 34 48 52 ];
+        %tmp.9 = newc %tmp.12 (%tmp.13);
+        %tmp.14 = dup %tmp.8;
+        %tmp.15 = aputv %tmp.14 1 %tmp.9;
+        ret %tmp.15;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_32_68_35_4_stop:
     }
 }
-[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc"; @line = 53; @symbol_functiondef = [getApp,53,9,15]; @symbol_return<0> = [NavigationIQApp,53,21,36]; ]
+[ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc"; @line = 39; @symbol_functiondef = [getApp,39,9,15]; @symbol_return<0> = [NavigationIQApp,39,21,36]; ]
 function getApp() as NavigationIQApp {
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_53_37_55_0_start:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 54 4 ]
-    symbol [ Application %tmp.1 54 11 22 ];
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_39_37_41_0_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc" 40 4 ]
+    symbol [ Application %tmp.1 40 11 22 ];
     %tmp.1 = getm $.Toybox.Application;
-    symbol [ getApp %tmp.2 54 23 29 ];
+    symbol [ getApp %tmp.2 40 23 29 ];
     %tmp.2 = getv function %tmp.1 :getApp;
     %tmp.3 = invoke %tmp.1 %tmp.2();
     %tmp.4 = as %tmp.3 NavigationIQApp;
-    symbol [ NavigationIQApp %tmp.4 54 35 50 ];
+    symbol [ NavigationIQApp %tmp.4 40 35 50 ];
     ret %tmp.4;
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_53_37_55_0_stop:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appApp_mc_39_37_41_0_stop:
 }
 [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appApp.mc"; @line = 1; ]
 <init> {

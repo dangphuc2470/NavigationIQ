@@ -62,6 +62,9 @@ module CommManager {
     var toastMessage   as String = "";
     var toastExpiry    as Number = 0;
 
+    // Text Size & Layout Preset (0=Balanced, 1=Street Focus, 2=Distance Focus, 3=Large Text)
+    var textPreset     as Number = 0;
+
     // Automatic Activity Session (Garmin OS "During Activity" DND suppression)
     var _session as ActivityRecording.Session? = null;
     var isAutoActivitySuppression as Boolean = true;
@@ -81,6 +84,13 @@ module CommManager {
 
     function isToastActive() as Boolean {
         return (toastExpiry > 0 && System.getTimer() < toastExpiry && toastMessage.length() > 0);
+    }
+
+    function dismissToastNotification() as Void {
+        toastExpiry = 0;
+        toastMessage = "";
+        toastSender = "";
+        toastAppName = "";
     }
 
     function startActivitySession() as Void {
@@ -185,7 +195,8 @@ module CommManager {
             }
         }
 
-        // Map data packet from Android: [ "map", width, height, zoom, speed, heading, rleData, palette ]
+        // Map data packet from Android: [ "map", width, height, zoom, speed, heading, rleData, palette ] (Disabled by user request)
+        /*
         if (data instanceof Lang.Array && data.size() >= 7) {
             if (data[0] instanceof Lang.String && data[0].equals("map")) {
                 mapWidth   = (data[1] != null) ? data[1] as Number : 180;
@@ -208,6 +219,7 @@ module CommManager {
                 return;
             }
         }
+        */
 
         // Toast / In-app notification packet from Android:
         // ["toast", appName, sender, message, durationSec]
@@ -218,6 +230,43 @@ module CommManager {
                 var msg = (data[3] != null) ? data[3] as String : "";
                 var dur = (data.size() >= 5 && data[4] != null) ? data[4] as Number : 5;
                 showToastNotification(appName, sender, msg, dur);
+                WatchUi.requestUpdate();
+                return;
+            }
+        }
+
+        // Text Size & Layout Preset packet from Android:
+        // ["set_text_preset", presetId]
+        if (data instanceof Lang.Array && data.size() >= 2) {
+            if (data[0] instanceof Lang.String && data[0].equals("set_text_preset")) {
+                var pId = (data[1] != null) ? data[1] as Number : 0;
+                textPreset = pId;
+                Application.Storage.setValue("text_preset", pId);
+                var app = Application.getApp();
+                if (app has :getMainView) {
+                    var v = app.getMainView();
+                    if (v != null) {
+                        v.reloadSettings();
+                    }
+                }
+                WatchUi.requestUpdate();
+                return;
+            }
+        }
+
+        // Layout Profile packet from Android (0=Auto, 1=Venu Sq, 2=Round, 3=Instinct):
+        // ["set_layout_profile", profileId]
+        if (data instanceof Lang.Array && data.size() >= 2) {
+            if (data[0] instanceof Lang.String && data[0].equals("set_layout_profile")) {
+                var profId = (data[1] != null) ? data[1] as Number : 0;
+                Application.Storage.setValue("layout_profile", profId);
+                var app = Application.getApp();
+                if (app has :getMainView) {
+                    var v = app.getMainView();
+                    if (v != null) {
+                        v.reloadSettings();
+                    }
+                }
                 WatchUi.requestUpdate();
                 return;
             }

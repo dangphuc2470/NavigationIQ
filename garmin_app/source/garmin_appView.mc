@@ -28,6 +28,7 @@ class NavigationIQView extends WatchUi.View {
 
     private var _layoutProfile as Number = 0; // 0 = Auto, 1 = Rect (Venu Sq), 2 = Round, 3 = Instinct Crossover
     private var _appFontSetting as Number = 0; // 0 = Auto, 1 = Apple SF Pro, 2 = Garmin Native
+    private var _textPreset as Number = 0;     // 0 = Balanced, 1 = Street Focus, 2 = Distance Focus, 3 = Large Text
 
     // Preview / Demo Mode State
     private var _isPreviewMode as Boolean = false;
@@ -74,13 +75,13 @@ class NavigationIQView extends WatchUi.View {
 
     public function reloadSettings() as Void {
         var p = Storage.getValue("layout_profile");
-        if (p != null && !isRunningInSimulator()) {
+        if (p != null) {
             _layoutProfile = p as Number;
         } else {
             _layoutProfile = 0;
         }
         var r = Storage.getValue("screen_rot");
-        if (r != null && !isRunningInSimulator()) {
+        if (r != null) {
             _rotation = r as Number;
         } else {
             _rotation = 0;
@@ -91,6 +92,12 @@ class NavigationIQView extends WatchUi.View {
         }
         if (af != null) {
             _appFontSetting = af as Number;
+        }
+        var tp = Storage.getValue("text_preset");
+        if (tp != null) {
+            _textPreset = tp as Number;
+        } else {
+            _textPreset = 0;
         }
     }
 
@@ -131,12 +138,20 @@ class NavigationIQView extends WatchUi.View {
     private function _getDistanceFont(distNum as String, distUnit as String) as Graphics.FontDefinition {
         if (isSfFontActive()) {
             _ensureSfNumberFontsLoaded();
+            if (_textPreset == 2 || _textPreset == 3) {
+                if (_fontSfNumberHot != null) {
+                    return _fontSfNumberHot;
+                }
+            }
             if (distNum.length() >= 5 && _fontSfNumberMild != null) {
                 return _fontSfNumberMild;
             }
             if (_fontSfNumberHot != null) {
                 return _fontSfNumberHot;
             }
+        }
+        if (_textPreset == 2 || _textPreset == 3) {
+            return Graphics.FONT_NUMBER_HOT;
         }
         if (distNum.length() >= 5) {
             return Graphics.FONT_NUMBER_MILD;
@@ -275,32 +290,8 @@ class NavigationIQView extends WatchUi.View {
     }
 
     public function onScreenTap(x as Number, y as Number) as Void {
-        if (_currentTab == TAB_MAP) {
-            if (y >= 290) {
-                switchToHudTab();
-                return;
-            }
-            if (x >= 255 && y >= 85 && y <= 145) {
-                _mapZoom = (_mapZoom < 18) ? _mapZoom + 1 : 18;
-                CommManager.requestZoom(_mapZoom);
-                WatchUi.requestUpdate();
-                return;
-            }
-            if (x >= 255 && y >= 150 && y <= 210) {
-                _mapZoom = (_mapZoom > 14) ? _mapZoom - 1 : 14;
-                CommManager.requestZoom(_mapZoom);
-                WatchUi.requestUpdate();
-                return;
-            }
-            if (x <= 65 && y >= 115 && y <= 175) {
-                _panX = 0;
-                _panY = 0;
-                CommManager.recenterMap();
-                WatchUi.requestUpdate();
-                return;
-            }
-            return;
-        }
+        // Map tap logic disabled by user request
+        // if (_currentTab == TAB_MAP) { ... }
         toggleRotation();
     }
 
@@ -354,10 +345,11 @@ class NavigationIQView extends WatchUi.View {
         dc.setColor(COLOR_BG_AMOLED, COLOR_BG_AMOLED);
         dc.clear();
 
-        if (_currentTab == TAB_MAP && !_isPreviewMode) {
-            _drawMapScreen(dc);
-            return;
-        }
+        // Map mode display disabled by user request
+        // if (_currentTab == TAB_MAP && !_isPreviewMode) {
+        //     _drawMapScreen(dc);
+        //     return;
+        // }
 
         if (!CommManager.isActive && !_isPreviewMode) {
             if (effectiveProfile == 3) {
@@ -378,6 +370,10 @@ class NavigationIQView extends WatchUi.View {
             } else {
                 _drawUnifiedAppleHUD(dc);
             }
+        }
+
+        if (CommManager.isToastActive()) {
+            _drawToastOverlay(dc, effectiveProfile);
         }
     }
 
@@ -408,7 +404,7 @@ class NavigationIQView extends WatchUi.View {
         VectorArrowRenderer.drawAmbientGlow(dc, cx, cy, GLOW_RGB_CYAN);
 
         var isConnected = CommManager.isConnected() || (CommManager.rxCount > 0);
-        var statusStr = isConnected ? Lang.format("Connected ($1$)", [CommManager.rxCount]) : "Ready";
+        var statusStr = isConnected ? "Connected" : "Ready";
         var strW = dc.getTextWidthInPixels(statusStr, fontMicro);
         var pillW = strW + 28;
         var pillX = (w - pillW) / 2;
@@ -481,14 +477,21 @@ class NavigationIQView extends WatchUi.View {
     private function _drawUnifiedAppleHUD(dc as Dc) as Void {
         var w = dc.getWidth();
         var h = dc.getHeight();
+        var isLargeSquircle = (w >= 400);
 
         var barH = (h * 0.145).toNumber();
         if (barH < 36) { barH = 36; }
-        if (barH > 52) { barH = 52; }
+        if (isLargeSquircle) {
+            if (barH > 58) { barH = 58; }
+        } else {
+            if (barH > 52) { barH = 52; }
+        }
 
         var gap = (h > 300) ? 8 : 4;
+        var barBottomGap = isLargeSquircle ? (h * 0.042).toNumber() : 0;
+        var barSidePad = isLargeSquircle ? (w * 0.055).toNumber() : 0;
         var cardW = w;
-        var cardH = h - barH - gap;
+        var cardH = h - barH - gap - barBottomGap;
         var cardX = 0;
         var cardY = 0;
         var barY = cardH + gap;
@@ -501,11 +504,16 @@ class NavigationIQView extends WatchUi.View {
         var etaBgColor = theme[3] as Number;
 
         var badgeRadius = (cardW * 0.11).toNumber();
-        if (badgeRadius > 36) { badgeRadius = 36; }
-        if (badgeRadius < 24) { badgeRadius = 24; }
+        if (isLargeSquircle) {
+            if (badgeRadius > 42) { badgeRadius = 42; }
+            if (badgeRadius < 32) { badgeRadius = 32; }
+        } else {
+            if (badgeRadius > 36) { badgeRadius = 36; }
+            if (badgeRadius < 24) { badgeRadius = 24; }
+        }
 
-        var badgeCx = cardX + (cardW * 0.16).toNumber();
-        var badgeCy = cardY + (cardH * 0.18).toNumber();
+        var badgeCx = isLargeSquircle ? (cardW * 0.19).toNumber() : (cardX + (cardW * 0.16).toNumber());
+        var badgeCy = isLargeSquircle ? (cardH * 0.17).toNumber() : (cardY + (cardH * 0.18).toNumber());
 
         VectorArrowRenderer.drawAmbientGlow(dc, badgeCx, badgeCy, glowRGB);
 
@@ -544,10 +552,14 @@ class NavigationIQView extends WatchUi.View {
             var numWidth = dc.getTextWidthInPixels(distNum, numFont);
             if (distUnit.length() > 0) {
                 var unitFont = isSfFontActive() ? ((_fontSfUnit != null) ? _fontSfUnit : Graphics.FONT_LARGE) : Graphics.FONT_LARGE;
+                var numH = dc.getFontHeight(numFont);
+                var unitH = dc.getFontHeight(unitFont);
+                var unitOffsetY = ((numH - unitH) / 2) - 3;
+                if (unitOffsetY < 0) { unitOffsetY = 0; }
                 dc.setColor(COLOR_TEXT_UNIT, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(
                     numX + numWidth + DIST_UNIT_GAP,
-                    badgeCy + 6,
+                    badgeCy + unitOffsetY,
                     unitFont,
                     distUnit,
                     Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
@@ -556,78 +568,84 @@ class NavigationIQView extends WatchUi.View {
         }
 
         var divY = badgeCy + badgeRadius + (cardH * 0.06).toNumber();
-        var divPaddingX = (cardW * 0.045).toNumber();
+        var divPaddingX = isLargeSquircle ? (cardW * 0.07).toNumber() : (cardW * 0.045).toNumber();
         dc.setColor(COLOR_DIVIDER, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
         dc.drawLine(cardX + divPaddingX, divY, cardX + cardW - divPaddingX, divY);
 
         var streetText = CommManager.navText;
-        var navPadX = (cardW * 0.055).toNumber();
+        var navPadX = isLargeSquircle ? (cardW * 0.075).toNumber() : (cardW * 0.055).toNumber();
         if (navPadX < 18) { navPadX = 18; }
         var availTextH = cardH - (divY - cardY) - (cardH * 0.05).toNumber();
         if (availTextH < 20) { availTextH = 20; }
 
-        if (CommManager.isToastActive()) {
-            _drawNotificationToast(dc, cardX + navPadX, divY + 6, cardW - (navPadX * 2), availTextH, false);
-        } else if (streetText.length() > 0) {
+        if (streetText.length() > 0) {
             if (!isSfFontActive()) {
                 streetText = TextRenderer.stripAccents(streetText);
             }
             _drawDynamicWrappedText(dc, cardX + navPadX, divY + 6, cardW - (navPadX * 2), availTextH, streetText, accentColor, false);
         }
 
-        var barRadius = barH / 2;
-        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(cardX, barY, cardW, barH, barRadius);
-        VectorArrowRenderer.maskCardCorners(dc, cardX, barY, cardW, barH, barRadius);
+        // Bottom bar: ETA + Live Clock (Floating Island Capsule for curved squircle)
+        if (!CommManager.isToastActive()) {
+            var barX = barSidePad;
+            var barW = cardW - (barSidePad * 2);
+            var barRadius = barH / 2;
+            dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+            dc.fillRoundedRectangle(barX, barY, barW, barH, barRadius);
+            if (!isLargeSquircle) {
+                VectorArrowRenderer.maskCardCorners(dc, barX, barY, barW, barH, barRadius);
+            }
 
-        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawRoundedRectangle(cardX, barY, cardW, barH, barRadius);
+            dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+            dc.setPenWidth(1);
+            dc.drawRoundedRectangle(barX, barY, barW, barH, barRadius);
 
-        var etaBadgePadX = (cardW * 0.032).toNumber();
-        var etaBadgeW = (cardW * 0.44).toNumber();
-        var etaBadgeH = (barH * 0.74).toNumber();
-        var etaBadgeRadius = etaBadgeH / 2;
-        var etaBadgeX = cardX + etaBadgePadX;
-        var etaBadgeY = barY + ((barH - etaBadgeH) / 2);
+            var etaBadgePadX = (barW * 0.032).toNumber();
+            if (etaBadgePadX < 6) { etaBadgePadX = 6; }
+            var etaBadgeW = (barW * 0.44).toNumber();
+            var etaBadgeH = (barH * 0.74).toNumber();
+            var etaBadgeRadius = etaBadgeH / 2;
+            var etaBadgeX = barX + etaBadgePadX;
+            var etaBadgeY = barY + ((barH - etaBadgeH) / 2);
 
-        dc.setColor(etaBgColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, etaBadgeRadius);
+            dc.setColor(etaBgColor, Graphics.COLOR_TRANSPARENT);
+            dc.fillRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, etaBadgeRadius);
 
-        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-        dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, etaBadgeRadius);
+            dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+            dc.setPenWidth(1);
+            dc.drawRoundedRectangle(etaBadgeX, etaBadgeY, etaBadgeW, etaBadgeH, etaBadgeRadius);
 
-        var barCenterY = barY + (barH / 2);
-        var microFont = isSfFontActive() ? ((_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY) : Graphics.FONT_XTINY;
+            var barCenterY = barY + (barH / 2);
+            var microFont = isSfFontActive() ? (isLargeSquircle ? ((_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_TINY) : ((_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY)) : (isLargeSquircle ? Graphics.FONT_TINY : Graphics.FONT_XTINY);
 
-        var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
-        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(
-            etaBadgeX + (etaBadgeW / 2),
-            barCenterY,
-            microFont,
-            etaStr,
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-        );
+            var etaStr = (CommManager.etaText.length() > 0) ? ("ETA " + CommManager.etaText) : "ETA --:--";
+            dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(
+                etaBadgeX + (etaBadgeW / 2),
+                barCenterY,
+                microFont,
+                etaStr,
+                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+            );
 
-        // Center Bullet Dot: Exactly at the horizontal center of the card
-        var dotX = cardX + (cardW / 2);
-        dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(dotX, barCenterY, 2.5);
+            // Center Bullet Dot: Exactly at the horizontal center of the card
+            var dotX = barX + (barW / 2);
+            dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
+            dc.fillCircle(dotX, barCenterY, 2.5);
 
-        // Right Column: Live Clock centered in the right half of the card
-        var clockTime = System.getClockTime();
-        var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
-        dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(
-            dotX + ((cardX + cardW - dotX) / 2),
-            barCenterY,
-            microFont,
-            timeStr,
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-        );
+            // Right Column: Live Clock centered in the right half of the card
+            var clockTime = System.getClockTime();
+            var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
+            dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(
+                dotX + ((barX + barW - dotX) / 2),
+                barCenterY,
+                microFont,
+                timeStr,
+                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+            );
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -718,15 +736,17 @@ class NavigationIQView extends WatchUi.View {
             dc.clearClip();
         }
 
-        var barX = startX + maxWidth - 3;
-        var barTrackH = maxHeight - 16;
-        var thumbH = (maxHeight.toFloat() / totalH.toFloat() * barTrackH).toNumber();
-        if (thumbH < 10) { thumbH = 10; }
-        var thumbY = startY + 8 + ((scrollOffset.toFloat() / overflow.toFloat()) * (barTrackH - thumbH)).toNumber();
-        dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(barX, startY + 8, 2, barTrackH, 1);
-        dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(barX, thumbY, 2, thumbH, 1);
+        if (!CommManager.isToastActive()) {
+            var barX = startX + maxWidth - 3;
+            var barTrackH = maxHeight - 16;
+            var thumbH = (maxHeight.toFloat() / totalH.toFloat() * barTrackH).toNumber();
+            if (thumbH < 10) { thumbH = 10; }
+            var thumbY = startY + 8 + ((scrollOffset.toFloat() / overflow.toFloat()) * (barTrackH - thumbH)).toNumber();
+            dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
+            dc.fillRoundedRectangle(barX, startY + 8, 2, barTrackH, 1);
+            dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+            dc.fillRoundedRectangle(barX, thumbY, 2, thumbH, 1);
+        }
     }
 
     private function _drawDynamicWrappedText(dc as Dc, startX as Number, startY as Number, maxWidth as Number, maxHeight as Number, text as String, accentColor as Number, isCenter as Boolean) as Void {
@@ -738,16 +758,79 @@ class NavigationIQView extends WatchUi.View {
         var fontStreetReg;
         var fontCompactBold;
         var fontCompactReg;
+        var isLargeSquircle = (dc.getWidth() >= 400);
         if (isSfFontActive()) {
-            fontActionBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_SMALL;
-            fontStreetReg = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_TINY;
-            fontCompactBold = (_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_TINY;
-            fontCompactReg = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY;
+            if (isLargeSquircle) {
+                if (_textPreset == 1 || _textPreset == 3) {
+                    fontActionBold = (_fontSfLargeBold != null) ? _fontSfLargeBold : Graphics.FONT_LARGE;
+                    fontStreetReg = (_fontSfLarge != null) ? _fontSfLarge : ((_fontSfLargeBold != null) ? _fontSfLargeBold : Graphics.FONT_LARGE);
+                    fontCompactBold = (_fontSfLargeBold != null) ? _fontSfLargeBold : Graphics.FONT_LARGE;
+                    fontCompactReg = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_MEDIUM;
+                } else if (_textPreset == 2) {
+                    fontActionBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_MEDIUM;
+                    fontStreetReg = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL;
+                    fontCompactBold = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL;
+                    fontCompactReg = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_TINY;
+                } else {
+                    fontActionBold = (_fontSfLargeBold != null) ? _fontSfLargeBold : Graphics.FONT_LARGE;
+                    fontStreetReg = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_MEDIUM;
+                    fontCompactBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_MEDIUM;
+                    fontCompactReg = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL;
+                }
+            } else {
+                if (_textPreset == 1 || _textPreset == 3) {
+                    fontActionBold = (_fontSfLargeBold != null) ? _fontSfLargeBold : ((_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_MEDIUM);
+                    fontStreetReg = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_MEDIUM;
+                    fontCompactBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_MEDIUM;
+                    fontCompactReg = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL;
+                } else if (_textPreset == 2) {
+                    fontActionBold = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_TINY;
+                    fontStreetReg = (_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_TINY;
+                    fontCompactBold = (_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_TINY;
+                    fontCompactReg = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY;
+                } else {
+                    fontActionBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_SMALL;
+                    fontStreetReg = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_TINY;
+                    fontCompactBold = (_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_TINY;
+                    fontCompactReg = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY;
+                }
+            }
         } else {
-            fontActionBold = Graphics.FONT_MEDIUM;
-            fontStreetReg = Graphics.FONT_SMALL;
-            fontCompactBold = Graphics.FONT_SMALL;
-            fontCompactReg = Graphics.FONT_TINY;
+            if (isLargeSquircle) {
+                if (_textPreset == 1 || _textPreset == 3) {
+                    fontActionBold = Graphics.FONT_LARGE;
+                    fontStreetReg = Graphics.FONT_LARGE;
+                    fontCompactBold = Graphics.FONT_LARGE;
+                    fontCompactReg = Graphics.FONT_MEDIUM;
+                } else if (_textPreset == 2) {
+                    fontActionBold = Graphics.FONT_MEDIUM;
+                    fontStreetReg = Graphics.FONT_SMALL;
+                    fontCompactBold = Graphics.FONT_SMALL;
+                    fontCompactReg = Graphics.FONT_TINY;
+                } else {
+                    fontActionBold = Graphics.FONT_LARGE;
+                    fontStreetReg = Graphics.FONT_MEDIUM;
+                    fontCompactBold = Graphics.FONT_MEDIUM;
+                    fontCompactReg = Graphics.FONT_SMALL;
+                }
+            } else {
+                if (_textPreset == 1 || _textPreset == 3) {
+                    fontActionBold = Graphics.FONT_LARGE;
+                    fontStreetReg = Graphics.FONT_MEDIUM;
+                    fontCompactBold = Graphics.FONT_MEDIUM;
+                    fontCompactReg = Graphics.FONT_SMALL;
+                } else if (_textPreset == 2) {
+                    fontActionBold = Graphics.FONT_SMALL;
+                    fontStreetReg = Graphics.FONT_TINY;
+                    fontCompactBold = Graphics.FONT_TINY;
+                    fontCompactReg = Graphics.FONT_XTINY;
+                } else {
+                    fontActionBold = Graphics.FONT_MEDIUM;
+                    fontStreetReg = Graphics.FONT_SMALL;
+                    fontCompactBold = Graphics.FONT_SMALL;
+                    fontCompactReg = Graphics.FONT_TINY;
+                }
+            }
         }
 
         var bounds = [startX, startY, maxWidth, maxHeight, isCenter] as Array;
@@ -786,9 +869,62 @@ class NavigationIQView extends WatchUi.View {
     }
 
     // -------------------------------------------------------------------------
-    // In-App Notification Toast Banner (Compact Non-Intrusive Overlay)
+    // Global In-App Notification Toast Overlay (Top-level Layer)
     // -------------------------------------------------------------------------
-    private function _drawNotificationToast(dc as Dc, startX as Number, startY as Number, maxWidth as Number, maxHeight as Number, isCenter as Boolean) as Void {
+    // -------------------------------------------------------------------------
+    // Horizontal Marquee Text Renderer (Auto-scrolls when text overflows)
+    // -------------------------------------------------------------------------
+    private function _drawMarqueeText(dc as Dc, text as String, x as Number, y as Number, width as Number, font as Graphics.FontDefinition, color as Number, isCenter as Boolean) as Void {
+        var textW = dc.getTextWidthInPixels(text, font);
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        if (textW <= width) {
+            if (isCenter) {
+                dc.drawText(x + (width / 2), y, font, text, Graphics.TEXT_JUSTIFY_CENTER);
+            } else {
+                dc.drawText(x, y, font, text, Graphics.TEXT_JUSTIFY_LEFT);
+            }
+            return;
+        }
+
+        // Horizontal Marquee Scrolling when text exceeds available width
+        var fontH = dc.getFontHeight(font);
+        if (dc has :setClip) {
+            dc.setClip(x, y - 1, width, fontH + 2);
+        }
+
+        var overflow = textW - width;
+        var cycle = _animTick % 45; // 45 ticks * 200ms = 9.0s cycle
+        var scrollOffset = 0;
+
+        if (cycle < 10) {
+            // Pause 2.0s at start for clear initial reading
+            scrollOffset = 0;
+        } else if (cycle < 32) {
+            // Smoothly scroll across 4.4s
+            var progress = (cycle - 10).toFloat() / 22.0;
+            scrollOffset = (progress * overflow).toNumber();
+        } else if (cycle < 38) {
+            // Pause 1.2s at end of text
+            scrollOffset = overflow;
+        } else {
+            // Smooth return to start across 1.4s
+            var progress = (cycle - 38).toFloat() / 7.0;
+            scrollOffset = ((1.0 - progress) * overflow).toNumber();
+        }
+
+        dc.drawText(x - scrollOffset, y, font, text, Graphics.TEXT_JUSTIFY_LEFT);
+
+        if (dc has :clearClip) {
+            dc.clearClip();
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Global In-App Notification Toast Overlay (Top-level Layer)
+    // -------------------------------------------------------------------------
+    private function _drawToastOverlay(dc as Dc, effectiveProfile as Number) as Void {
+        var w = dc.getWidth();
+        var h = dc.getHeight();
         var appName = CommManager.toastAppName;
         var sender = CommManager.toastSender;
         var message = CommManager.toastMessage;
@@ -799,46 +935,194 @@ class NavigationIQView extends WatchUi.View {
             message = TextRenderer.stripAccents(message);
         }
 
-        var fontHeader = isSfFontActive() ? ((_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_TINY) : Graphics.FONT_TINY;
-        var fontBody = isSfFontActive() ? ((_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY) : Graphics.FONT_XTINY;
+        var isMono = (effectiveProfile == 3);
+        var isRound = (effectiveProfile == 2);
+        var isAmoled = (w > 280) && !isMono;
 
-        var padX = 8;
-        var padY = 6;
-        var contentW = maxWidth - (padX * 2);
+        var accentBorder = isMono ? Graphics.COLOR_WHITE : 0x38BDF8;
+        var headerColor = isMono ? Graphics.COLOR_WHITE : 0x38BDF8;
+        var cardBg = isAmoled ? 0x24252B : Graphics.COLOR_BLACK;
 
-        var linesBody = TextRenderer.wrapWithFont(dc, message, fontBody, contentW);
+        var isLargeSquircle = (w >= 400);
+        var fontHeader = isMono ? Graphics.FONT_XTINY : (isSfFontActive() ? (isLargeSquircle ? ((_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_TINY) : ((_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY)) : (isLargeSquircle ? Graphics.FONT_TINY : Graphics.FONT_XTINY));
+        var fontBody = isMono ? Graphics.FONT_XTINY : (isSfFontActive() ? (isLargeSquircle ? ((_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL) : ((_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_TINY)) : (isLargeSquircle ? Graphics.FONT_SMALL : Graphics.FONT_XTINY));
+
         var hHeader = dc.getFontHeight(fontHeader);
         var hBody = dc.getFontHeight(fontBody);
-        var maxBodyLines = ((maxHeight - hHeader - (padY * 2)) / (hBody + 1)).toNumber();
-        if (maxBodyLines < 1) { maxBodyLines = 1; }
 
-        var totalToastH = hHeader + 4 + (linesBody.size() > maxBodyLines ? maxBodyLines : linesBody.size()) * (hBody + 1) + (padY * 2);
-        if (totalToastH > maxHeight) { totalToastH = maxHeight; }
+        var toastW;
+        var toastH;
+        var toastX;
+        var toastY;
+        var contentW;
+        var padY;
+        var cornerR;
 
-        var toastY = startY + ((maxHeight - totalToastH) / 2);
-        var toastX = startX;
+        if (isRound) {
+            // Round screen: Overlay across lower-mid area (covers lower street text, perfectly preserves action text above)
+            toastW = (w * 0.83).toNumber();
+            toastX = (w - toastW) / 2;
+            toastY = (h * 0.51).toNumber();
+            contentW = toastW - 16;
 
-        // Background card & modern border
-        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
-        dc.fillRoundedRectangle(toastX, toastY, maxWidth, totalToastH, 8);
-        dc.setColor(0x38BDF8, Graphics.COLOR_TRANSPARENT); // Sky blue accent border
-        dc.setPenWidth(1);
-        dc.drawRoundedRectangle(toastX, toastY, maxWidth, totalToastH, 8);
+            var msgLines = TextRenderer.wrapWithFont(dc, message, fontBody, contentW);
+            var numLines = (msgLines.size() > 2) ? 2 : (msgLines.size() > 0 ? msgLines.size() : 1);
+            var minRoundH = (h * 0.245).toNumber();
+            toastH = hHeader + (numLines * (hBody + 2)) + 18;
+            if (toastH < minRoundH) {
+                toastH = minRoundH;
+            }
+            cornerR = 12;
+            padY = (toastH - (hHeader + (numLines * (hBody + 2)))) / 2;
+            if (padY < 5) { padY = 5; }
 
-        // Header: App + Sender
-        var textAnchorX = isCenter ? (toastX + maxWidth / 2) : (toastX + padX);
-        var justify = isCenter ? Graphics.TEXT_JUSTIFY_CENTER : Graphics.TEXT_JUSTIFY_LEFT;
+            // Background card & modern border
+            dc.setColor(cardBg, Graphics.COLOR_TRANSPARENT);
+            if (dc has :fillRoundedRectangle) {
+                dc.fillRoundedRectangle(toastX, toastY, toastW, toastH, cornerR);
+            } else {
+                dc.fillRectangle(toastX, toastY, toastW, toastH);
+            }
 
-        dc.setColor(0x38BDF8, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(textAnchorX, toastY + padY, fontHeader, headerText, justify);
+            // Draw border only on MIP/Mono screens where card background matches screen black
+            if (!isAmoled) {
+                dc.setColor(accentBorder, Graphics.COLOR_TRANSPARENT);
+                dc.setPenWidth(1);
+                if (dc has :drawRoundedRectangle) {
+                    dc.drawRoundedRectangle(toastX, toastY, toastW, toastH, cornerR);
+                } else {
+                    dc.drawRectangle(toastX, toastY, toastW, toastH);
+                }
+            }
 
-        // Body: Message lines
-        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        var curY = toastY + padY + hHeader + 3;
-        var limit = linesBody.size() > maxBodyLines ? maxBodyLines : linesBody.size();
-        for (var i = 0; i < limit; i++) {
-            dc.drawText(textAnchorX, curY, fontBody, linesBody[i], justify);
-            curY += (hBody + 1);
+            var contentX = toastX + ((toastW - contentW) / 2);
+
+            // Header (App - Sender) with marquee support
+            _drawMarqueeText(dc, headerText, contentX, toastY + padY, contentW, fontHeader, headerColor, true);
+
+            // Body message with auto-marquee when overflowing
+            var curTextY = toastY + padY + hHeader + 2;
+            if (msgLines.size() <= 1) {
+                var singleLine = (msgLines.size() == 1) ? msgLines[0] : message;
+                _drawMarqueeText(dc, singleLine, contentX, curTextY, contentW, fontBody, COLOR_TEXT_WHITE, true);
+            } else if (msgLines.size() == 2) {
+                _drawMarqueeText(dc, msgLines[0], contentX, curTextY, contentW, fontBody, COLOR_TEXT_WHITE, true);
+                _drawMarqueeText(dc, msgLines[1], contentX, curTextY + (hBody + 2), contentW, fontBody, COLOR_TEXT_WHITE, true);
+            } else {
+                var line0 = msgLines[0];
+                var rest = "";
+                if (message.length() > line0.length()) {
+                    rest = message.substring(line0.length(), message.length());
+                    while (rest.length() > 0 && rest.substring(0, 1).equals(" ")) {
+                        rest = rest.substring(1, rest.length());
+                    }
+                }
+                _drawMarqueeText(dc, line0, contentX, curTextY, contentW, fontBody, COLOR_TEXT_WHITE, true);
+                _drawMarqueeText(dc, rest, contentX, curTextY + (hBody + 2), contentW, fontBody, COLOR_TEXT_WHITE, true);
+            }
+            return;
+        }
+
+        if (isMono) {
+            // Instinct Mono: Overlay at lower portion of text zone
+            toastW = w - 30;
+            toastX = (w - toastW) / 2;
+            contentW = toastW - 12;
+
+            var msgLines = TextRenderer.wrapWithFont(dc, message, fontBody, contentW);
+            var numLines = (msgLines.size() > 2) ? 2 : (msgLines.size() > 0 ? msgLines.size() : 1);
+            toastH = hHeader + (numLines * (hBody + 1)) + 16;
+            if (toastH < 46) { toastH = 46; }
+            toastY = h - toastH - 8;
+            padY = (toastH - (hHeader + (numLines * (hBody + 1)))) / 2;
+            if (padY < 3) { padY = 3; }
+
+            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+            dc.fillRectangle(toastX, toastY, toastW, toastH);
+
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.setPenWidth(1);
+            dc.drawRectangle(toastX, toastY, toastW, toastH);
+
+            var contentX = toastX + ((toastW - contentW) / 2);
+            _drawMarqueeText(dc, headerText, contentX, toastY + padY, contentW, fontHeader, headerColor, true);
+
+            var curTextY = toastY + padY + hHeader + 1;
+            if (msgLines.size() <= 1) {
+                var singleLine = (msgLines.size() == 1) ? msgLines[0] : message;
+                _drawMarqueeText(dc, singleLine, contentX, curTextY, contentW, fontBody, Graphics.COLOR_WHITE, true);
+            } else if (msgLines.size() == 2) {
+                _drawMarqueeText(dc, msgLines[0], contentX, curTextY, contentW, fontBody, Graphics.COLOR_WHITE, true);
+                _drawMarqueeText(dc, msgLines[1], contentX, curTextY + (hBody + 1), contentW, fontBody, Graphics.COLOR_WHITE, true);
+            } else {
+                var line0 = msgLines[0];
+                var rest = "";
+                if (message.length() > line0.length()) {
+                    rest = message.substring(line0.length(), message.length());
+                    while (rest.length() > 0 && rest.substring(0, 1).equals(" ")) {
+                        rest = rest.substring(1, rest.length());
+                    }
+                }
+                _drawMarqueeText(dc, line0, contentX, curTextY, contentW, fontBody, Graphics.COLOR_WHITE, true);
+                _drawMarqueeText(dc, rest, contentX, curTextY + (hBody + 1), contentW, fontBody, Graphics.COLOR_WHITE, true);
+            }
+            return;
+        }
+
+        // Rectangular Screen (Venu Sq 2, Venu X1): Overlay with Squircle Safe Inset
+        toastW = isLargeSquircle ? (w * 0.88).toNumber() : (w * 0.98).toNumber();
+        toastX = (w - toastW) / 2;
+        contentW = toastW - (isLargeSquircle ? 24 : 16);
+        var msgLines = TextRenderer.wrapWithFont(dc, message, fontBody, contentW);
+        var numLines = (msgLines.size() > 2) ? 2 : (msgLines.size() > 0 ? msgLines.size() : 1);
+        toastH = hHeader + (numLines * (hBody + 2)) + (isLargeSquircle ? 26 : 22);
+        var minToastH = isLargeSquircle ? 76 : 64;
+        if (toastH < minToastH) { toastH = minToastH; }
+        var bottomInset = isLargeSquircle ? (h * 0.045).toNumber() : 2;
+        toastY = h - toastH - bottomInset;
+        cornerR = isLargeSquircle ? 20 : 12;
+        padY = (toastH - (hHeader + (numLines * (hBody + 2)))) / 2;
+        if (padY < 4) { padY = 4; }
+
+        dc.setColor(cardBg, Graphics.COLOR_TRANSPARENT);
+        if (dc has :fillRoundedRectangle) {
+            dc.fillRoundedRectangle(toastX, toastY, toastW, toastH, cornerR);
+        } else {
+            dc.fillRectangle(toastX, toastY, toastW, toastH);
+        }
+
+        // Draw border only on MIP/Mono screens where card background matches screen black
+        if (!isAmoled) {
+            dc.setColor(accentBorder, Graphics.COLOR_TRANSPARENT);
+            dc.setPenWidth(1);
+            if (dc has :drawRoundedRectangle) {
+                dc.drawRoundedRectangle(toastX, toastY, toastW, toastH, cornerR);
+            } else {
+                dc.drawRectangle(toastX, toastY, toastW, toastH);
+            }
+        }
+
+        var contentX = toastX + ((toastW - contentW) / 2);
+        _drawMarqueeText(dc, headerText, contentX, toastY + padY, contentW, fontHeader, headerColor, true);
+
+        var curTextY = toastY + padY + hHeader + 2;
+        if (msgLines.size() <= 1) {
+            var singleLine = (msgLines.size() == 1) ? msgLines[0] : message;
+            _drawMarqueeText(dc, singleLine, contentX, curTextY, contentW, fontBody, COLOR_TEXT_WHITE, true);
+        } else if (msgLines.size() == 2) {
+            _drawMarqueeText(dc, msgLines[0], contentX, curTextY, contentW, fontBody, COLOR_TEXT_WHITE, true);
+            _drawMarqueeText(dc, msgLines[1], contentX, curTextY + (hBody + 2), contentW, fontBody, COLOR_TEXT_WHITE, true);
+        } else {
+            var line0 = msgLines[0];
+            var rest = "";
+            if (message.length() > line0.length()) {
+                rest = message.substring(line0.length(), message.length());
+                while (rest.length() > 0 && rest.substring(0, 1).equals(" ")) {
+                    rest = rest.substring(1, rest.length());
+                }
+            }
+            _drawMarqueeText(dc, line0, contentX, curTextY, contentW, fontBody, COLOR_TEXT_WHITE, true);
+            _drawMarqueeText(dc, rest, contentX, curTextY + (hBody + 2), contentW, fontBody, COLOR_TEXT_WHITE, true);
         }
     }
 
@@ -1053,7 +1337,9 @@ class NavigationIQView extends WatchUi.View {
         }
 
         var numFont = Graphics.FONT_NUMBER_MILD;
-        if (distNum.length() > 3) {
+        if (_textPreset == 2 || _textPreset == 3) {
+            numFont = (distNum.length() <= 3) ? Graphics.FONT_NUMBER_HOT : Graphics.FONT_NUMBER_MILD;
+        } else if (distNum.length() > 3) {
             numFont = Graphics.FONT_LARGE;
         }
 
@@ -1097,11 +1383,6 @@ class NavigationIQView extends WatchUi.View {
         }
 
         // 4. Bottom Navigation Text Zone (100% dedicated to instructions or incoming message)
-        if (CommManager.isToastActive()) {
-            _drawNotificationToast(dc, 12, textZoneTop, w - 24, textZoneH, true);
-            return;
-        }
-
         var rawNavText = CommManager.navText;
         if (rawNavText.length() > 0) {
             // Strip accents so Vietnamese renders cleanly on Instinct system fonts
@@ -1109,6 +1390,13 @@ class NavigationIQView extends WatchUi.View {
 
             var fontBold = Graphics.FONT_SMALL;
             var fontStreet = Graphics.FONT_TINY;
+            if (_textPreset == 1 || _textPreset == 3) {
+                fontBold = Graphics.FONT_MEDIUM;
+                fontStreet = Graphics.FONT_SMALL;
+            } else if (_textPreset == 2) {
+                fontBold = Graphics.FONT_TINY;
+                fontStreet = Graphics.FONT_XTINY;
+            }
             var maxW = w - 30;
 
             var parts = TextRenderer.splitActionAndStreet(streetText);
@@ -1251,31 +1539,92 @@ class NavigationIQView extends WatchUi.View {
         var fontStreet;
 
         if (isTiny) {
-            fontBold = Graphics.FONT_TINY;
-            fontStreet = Graphics.FONT_XTINY;
+            if (_textPreset == 1 || _textPreset == 3) {
+                fontBold = Graphics.FONT_SMALL;
+                fontStreet = Graphics.FONT_TINY;
+            } else if (_textPreset == 2) {
+                fontBold = Graphics.FONT_XTINY;
+                fontStreet = Graphics.FONT_XTINY;
+            } else {
+                fontBold = Graphics.FONT_TINY;
+                fontStreet = Graphics.FONT_XTINY;
+            }
             fontMicro = Graphics.FONT_XTINY;
         } else if (isMid) {
             fontMicro = Graphics.FONT_XTINY;
             if (isSfFontActive()) {
-                fontBold = (_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_SMALL;
-                fontStreet = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY;
+                if (_textPreset == 1 || _textPreset == 3) {
+                    fontBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_MEDIUM;
+                    fontStreet = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL;
+                } else if (_textPreset == 2) {
+                    fontBold = (_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_XTINY;
+                    fontStreet = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY;
+                } else {
+                    fontBold = (_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_SMALL;
+                    fontStreet = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY;
+                }
             } else {
-                fontBold = Graphics.FONT_SMALL;
-                fontStreet = Graphics.FONT_XTINY;
+                if (_textPreset == 1 || _textPreset == 3) {
+                    fontBold = Graphics.FONT_MEDIUM;
+                    fontStreet = Graphics.FONT_SMALL;
+                } else if (_textPreset == 2) {
+                    fontBold = Graphics.FONT_XTINY;
+                    fontStreet = Graphics.FONT_XTINY;
+                } else {
+                    fontBold = Graphics.FONT_SMALL;
+                    fontStreet = Graphics.FONT_XTINY;
+                }
             }
         } else if (isLarge) {
             fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
             if (isSfFontActive()) {
-                fontBold = (_fontSfLargeBold != null) ? _fontSfLargeBold : ((_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_LARGE);
-                fontStreet = (_fontSfLarge != null) ? _fontSfLarge : ((_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_MEDIUM);
+                if (_textPreset == 1 || _textPreset == 3) {
+                    fontBold = (_fontSfLargeBold != null) ? _fontSfLargeBold : Graphics.FONT_LARGE;
+                    fontStreet = (_fontSfLarge != null) ? _fontSfLarge : ((_fontSfLargeBold != null) ? _fontSfLargeBold : Graphics.FONT_LARGE);
+                } else if (_textPreset == 2) {
+                    fontBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_MEDIUM;
+                    fontStreet = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL;
+                } else {
+                    fontBold = (_fontSfLargeBold != null) ? _fontSfLargeBold : ((_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_LARGE);
+                    fontStreet = (_fontSfLarge != null) ? _fontSfLarge : ((_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_MEDIUM);
+                }
             } else {
-                fontBold = Graphics.FONT_LARGE;
-                fontStreet = Graphics.FONT_MEDIUM;
+                if (_textPreset == 1 || _textPreset == 3) {
+                    fontBold = Graphics.FONT_LARGE;
+                    fontStreet = Graphics.FONT_LARGE;
+                } else if (_textPreset == 2) {
+                    fontBold = Graphics.FONT_MEDIUM;
+                    fontStreet = Graphics.FONT_SMALL;
+                } else {
+                    fontBold = Graphics.FONT_LARGE;
+                    fontStreet = Graphics.FONT_MEDIUM;
+                }
             }
         } else {
             fontMicro = (_fontSfMicro != null) ? _fontSfMicro : Graphics.FONT_XTINY;
-            fontBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_SMALL;
-            fontStreet = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_TINY;
+            if (isSfFontActive()) {
+                if (_textPreset == 1 || _textPreset == 3) {
+                    fontBold = (_fontSfLargeBold != null) ? _fontSfLargeBold : ((_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_LARGE);
+                    fontStreet = (_fontSfStreetBold != null) ? _fontSfStreetBold : ((_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_MEDIUM);
+                } else if (_textPreset == 2) {
+                    fontBold = (_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_SMALL;
+                    fontStreet = (_fontSfCompact != null) ? _fontSfCompact : Graphics.FONT_XTINY;
+                } else {
+                    fontBold = (_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_SMALL;
+                    fontStreet = (_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_TINY;
+                }
+            } else {
+                if (_textPreset == 1 || _textPreset == 3) {
+                    fontBold = Graphics.FONT_LARGE;
+                    fontStreet = Graphics.FONT_MEDIUM;
+                } else if (_textPreset == 2) {
+                    fontBold = Graphics.FONT_TINY;
+                    fontStreet = Graphics.FONT_XTINY;
+                } else {
+                    fontBold = Graphics.FONT_SMALL;
+                    fontStreet = Graphics.FONT_TINY;
+                }
+            }
         }
 
         var pillH;
@@ -1331,11 +1680,17 @@ class NavigationIQView extends WatchUi.View {
             var distNum = parts[0];
             var distUnit = parts[1];
 
-            var numFont = isTiny ? Graphics.FONT_MEDIUM : _getDistanceFont(distNum, distUnit);
+            var numFont = isTiny ? Graphics.FONT_MEDIUM : (isMid ? ((_textPreset == 2 || _textPreset == 3) ? Graphics.FONT_NUMBER_HOT : Graphics.FONT_NUMBER_MILD) : _getDistanceFont(distNum, distUnit));
+            if (!isSfFontActive() || isMid || isTiny) {
+                var commaIdx = distNum.find(",");
+                if (commaIdx != null) {
+                    distNum = distNum.substring(0, commaIdx) + "." + distNum.substring(commaIdx + 1, distNum.length());
+                }
+            }
             var numW = dc.getTextWidthInPixels(distNum, numFont);
-            var unitFont = isTiny ? Graphics.FONT_XTINY : (isSfFontActive() ? ((_fontSfUnit != null) ? _fontSfUnit : fontStreet) : Graphics.FONT_LARGE);
+            var unitFont = isTiny ? Graphics.FONT_XTINY : (isSfFontActive() ? ((_fontSfUnit != null) ? _fontSfUnit : fontStreet) : (isMid ? Graphics.FONT_MEDIUM : Graphics.FONT_LARGE));
             var unitW = (distUnit.length() > 0) ? dc.getTextWidthInPixels(distUnit, unitFont) : 0;
-            var gap = isTiny ? 3 : 6;
+            var gap = isTiny ? 3 : 5;
             var totalDistW = numW + gap + unitW;
             var startDistX = (w - totalDistW) / 2;
 
@@ -1344,8 +1699,12 @@ class NavigationIQView extends WatchUi.View {
             dc.drawText(startDistX, distYVal, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
             if (distUnit.length() > 0) {
+                var numH = dc.getFontHeight(numFont);
+                var unitH = dc.getFontHeight(unitFont);
+                var unitOffsetY = ((numH - unitH) / 2) - ((isMid || isTiny) ? 5 : 3);
+                if (unitOffsetY < 0) { unitOffsetY = 0; }
                 dc.setColor(COLOR_TEXT_UNIT, Graphics.COLOR_TRANSPARENT);
-                dc.drawText(startDistX + numW + gap, distYVal + (isTiny ? 3 : 6), unitFont, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+                dc.drawText(startDistX + numW + gap, distYVal + unitOffsetY, unitFont, distUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
             }
         }
 
@@ -1353,13 +1712,11 @@ class NavigationIQView extends WatchUi.View {
         if (distYVal == 0) {
             distYVal = badgeCy + badgeR + (h * 0.075).toNumber();
         }
-        var minTextY = isTiny ? (distYVal + 18) : (isMid ? (distYVal + (h * 0.120).toNumber()) : (distYVal + (h * 0.080).toNumber()));
+        var minTextY = isTiny ? (distYVal + 18) : (isMid ? (distYVal + (h * 0.095).toNumber()) : (distYVal + (h * 0.080).toNumber()));
         var maxTextH = pillY - (isTiny ? 4 : 6) - minTextY;
         if (maxTextH < 16) { maxTextH = 16; }
 
-        if (CommManager.isToastActive()) {
-            _drawNotificationToast(dc, (w * 0.08).toNumber(), minTextY, (w * 0.84).toNumber(), maxTextH, true);
-        } else if (streetText.length() > 0) {
+        if (streetText.length() > 0) {
             // Strip accents on devices with system fonts lacking Vietnamese Unicode
             if (!isSfFontActive()) {
                 streetText = TextRenderer.stripAccents(streetText);
@@ -1368,8 +1725,8 @@ class NavigationIQView extends WatchUi.View {
             var parts = TextRenderer.splitActionAndStreet(streetText);
             var actionText = parts[0];
             var street = parts[1];
-
             var maxTextW = isTiny ? (w * 0.88).toNumber() : (w * 0.82).toNumber();
+
             var linesAct = TextRenderer.wrapWithFont(dc, actionText, fontBold, maxTextW);
             var linesStr = (street.length() > 0) ? TextRenderer.wrapWithFont(dc, street, fontStreet, maxTextW) : [] as Array<String>;
 
@@ -1433,17 +1790,19 @@ class NavigationIQView extends WatchUi.View {
                 }
 
                 // Vertical scrollbar indicator on right side
-                var barTrackH = maxTextH - 12;
-                if (barTrackH < 8) { barTrackH = 8; }
-                var thumbH = (maxTextH.toFloat() / totalTextH.toFloat() * barTrackH).toNumber();
-                if (thumbH < 8) { thumbH = 8; }
-                var thumbY = minTextY + 6 + ((scrollOffset.toFloat() / overflow.toFloat()) * (barTrackH - thumbH)).toNumber();
-                var barX = (w * 0.93).toNumber();
+                if (!CommManager.isToastActive()) {
+                    var barTrackH = maxTextH - 12;
+                    if (barTrackH < 8) { barTrackH = 8; }
+                    var thumbH = (maxTextH.toFloat() / totalTextH.toFloat() * barTrackH).toNumber();
+                    if (thumbH < 8) { thumbH = 8; }
+                    var thumbY = minTextY + 6 + ((scrollOffset.toFloat() / overflow.toFloat()) * (barTrackH - thumbH)).toNumber();
+                    var barX = (w * 0.93).toNumber();
 
-                dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
-                dc.fillRoundedRectangle(barX, minTextY + 6, 2, barTrackH, 1);
-                dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
-                dc.fillRoundedRectangle(barX, thumbY, 2, thumbH, 1);
+                    dc.setColor(0x27272A, Graphics.COLOR_TRANSPARENT);
+                    dc.fillRoundedRectangle(barX, minTextY + 6, 2, barTrackH, 1);
+                    dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+                    dc.fillRoundedRectangle(barX, thumbY, 2, thumbH, 1);
+                }
             }
         }
 

@@ -15,4 +15,19 @@
 local.properties
 bin/
 *.prg
+*.iq
+garmin_app/gen/
+garmin_app/mir/
+garmin_app/internal-mir/
+garmin_app/external-mir/
+garmin_app/*.debug.xml
+garmin_app/__pycache__/
+__pycache__/
+*.pyc
+
+# Temp emulator captures
+/emulator_*.png
+/current_emulator.png
+/updated_emulator*.png
+/screen_contrast.png
 

@@ -10,6 +10,20 @@ module Rez {
         (:initialized) var LauncherIcon as ResourceId;
     } // Drawables
 
+    module Fonts {
+        (:initialized) var SfStreetBold as ResourceId;
+        (:initialized) var SfStreet as ResourceId;
+        (:initialized) var SfCompactBold as ResourceId;
+        (:initialized) var SfCompact as ResourceId;
+        (:initialized) var SfMicro as ResourceId;
+        (:initialized) var SfStreetBoldRot90 as ResourceId;
+        (:initialized) var SfStreetRot90 as ResourceId;
+        (:initialized) var SfMicroRot90 as ResourceId;
+        (:initialized) var SfNumberHot as ResourceId;
+        (:initialized) var SfNumberMild as ResourceId;
+        (:initialized) var SfUnit as ResourceId;
+    } // Fonts
+
     module Layouts {
         function MainLayout(dc as Graphics.Dc) as Array<WatchUi.Drawable> {
             var rez_cmp_local_var_dc_getWidth = dc.getWidth();

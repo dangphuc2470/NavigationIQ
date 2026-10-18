@@ -8,83 +8,83 @@ import Toybox.System;
 class PreviewManager {
 
     private static var _previewSteps as Array<Array<Object>> = [
-        // 0. Đi thẳng (Straight) - Highway speed
+        // 0. Straight Ahead - Long highway run
         [
             DIR_STRAIGHT,
-            "2,8 km",
-            "Tiếp tục đi thẳng trên Quốc lộ 1A về hướng Cầu Cần Thơ",
+            "2.8 km",
+            "Continue straight on Highway 1 towards City Center",
             "17:48",
             0
         ],
-        // 1. Rẽ phải (Turn Right) - Approaching junction
+        // 1. Turn Right - Approaching junction
         [
             DIR_RIGHT,
-            "250 m",
-            "Rẽ phải vào đường Lê Lợi",
+            "1.4 km",
+            "Turn right onto Main Street",
             "17:44",
             0
         ],
-        // 2. Vòng xoay lối ra thứ 2 (Roundabout Exit 2)
+        // 2. Roundabout 2nd Exit
         [
             DIR_ROUNDABOUT_2,
-            "150 m",
-            "Tại bùng binh, đi theo lối ra thứ 2 vào đường Nguyễn Huệ",
+            "450 m",
+            "At the roundabout, take the 2nd exit onto Broadway",
             "17:41",
             2
         ],
-        // 3. Rẽ trái (Turn Left) - Immediate turn
+        // 3. Turn Left - Immediate turn
         [
             DIR_LEFT,
             "80 m",
-            "Rẽ trái vào đường Nam Kỳ Khởi Nghĩa",
+            "Turn left onto Market Street",
             "17:38",
             0
         ],
-        // 4. Quay đầu xe (U-Turn)
+        // 4. U-Turn
         [
             DIR_UTURN,
             "30 m",
-            "Quay đầu xe tại điểm mở dải phân cách",
+            "Make a U-turn at the median opening",
             "17:35",
             0
         ],
-        // 5. Chếch sang phải (Slight Right) - Highway ramp
+        // 5. Slight Right - Highway exit ramp
         [
             DIR_SLIGHT_RIGHT,
-            "450 m",
-            "Đi chếch sang phải vào đường gom cao tốc",
+            "3.5 km",
+            "Keep right to take exit 42B towards Airport Expressway",
             "17:31",
             0
         ],
-        // 6. Vòng xoay lối ra thứ 4 (Roundabout Exit 4) - Complex roundabout
+        // 6. Roundabout 4th Exit
         [
             DIR_ROUNDABOUT_4,
-            "120 m",
-            "Tại vòng xoay, đi theo lối ra thứ 4 vào đường Võ Văn Kiệt",
+            "250 m",
+            "At the roundabout, take the 4th exit onto Grand Avenue",
             "17:27",
             4
         ],
-        // 7. Chếch sang trái (Slight Left) - Overpass
+        // 7. Slight Left - Overpass / flyover
         [
             DIR_SLIGHT_LEFT,
-            "350 m",
-            "Đi chếch sang trái vào cầu vượt Hoàng Hoa Thám",
+            "1.2 km",
+            "Keep left onto the Downtown Overpass",
             "17:23",
             0
         ],
-        // 8. Rẽ ngoặt sang phải (Sharp Right)
+        // 8. Sharp Right - Alleyway
         [
             DIR_SHARP_RIGHT,
             "60 m",
-            "Rẽ ngoặt sang phải vào hẻm 284 Hai Bà Trưng",
+            "Make a sharp right onto Pine Alley",
             "17:20",
             0
         ],
-        // 9. Vòng xoay lối ra thứ 1 (Roundabout Exit 1)
+        // 9. Roundabout 1st Exit
         [
             DIR_ROUNDABOUT_1,
-            "200 m",
-            "Tại bùng binh, đi theo lối ra thứ nhất vào đường Trần Hưng Đạo",
+            "5.6 km",
+            "At the roundabout, take the 1st exit onto Coast Highway",
             "17:16",
             1
         ]
@@ -93,6 +93,8 @@ class PreviewManager {
     public static function getStepCount() as Number {
         return _previewSteps.size();
     }
+
+    public static var enableToast as Boolean = false;
 
     public static function applyStep(stepIndex as Number) as Void {
         var idx = stepIndex % _previewSteps.size();
@@ -106,5 +108,10 @@ class PreviewManager {
         CommManager.exitNumber = step[4] as Number;
         CommManager.isWaitingImage = false;
         CommManager.rleBitmap = null;
+        if (enableToast) {
+            CommManager.showToastNotification("Zalo", "Mẹ", "Nhớ mua đồ ăn nha con", 60);
+        } else {
+            CommManager.dismissToastNotification();
+        }
     }
 }

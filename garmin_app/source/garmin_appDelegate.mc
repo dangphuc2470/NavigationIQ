@@ -17,10 +17,11 @@ class NavigationIQDelegate extends WatchUi.BehaviorDelegate {
                 _view.stopPreviewMode();
                 return true;
             }
-            if (_view.isMapTabActive()) {
-                _view.switchToHudTab();
-                return true;
-            }
+            // Map tab disabled
+            // if (_view.isMapTabActive()) {
+            //     _view.switchToHudTab();
+            //     return true;
+            // }
         }
         WatchUi.popView(WatchUi.SLIDE_DOWN);
         return true;
@@ -40,26 +41,28 @@ class NavigationIQDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onNextPage() as Boolean {
-        if (_view != null) {
-            if (_view.isMapTabActive()) {
-                _view.switchToHudTab();
-            } else {
-                _view.switchToMapTab();
-            }
-            return true;
-        }
+        // Map page switching disabled by user request
+        // if (_view != null) {
+        //     if (_view.isMapTabActive()) {
+        //         _view.switchToHudTab();
+        //     } else {
+        //         _view.switchToMapTab();
+        //     }
+        //     return true;
+        // }
         return false;
     }
 
     function onPreviousPage() as Boolean {
-        if (_view != null) {
-            if (_view.isMapTabActive()) {
-                _view.switchToHudTab();
-            } else {
-                _view.switchToMapTab();
-            }
-            return true;
-        }
+        // Map page switching disabled by user request
+        // if (_view != null) {
+        //     if (_view.isMapTabActive()) {
+        //         _view.switchToHudTab();
+        //     } else {
+        //         _view.switchToMapTab();
+        //     }
+        //     return true;
+        // }
         return false;
     }
 
@@ -75,10 +78,10 @@ class NavigationIQDelegate extends WatchUi.BehaviorDelegate {
                     _view.stopPreviewMode();
                     return true;
                 }
-                if (_view.isMapTabActive()) {
-                    _view.switchToHudTab();
-                    return true;
-                }
+                // if (_view.isMapTabActive()) {
+                //     _view.switchToHudTab();
+                //     return true;
+                // }
             }
         }
         return false;
@@ -86,9 +89,10 @@ class NavigationIQDelegate extends WatchUi.BehaviorDelegate {
 
     // Drag / Pan Map with 1 finger
     function onDrag(dragEvent as WatchUi.DragEvent) as Boolean {
-        if (_view != null && _view.isMapTabActive()) {
-            return _view.onMapDrag(dragEvent);
-        }
+        // Map drag disabled by user request
+        // if (_view != null && _view.isMapTabActive()) {
+        //     return _view.onMapDrag(dragEvent);
+        // }
         return false;
     }
 

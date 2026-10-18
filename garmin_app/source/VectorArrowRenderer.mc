@@ -102,7 +102,7 @@ class VectorArrowRenderer {
                 dc.setColor(0x3F3F46, Graphics.COLOR_TRANSPARENT);
                 dc.drawCircle(cx, roundCy, roundR);
 
-                dc.setColor(arrowAccent, Graphics.COLOR_TRANSPARENT);
+                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
                 dc.setPenWidth(6);
 
                 dc.drawLine(cx - 4, roundCy + 19, cx - 4, roundCy + 10);

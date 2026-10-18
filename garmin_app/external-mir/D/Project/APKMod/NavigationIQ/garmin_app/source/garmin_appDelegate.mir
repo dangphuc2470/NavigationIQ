@@ -11,56 +11,622 @@ class NavigationIQDelegate extends WatchUi.BehaviorDelegate {
     static
     <init> {
     }
-    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 6; @symbol_functiondef = [initialize,6,13,23]; ]
-    function initialize() as Void {
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_6_26_8_4_start:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 7 8 ]
-        symbol [ BehaviorDelegate %tmp.2 7 8 24 ];
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 6; @position = 16; @symbol_vardef = [_view,6,16,21]; @symbol_type<0> = [NavigationIQView,6,25,41]; ]
+    private
+    var _view as NavigationIQView or Null;
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 8; @symbol_functiondef = [initialize,8,13,23]; @symbol_param<0> = [view,8,24,28]; @symbol_param<0>_type<0> = [NavigationIQView,8,32,48]; ]
+    function initialize(view as NavigationIQView or Null) as Void {
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_8_51_11_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 9 8 ]
+        symbol [ BehaviorDelegate %tmp.2 9 8 24 ];
         %tmp.2 = getv ? :BehaviorDelegate;
-        symbol [ initialize %tmp.3 7 25 35 ];
+        symbol [ initialize %tmp.3 9 25 35 ];
         %tmp.3 = getv function %tmp.2 :initialize;
         invoke %tmp.2 %tmp.3();
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_6_26_8_4_stop:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 10 8 ]
+        %tmp.4 = lgetv %view;
+        symbol [ view %tmp.4 10 16 20 ];
+        symbol [ _view ? 10 8 13 ];
+        putv self :_view %tmp.4;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_8_51_11_4_stop:
     }
-    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 11; @symbol_functiondef = [onBack,11,13,19]; @symbol_return<0> = [Boolean,11,25,32]; ]
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 14; @symbol_functiondef = [onBack,14,13,19]; @symbol_return<0> = [Boolean,14,25,32]; ]
     function onBack() as Boolean {
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_11_33_14_4_start:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 12 8 ]
-        symbol [ WatchUi %tmp.1 12 8 15 ];
-        %tmp.1 = getm $.Toybox.WatchUi;
-        symbol [ popView %tmp.2 12 16 23 ];
-        %tmp.2 = getv function %tmp.1 :popView;
-        symbol [ WatchUi %tmp.3 12 24 31 ];
-        %tmp.3 = getm $.Toybox.WatchUi;
-        symbol [ SLIDE_DOWN %tmp.4 12 32 42 ];
-        %tmp.4 = getv %tmp.3 :SLIDE_DOWN;
-        invoke %tmp.1 %tmp.2(%tmp.4);
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 13 8 ]
-        %tmp.5 = true;
-        ret %tmp.5;
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_11_33_14_4_stop:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_14_33_27_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 15 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_15_8_24_8_if_stmt:
+        symbol [ _view %tmp.2 15 12 17 ];
+        %tmp.2 = getv ? :_view;
+        %tmp.3 = null;
+        %tmp.4 = ne %tmp.2 %tmp.3;
+        bf %tmp.4 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_15_8_24_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_15_8_24_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_15_27_24_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 16 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_16_12_19_12_if_stmt:
+        symbol [ _view %tmp.6 16 16 21 ];
+        %tmp.6 = getv ? :_view;
+        %tmp.7 = as %tmp.6 { (!Null) };
+        symbol [ isPreviewModeActive %tmp.8 16 22 41 ];
+        %tmp.8 = getv function %tmp.7 :isPreviewModeActive;
+        %tmp.9 = invoke %tmp.7 %tmp.8();
+        bf %tmp.9 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_16_12_19_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_16_12_19_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_16_45_19_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 17 16 ]
+        symbol [ _view %tmp.11 17 16 21 ];
+        %tmp.11 = getv ? :_view;
+        symbol [ stopPreviewMode %tmp.12 17 22 37 ];
+        %tmp.12 = getv function %tmp.11 :stopPreviewMode;
+        invoke %tmp.11 %tmp.12();
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 18 16 ]
+        %tmp.13 = true;
+        ret %tmp.13;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_16_45_19_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_16_12_19_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_16_12_19_12_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 20 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_20_12_23_12_if_stmt:
+        symbol [ _view %tmp.15 20 16 21 ];
+        %tmp.15 = getv ? :_view;
+        symbol [ isMapTabActive %tmp.16 20 22 36 ];
+        %tmp.16 = getv function %tmp.15 :isMapTabActive;
+        %tmp.17 = invoke %tmp.15 %tmp.16();
+        bf %tmp.17 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_20_12_23_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_20_12_23_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_20_40_23_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 21 16 ]
+        symbol [ _view %tmp.19 21 16 21 ];
+        %tmp.19 = getv ? :_view;
+        symbol [ switchToHudTab %tmp.20 21 22 36 ];
+        %tmp.20 = getv function %tmp.19 :switchToHudTab;
+        invoke %tmp.19 %tmp.20();
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 22 16 ]
+        %tmp.21 = true;
+        ret %tmp.21;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_20_40_23_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_20_12_23_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_20_12_23_12_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_15_27_24_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_15_8_24_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_15_8_24_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 25 8 ]
+        symbol [ WatchUi %tmp.22 25 8 15 ];
+        %tmp.22 = getm $.Toybox.WatchUi;
+        symbol [ popView %tmp.23 25 16 23 ];
+        %tmp.23 = getv function %tmp.22 :popView;
+        symbol [ WatchUi %tmp.24 25 24 31 ];
+        %tmp.24 = getm $.Toybox.WatchUi;
+        symbol [ SLIDE_DOWN %tmp.25 25 32 42 ];
+        %tmp.25 = getv %tmp.24 :SLIDE_DOWN;
+        invoke %tmp.22 %tmp.23(%tmp.25);
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 26 8 ]
+        %tmp.26 = true;
+        ret %tmp.26;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_14_33_27_4_stop:
     }
-    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 17; @symbol_functiondef = [onTap,17,13,18]; @symbol_param<0> = [clickEvent,17,19,29]; @symbol_param<0>_type<0> = [WatchUi,17,33,40]; @symbol_param<0>_type<1> = [ClickEvent,17,41,51]; @symbol_return<0> = [Boolean,17,56,63]; ]
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 30; @symbol_functiondef = [onSelect,30,13,21]; @symbol_return<0> = [Boolean,30,27,34]; ]
+    function onSelect() as Boolean {
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_30_35_40_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 31 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_31_8_38_8_if_stmt:
+        symbol [ _view %tmp.2 31 12 17 ];
+        %tmp.2 = getv ? :_view;
+        %tmp.3 = null;
+        %tmp.4 = ne %tmp.2 %tmp.3;
+        bf %tmp.4 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_31_8_38_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_31_8_38_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_31_27_38_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 32 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_32_12_35_12_if_stmt:
+        symbol [ _view %tmp.6 32 16 21 ];
+        %tmp.6 = getv ? :_view;
+        %tmp.7 = as %tmp.6 { (!Null) };
+        symbol [ isPreviewModeActive %tmp.8 32 22 41 ];
+        %tmp.8 = getv function %tmp.7 :isPreviewModeActive;
+        %tmp.9 = invoke %tmp.7 %tmp.8();
+        bf %tmp.9 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_32_12_35_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_32_12_35_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_32_45_35_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 33 16 ]
+        symbol [ _view %tmp.11 33 16 21 ];
+        %tmp.11 = getv ? :_view;
+        symbol [ stopPreviewMode %tmp.12 33 22 37 ];
+        %tmp.12 = getv function %tmp.11 :stopPreviewMode;
+        invoke %tmp.11 %tmp.12();
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 34 16 ]
+        %tmp.13 = true;
+        ret %tmp.13;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_32_45_35_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_32_12_35_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_32_12_35_12_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 36 12 ]
+        symbol [ WatchUi %tmp.14 36 12 19 ];
+        %tmp.14 = getm $.Toybox.WatchUi;
+        symbol [ pushView %tmp.15 36 20 28 ];
+        %tmp.15 = getv function %tmp.14 :pushView;
+        symbol [ NavigationIQSettingsMenu %tmp.19 36 33 57 ];
+        %tmp.19 = getv ? :NavigationIQSettingsMenu;
+        %tmp.16 = newc %tmp.19 ();
+        symbol [ NavigationIQSettingsDelegate %tmp.23 36 65 93 ];
+        %tmp.23 = getv ? :NavigationIQSettingsDelegate;
+        symbol [ _view %tmp.25 36 94 99 ];
+        %tmp.25 = getv ? :_view;
+        %tmp.20 = newc %tmp.23 (%tmp.25);
+        symbol [ WatchUi %tmp.26 36 102 109 ];
+        %tmp.26 = getm $.Toybox.WatchUi;
+        symbol [ SLIDE_UP %tmp.27 36 110 118 ];
+        %tmp.27 = getv %tmp.26 :SLIDE_UP;
+        invoke %tmp.14 %tmp.15(%tmp.16, %tmp.20, %tmp.27);
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 37 12 ]
+        %tmp.28 = true;
+        ret %tmp.28;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_31_27_38_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_31_8_38_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_31_8_38_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 39 8 ]
+        %tmp.29 = false;
+        ret %tmp.29;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_30_35_40_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 42; @symbol_functiondef = [onNextPage,42,13,23]; @symbol_return<0> = [Boolean,42,29,36]; ]
+    function onNextPage() as Boolean {
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_42_37_52_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 43 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_43_8_50_8_if_stmt:
+        symbol [ _view %tmp.2 43 12 17 ];
+        %tmp.2 = getv ? :_view;
+        %tmp.3 = null;
+        %tmp.4 = ne %tmp.2 %tmp.3;
+        bf %tmp.4 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_43_8_50_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_43_8_50_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_43_27_50_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 44 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_44_12_48_12_if_stmt:
+        symbol [ _view %tmp.6 44 16 21 ];
+        %tmp.6 = getv ? :_view;
+        %tmp.7 = as %tmp.6 { (!Null) };
+        symbol [ isMapTabActive %tmp.8 44 22 36 ];
+        %tmp.8 = getv function %tmp.7 :isMapTabActive;
+        %tmp.9 = invoke %tmp.7 %tmp.8();
+        bf %tmp.9 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_44_12_48_12_if_else_false;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_44_12_48_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_44_40_46_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 45 16 ]
+        symbol [ _view %tmp.11 45 16 21 ];
+        %tmp.11 = getv ? :_view;
+        symbol [ switchToHudTab %tmp.12 45 22 36 ];
+        %tmp.12 = getv function %tmp.11 :switchToHudTab;
+        invoke %tmp.11 %tmp.12();
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_44_40_46_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_44_12_48_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_44_12_48_12_if_else_false:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_46_19_48_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 47 16 ]
+        symbol [ _view %tmp.14 47 16 21 ];
+        %tmp.14 = getv ? :_view;
+        symbol [ switchToMapTab %tmp.15 47 22 36 ];
+        %tmp.15 = getv function %tmp.14 :switchToMapTab;
+        invoke %tmp.14 %tmp.15();
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_46_19_48_12_stop:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_44_12_48_12_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 49 12 ]
+        %tmp.16 = true;
+        ret %tmp.16;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_43_27_50_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_43_8_50_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_43_8_50_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 51 8 ]
+        %tmp.17 = false;
+        ret %tmp.17;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_42_37_52_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 54; @symbol_functiondef = [onPreviousPage,54,13,27]; @symbol_return<0> = [Boolean,54,33,40]; ]
+    function onPreviousPage() as Boolean {
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_54_41_64_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 55 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_55_8_62_8_if_stmt:
+        symbol [ _view %tmp.2 55 12 17 ];
+        %tmp.2 = getv ? :_view;
+        %tmp.3 = null;
+        %tmp.4 = ne %tmp.2 %tmp.3;
+        bf %tmp.4 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_55_8_62_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_55_8_62_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_55_27_62_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 56 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_56_12_60_12_if_stmt:
+        symbol [ _view %tmp.6 56 16 21 ];
+        %tmp.6 = getv ? :_view;
+        %tmp.7 = as %tmp.6 { (!Null) };
+        symbol [ isMapTabActive %tmp.8 56 22 36 ];
+        %tmp.8 = getv function %tmp.7 :isMapTabActive;
+        %tmp.9 = invoke %tmp.7 %tmp.8();
+        bf %tmp.9 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_56_12_60_12_if_else_false;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_56_12_60_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_56_40_58_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 57 16 ]
+        symbol [ _view %tmp.11 57 16 21 ];
+        %tmp.11 = getv ? :_view;
+        symbol [ switchToHudTab %tmp.12 57 22 36 ];
+        %tmp.12 = getv function %tmp.11 :switchToHudTab;
+        invoke %tmp.11 %tmp.12();
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_56_40_58_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_56_12_60_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_56_12_60_12_if_else_false:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_58_19_60_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 59 16 ]
+        symbol [ _view %tmp.14 59 16 21 ];
+        %tmp.14 = getv ? :_view;
+        symbol [ switchToMapTab %tmp.15 59 22 36 ];
+        %tmp.15 = getv function %tmp.14 :switchToMapTab;
+        invoke %tmp.14 %tmp.15();
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_58_19_60_12_stop:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_56_12_60_12_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 61 12 ]
+        %tmp.16 = true;
+        ret %tmp.16;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_55_27_62_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_55_8_62_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_55_8_62_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 63 8 ]
+        %tmp.17 = false;
+        ret %tmp.17;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_54_41_64_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 67; @symbol_functiondef = [onSwipe,67,13,20]; @symbol_param<0> = [swipeEvent,67,21,31]; @symbol_param<0>_type<0> = [WatchUi,67,35,42]; @symbol_param<0>_type<1> = [SwipeEvent,67,43,53]; @symbol_return<0> = [Boolean,67,58,65]; ]
+    function onSwipe(swipeEvent as WatchUi.SwipeEvent) as Boolean {
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_67_66_85_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 68 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_68_8_83_8_if_stmt:
+        symbol [ _view %tmp.2 68 12 17 ];
+        %tmp.2 = getv ? :_view;
+        %tmp.3 = null;
+        %tmp.4 = ne %tmp.2 %tmp.3;
+        bf %tmp.4 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_68_8_83_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_68_8_83_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_68_27_83_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 69 12 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_68_27_83_8_start" "D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_68_27_83_8_stop" ]
+        %dir.1 = local;
+        symbol [ dir %dir.1 69 16 19 ];
+        %tmp.5 = lgetv %swipeEvent;
+        symbol [ swipeEvent %tmp.5 69 22 32 ];
+        symbol [ getDirection %tmp.6 69 33 45 ];
+        %tmp.6 = getv function %tmp.5 :getDirection;
+        %tmp.7 = invoke %tmp.5 %tmp.6();
+        lputv %dir.1 %tmp.7;
+        symbol [ dir %dir.1 69 16 19 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 70 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_70_12_82_12_if_stmt:
+        %tmp.8 = lgetv %dir.1;
+        symbol [ dir %tmp.8 70 16 19 ];
+        symbol [ WatchUi %tmp.9 70 23 30 ];
+        %tmp.9 = getm $.Toybox.WatchUi;
+        symbol [ SWIPE_UP %tmp.10 70 31 39 ];
+        %tmp.10 = getv %tmp.9 :SWIPE_UP;
+        %tmp.11 = eq %tmp.8 %tmp.10;
+        bf %tmp.11 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_70_12_82_12_if_false;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_70_12_82_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_70_41_73_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 71 16 ]
+        symbol [ WatchUi %tmp.12 71 16 23 ];
+        %tmp.12 = getm $.Toybox.WatchUi;
+        symbol [ pushView %tmp.13 71 24 32 ];
+        %tmp.13 = getv function %tmp.12 :pushView;
+        symbol [ NavigationIQSettingsMenu %tmp.17 71 37 61 ];
+        %tmp.17 = getv ? :NavigationIQSettingsMenu;
+        %tmp.14 = newc %tmp.17 ();
+        symbol [ NavigationIQSettingsDelegate %tmp.21 71 69 97 ];
+        %tmp.21 = getv ? :NavigationIQSettingsDelegate;
+        symbol [ _view %tmp.23 71 98 103 ];
+        %tmp.23 = getv ? :_view;
+        %tmp.18 = newc %tmp.21 (%tmp.23);
+        symbol [ WatchUi %tmp.24 71 106 113 ];
+        %tmp.24 = getm $.Toybox.WatchUi;
+        symbol [ SLIDE_UP %tmp.25 71 114 122 ];
+        %tmp.25 = getv %tmp.24 :SLIDE_UP;
+        invoke %tmp.12 %tmp.13(%tmp.14, %tmp.18, %tmp.25);
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 72 16 ]
+        %tmp.26 = true;
+        ret %tmp.26;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_70_41_73_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_70_12_82_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_70_12_82_12_if_false:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 73 19 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_73_19_82_12_if_stmt:
+        %tmp.27 = lgetv %dir.1;
+        symbol [ dir %tmp.27 73 23 26 ];
+        symbol [ WatchUi %tmp.28 73 30 37 ];
+        %tmp.28 = getm $.Toybox.WatchUi;
+        symbol [ SWIPE_DOWN %tmp.29 73 38 48 ];
+        %tmp.29 = getv %tmp.28 :SWIPE_DOWN;
+        %tmp.30 = eq %tmp.27 %tmp.29;
+        bf %tmp.30 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_73_19_82_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_73_19_82_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_73_50_82_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 74 16 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_74_16_77_16_if_stmt:
+        symbol [ _view %tmp.32 74 20 25 ];
+        %tmp.32 = getv ? :_view;
+        symbol [ isPreviewModeActive %tmp.33 74 26 45 ];
+        %tmp.33 = getv function %tmp.32 :isPreviewModeActive;
+        %tmp.34 = invoke %tmp.32 %tmp.33();
+        bf %tmp.34 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_74_16_77_16_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_74_16_77_16_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_74_49_77_16_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 75 20 ]
+        symbol [ _view %tmp.36 75 20 25 ];
+        %tmp.36 = getv ? :_view;
+        symbol [ stopPreviewMode %tmp.37 75 26 41 ];
+        %tmp.37 = getv function %tmp.36 :stopPreviewMode;
+        invoke %tmp.36 %tmp.37();
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 76 20 ]
+        %tmp.38 = true;
+        ret %tmp.38;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_74_49_77_16_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_74_16_77_16_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_74_16_77_16_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 78 16 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_78_16_81_16_if_stmt:
+        symbol [ _view %tmp.40 78 20 25 ];
+        %tmp.40 = getv ? :_view;
+        symbol [ isMapTabActive %tmp.41 78 26 40 ];
+        %tmp.41 = getv function %tmp.40 :isMapTabActive;
+        %tmp.42 = invoke %tmp.40 %tmp.41();
+        bf %tmp.42 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_78_16_81_16_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_78_16_81_16_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_78_44_81_16_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 79 20 ]
+        symbol [ _view %tmp.44 79 20 25 ];
+        %tmp.44 = getv ? :_view;
+        symbol [ switchToHudTab %tmp.45 79 26 40 ];
+        %tmp.45 = getv function %tmp.44 :switchToHudTab;
+        invoke %tmp.44 %tmp.45();
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 80 20 ]
+        %tmp.46 = true;
+        ret %tmp.46;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_78_44_81_16_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_78_16_81_16_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_78_16_81_16_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_73_50_82_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_73_19_82_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_73_19_82_12_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_70_12_82_12_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_68_27_83_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_68_8_83_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_68_8_83_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 84 8 ]
+        %tmp.47 = false;
+        ret %tmp.47;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_67_66_85_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 88; @symbol_functiondef = [onDrag,88,13,19]; @symbol_param<0> = [dragEvent,88,20,29]; @symbol_param<0>_type<0> = [WatchUi,88,33,40]; @symbol_param<0>_type<1> = [DragEvent,88,41,50]; @symbol_return<0> = [Boolean,88,55,62]; ]
+    function onDrag(dragEvent as WatchUi.DragEvent) as Boolean {
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_88_63_93_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 89 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_89_8_91_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_89_12_89_50_begin:
+        symbol [ _view %tmp.2 89 12 17 ];
+        %tmp.2 = getv ? :_view;
+        %tmp.3 = null;
+        %tmp.4 = ne %tmp.2 %tmp.3;
+        bf %tmp.4 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_89_8_91_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_89_29_89_50_true:
+        symbol [ _view %tmp.6 89 29 34 ];
+        %tmp.6 = getv ? :_view;
+        %tmp.7 = as %tmp.6 { (!Null) };
+        symbol [ isMapTabActive %tmp.8 89 35 49 ];
+        %tmp.8 = getv function %tmp.7 :isMapTabActive;
+        %tmp.9 = invoke %tmp.7 %tmp.8();
+        push %tmp.9;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_89_29_89_50_end:
+        %tmp.10 = phi [%tmp.4 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_89_12_89_50_begin] [%tmp.9 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_89_29_89_50_true] [%tmp.10 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_89_29_89_50_end];
+        bf %tmp.10 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_89_8_91_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_89_8_91_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_89_53_91_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 90 12 ]
+        symbol [ _view %tmp.12 90 19 24 ];
+        %tmp.12 = getv ? :_view;
+        symbol [ onMapDrag %tmp.13 90 25 34 ];
+        %tmp.13 = getv function %tmp.12 :onMapDrag;
+        %tmp.14 = lgetv %dragEvent;
+        symbol [ dragEvent %tmp.14 90 35 44 ];
+        %tmp.15 = invoke %tmp.12 %tmp.13(%tmp.14);
+        ret %tmp.15;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_89_53_91_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_89_8_91_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_89_8_91_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 92 8 ]
+        %tmp.16 = false;
+        ret %tmp.16;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_88_63_93_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 96; @symbol_functiondef = [onTap,96,13,18]; @symbol_param<0> = [clickEvent,96,19,29]; @symbol_param<0>_type<0> = [WatchUi,96,33,40]; @symbol_param<0>_type<1> = [ClickEvent,96,41,51]; @symbol_return<0> = [Boolean,96,56,63]; ]
     function onTap(clickEvent as WatchUi.ClickEvent) as Boolean {
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_17_64_20_4_start:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 18 8 ]
-        symbol [ WatchUi %tmp.1 18 8 15 ];
-        %tmp.1 = getm $.Toybox.WatchUi;
-        symbol [ requestUpdate %tmp.2 18 16 29 ];
-        %tmp.2 = getv function %tmp.1 :requestUpdate;
-        invoke %tmp.1 %tmp.2();
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 19 8 ]
-        %tmp.3 = true;
-        ret %tmp.3;
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_17_64_20_4_stop:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_96_64_102_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 97 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_97_8_100_8_if_stmt:
+        symbol [ _view %tmp.2 97 12 17 ];
+        %tmp.2 = getv ? :_view;
+        %tmp.3 = null;
+        %tmp.4 = ne %tmp.2 %tmp.3;
+        bf %tmp.4 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_97_8_100_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_97_8_100_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_97_27_100_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 98 12 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_97_27_100_8_start" "D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_97_27_100_8_stop" ]
+        %coords.1 = local;
+        symbol [ coords %coords.1 98 16 22 ];
+        %tmp.5 = lgetv %clickEvent;
+        symbol [ clickEvent %tmp.5 98 25 35 ];
+        symbol [ getCoordinates %tmp.6 98 36 50 ];
+        %tmp.6 = getv function %tmp.5 :getCoordinates;
+        %tmp.7 = invoke %tmp.5 %tmp.6();
+        lputv %coords.1 %tmp.7;
+        symbol [ coords %coords.1 98 16 22 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 99 12 ]
+        symbol [ _view %tmp.9 99 12 17 ];
+        %tmp.9 = getv ? :_view;
+        symbol [ onScreenTap %tmp.10 99 18 29 ];
+        %tmp.10 = getv function %tmp.9 :onScreenTap;
+        %tmp.11 = lgetv %coords.1;
+        symbol [ coords %tmp.11 99 30 36 ];
+        %tmp.12 = 0;
+        %tmp.13 = agetv %tmp.11 %tmp.12;
+        %tmp.14 = lgetv %coords.1;
+        symbol [ coords %tmp.14 99 41 47 ];
+        %tmp.15 = 1;
+        %tmp.16 = agetv %tmp.14 %tmp.15;
+        invoke %tmp.9 %tmp.10(%tmp.13, %tmp.16);
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_97_27_100_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_97_8_100_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_97_8_100_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 101 8 ]
+        %tmp.17 = true;
+        ret %tmp.17;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_96_64_102_4_stop:
     }
-    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 22; @symbol_functiondef = [onMenu,22,13,19]; @symbol_return<0> = [Boolean,22,25,32]; ]
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 104; @symbol_functiondef = [onKey,104,13,18]; @symbol_param<0> = [keyEvent,104,19,27]; @symbol_param<0>_type<0> = [WatchUi,104,31,38]; @symbol_param<0>_type<1> = [KeyEvent,104,39,47]; @symbol_return<0> = [Boolean,104,52,59]; ]
+    function onKey(keyEvent as WatchUi.KeyEvent) as Boolean {
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_104_60_117_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 105 8 ]
+        [ "D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_104_60_117_4_start" "D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_104_60_117_4_stop" ]
+        %key.1 = local;
+        symbol [ key %key.1 105 12 15 ];
+        %tmp.1 = lgetv %keyEvent;
+        symbol [ keyEvent %tmp.1 105 18 26 ];
+        symbol [ getKey %tmp.2 105 27 33 ];
+        %tmp.2 = getv function %tmp.1 :getKey;
+        %tmp.3 = invoke %tmp.1 %tmp.2();
+        lputv %key.1 %tmp.3;
+        symbol [ key %key.1 105 12 15 ];
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 106 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_106_8_115_8_if_stmt:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_106_12_106_55_begin:
+        %tmp.4 = lgetv %key.1;
+        symbol [ key %tmp.4 106 12 15 ];
+        symbol [ WatchUi %tmp.5 106 19 26 ];
+        %tmp.5 = getm $.Toybox.WatchUi;
+        symbol [ KEY_ENTER %tmp.6 106 27 36 ];
+        %tmp.6 = getv %tmp.5 :KEY_ENTER;
+        %tmp.7 = eq %tmp.4 %tmp.6;
+        bt %tmp.7 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_106_8_115_8_if_true;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_106_40_106_55_false:
+        %tmp.8 = lgetv %key.1;
+        symbol [ key %tmp.8 106 40 43 ];
+        symbol [ WatchUi %tmp.9 106 47 54 ];
+        %tmp.9 = getm $.Toybox.WatchUi;
+        symbol [ KEY_START %tmp.10 106 55 64 ];
+        %tmp.10 = getv %tmp.9 :KEY_START;
+        %tmp.11 = eq %tmp.8 %tmp.10;
+        push %tmp.11;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_106_40_106_55_end:
+        %tmp.12 = phi [%tmp.7 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_106_12_106_55_begin] [%tmp.11 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_106_40_106_55_false] [%tmp.12 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_106_40_106_55_end];
+        bf %tmp.12 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_106_8_115_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_106_8_115_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_106_66_115_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 107 12 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_107_12_114_12_if_stmt:
+        symbol [ _view %tmp.14 107 16 21 ];
+        %tmp.14 = getv ? :_view;
+        %tmp.15 = null;
+        %tmp.16 = ne %tmp.14 %tmp.15;
+        bf %tmp.16 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_107_12_114_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_107_12_114_12_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_107_31_114_12_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 108 16 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_108_16_111_16_if_stmt:
+        symbol [ _view %tmp.18 108 20 25 ];
+        %tmp.18 = getv ? :_view;
+        %tmp.19 = as %tmp.18 { (!Null) };
+        symbol [ isPreviewModeActive %tmp.20 108 26 45 ];
+        %tmp.20 = getv function %tmp.19 :isPreviewModeActive;
+        %tmp.21 = invoke %tmp.19 %tmp.20();
+        bf %tmp.21 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_108_16_111_16_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_108_16_111_16_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_108_49_111_16_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 109 20 ]
+        symbol [ _view %tmp.23 109 20 25 ];
+        %tmp.23 = getv ? :_view;
+        symbol [ stopPreviewMode %tmp.24 109 26 41 ];
+        %tmp.24 = getv function %tmp.23 :stopPreviewMode;
+        invoke %tmp.23 %tmp.24();
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 110 20 ]
+        %tmp.25 = true;
+        ret %tmp.25;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_108_49_111_16_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_108_16_111_16_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_108_16_111_16_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 112 16 ]
+        symbol [ WatchUi %tmp.26 112 16 23 ];
+        %tmp.26 = getm $.Toybox.WatchUi;
+        symbol [ pushView %tmp.27 112 24 32 ];
+        %tmp.27 = getv function %tmp.26 :pushView;
+        symbol [ NavigationIQSettingsMenu %tmp.31 112 37 61 ];
+        %tmp.31 = getv ? :NavigationIQSettingsMenu;
+        %tmp.28 = newc %tmp.31 ();
+        symbol [ NavigationIQSettingsDelegate %tmp.35 112 69 97 ];
+        %tmp.35 = getv ? :NavigationIQSettingsDelegate;
+        symbol [ _view %tmp.37 112 98 103 ];
+        %tmp.37 = getv ? :_view;
+        %tmp.32 = newc %tmp.35 (%tmp.37);
+        symbol [ WatchUi %tmp.38 112 106 113 ];
+        %tmp.38 = getm $.Toybox.WatchUi;
+        symbol [ SLIDE_UP %tmp.39 112 114 122 ];
+        %tmp.39 = getv %tmp.38 :SLIDE_UP;
+        invoke %tmp.26 %tmp.27(%tmp.28, %tmp.32, %tmp.39);
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 113 16 ]
+        %tmp.40 = true;
+        ret %tmp.40;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_107_31_114_12_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_107_12_114_12_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_107_12_114_12_if_end:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_106_66_115_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_106_8_115_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_106_8_115_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 116 8 ]
+        %tmp.41 = false;
+        ret %tmp.41;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_104_60_117_4_stop:
+    }
+    [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 119; @symbol_functiondef = [onMenu,119,13,19]; @symbol_return<0> = [Boolean,119,25,32]; ]
     function onMenu() as Boolean {
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_22_33_24_4_start:
-[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 23 8 ]
-        %tmp.1 = true;
-        ret %tmp.1;
-D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_22_33_24_4_stop:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_119_33_124_4_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 120 8 ]
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_120_8_122_8_if_stmt:
+        symbol [ _view %tmp.2 120 12 17 ];
+        %tmp.2 = getv ? :_view;
+        %tmp.3 = null;
+        %tmp.4 = ne %tmp.2 %tmp.3;
+        bf %tmp.4 @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_120_8_122_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_120_8_122_8_if_true:
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_120_27_122_8_start:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 121 12 ]
+        symbol [ WatchUi %tmp.5 121 12 19 ];
+        %tmp.5 = getm $.Toybox.WatchUi;
+        symbol [ pushView %tmp.6 121 20 28 ];
+        %tmp.6 = getv function %tmp.5 :pushView;
+        symbol [ NavigationIQSettingsMenu %tmp.10 121 33 57 ];
+        %tmp.10 = getv ? :NavigationIQSettingsMenu;
+        %tmp.7 = newc %tmp.10 ();
+        symbol [ NavigationIQSettingsDelegate %tmp.14 121 65 93 ];
+        %tmp.14 = getv ? :NavigationIQSettingsDelegate;
+        symbol [ _view %tmp.16 121 94 99 ];
+        %tmp.16 = getv ? :_view;
+        %tmp.17 = as %tmp.16 { (!Null) };
+        %tmp.11 = newc %tmp.14 (%tmp.17);
+        symbol [ WatchUi %tmp.18 121 102 109 ];
+        %tmp.18 = getm $.Toybox.WatchUi;
+        symbol [ SLIDE_UP %tmp.19 121 110 118 ];
+        %tmp.19 = getv %tmp.18 :SLIDE_UP;
+        invoke %tmp.5 %tmp.6(%tmp.7, %tmp.11, %tmp.19);
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_120_27_122_8_stop:
+        goto @D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_120_8_122_8_if_end;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_120_8_122_8_if_end:
+[ "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc" 123 8 ]
+        %tmp.20 = true;
+        ret %tmp.20;
+D__Project_APKMod_NavigationIQ_garmin_app_source_garmin_appDelegate_mc_119_33_124_4_stop:
     }
 }
 [ @file = "D:\Project\APKMod\NavigationIQ\garmin_app\source\garmin_appDelegate.mc"; @line = 1; ]

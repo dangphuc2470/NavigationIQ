@@ -204,7 +204,7 @@ class NavNotificationService : NotificationListenerService() {
                 "Navigation IQ Service",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "Duy trì kết nối nền và đồng bộ chỉ đường với đồng hồ Garmin"
+                description = "Maintains background connection and syncs navigation with Garmin watch"
                 setShowBadge(false)
             }
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
@@ -230,9 +230,9 @@ class NavNotificationService : NotificationListenerService() {
             }
 
             val text = if (isNavigating && navInfo != null) {
-                "${navInfo.distance} • Đến lúc ${navInfo.eta}"
+                "${navInfo.distance} • ETA ${navInfo.eta}"
             } else {
-                "Sẵn sàng kết nối và đồng bộ đồng hồ Garmin"
+                "Ready to connect and sync with Garmin watch"
             }
 
             val builder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
