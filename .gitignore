@@ -16,6 +16,7 @@ local.properties
 bin/
 *.prg
 *.iq
+*.apk
 garmin_app/gen/
 garmin_app/mir/
 garmin_app/internal-mir/
