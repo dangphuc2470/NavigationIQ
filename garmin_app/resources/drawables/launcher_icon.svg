@@ -1,7 +1,14 @@
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="24" height="24" fill="#000000"/>
-<path d="M3 4C3 3.44772 3.44772 3 4 3H10C10.5523 3 11 3.44772 11 4V10C11 10.5523 10.5523 11 10 11H4C3.44772 11 3 10.5523 3 10V4Z" fill="#F4F4F4"/>
-<path d="M3 14C3 13.4477 3.44772 13 4 13H10C10.5523 13 11 13.4477 11 14V20C11 20.5523 10.5523 21 10 21H4C3.44772 21 3 20.5523 3 20V14Z" fill="#F4F4F4"/>
-<path d="M13 4C13 3.44772 13.4477 3 14 3H20C20.5523 3 21 3.44772 21 4V10C21 10.5523 20.5523 11 20 11H14C13.4477 11 13 10.5523 13 10V4Z" fill="#F4F4F4"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M14.3 14.3V19.7H19.7V14.3H14.3ZM14 13C13.4477 13 13 13.4477 13 14V20C13 20.5523 13.4477 21 14 21H20C20.5523 21 21 20.5523 21 20V14C21 13.4477 20.5523 13 20 13H14Z" fill="#F4F4F4"/>
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Dark Background -->
+    <rect width="40" height="40" rx="8" fill="#0C1C14"/>
+    
+    <!-- BLE Radar Wave Inner -->
+    <path d="M 14 17 A 7.5 7.5 0 0 1 26 17" stroke="#22C55E" stroke-width="1.8" stroke-linecap="round" stroke-opacity="0.8"/>
+    <!-- BLE Radar Wave Outer -->
+    <path d="M 11 15 A 11 11 0 0 1 29 15" stroke="#22C55E" stroke-width="1.4" stroke-linecap="round" stroke-opacity="0.45"/>
+    
+    <!-- Nav Arrow Left Wing (White) -->
+    <path d="M 20 12 L 15 24 L 20 21 Z" fill="#F5F5F2"/>
+    <!-- Nav Arrow Right Wing (Mint Green) -->
+    <path d="M 20 12 L 20 21 L 25 24 Z" fill="#22C55E"/>
 </svg>
