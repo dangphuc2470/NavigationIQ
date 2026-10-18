@@ -33,11 +33,15 @@ object GarminManager {
 
     private const val TAG = "GarminManager"
 
-    // NavigationIQ Watch App ID (Unique Custom UUID)
-    const val NAVIQ_APP_ID = "e24767ea-b254-4f25-9391-ff4c409a037c"
+    // NavigationIQ Official Release Watch App ID (Unique Custom UUID)
+    const val NAVIQ_APP_ID = "0da65dc3-6e66-4072-bd03-802b2b9c3807"
+
+    // NavigationIQ Beta Watch App ID (Backward compatibility for beta testers)
+    const val NAVIQ_BETA_APP_ID = "e24767ea-b254-4f25-9391-ff4c409a037c"
 
     val SUPPORTED_APP_IDS = listOf(
-        NAVIQ_APP_ID
+        NAVIQ_APP_ID,
+        NAVIQ_BETA_APP_ID
     )
 
     // Max log entries shown in UI
