@@ -25,9 +25,15 @@ garmin_app/__pycache__/
 __pycache__/
 *.pyc
 
+# Garmin private developer keys
+developer_key.*
+*.der
+*.pem
+
 # Temp emulator captures
 /emulator_*.png
 /current_emulator.png
 /updated_emulator*.png
 /screen_contrast.png
+
 
