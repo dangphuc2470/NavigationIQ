@@ -4,6 +4,12 @@ from PIL import Image, ImageDraw
 RES_DIR = r"d:\Project\APKMod\NavigationIQ\app\src\main\res"
 GARMIN_DIR = r"d:\Project\APKMod\NavigationIQ\garmin_app\resources\drawables"
 
+# Precise Optical Centering (Lifted 5.5dp):
+# tip: (54.0, 25.0)
+# l_wing: (33.0, 70.0)
+# r_wing: (75.0, 70.0)
+# notch: (54.0, 58.5)
+
 # 1. Update Android Vector XMLs
 fg_xml = """<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
@@ -14,19 +20,19 @@ fg_xml = """<?xml version="1.0" encoding="utf-8"?>
     <!-- Navigation Arrowhead (Left Wing - Deep Forest Green) -->
     <path
         android:fillColor="#1B4332"
-        android:pathData="M 54,29.5 L 30.5,78.5 L 54,65.5 Z" />
+        android:pathData="M 54,25 L 33,70 L 54,58.5 Z" />
 
     <!-- Navigation Arrowhead (Right Wing - Vivid Mint Emerald) -->
     <path
         android:fillColor="#10B981"
-        android:pathData="M 54,29.5 L 54,65.5 L 77.5,78.5 Z" />
+        android:pathData="M 54,25 L 54,58.5 L 75,70 Z" />
 
     <!-- Center Spine Divider -->
     <path
         android:strokeColor="#FFFFFF"
         android:strokeWidth="0.6"
         android:strokeAlpha="0.7"
-        android:pathData="M 54,29.5 L 54,65.5" />
+        android:pathData="M 54,25 L 54,58.5" />
 </vector>
 """
 with open(os.path.join(RES_DIR, "drawable", "ic_launcher_foreground.xml"), "w", encoding="utf-8") as f:
@@ -40,7 +46,7 @@ mono_xml = """<?xml version="1.0" encoding="utf-8"?>
     android:viewportHeight="108">
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M 54,29.5 L 30.5,78.5 L 54,65.5 L 77.5,78.5 Z" />
+        android:pathData="M 54,25 L 33,70 L 54,58.5 L 75,70 Z" />
 </vector>
 """
 with open(os.path.join(RES_DIR, "drawable", "ic_launcher_monochrome.xml"), "w", encoding="utf-8") as f:
@@ -50,10 +56,10 @@ with open(os.path.join(RES_DIR, "drawable", "ic_launcher_monochrome.xml"), "w", 
 SIZE = 1024
 SCALE = SIZE / 108.0
 cx = 54.0 * SCALE
-tip = (cx, 29.5 * SCALE)
-l_wing = ((54.0 - 23.5) * SCALE, 78.5 * SCALE)
-r_wing = ((54.0 + 23.5) * SCALE, 78.5 * SCALE)
-notch = (cx, 65.5 * SCALE)
+tip = (cx, 25.0 * SCALE)
+l_wing = (33.0 * SCALE, 70.0 * SCALE)
+r_wing = (75.0 * SCALE, 70.0 * SCALE)
+notch = (cx, 58.5 * SCALE)
 
 master = Image.new("RGBA", (SIZE, SIZE), (255, 255, 255, 255))
 draw = ImageDraw.Draw(master)
@@ -88,8 +94,8 @@ for folder, dim in legacy_sizes.items():
 # 3. Garmin Icons
 garmin_svg = """<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect width="40" height="40" rx="8" fill="#0C1C14"/>
-    <path d="M 20 8.5 L 11 29 L 20 24 Z" fill="#FFFFFF"/>
-    <path d="M 20 8.5 L 20 24 L 29 29 Z" fill="#10B981"/>
+    <path d="M 20 7.5 L 12 26 L 20 22 Z" fill="#FFFFFF"/>
+    <path d="M 20 7.5 L 20 22 L 28 26 Z" fill="#10B981"/>
 </svg>
 """
 with open(os.path.join(GARMIN_DIR, "launcher_icon.svg"), "w", encoding="utf-8") as f:
@@ -100,4 +106,4 @@ g_40.save(os.path.join(GARMIN_DIR, "launcher_icon_40.png"), "PNG")
 g_33 = master.resize((33, 33), Image.Resampling.LANCZOS)
 g_33.save(os.path.join(GARMIN_DIR, "launcher_icon_33.png"), "PNG")
 
-print("SUCCESS: Icons updated with balanced dimensions and optical centering!")
+print("SUCCESS: Shifted arrow up by 5.5dp with balanced margins!")
