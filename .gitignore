@@ -36,7 +36,8 @@ developer_key.*
 /updated_emulator*.png
 /screen_contrast.png
 /icon_proposals/
-/screenshots/
+screenshots/emulator_*.png
+
 
 
 

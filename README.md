@@ -6,19 +6,19 @@
 
 ---
 
-## Android Companion App Showcase
+## Android App Showcase
 
-The Android Companion application is built with modern **Jetpack Compose**, delivering an intuitive, fluid, and minimalist user experience:
+The Android application is built with modern **Jetpack Compose**, delivering an intuitive, fluid, and minimalist user experience:
 
-| Navigation Cockpit | Watch Studio |
+| Dashboard | Watch Studio |
 | :---: | :---: |
-| ![Navigation Cockpit](screenshots/05_android_tab_navigation.png) | ![Watch Studio](screenshots/06_android_tab_watch_studio.png) |
-| **Tab 0: Navigation & Simulator**<br>Monitor Garmin watch connection status and simulate test navigation routes | **Tab 1: Watch Studio**<br>Real-time Live HUD Preview and layout typography presets |
+| ![Dashboard](screenshots/05_android_tab_navigation.png) | ![Watch Studio](screenshots/06_android_tab_watch_studio.png) |
+| **Tab 0: Dashboard & Simulator**<br>Monitor Garmin watch connection status, launch navigation, and simulate test routes | **Tab 1: Watch Studio**<br>Real-time Live HUD Preview and layout typography presets |
 
 | System Settings | Console Logs |
 | :---: | :---: |
 | ![System Settings](screenshots/07_android_tab_settings.png) | ![Console Logs](screenshots/08_android_tab_logs.png) |
-| **Tab 2: System Settings**<br>Manage Connect IQ SDK pairing and background battery optimization | **Tab 3: System Logs**<br>Inspect BLE transmission packets and verify two-way diagnostics |
+| **Tab 2: System Settings**<br>Manage Connect IQ SDK pairing, watch app installation, and background battery optimization | **Tab 3: System Logs**<br>Inspect BLE transmission packets and verify two-way diagnostics |
 
 ---
 
@@ -26,15 +26,10 @@ The Android Companion application is built with modern **Jetpack Compose**, deli
 
 The Connect IQ watch app is individually optimized for each Garmin hardware display category:
 
-| Square AMOLED (Venu Sq 2) | Round AMOLED / MIP (FR965, Fenix 7) |
-| :---: | :---: |
-| ![Venu Sq 2 Square HUD](screenshots/01_venu_sq2_square_hud.png) | ![Forerunner 965 Round HUD](screenshots/02_fr965_fenix7_round_hud.png) |
-| Optimized for square aspect ratio with large, prominent distance typography | Symmetrical radial layout with center-focused readability for running and cycling |
-
-| Instinct Crossover (Dual-Zone MIP) | Moto Mount (Landscape 90-degree) |
-| :---: | :---: |
-| ![Instinct Crossover Dual-Zone](screenshots/03_instinct_crossover_dualzone_hud.png) | ![Venu Sq 2 Moto Mount](screenshots/04_venu_sq2_moto_mount_90deg.png) |
-| Dual-zone partitioning engineered to prevent physical watch hands obstruction | 90-degree rotated orientation dedicated for handlebar and cockpit mounting |
+| Square AMOLED (Venu Sq 2) | Round AMOLED / MIP (FR965, Fenix 7) | Instinct Crossover (Dual-Zone MIP) |
+| :---: | :---: | :---: |
+| ![Venu Sq 2 Square HUD](screenshots/01_venu_sq2_square_hud.png) | ![Forerunner 965 Round HUD](screenshots/02_fr965_fenix7_round_hud.png) | ![Instinct Crossover Dual-Zone](screenshots/03_instinct_crossover_dualzone_hud.png) |
+| Optimized for square aspect ratio with large, prominent distance typography | Symmetrical radial layout with center-focused readability for running and cycling | Dual-zone partitioning engineered to prevent physical watch hands obstruction |
 
 ---
 
@@ -42,7 +37,7 @@ The Connect IQ watch app is individually optimized for each Garmin hardware disp
 
 Navigation IQ integrates two core architectural pillars:
 1. **HUD Navigation Relay:** Transmits real-time turn instructions (direction arrow icons, remaining distance, street names, ETA) to Garmin watch faces via Bluetooth Low Energy using the Garmin Connect IQ Mobile SDK.
-2. **Screen-Adaptive Engine:** Dynamically detects display geometries (Square, Round, Instinct Dual-Zone, Landscape Moto Mount) and applies tailored typography presets for optimal glanceability while in motion.
+2. **Screen-Adaptive Engine:** Dynamically detects display geometries (Square, Round, Instinct Dual-Zone) and applies tailored typography presets for optimal glanceability while in motion.
 
 ---
 
@@ -56,12 +51,11 @@ NavigationIQ/
 │   ├── 01_venu_sq2_square_hud.png
 │   ├── 02_fr965_fenix7_round_hud.png
 │   ├── 03_instinct_crossover_dualzone_hud.png
-│   ├── 04_venu_sq2_moto_mount_90deg.png
 │   ├── 05_android_tab_navigation.png
 │   ├── 06_android_tab_watch_studio.png
 │   ├── 07_android_tab_settings.png
 │   └── 08_android_tab_logs.png
-├── app/                                         # Android Companion App (Kotlin + Jetpack Compose)
+├── app/                                         # Android App (Kotlin + Jetpack Compose)
 │   ├── build.gradle.kts
 │   └── src/main/
 │       ├── AndroidManifest.xml
@@ -86,7 +80,7 @@ NavigationIQ/
 
 ## Build & Installation Guide
 
-### 1. Android Companion App
+### 1. Android App
 - Requirements: Android Studio Jellyfish or newer, JDK 17.
 - Build & install via PowerShell script:
   ```powershell

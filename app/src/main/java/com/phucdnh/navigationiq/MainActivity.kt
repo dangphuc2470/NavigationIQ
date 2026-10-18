@@ -1722,8 +1722,6 @@ fun SystemSettingsPage(
                         iconTint = palette.green,
                         title = if (isVi) "Cài đặt ứng dụng trên đồng hồ" else "Install Garmin Watch App",
                         subtitle = if (isVi) "Mở Connect IQ Store để tải Navigation IQ" else "Download Navigation IQ from Connect IQ Store",
-                        badgeText = "STORE",
-                        badgeColor = palette.blue,
                         showChevron = true,
                         onClick = {
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(GarminManager.GARMIN_STORE_URL))
