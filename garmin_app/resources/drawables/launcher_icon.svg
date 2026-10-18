@@ -1,5 +1,13 @@
 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="40" height="40" rx="8" fill="#0C1C14"/>
-    <path d="M 20 9 L 12 27.5 L 20 23 Z" fill="#FFFFFF"/>
-    <path d="M 20 9 L 20 23 L 28 27.5 Z" fill="#10B981"/>
+    <!-- Pure White Rounded Background -->
+    <rect width="40" height="40" rx="8" fill="#FFFFFF"/>
+    
+    <!-- Navigation Arrow Left Wing (Deep Forest Green) -->
+    <path d="M 20 10 L 12 27 L 20 23 Z" fill="#1B4332"/>
+    
+    <!-- Navigation Arrow Right Wing (Vivid Mint Emerald) -->
+    <path d="M 20 10 L 20 23 L 28 27 Z" fill="#10B981"/>
+    
+    <!-- Center Spine Divider -->
+    <path d="M 20 10 L 20 23" stroke="#FFFFFF" stroke-width="0.5" stroke-opacity="0.8"/>
 </svg>
