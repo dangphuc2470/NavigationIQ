@@ -163,7 +163,7 @@ class NavigationIQSettingsMenu extends WatchUi.Menu2 {
         var presetSub = presetNames[presetChoice as Number];
         addItem(new WatchUi.MenuItem("Text Size", presetSub, "menu_text_preset", {}));
 
-        addItem(new WatchUi.MenuItem("Preview Mode", "Demo turn navigation (4s)", "menu_preview", {}));
+        addItem(new WatchUi.MenuItem("Preview Mode", "Demo turn navigation", "menu_preview", {}));
 
         var curRot = Storage.getValue("screen_rot");
         if (curRot == null) {
