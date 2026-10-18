@@ -2,6 +2,10 @@
 
 > **Navigation IQ** is a smart turn-by-turn navigation bridge connecting **Android (Jetpack Compose + Kotlin)** smartphones with **Garmin (Monkey C - Connect IQ)** smartwatches, supporting diverse screen form factors ranging from Square AMOLED and Round AMOLED/MIP to Dual-Zone MIP displays.
 
+[![Connect IQ Store](https://img.shields.io/badge/Garmin_Connect_IQ-Navigation_IQ-007ACC?logo=garmin&logoColor=white)](https://apps.garmin.com/apps/c2c48dd7-47e7-4fac-98e2-6762d57ff181)
+[![GitHub Release](https://img.shields.io/github/v/release/dangphuc2470/NavigationIQ?logo=github)](https://github.com/dangphuc2470/NavigationIQ/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 ![Navigation IQ Showcase Banner](screenshots/00_navigation_iq_showcase_banner.png)
 
 ---
@@ -24,7 +28,7 @@ The Android application is built with modern **Jetpack Compose**, delivering an 
 
 ## Garmin Watch HUD Showcase (Adaptive Layouts)
 
-The Connect IQ watch app is individually optimized for each Garmin hardware display category:
+The Connect IQ watch app is available on the [Garmin Connect IQ Store](https://apps.garmin.com/apps/c2c48dd7-47e7-4fac-98e2-6762d57ff181) and individually optimized for each Garmin hardware display category:
 
 | Square AMOLED (Venu Sq 2) | Round AMOLED / MIP (FR965, Fenix 7) | Instinct Crossover (Dual-Zone MIP) |
 | :---: | :---: | :---: |
@@ -78,16 +82,22 @@ NavigationIQ/
 
 ---
 
-## Build & Installation Guide
+## Installation & Developer Guide
 
-### 1. Android App
+### Quick Install (End Users)
+1. **Garmin Smartwatch:** Install directly from the [Garmin Connect IQ Store](https://apps.garmin.com/apps/c2c48dd7-47e7-4fac-98e2-6762d57ff181).
+2. **Android Phone:** Download and install the latest `NavigationIQ-v1.0.0.apk` from [GitHub Releases](https://github.com/dangphuc2470/NavigationIQ/releases).
+
+### Developer Build Guide
+
+#### 1. Android App
 - Requirements: Android Studio Jellyfish or newer, JDK 17.
 - Build & install via PowerShell script:
   ```powershell
   powershell -ExecutionPolicy Bypass -File .vscode/run_android.ps1
   ```
 
-### 2. Garmin Watch App
+#### 2. Garmin Watch App
 - Requirements: Garmin Connect IQ SDK 7.x or newer.
 - Supported devices: Venu Sq 2, Venu Sq 2 Music, Forerunner 965, Forerunner 265, Fenix 7 series, Instinct Crossover.
 - Build & run in simulator:
