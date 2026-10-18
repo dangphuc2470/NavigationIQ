@@ -90,22 +90,13 @@ def render_idle_screen(target_w, target_h, is_round, output_filename, time_str="
     aY2 = int(20 * arrow_scale * SCALE)
     aY3 = int(10 * arrow_scale * SCALE)
     
-    # Left wing (Pure White)
-    draw.polygon([
-        (cx, cy - aY1),
-        (cx, cy + aY3),
-        (cx - aX2, cy + aY2)
-    ], fill=COLOR_TEXT_WHITE)
-    
-    # Right wing (Vivid Mint Green)
+    # Original Single Arrowhead with Green Accent & Ambient Glow
     draw.polygon([
         (cx, cy - aY1),
         (cx + aX2, cy + aY2),
-        (cx, cy + aY3)
+        (cx, cy + aY3),
+        (cx - aX2, cy + aY2)
     ], fill=COLOR_GREEN_ACCENT)
-    
-    # Divider line
-    draw.line([(cx, cy - aY1), (cx, cy + aY3)], fill=(255, 255, 255, 160), width=int(1.5 * SCALE))
     
     # 5. Titles
     title_y = cy + r + int(h * 0.07)
