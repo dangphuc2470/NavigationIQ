@@ -446,8 +446,11 @@ class NavigationIQView extends WatchUi.View {
             [cx - aX2, cy + aY2]
         ]);
 
-        var titleY = cy + r + (h * 0.07).toNumber();
-        var subTitleY = titleY + (h * 0.075).toNumber();
+        var hBold = dc.getFontHeight(fontBold);
+        var hStreet = dc.getFontHeight(fontStreet);
+        var textGap = isRound ? 6 : 9;
+        var titleY = cy + r + (h * (isRound ? 0.07 : 0.08)).toNumber();
+        var subTitleY = titleY + ((hBold + hStreet) / 2) + textGap;
 
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, titleY, fontBold, "Navigation IQ", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
