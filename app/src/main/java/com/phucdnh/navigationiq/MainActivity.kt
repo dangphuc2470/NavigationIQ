@@ -95,6 +95,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.phucdnh.navigationiq.garmin.GarminManager
 import com.phucdnh.navigationiq.model.NavigationInfo
+import com.phucdnh.navigationiq.service.NavNotificationService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -267,12 +268,14 @@ fun MainScreen() {
             pagerState.animateScrollToPage(targetPage.ordinal)
         }
     }
+    var isNotificationPermissionGranted by remember { mutableStateOf(isNotificationServiceEnabled(context)) }
     var isBatteryOptIgnored by remember { mutableStateOf(isBatteryOptimizationIgnored(context)) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
+                isNotificationPermissionGranted = isNotificationServiceEnabled(context)
                 isBatteryOptIgnored = isBatteryOptimizationIgnored(context)
             }
         }
@@ -282,14 +285,16 @@ fun MainScreen() {
         }
     }
 
+    val currentNavInfo by NavNotificationService.currentNavigationInfo.collectAsState()
     val isHeartbeatLive by GarminManager.isHeartbeatLiveFlow.collectAsState()
     val isWatchFound by GarminManager.isWatchFoundFlow.collectAsState()
     val watchName by GarminManager.watchNameFlow.collectAsState()
     val sentCount by GarminManager.sentCountFlow.collectAsState()
     val logs by GarminManager.logsFlow.collectAsState()
 
-    var activeNavInfo by remember { mutableStateOf<NavigationInfo?>(null) }
-    val effectiveNavInfo = activeNavInfo
+    var simulatedNavInfo by remember { mutableStateOf<NavigationInfo?>(null) }
+    val effectiveNavInfo = simulatedNavInfo ?: currentNavInfo
+    val isLiveFromMaps = (simulatedNavInfo == null && currentNavInfo != null)
 
     CompositionLocalProvider(
         LocalApplePalette provides palette,
@@ -355,18 +360,20 @@ fun MainScreen() {
                         when (AppPage.entries[pageIndex]) {
                             AppPage.COCKPIT -> CockpitPage(
                                 effectiveNavInfo = effectiveNavInfo,
+                                isLiveFromMaps = isLiveFromMaps,
                                 isHeartbeatLive = isHeartbeatLive,
                                 isWatchFound = isWatchFound,
                                 watchName = watchName,
                                 sentCount = sentCount,
+                                isNotificationGranted = isNotificationPermissionGranted,
                                 isBatteryOptIgnored = isBatteryOptIgnored,
                                 isVi = isVi,
                                 onSendSimulation = { mock ->
-                                    activeNavInfo = mock
+                                    simulatedNavInfo = mock
                                     GarminManager.sendNavigationInfo(context, mock)
                                 },
                                 onClearSimulation = {
-                                    activeNavInfo = null
+                                    simulatedNavInfo = null
                                     GarminManager.sendNavigationEnd(context)
                                 },
                                 onNavigateToSystem = { navigateToPage(AppPage.SYSTEM) },
@@ -379,6 +386,7 @@ fun MainScreen() {
                             )
 
                             AppPage.SYSTEM -> SystemSettingsPage(
+                                isNotificationGranted = isNotificationPermissionGranted,
                                 isBatteryOptIgnored = isBatteryOptIgnored,
                                 isWatchFound = isWatchFound,
                                 isHeartbeatLive = isHeartbeatLive,
@@ -428,7 +436,7 @@ fun MainScreen() {
                         onSelectPage = navigateToPage,
                         onQuickAction = {
                             if (effectiveNavInfo != null) {
-                                activeNavInfo = null
+                                simulatedNavInfo = null
                                 GarminManager.sendNavigationEnd(context)
                             } else {
                                 val quickMock = NavigationInfo(
@@ -441,7 +449,7 @@ fun MainScreen() {
                                     signs = if (isVi) "Rẽ phải vào đường Nguyễn Huệ" else "Turn right onto Main Street",
                                     progress = 42
                                 )
-                                activeNavInfo = quickMock
+                                simulatedNavInfo = quickMock
                                 GarminManager.sendNavigationInfo(context, quickMock)
                             }
                         }
@@ -813,10 +821,12 @@ private val QuickSimulationPresets = listOf(
 @Composable
 fun CockpitPage(
     effectiveNavInfo: NavigationInfo?,
+    isLiveFromMaps: Boolean = false,
     isHeartbeatLive: Boolean,
     isWatchFound: Boolean,
     watchName: String?,
     sentCount: Int,
+    isNotificationGranted: Boolean = true,
     isBatteryOptIgnored: Boolean,
     isVi: Boolean,
     onSendSimulation: (NavigationInfo) -> Unit,
@@ -834,16 +844,19 @@ fun CockpitPage(
     }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 112.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        if (!isBatteryOptIgnored) item {
+        if (!isNotificationGranted || !isBatteryOptIgnored) item {
             Surface(onClick = {
-                requestIgnoreBatteryOptimizations(context)
+                if (!isNotificationGranted) context.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+                else requestIgnoreBatteryOptimizations(context)
             }, color = if (p.isDark) Color(0xFF53331F) else Color(0xFFFFE5D0), shape = RoundedCornerShape(24.dp)) {
                 Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Warning, null, tint = if (p.isDark) Color(0xFFFFB877) else Color(0xFFE7742E), modifier = Modifier.size(26.dp))
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(if (isVi) "Cho phép hoạt động nền" else "Allow background activity", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = p.textPrimary)
-                        Text(if (isVi) "Giữ kết nối đồng hồ khi tắt màn hình." else "Keep your watch connected in the background.", fontSize = 11.sp, color = p.textSecondary)
+                        Text(if (!isNotificationGranted) { if (isVi) "Cho phép đọc thông báo" else "Allow notification access" }
+                            else { if (isVi) "Cho phép hoạt động nền" else "Allow background activity" }, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = p.textPrimary)
+                        Text(if (!isNotificationGranted) { if (isVi) "Cần quyền đọc thông báo để lấy chỉ đường từ Google Maps." else "Required to capture turn-by-turn directions from Google Maps." }
+                            else { if (isVi) "Giữ kết nối đồng hồ khi tắt màn hình." else "Keep your watch connected in the background." }, fontSize = 11.sp, color = p.textSecondary)
                     }
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = p.orange)
                 }
@@ -885,7 +898,7 @@ fun CockpitPage(
             ExpressivePanel(ornament = true) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(if (effectiveNavInfo == null) { if (isVi) "Sẵn sàng lên đường" else "Ready when you are" }
-                        else { if (isVi) "Đang dẫn đường" else "Route active" },
+                        else { if (isLiveFromMaps) { if (isVi) "Đang dẫn đường" else "Live navigation" } else { if (isVi) "Đang mô phỏng" else "Route simulation" } },
                         fontSize = 23.sp, fontWeight = FontWeight.ExtraBold, color = p.textPrimary)
                     if (effectiveNavInfo != null) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1676,6 +1689,7 @@ fun WatchAppearanceCard(
 // =============================================================================
 @Composable
 fun SystemSettingsPage(
+    isNotificationGranted: Boolean = true,
     isBatteryOptIgnored: Boolean,
     isWatchFound: Boolean,
     isHeartbeatLive: Boolean,
@@ -1770,6 +1784,27 @@ fun SystemSettingsPage(
             AppleSectionHeader(title = if (isVi) "QUYỀN HỆ THỐNG & DUY TRÌ KẾT NỐI NỀN" else "SYSTEM PERMISSIONS & BACKGROUND RUNTIME")
             AppleFlatCard {
                 Column(modifier = Modifier.fillMaxWidth()) {
+                    AppleSettingsRow(
+                        icon = Icons.Default.NotificationsActive,
+                        iconTint = if (isNotificationGranted) palette.green else palette.orange,
+                        title = if (isVi) "Quyền đọc thông báo" else "Notification Access",
+                        subtitle = if (isNotificationGranted) {
+                            if (isVi) "Đã bật • Đang lắng nghe chỉ đường từ Google Maps & OsmAnd"
+                            else "Enabled • Capturing directions from Google Maps & OsmAnd"
+                        } else {
+                            if (isVi) "Chưa cấp quyền • Bấm để mở cài đặt hệ thống"
+                            else "Not granted • Tap to open system settings"
+                        },
+                        badgeText = if (isNotificationGranted) (if (isVi) "ĐÃ BẬT" else "ENABLED") else (if (isVi) "CẦN BẬT" else "REQUIRED"),
+                        badgeColor = if (isNotificationGranted) palette.green else palette.orange,
+                        showChevron = true,
+                        onClick = {
+                            context.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+                        }
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
+
                     AppleSettingsRow(
                         icon = Icons.Default.BatteryChargingFull,
                         iconTint = if (isBatteryOptIgnored) palette.green else palette.orange,
@@ -2215,6 +2250,21 @@ private fun requestIgnoreBatteryOptimizations(context: Context) {
     }
 }
 
+
+fun isNotificationServiceEnabled(context: Context): Boolean {
+    val pkgName = context.packageName
+    val flat = Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")
+    if (!TextUtils.isEmpty(flat)) {
+        val names = flat.split(":")
+        for (name in names) {
+            val cn = ComponentName.unflattenFromString(name)
+            if (cn != null && TextUtils.equals(pkgName, cn.packageName)) {
+                return true
+            }
+        }
+    }
+    return false
+}
 
 fun isBatteryOptimizationIgnored(context: Context): Boolean {
     val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
