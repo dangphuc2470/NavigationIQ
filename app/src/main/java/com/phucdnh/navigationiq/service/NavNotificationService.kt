@@ -120,60 +120,6 @@ class NavNotificationService : NotificationListenerService() {
             }
             return
         }
-
-        // 2. Incoming messaging notification (Zalo, Messenger, SMS...) while navigation is active
-        if (_currentNavigationInfo.value != null) {
-            handleMessagingNotification(sbn)
-        }
-    }
-
-    private fun handleMessagingNotification(sbn: StatusBarNotification) {
-        val pkg = sbn.packageName ?: return
-        val notif = sbn.notification ?: return
-
-        val isMessageCategory = notif.category == android.app.Notification.CATEGORY_MESSAGE
-        val isChatApp = when (pkg) {
-            "com.zing.zalo",
-            "com.facebook.orca", "com.facebook.mlite",
-            "org.telegram.messenger",
-            "com.whatsapp",
-            "com.google.android.apps.messaging", "com.samsung.android.messaging",
-            "jp.naver.line.android", "com.viber.voip",
-            "com.skype.raider", "com.microsoft.teams" -> true
-            else -> false
-        }
-
-        if (!isMessageCategory && !isChatApp) {
-            return
-        }
-
-        val extras = notif.extras ?: return
-        val sender = extras.getCharSequence(android.app.Notification.EXTRA_TITLE)?.toString()?.trim() ?: ""
-        val message = extras.getCharSequence(android.app.Notification.EXTRA_TEXT)?.toString()?.trim()
-            ?: extras.getCharSequence(android.app.Notification.EXTRA_BIG_TEXT)?.toString()?.trim()
-            ?: ""
-
-        if (sender.isEmpty() && message.isEmpty()) {
-            return
-        }
-
-        val appName = when (pkg) {
-            "com.zing.zalo" -> "Zalo"
-            "com.facebook.orca", "com.facebook.mlite" -> "Messenger"
-            "org.telegram.messenger" -> "Telegram"
-            "com.whatsapp" -> "WhatsApp"
-            "com.google.android.apps.messaging", "com.samsung.android.messaging" -> "SMS"
-            "jp.naver.line.android" -> "Line"
-            "com.viber.voip" -> "Viber"
-            else -> try {
-                packageManager.getApplicationLabel(packageManager.getApplicationInfo(pkg, 0)).toString()
-            } catch (e: Exception) {
-                "Chat"
-            }
-        }
-
-        Log.d(TAG, "Forwarding chat message as watch banner: [$appName] $sender: $message")
-        GarminManager.sendToastNotification(appName, sender, message, durationSec = 5)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
@@ -249,7 +195,7 @@ class NavNotificationService : NotificationListenerService() {
 
             if (isNavigating) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val fgsType = ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+                    val fgsType = ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
                     try {
                         startForeground(NOTIFICATION_ID, notification, fgsType)
                     } catch (e: Exception) {
