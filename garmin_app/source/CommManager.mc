@@ -21,6 +21,7 @@ const DIR_ROUNDABOUT_2     = 10; // Roundabout 2nd exit (90 deg right)
 const DIR_ROUNDABOUT_3     = 11; // Roundabout 3rd exit (0 deg straight)
 const DIR_ROUNDABOUT_4     = 12; // Roundabout 4th exit (270 deg left)
 const DIR_ROUNDABOUT_5     = 13; // Roundabout 5th exit (225 deg sharp left)
+const DIR_ARRIVED          = 14; // Reached destination
 
 // Haptic alert distance thresholds (meters)
 const HAPTIC_ALERT_FAR  = 100; // First warning tick
@@ -273,14 +274,15 @@ module CommManager {
         }
 
         // End-of-navigation signal
-        if (data instanceof Lang.Array && data.size() == 1) {
-            if (data[0] instanceof Lang.String && data[0].equals("naviend")) {
-                _resetNav();
+        if ((data instanceof Lang.Array && data.size() == 1 && data[0] instanceof Lang.String && data[0].equals("naviend")) ||
+            (data instanceof Lang.String && data.equals("naviend"))) {
+            // If watch is actively showing Destination Reached screen, keep it alive so user can view it!
+            // The user can dismiss it anytime by pressing the Back button.
+            if (direction == DIR_ARRIVED) {
+                stopActivitySession();
                 WatchUi.requestUpdate();
                 return;
             }
-        }
-        if (data instanceof Lang.String && data.equals("naviend")) {
             _resetNav();
             WatchUi.requestUpdate();
             return;
@@ -393,6 +395,35 @@ module CommManager {
     function _inferDirectionAndExit(text as String) as Void {
         var lower = text.toLower();
         exitNumber = 0;
+
+        // 0. Check Arrival / Destination Reached first
+        if (lower.find("arrived") != null || lower.find("arriving") != null || lower.find("arrival") != null ||
+            lower.find("destination") != null || lower.find("reached") != null ||
+            lower.find("đã đến") != null || lower.find("đang đến") != null || lower.find("đích đến") != null ||
+            lower.find("đã tới") != null || lower.find("điểm đến") != null || lower.find("đến nơi") != null ||
+            lower.find("tới nơi") != null) {
+            direction = DIR_ARRIVED;
+            // If text contains separator (· or -), extract the destination address into nextStreet
+            var dotIdx = text.find("·");
+            if (dotIdx != null && dotIdx + 1 < text.length()) {
+                var cand = text.substring(dotIdx + 1, text.length());
+                while (cand.length() > 0 && cand.substring(0, 1).equals(" ")) {
+                    cand = cand.substring(1, cand.length());
+                }
+                if (cand.length() > 0) {
+                    nextStreet = cand;
+                }
+            } else {
+                var dashIdx = text.find(" - ");
+                if (dashIdx != null && dashIdx + 3 < text.length()) {
+                    var cand = text.substring(dashIdx + 3, text.length());
+                    if (cand.length() > 0) {
+                        nextStreet = cand;
+                    }
+                }
+            }
+            return;
+        }
 
         // 1. Check Roundabout & Multi-way intersections first
         if (lower.find("roundabout") != null || lower.find("vòng xoay") != null || 

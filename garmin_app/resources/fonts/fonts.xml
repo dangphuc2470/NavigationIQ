@@ -12,4 +12,5 @@
     <font id="SfUnit" filename="sf_pro_unit.fnt" antialias="true" />
     <font id="SfLargeBold" filename="sf_pro_large_bold.fnt" antialias="true" />
     <font id="SfLarge" filename="sf_pro_large.fnt" antialias="true" />
+    <font id="SfLabel" filename="sf_pro_label.fnt" antialias="true" />
 </fonts>

@@ -31,6 +31,7 @@ object GoogleMapsParser {
             val info = parseCar(values) ?: return null
             info.isPublicTransport = false
             val drawable = values.drawables["android-largeIcon"]
+                ?: values.drawables["android-icon"]
                 ?: values.drawables["right_icon_container-right_icon"]
                 ?: values.drawables["right_icon"]
                 ?: values.drawables["icon"]
@@ -43,12 +44,41 @@ object GoogleMapsParser {
         }
     }
 
+    private fun isArrivalText(text: String?): Boolean {
+        if (text.isNullOrBlank()) return false
+        val s = text.lowercase()
+        return s.contains("arrived") || s.contains("arriving") || s.contains("arrival") ||
+                s.contains("destination") || s.contains("reached") ||
+                s.contains("đã đến") || s.contains("đang đến") || s.contains("đích đến") ||
+                s.contains("đã tới") || s.contains("điểm đến") || s.contains("đến nơi") ||
+                s.contains("tới nơi")
+    }
+
     private fun parseCar(values: NotificationValues): NavigationInfo? {
         val info = NavigationInfo()
-        val title = values.texts["android-title"]
+        val title = values.texts["android-title"] ?: ""
+        val text = values.texts["android-text"] ?: ""
         val subText = values.texts["android-subText"]
 
-        if (!title.isNullOrEmpty() && subText != null) {
+        // 1. Priority: check if notification indicates destination arrival
+        val isTitleArrival = isArrivalText(title)
+        val isTextArrival = isArrivalText(text)
+        if (isTitleArrival || isTextArrival) {
+            info.isPublicTransport = false
+            info.signs = when {
+                isTitleArrival && text.isNotBlank() -> "$title · $text"
+                isTextArrival && title.isNotBlank() -> "$text · $title"
+                isTitleArrival -> title
+                else -> text
+            }
+            info.distance = "0 m"
+            if (!subText.isNullOrEmpty()) {
+                parseEtaLengthDuration(subText, info)
+            }
+            return info
+        }
+
+        if (title.isNotEmpty() && subText != null) {
             parseDistanceSigns(title, info)
             parseEtaLengthDuration(subText, info)
             return info
@@ -68,10 +98,9 @@ object GoogleMapsParser {
             return info
         }
 
-        val text = values.texts["android-text"]
-        if (!text.isNullOrEmpty()) {
+        if (text.isNotEmpty()) {
             if (info.signs.isEmpty()) info.signs = text
-            if (info.distance.isEmpty() && !title.isNullOrEmpty()) info.distance = title
+            if (info.distance.isEmpty() && title.isNotEmpty()) info.distance = title
             if (!subText.isNullOrEmpty()) parseEtaLengthDuration(subText, info)
             return info
         }

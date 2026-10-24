@@ -87,6 +87,14 @@ class PreviewManager {
             "At the roundabout, take the 1st exit onto Coast Highway",
             "17:16",
             1
+        ],
+        // 10. Destination Reached
+        [
+            DIR_ARRIVED,
+            "22 m",
+            "123 Nguyen Thi Minh Khai, Q.1",
+            "Arrived",
+            0
         ]
     ];
 

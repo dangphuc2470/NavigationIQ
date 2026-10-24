@@ -10,18 +10,18 @@ class NavigationIQDelegate extends WatchUi.BehaviorDelegate {
         _view = view;
     }
 
-    // Back button -> exit preview mode, or back to HUD from map, or exit app
+    // Back button -> exit arrived screen, exit preview mode, or exit app
     function onBack() as Boolean {
+        if (CommManager.direction == DIR_ARRIVED) {
+            CommManager._resetNav();
+            WatchUi.requestUpdate();
+            return true;
+        }
         if (_view != null) {
             if (_view.isPreviewModeActive()) {
                 _view.stopPreviewMode();
                 return true;
             }
-            // Map tab disabled
-            // if (_view.isMapTabActive()) {
-            //     _view.switchToHudTab();
-            //     return true;
-            // }
         }
         WatchUi.popView(WatchUi.SLIDE_DOWN);
         return true;

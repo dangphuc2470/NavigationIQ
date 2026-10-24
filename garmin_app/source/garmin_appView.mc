@@ -25,6 +25,7 @@ class NavigationIQView extends WatchUi.View {
     private var _fontSfUnit as Graphics.FontDefinition?;
     private var _fontSfLargeBold as Graphics.FontDefinition?;
     private var _fontSfLarge as Graphics.FontDefinition?;
+    private var _fontSfLabel as Graphics.FontDefinition?;
 
     private var _layoutProfile as Number = 0; // 0 = Auto, 1 = Rect (Venu Sq), 2 = Round, 3 = Instinct Crossover
     private var _appFontSetting as Number = 0; // 0 = Auto, 1 = Apple SF Pro, 2 = Garmin Native
@@ -70,6 +71,7 @@ class NavigationIQView extends WatchUi.View {
             try { _fontSfUnit = WatchUi.loadResource(Rez.Fonts.SfUnit) as Graphics.FontDefinition; } catch (e) { System.println("ERR SfUnit: " + e.getErrorMessage()); }
             try { _fontSfLargeBold = WatchUi.loadResource(Rez.Fonts.SfLargeBold) as Graphics.FontDefinition; } catch (e) { _fontSfLargeBold = null; }
             try { _fontSfLarge = WatchUi.loadResource(Rez.Fonts.SfLarge) as Graphics.FontDefinition; } catch (e) { _fontSfLarge = null; }
+            try { _fontSfLabel = WatchUi.loadResource(Rez.Fonts.SfLabel) as Graphics.FontDefinition; } catch (e) { _fontSfLabel = null; }
         }
     }
 
@@ -111,7 +113,7 @@ class NavigationIQView extends WatchUi.View {
         } else if (_appFontSetting == 2) {
             return false;
         }
-        return (sysStats.totalMemory >= 512 * 1024);
+        return (sysStats.totalMemory >= 128 * 1024);
     }
 
     public function isSfNumberFontActive() as Boolean {
@@ -360,6 +362,14 @@ class NavigationIQView extends WatchUi.View {
             return;
         }
 
+        if (CommManager.direction == DIR_ARRIVED) {
+            _drawArrivedScreen(dc, effectiveProfile);
+            if (CommManager.isToastActive()) {
+                _drawToastOverlay(dc, effectiveProfile);
+            }
+            return;
+        }
+
         if (effectiveProfile == 3) {
             _drawInstinctCrossoverHUD(dc);
         } else if (effectiveProfile == 2) {
@@ -473,6 +483,170 @@ class NavigationIQView extends WatchUi.View {
         dc.drawRoundedRectangle(bottomX, bottomY, bottomW, bottomH, bottomH / 2);
         dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, bottomY + (bottomH / 2), fontMicro, bottomStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+
+    // -------------------------------------------------------------------------
+    // Luxury Arrived / Destination Reached Screen (Round & Square)
+    // -------------------------------------------------------------------------
+    private function _drawArrivedScreen(dc as Dc, effectiveProfile as Number) as Void {
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+        var isRound = (effectiveProfile == 2);
+        var cx = w / 2;
+
+        // Pure 100% Apple SF Pro Typography Hierarchy:
+        // - fontTitleLabel: SF Pro Semibold 16px (_fontSfLabel) for secondary labels (Destination Reached, TIME, DIST, SPEED, Q.1)
+        // - fontCardVal: SF Pro Compact Bold 25px (_fontSfCompactBold) for telemetry stats
+        // - fontPill: SF Pro Semibold 16px (_fontSfLabel) for the top status pill
+        var fontTitleLabel = isSfFontActive() ? ((_fontSfLabel != null) ? _fontSfLabel : Graphics.FONT_XTINY) : Graphics.FONT_XTINY;
+        var fontCardVal = isSfFontActive() ? ((_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_MEDIUM) : Graphics.FONT_MEDIUM;
+        var fontPill = isSfFontActive() ? ((_fontSfLabel != null) ? _fontSfLabel : Graphics.FONT_TINY) : Graphics.FONT_TINY;
+
+        var pillW, pillH, pillX, pillY;
+        var podY, podR;
+        var titleY, addrY;
+        var cardW, cardH, cardX, cardY, cardRx;
+
+        var arrivedStr = "Arrived";
+        var strW = dc.getTextWidthInPixels(arrivedStr, fontPill);
+        pillW = strW + 36;
+        pillX = (w - pillW) / 2;
+
+        if (isRound) {
+            // --- Venu 2 & Round AMOLED (416x416 / 454x454) ---
+            var scale = w.toFloat() / 416.0;
+            pillH = (28 * scale).toNumber();
+            pillY = (30 * scale).toNumber();
+
+            podY = (112 * scale).toNumber();
+            podR = (36 * scale).toNumber();
+
+            // Centered symmetrically between pod bottom (148px) and card top (274px)
+            titleY = (178 * scale).toNumber();
+            addrY = (222 * scale).toNumber();
+
+            cardW = (310 * scale).toNumber();
+            cardH = (70 * scale).toNumber();
+            cardX = (w - cardW) / 2;
+            cardY = (274 * scale).toNumber();
+            cardRx = cardH / 2;
+        } else {
+            // --- Venu Sq 2 & Square AMOLED (320x360) ---
+            // Centered symmetrically between pod bottom (120px) and card top (272px)
+            pillH = 28;
+            pillY = 16;
+
+            podY = 88;
+            podR = 32;
+
+            titleY = 160;
+            addrY = 208;
+
+            cardW = 292;
+            cardH = 74;
+            cardX = (w - cardW) / 2;
+            cardY = h - cardH - cardX; // 360 - 74 - 14 = 272 (identical 14px padding on left, right, and bottom)
+            cardRx = 20;
+        }
+
+        // 1. Ambient Mint Glow behind the slate disc
+        VectorArrowRenderer.drawAmbientGlow(dc, cx, podY, GLOW_RGB_GREEN);
+
+        // 2. Top Status Pill: Compact Frosted Glass with Checkmark + "Arrived" (No countdown)
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(pillX, pillY, pillW, pillH, pillH / 2);
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(pillX, pillY, pillW, pillH, pillH / 2);
+
+        // Mint Checkmark Icon
+        dc.setColor(COLOR_THEME_GREEN_ACCENT, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(2);
+        var chkX = pillX + 13;
+        var chkY = pillY + (pillH / 2);
+        dc.drawLine(chkX - 5, chkY, chkX - 1, chkY + 4);
+        dc.drawLine(chkX - 1, chkY + 4, chkX + 6, chkY - 4);
+
+        // Status Text
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(chkX + 11, pillY + (pillH / 2), fontPill, arrivedStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+
+        // 3. Central Solid Slate-Graphite Disc (Clean bezel-less luxury pod)
+        dc.setColor(0x1C212B, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(cx, podY, podR);
+
+        // Aerodynamic Symmetric Stealth Chevron Arrow pointing towards ~1:30 (35 deg tilt)
+        dc.setColor(COLOR_THEME_GREEN_ACCENT, Graphics.COLOR_TRANSPARENT);
+        var aScale = podR.toFloat() / 42.0;
+        var pTip   = [cx + (12 * aScale).toNumber(), podY - (17 * aScale).toNumber()];
+        var pRight = [cx + (4 * aScale).toNumber(),  podY + (22 * aScale).toNumber()];
+        var pNotch = [cx - (5 * aScale).toNumber(),  podY + (7 * aScale).toNumber()];
+        var pLeft  = [cx - (22 * aScale).toNumber(), podY + (4 * aScale).toNumber()];
+        dc.fillPolygon([pTip, pRight, pNotch, pLeft]);
+
+        // 4. Headline & High-Glance Street Address
+        // Destination label in crisp muted slate (0x8C98A9)
+        dc.setColor(0x8C98A9, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(cx, titleY, fontTitleLabel, "Destination Reached", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+        var streetStr = (CommManager.nextStreet.length() > 0) ? CommManager.nextStreet : ((CommManager.navText.length() > 0) ? CommManager.navText : "123 Nguyen Thi Minh Khai, Q.1");
+        
+        var addrFont = isSfFontActive() ? ((_fontSfCompactBold != null) ? _fontSfCompactBold : Graphics.FONT_MEDIUM) : Graphics.FONT_MEDIUM;
+        if (isRound && streetStr.length() <= 18) {
+            addrFont = isSfFontActive() ? ((_fontSfStreetBold != null) ? _fontSfStreetBold : Graphics.FONT_LARGE) : Graphics.FONT_LARGE;
+        }
+
+        // Smart Adaptive Address Layout:
+        // Both lines share the exact same consistent font (SF Pro Compact Bold) and pure white color
+        var commaIdx = streetStr.find(",");
+        if (commaIdx != null && streetStr.length() > 18) {
+            var line1 = streetStr.substring(0, commaIdx);
+            var line2 = streetStr.substring(commaIdx + 1, streetStr.length());
+            while (line2.length() > 0 && line2.substring(0, 1).equals(" ")) {
+                line2 = line2.substring(1, line2.length());
+            }
+            dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(cx, addrY - 14, addrFont, line1, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            dc.drawText(cx, addrY + 14, addrFont, line2, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        } else {
+            dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(cx, addrY, addrFont, streetStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        }
+
+        // 5. Apple Watch Workout 3-Column Telemetry Card
+        dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.fillRoundedRectangle(cardX, cardY, cardW, cardH, cardRx);
+        dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        dc.drawRoundedRectangle(cardX, cardY, cardW, cardH, cardRx);
+
+        // Hairline Vertical Dividers
+        var colW = cardW / 3;
+        var div1X = cardX + colW;
+        var div2X = cardX + (colW * 2);
+        dc.setColor(0x222C3A, Graphics.COLOR_TRANSPARENT);
+        dc.drawLine(div1X, cardY + 10, div1X, cardY + cardH - 10);
+        dc.drawLine(div2X, cardY + 10, div2X, cardY + cardH - 10);
+
+        var valY = cardY + (cardH * 0.30).toNumber();
+        var lblY = cardY + (cardH * 0.74).toNumber();
+
+        // Col 1: TIME (22m)
+        dc.setColor(COLOR_THEME_GREEN_ACCENT, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(cardX + (colW / 2), valY, fontCardVal, "22m", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(cardX + (colW / 2), lblY, fontTitleLabel, "TIME", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+        // Col 2: DISTANCE (8.4km)
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(div1X + (colW / 2), valY, fontCardVal, "8.4km", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(div1X + (colW / 2), lblY, fontTitleLabel, "DIST", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+        // Col 3: SPEED (26km/h)
+        dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(div2X + (colW / 2), valY, fontCardVal, "26km/h", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.setColor(COLOR_TEXT_MUTED, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(div2X + (colW / 2), lblY, fontTitleLabel, "SPEED", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
     // -------------------------------------------------------------------------

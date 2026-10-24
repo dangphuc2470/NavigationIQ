@@ -52,6 +52,32 @@
                 "clear": false
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Build Garmin App (Beta .iq)",
+            "type": "shell",
+            "command": "python \"${workspaceFolder}/build_garmin.py\" beta",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "focus": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Garmin App (Release .iq)",
+            "type": "shell",
+            "command": "python \"${workspaceFolder}/build_garmin.py\" release",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "focus": true,
+                "clear": false
+            },
+            "problemMatcher": []
         }
     ]
 }

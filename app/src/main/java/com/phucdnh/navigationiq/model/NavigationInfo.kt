@@ -41,7 +41,91 @@ data class NavigationInfo(
                 signs.isEmpty() && bitmap == null && icon == null
     }
 
+    fun isArrived(): Boolean {
+        val s = signs.lowercase()
+        return s.contains("arrived") || s.contains("arriving") || s.contains("arrival") ||
+                s.contains("destination") || s.contains("reached") ||
+                s.contains("đã đến") || s.contains("đang đến") || s.contains("đích đến") ||
+                s.contains("đã tới") || s.contains("điểm đến") || s.contains("đến nơi") ||
+                s.contains("tới nơi")
+    }
+
+    fun getDistanceMeters(): Int {
+        if (distance.isEmpty()) return -1
+        val clean = distance.trim().lowercase()
+        return try {
+            if (clean.endsWith("km")) {
+                val num = clean.replace("km", "").trim().replace(",", ".").toFloatOrNull() ?: -1f
+                if (num >= 0) (num * 1000).toInt() else -1
+            } else if (clean.endsWith("m") || clean.endsWith("м")) {
+                val num = clean.replace("m", "").replace("м", "").trim().replace(",", ".").toFloatOrNull() ?: -1f
+                if (num >= 0) num.toInt() else -1
+            } else {
+                val digits = clean.filter { it.isDigit() || it == '.' }.toFloatOrNull() ?: -1f
+                if (digits >= 0) digits.toInt() else -1
+            }
+        } catch (_: Exception) {
+            -1
+        }
+    }
+
+    fun getMinutesRemaining(): Int {
+        val parsed = getMinutesFromDuration(duration)
+        if (parsed > 0) return parsed
+        val digits = duration.split(" ", " ").firstOrNull { it.all { c -> c.isDigit() } }?.toIntOrNull()
+        if (digits != null && (duration.contains("min") || duration.contains("phút") || duration.contains("m"))) {
+            return digits
+        }
+        return -1
+    }
+
+    fun getEtaDifferenceMinutes(): Int? {
+        if (eta.isEmpty() || !eta.contains(":")) return null
+        return try {
+            val parts = eta.split(":")
+            if (parts.size >= 2) {
+                val etaHour = parts[0].trim().toIntOrNull() ?: return null
+                val etaMin = parts[1].trim().take(2).toIntOrNull() ?: return null
+                val now = java.util.Calendar.getInstance()
+                val nowHour = now.get(java.util.Calendar.HOUR_OF_DAY)
+                val nowMin = now.get(java.util.Calendar.MINUTE)
+                val etaTotalMin = etaHour * 60 + etaMin
+                val nowTotalMin = nowHour * 60 + nowMin
+                etaTotalMin - nowTotalMin
+            } else null
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    /**
+     * Determines whether navigation was practically at or near the destination.
+     * Useful fallback when navigation notification is dismissed without explicit arrival text
+     * (e.g. Foreign languages, user arrives at destination and closes Maps, or Maps auto-finishes).
+     */
+    fun isNearDestination(): Boolean {
+        if (isArrived()) return true
+
+        // 1. Distance <= 150m
+        val meters = getDistanceMeters()
+        if (meters in 0..150) return true
+
+        // 2. Remaining duration <= 2 minutes
+        val mins = getMinutesRemaining()
+        if (mins in 0..2) return true
+
+        // 3. ETA within [-2, +2] minutes of current time
+        val etaDiff = getEtaDifferenceMinutes()
+        if (etaDiff != null && etaDiff in -2..2) return true
+
+        // 4. Route progress >= 95%
+        if (progress in 95..100) return true
+
+        return false
+    }
+
     fun hasDirections(): Boolean {
+        if (isNearDestination()) return true
         if (bitmap == null && icon == null && !isPublicTransport) {
             return false
         }

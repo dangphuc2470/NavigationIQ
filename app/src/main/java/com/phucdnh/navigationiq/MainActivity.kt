@@ -815,6 +815,19 @@ private val QuickSimulationPresets = listOf(
         duration = "6 min",
         length = "1.8 km",
         progress = 82
+    ),
+    SimulatedRoutePreset(
+        labelEn = "Arrival • Destination",
+        labelVi = "Đến nơi • Đích đến",
+        subtitleEn = "123 Nguyen Thi Minh Khai, Q.1",
+        subtitleVi = "123 Nguyễn Thị Minh Khai, Q.1",
+        distance = "22 m",
+        signsEn = "Arrived · 123 Nguyen Thi Minh Khai, Q.1",
+        signsVi = "Bạn đã đến nơi · 123 Nguyễn Thị Minh Khai, Q.1",
+        eta = "--:--",
+        duration = "0 min",
+        length = "0 km",
+        progress = 100
     )
 )
 
@@ -958,9 +971,18 @@ fun CockpitPage(
                 } else {
                     QuickSimulationPresets.forEachIndexed { index, preset ->
                         if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp), color = p.separator)
-                        ExpressiveRouteRow(if (index == 0) Icons.Default.TurnRight else if (index == 1) Icons.Default.ArrowUpward else Icons.Default.Route,
-                            if (isVi) listOf("Nội đô", "Cao tốc", "Vòng xuyến")[index] else listOf("City route", "Highway route", "Roundabout")[index],
-                            if (isVi) preset.subtitleVi else if (index == 0) "Turn right · Main Street" else if (index == 1) "Continue straight · ${preset.distance}" else preset.subtitleEn) { send(preset) }
+                        val routeIcon = when (index) {
+                            0 -> Icons.Default.TurnRight
+                            1 -> Icons.Default.ArrowUpward
+                            2 -> Icons.Default.Route
+                            else -> Icons.Default.Check
+                        }
+                        val routeTitle = if (isVi) {
+                            listOf("Nội đô", "Cao tốc", "Vòng xuyến", "Đến nơi")[index]
+                        } else {
+                            listOf("City route", "Highway route", "Roundabout", "Arrival")[index]
+                        }
+                        ExpressiveRouteRow(routeIcon, routeTitle, if (isVi) preset.subtitleVi else preset.subtitleEn) { send(preset) }
                     }
                 }
             }
