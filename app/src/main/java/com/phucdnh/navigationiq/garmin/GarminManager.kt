@@ -194,7 +194,29 @@ object GarminManager {
         }
     }
 
+    /** Full recovery: sends naviend to watch, clears queues/caches, restarts SDK, and probes with ping. */
+    fun recoverConnection(context: Context, onComplete: ((Boolean) -> Unit)? = null) {
+        addLog("[RECOVER] Initiating full connection recovery...")
+        try {
+            sendNavigationEnd(context)
+        } catch (_: Exception) {}
+
+        isSending = false
+        sendTimeoutHandler.removeCallbacks(timeoutRunnable)
+        latestPendingInfo = null
+        cache.reset()
+
+        restartConnection(context)
+
+        mapScope.launch {
+            delay(1500)
+            sendPing(context)
+            onComplete?.invoke(true)
+        }
+    }
+
     fun loadDevices(context: Context) {
+        appContext = context.applicationContext
         if (!isSdkReady) return
         val ciq = connectIQ ?: return
         try {
@@ -207,9 +229,7 @@ object GarminManager {
                 for (dev in devices) {
                     val name = dev.friendlyName?.takeIf { it.isNotBlank() } ?: "Garmin Watch"
                     addLog("Device: $name (${dev.status})")
-                    if (dev.status == IQDevice.IQDeviceStatus.CONNECTED) {
-                        checkAndRegisterApps(context, dev)
-                    }
+                    checkAndRegisterApps(context, dev)
                     ciq.registerForDeviceEvents(dev) { device, status ->
                         onDeviceStatusChanged(context, device, status)
                     }
@@ -311,9 +331,12 @@ object GarminManager {
         }
 
         if (targetApps.isEmpty()) {
+            addLog("[WARN] No registered apps found, re-checking devices...")
+            for (dev in devices) {
+                checkAndRegisterApps(context, dev)
+            }
             isSending = false
             sendTimeoutHandler.removeCallbacks(timeoutRunnable)
-            if (latestPendingInfo != null) dispatchLatest(context)
             return
         }
 
@@ -466,9 +489,15 @@ object GarminManager {
         }
     }
 
-    fun sendPing() {
+    fun sendPing(context: Context? = null) {
+        val ctx = context ?: appContext
         if (devices.isEmpty()) {
             devices = connectIQ?.knownDevices ?: emptyList()
+        }
+        if (registeredApps.isEmpty() && devices.isNotEmpty() && ctx != null) {
+            for (dev in devices) {
+                checkAndRegisterApps(ctx, dev)
+            }
         }
         val payload = listOf("ping", System.currentTimeMillis())
         for (device in devices) {

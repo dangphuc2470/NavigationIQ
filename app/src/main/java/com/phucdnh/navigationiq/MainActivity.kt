@@ -1768,34 +1768,19 @@ fun SystemSettingsPage(
                     HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
 
                     AppleSettingsRow(
-                        icon = Icons.Default.Refresh,
-                        iconTint = palette.blue,
-                        title = if (isVi) "Quét lại danh sách thiết bị" else "Rescan Paired Devices",
-                        subtitle = if (isVi) "Làm mới danh sách đồng hồ từ Garmin Connect IQ" else "Refresh watch list from Garmin Connect IQ",
-                        showChevron = true,
-                        onClick = { GarminManager.loadDevices(context) }
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
-
-                    AppleSettingsRow(
-                        icon = Icons.Default.WifiTethering,
-                        iconTint = palette.green,
-                        title = if (isVi) "Gửi tín hiệu kiểm tra (Ping)" else "Send Ping Signal",
-                        subtitle = if (isVi) "Kiểm tra phản hồi hai chiều với ứng dụng trên đồng hồ" else "Verify two-way response with watch app",
-                        showChevron = true,
-                        onClick = { GarminManager.sendPing() }
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
-
-                    AppleSettingsRow(
                         icon = Icons.Default.RestartAlt,
                         iconTint = palette.orange,
-                        title = if (isVi) "Khởi động lại kết nối Bluetooth SDK" else "Restart Bluetooth SDK Connection",
-                        subtitle = if (isVi) "Khôi phục phiên truyền dữ liệu khi đồng hồ bị kẹt" else "Recover transmission session if watch is unresponsive",
+                        title = if (isVi) "Khôi phục kết nối đồng hồ" else "Recover Watch Connection",
+                        subtitle = if (isVi) "Xóa dữ liệu kẹt và khởi động lại toàn bộ phiên kết nối" else "Clear stuck data and restart full connection session",
                         showChevron = true,
-                        onClick = { GarminManager.restartConnection(context) }
+                        onClick = {
+                            android.widget.Toast.makeText(context, if (isVi) "Đang khôi phục kết nối..." else "Recovering connection...", android.widget.Toast.LENGTH_SHORT).show()
+                            GarminManager.recoverConnection(context) {
+                                (context as? android.app.Activity)?.runOnUiThread {
+                                    android.widget.Toast.makeText(context, if (isVi) "Đã khôi phục kết nối thành công!" else "Connection recovered successfully!", android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
                     )
                 }
             }
@@ -1918,15 +1903,6 @@ fun SystemSettingsPage(
                             }
                         }
                     }
-
-                    HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
-
-                    AppleSettingsRow(
-                        icon = Icons.Default.Map,
-                        iconTint = palette.blue,
-                        title = if (isVi) "Nguồn bản đồ hỗ trợ" else "Supported Map Sources",
-                        subtitle = if (isVi) "Google Maps & OsmAnd (Tự động giải mã mũi tên RLE)" else "Google Maps & OsmAnd (Auto RLE turn decoding)"
-                    )
 
                     HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
 
