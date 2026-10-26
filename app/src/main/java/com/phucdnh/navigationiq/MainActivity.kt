@@ -1907,15 +1907,6 @@ fun SystemSettingsPage(
                     HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
 
                     AppleSettingsRow(
-                        icon = Icons.AutoMirrored.Filled.Message,
-                        iconTint = palette.indigo,
-                        title = if (isVi) "Chuyển tiếp tin nhắn khi dẫn đường" else "In-Navigation Chat Notification Forwarding",
-                        subtitle = "Zalo, Messenger, Telegram, WhatsApp, SMS, Line, Viber"
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
-
-                    AppleSettingsRow(
                         icon = Icons.Default.BluetoothConnected,
                         iconTint = palette.textSecondary,
                         title = "Watch App UUID",
