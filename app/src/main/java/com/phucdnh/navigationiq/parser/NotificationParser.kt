@@ -34,6 +34,7 @@ object NotificationParser {
             val sanitizedKey = key.replace(".", "-")
             when (value) {
                 is CharSequence -> values.texts[sanitizedKey] = value.toString()
+                is Number -> values.texts[sanitizedKey] = value.toString()
                 is Drawable -> values.drawables[sanitizedKey] = value
                 is Icon -> {
                     try {

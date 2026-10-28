@@ -33,7 +33,8 @@ data class NavigationInfo(
     var signs: String = "",
     var bitmap: Bitmap? = null,
     var progress: Int = -1,
-    var icon: Icon? = null
+    var icon: Icon? = null,
+    var isArrivedState: Boolean = false
 ) {
     fun isEmpty(): Boolean {
         return units.isEmpty() && eta.isEmpty() && length.isEmpty() &&
@@ -42,12 +43,17 @@ data class NavigationInfo(
     }
 
     fun isArrived(): Boolean {
-        val s = signs.lowercase()
-        return s.contains("arrived") || s.contains("arriving") || s.contains("arrival") ||
-                s.contains("destination") || s.contains("reached") ||
-                s.contains("đã đến") || s.contains("đang đến") || s.contains("đích đến") ||
-                s.contains("đã tới") || s.contains("điểm đến") || s.contains("đến nơi") ||
-                s.contains("tới nơi")
+        if (isArrivedState) return true
+        val s = signs.lowercase().trim()
+        return s.contains("bạn đã đến") || s.contains("đã đến điểm đến") ||
+                s.contains("đã đến nơi") || s.contains("đã tới nơi") ||
+                s.contains("you have arrived") || s.contains("arrived at") ||
+                s == "arrived" || s == "đã đến" || s == "đã tới" ||
+                s.startsWith("arrived ·") || s.startsWith("đã đến ·") ||
+                s.startsWith("arriving") || s.contains("arriving at") ||
+                s.contains("sắp đến") || s.contains("sắp tới") ||
+                s.contains("đang đến") || s.contains("đang tới") ||
+                s.contains("bạn sắp đến") || s.contains("bạn đang đến")
     }
 
     fun getDistanceMeters(): Int {
@@ -63,6 +69,27 @@ data class NavigationInfo(
             } else {
                 val digits = clean.filter { it.isDigit() || it == '.' }.toFloatOrNull() ?: -1f
                 if (digits >= 0) digits.toInt() else -1
+            }
+        } catch (_: Exception) {
+            -1
+        }
+    }
+
+    fun getLengthMeters(): Int {
+        if (length.isEmpty() || length == "-") return -1
+        val clean = length.replace('\u00A0', ' ').trim().lowercase()
+        return try {
+            if (clean.endsWith("km")) {
+                val num = clean.replace("km", "").trim().replace(",", ".").toFloatOrNull() ?: -1f
+                if (num >= 0) (num * 1000).toInt() else -1
+            } else if (clean.endsWith("mi")) {
+                val num = clean.replace("mi", "").trim().replace(",", ".").toFloatOrNull() ?: -1f
+                if (num >= 0) (num * 1609.34f).toInt() else -1
+            } else if (clean.endsWith("m") || clean.endsWith("м")) {
+                val num = clean.replace("m", "").replace("м", "").trim().replace(",", ".").toFloatOrNull() ?: -1f
+                if (num >= 0) num.toInt() else -1
+            } else {
+                -1
             }
         } catch (_: Exception) {
             -1
@@ -106,20 +133,16 @@ data class NavigationInfo(
     fun isNearDestination(): Boolean {
         if (isArrived()) return true
 
-        // 1. Distance <= 150m
-        val meters = getDistanceMeters()
-        if (meters in 0..150) return true
+        // 1. Total remaining route length <= 150m (NOT distance to next turn!)
+        val remainingLengthMeters = getLengthMeters()
+        if (remainingLengthMeters in 0..150) return true
 
-        // 2. Remaining duration <= 2 minutes
+        // 2. Remaining duration <= 1 minute (and remaining length is small <= 500m or unspecified)
         val mins = getMinutesRemaining()
-        if (mins in 0..2) return true
+        if (mins in 0..1 && (remainingLengthMeters in 0..500 || remainingLengthMeters < 0)) return true
 
-        // 3. ETA within [-2, +2] minutes of current time
-        val etaDiff = getEtaDifferenceMinutes()
-        if (etaDiff != null && etaDiff in -2..2) return true
-
-        // 4. Route progress >= 95%
-        if (progress in 95..100) return true
+        // 3. Route progress >= 98%
+        if (progress in 98..100) return true
 
         return false
     }

@@ -46,12 +46,68 @@ object GoogleMapsParser {
 
     private fun isArrivalText(text: String?): Boolean {
         if (text.isNullOrBlank()) return false
-        val s = text.lowercase()
-        return s.contains("arrived") || s.contains("arriving") || s.contains("arrival") ||
-                s.contains("destination") || s.contains("reached") ||
-                s.contains("đã đến") || s.contains("đang đến") || s.contains("đích đến") ||
-                s.contains("đã tới") || s.contains("điểm đến") || s.contains("đến nơi") ||
-                s.contains("tới nơi")
+        val s = text.lowercase().trim()
+        return s.contains("bạn đã đến") || s.contains("đã đến điểm đến") ||
+                s.contains("đã đến nơi") || s.contains("đã tới nơi") ||
+                s.contains("you have arrived") || s.contains("arrived at") ||
+                s == "arrived" || s == "đã đến" || s == "đã tới" ||
+                s.startsWith("arrived ·") || s.startsWith("đã đến ·") ||
+                s.startsWith("arriving") || s.contains("arriving") ||
+                s.contains("đang đến") || s.contains("đang tới") ||
+                s.contains("bạn đang đến") || s.contains("bạn sắp đến") ||
+                s.contains("sắp đến") || s.contains("sắp tới")
+    }
+
+    private fun cleanArrivalDestination(title: String, text: String, isTitleArrival: Boolean, isTextArrival: Boolean): String {
+        val destPart = if (isTitleArrival && text.isNotBlank()) {
+            text
+        } else if (isTextArrival && title.isNotBlank()) {
+            title
+        } else if (!isTitleArrival && title.isNotBlank()) {
+            title
+        } else {
+            text
+        }
+
+        var clean = destPart.trim()
+        val lower = clean.lowercase()
+        val prefixes = listOf(
+            "bạn đang đến ", "bạn sắp đến ", "bạn đã đến ",
+            "đang đến ", "đang tới ", "sắp đến ", "sắp tới ",
+            "đã đến ", "đã tới ", "arriving at ", "arrived at ",
+            "at ", "tại ", "đến ", "to "
+        )
+        for (prefix in prefixes) {
+            if (lower.startsWith(prefix)) {
+                clean = clean.substring(prefix.length).trim()
+                break
+            }
+        }
+        return clean.ifEmpty { if (title.isNotBlank()) title else text }
+    }
+
+    private fun isSystemNotification(title: String, text: String): Boolean {
+        val t = title.lowercase().trim()
+        val s = text.lowercase().trim()
+        val isSystemTitle = t == "google maps" || t == "bản đồ" || t.isEmpty()
+        if (isSystemTitle) {
+            if (s.contains("gps") || s.contains("chia sẻ") || s.contains("vị trí") ||
+                s.contains("đang tìm") || s.contains("searching") || s.contains("sharing") ||
+                s.contains("đỗ xe") || s.contains("parking") || s.contains("xem trước") ||
+                s.contains("preview") || s.contains("tuyến đường")) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun isValidDistance(dist: String): Boolean {
+        val d = dist.trim().lowercase()
+        if (d.isEmpty()) return false
+        if (d == "0 m" || d == "0 km" || d == "0") return true
+        val hasDigit = d.any { it.isDigit() }
+        val hasUnit = d.contains("m") || d.contains("km") || d.contains("ft") || d.contains("mi") || d.contains("yd")
+        return hasDigit && (hasUnit || d.length <= 10)
     }
 
     private fun parseCar(values: NotificationValues): NavigationInfo? {
@@ -60,27 +116,30 @@ object GoogleMapsParser {
         val text = values.texts["android-text"] ?: ""
         val subText = values.texts["android-subText"]
 
+        // 0. Filter out non-navigation system notifications (e.g. Searching for GPS, sharing location)
+        if (isSystemNotification(title, text)) {
+            return null
+        }
+
         // 1. Priority: check if notification indicates destination arrival
         val isTitleArrival = isArrivalText(title)
         val isTextArrival = isArrivalText(text)
         if (isTitleArrival || isTextArrival) {
             info.isPublicTransport = false
-            info.signs = when {
-                isTitleArrival && text.isNotBlank() -> "$title · $text"
-                isTextArrival && title.isNotBlank() -> "$text · $title"
-                isTitleArrival -> title
-                else -> text
-            }
+            info.isArrivedState = true
+            info.signs = cleanArrivalDestination(title, text, isTitleArrival, isTextArrival)
             info.distance = "0 m"
             if (!subText.isNullOrEmpty()) {
                 parseEtaLengthDuration(subText, info)
             }
+            applyProgressInfo(values, info)
             return info
         }
 
         if (title.isNotEmpty() && subText != null) {
             parseDistanceSigns(title, info)
             parseEtaLengthDuration(subText, info)
+            applyProgressInfo(values, info)
             return info
         }
 
@@ -91,21 +150,47 @@ object GoogleMapsParser {
                 info.distance = mainColumnTitle
                 info.signs = mainColumnText
                 parseEtaLengthDuration(subText, info)
+                applyProgressInfo(values, info)
                 return info
             }
             parseDistanceSigns(mainColumnTitle, info)
             info.eta = parseEtaOnly(subText)
+            applyProgressInfo(values, info)
             return info
         }
 
         if (text.isNotEmpty()) {
             if (info.signs.isEmpty()) info.signs = text
-            if (info.distance.isEmpty() && title.isNotEmpty()) info.distance = title
+            if (info.distance.isEmpty() && isValidDistance(title)) {
+                info.distance = title
+            }
             if (!subText.isNullOrEmpty()) parseEtaLengthDuration(subText, info)
-            return info
+            applyProgressInfo(values, info)
+            if (info.distance.isNotEmpty() && isValidDistance(info.distance)) {
+                return info
+            }
+            return null
         }
 
         return null
+    }
+
+    private fun applyProgressInfo(values: NotificationValues, info: NavigationInfo) {
+        val maxStr = values.texts["android-progressMax"]
+        val curStr = values.texts["android-progress"]
+        val maxMeters = maxStr?.toIntOrNull()
+        if (maxMeters != null && maxMeters > 0) {
+            if (info.length.isEmpty() || info.length == "-") {
+                info.length = if (maxMeters >= 1000) {
+                    String.format(java.util.Locale.US, "%.1f km", maxMeters / 1000.0)
+                } else {
+                    "$maxMeters m"
+                }
+            }
+            if (info.units.isEmpty()) {
+                info.units = "km/h"
+            }
+        }
     }
 
     private fun parsePublicTransport(values: NotificationValues): NavigationInfo {
@@ -154,12 +239,24 @@ object GoogleMapsParser {
     }
 
     private fun parseEtaLengthDuration(rawSubText: String, info: NavigationInfo) {
-        val split = rawSubText.split(" · ")
+        val split = rawSubText.split(" · ", " • ", " – ", " - ", " – ", " - ", " – ", " - ")
         if (split.size >= 3) {
             info.duration = split[0].trim()
             info.length = split[1].trim()
             info.units = parseUnits(info.length)
             info.eta = parseEta(split[2].trim())
+        } else if (split.size == 2) {
+            for (part in split) {
+                val p = part.trim()
+                if (p.contains(":") && info.eta.isEmpty()) {
+                    info.eta = parseEta(p)
+                } else if ((p.contains("km") || p.contains("m") || p.contains("mi")) && info.length.isEmpty()) {
+                    info.length = p
+                    info.units = parseUnits(p)
+                } else if (info.duration.isEmpty()) {
+                    info.duration = p
+                }
+            }
         } else if (split.isNotEmpty()) {
             info.eta = parseEtaOnly(rawSubText)
         }

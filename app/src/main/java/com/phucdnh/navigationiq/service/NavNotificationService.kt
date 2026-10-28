@@ -1,5 +1,6 @@
 package com.phucdnh.navigationiq.service
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -7,7 +8,11 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
@@ -50,10 +55,84 @@ class NavNotificationService : NotificationListenerService() {
 
         private val _currentNavigationInfo = MutableStateFlow<NavigationInfo?>(null)
         val currentNavigationInfo = _currentNavigationInfo.asStateFlow()
+
+        private val _lastTripSummary = MutableStateFlow<com.phucdnh.navigationiq.model.TripSummary?>(null)
+        val lastTripSummary = _lastTripSummary.asStateFlow()
+
+        fun setSimulatedTripSummary(summary: com.phucdnh.navigationiq.model.TripSummary?) {
+            _lastTripSummary.value = summary
+        }
     }
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var startDuration: String = ""
+    private var tripStartTimeMs: Long = 0L
+    private var tripStartLength: String = ""
+    private var maxTripDistanceMeters: Int = 0
+    private var lastKnownDestination: String = ""
+    private var lastKnownStreet: String = ""
+    private var lastValidNavInfo: NavigationInfo? = null
+    private var hasDispatchedArrival: Boolean = false
+    private var totalDistanceMeters: Double = 0.0
+    private var lastGpsLocation: Location? = null
+    private var isTrackingGps: Boolean = false
+    private var locationManager: LocationManager? = null
+
+    private val tripLocationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) {
+            if (location.hasAccuracy() && location.accuracy > 50f) return
+            val lastLoc = lastGpsLocation
+            if (lastLoc != null) {
+                val dist = lastLoc.distanceTo(location).toDouble()
+                // Filter out small jitter (< 1.5m) and allow smooth increments (up to 500m for mock/drive)
+                if (dist in 1.5..500.0) {
+                    totalDistanceMeters += dist
+                    lastGpsLocation = location
+                }
+            } else {
+                lastGpsLocation = location
+            }
+        }
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
+    }
+
+    private fun startTripDistanceTracking() {
+        if (isTrackingGps) return
+        try {
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                if (locationManager == null) {
+                    locationManager = getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+                }
+                val lm = locationManager ?: return
+                if (lm.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
+                    lm.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 1000L, 1f, tripLocationListener)
+                    isTrackingGps = true
+                    GarminManager.addLog("[GPS TRACK] Started PASSIVE tracker for trip distance")
+                } else if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000L, 2f, tripLocationListener)
+                    isTrackingGps = true
+                    GarminManager.addLog("[GPS TRACK] Started GPS tracker for trip distance")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start trip distance tracking: ${e.message}")
+        }
+    }
+
+    private fun stopTripDistanceTracking() {
+        if (!isTrackingGps) return
+        try {
+            locationManager?.removeUpdates(tripLocationListener)
+            isTrackingGps = false
+            lastGpsLocation = null
+            GarminManager.addLog("[GPS TRACK] Stopped tracker (total: ${totalDistanceMeters.toInt()}m)")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to stop trip distance tracking: ${e.message}")
+        }
+    }
+
     private val btReceiver = BluetoothStateReceiver()
 
     override fun onCreate() {
@@ -72,6 +151,9 @@ class NavNotificationService : NotificationListenerService() {
             ACTION_STOP_NAVIGATION -> {
                 Log.i(TAG, "ACTION_STOP_NAVIGATION received")
                 GarminManager.addLog("[ACTION] Navigation ended from notification")
+                stopTripDistanceTracking()
+                totalDistanceMeters = 0.0
+                maxTripDistanceMeters = 0
                 startDuration = ""
                 _currentNavigationInfo.value = null
                 OsmMapManager.stopLocationUpdates()
@@ -81,6 +163,9 @@ class NavNotificationService : NotificationListenerService() {
             ACTION_EXIT_APP -> {
                 Log.i(TAG, "ACTION_EXIT_APP received")
                 GarminManager.addLog("[ACTION] App exited from notification")
+                stopTripDistanceTracking()
+                totalDistanceMeters = 0.0
+                maxTripDistanceMeters = 0
                 startDuration = ""
                 _currentNavigationInfo.value = null
                 OsmMapManager.stopLocationUpdates()
@@ -129,7 +214,7 @@ class NavNotificationService : NotificationListenerService() {
         if (sbn == null) return
         val pkg = sbn.packageName ?: return
         // 1. Navigation notification handling (Google Maps, OsmAnd)
-        if (pkg == GOOGLE_MAPS_PACKAGE || pkg == OSMAND_PACKAGE || pkg.contains("map", ignoreCase = true)) {
+        if (pkg == GOOGLE_MAPS_PACKAGE || pkg == OSMAND_PACKAGE || pkg == "com.google.android.apps.mapslite") {
             val notif = sbn.notification
             val extras = notif?.extras
             val rawTitle = extras?.getCharSequence("android.title")?.toString() ?: ""
@@ -149,17 +234,66 @@ class NavNotificationService : NotificationListenerService() {
                     }
 
                     if (navInfo != null && navInfo.hasDirections()) {
-                        if (startDuration.isEmpty()) {
-                            startDuration = navInfo.duration
+                        if (tripStartTimeMs == 0L) {
+                            tripStartTimeMs = System.currentTimeMillis()
+                            totalDistanceMeters = 0.0
+                            lastGpsLocation = null
+                            maxTripDistanceMeters = 0
                         }
-                        if (!navInfo.setProgress(this@NavNotificationService, startDuration)) {
-                            startDuration = navInfo.duration
+                        if (tripStartLength.isEmpty() && navInfo.length.isNotEmpty() && navInfo.length != "-") {
+                            tripStartLength = navInfo.length
+                        }
+                        val currentMeters = navInfo.getLengthMeters()
+                        if (currentMeters > 0 && currentMeters > maxTripDistanceMeters) {
+                            maxTripDistanceMeters = currentMeters
+                        }
+                        lastValidNavInfo = navInfo
+
+                        // Extract destination / house number / street name
+                        val rawSigns = navInfo.signs.trim()
+                        if (rawSigns.isNotEmpty()) {
+                            val lowerSigns = rawSigns.lowercase()
+                            if (navInfo.isArrived() ||
+                                lowerSigns.contains("điểm đến") || lowerSigns.contains("destination") ||
+                                lowerSigns.contains("bạn đã đến") || lowerSigns.contains("you have arrived") ||
+                                lowerSigns.contains("arrived at") || lowerSigns.contains("arriving")) {
+                                lastKnownDestination = rawSigns
+                            } else {
+                                lastKnownStreet = rawSigns
+                                if (rawSigns.matches(Regex(".*\\b\\d+.*"))) {
+                                    lastKnownDestination = rawSigns
+                                }
+                            }
                         }
 
-                        _currentNavigationInfo.value = navInfo
-                        updateStatusNotification(navInfo, true)
-                        GarminManager.sendNavigationInfo(this@NavNotificationService, navInfo)
-                        Log.d(TAG, "Dispatched nav update: ${navInfo.distance} -> ${navInfo.signs} (ETA: ${navInfo.eta})")
+                        if (navInfo.isArrived()) {
+                            stopTripDistanceTracking()
+                            val finalDest = lastKnownDestination.ifEmpty {
+                                lastKnownStreet.ifEmpty {
+                                    rawSigns.ifEmpty { "Điểm đến" }
+                                }
+                            }
+                            if (!hasDispatchedArrival) {
+                                hasDispatchedArrival = true
+                                dispatchArrivalSummary(finalDest)
+                            }
+                            _currentNavigationInfo.value = navInfo
+                            updateStatusNotification(navInfo, true)
+                        } else {
+                            hasDispatchedArrival = false
+                            startTripDistanceTracking()
+                            if (startDuration.isEmpty()) {
+                                startDuration = navInfo.duration
+                            }
+                            if (!navInfo.setProgress(this@NavNotificationService, startDuration)) {
+                                startDuration = navInfo.duration
+                            }
+
+                            _currentNavigationInfo.value = navInfo
+                            updateStatusNotification(navInfo, true)
+                            GarminManager.sendNavigationInfo(this@NavNotificationService, navInfo)
+                            Log.d(TAG, "Dispatched nav update: ${navInfo.distance} -> ${navInfo.signs} (ETA: ${navInfo.eta})")
+                        }
                     }
                 } catch (e: Exception) {
                     GarminManager.addLog("[MAPS ERROR] ${e.message}")
@@ -170,11 +304,79 @@ class NavNotificationService : NotificationListenerService() {
         }
     }
 
+    private fun dispatchArrivalSummary(finalDest: String) {
+        stopTripDistanceTracking()
+        val now = System.currentTimeMillis()
+        val durationMs = if (tripStartTimeMs > 0L) (now - tripStartTimeMs) else 0L
+        val durationMin = (durationMs / 60000).toInt()
+        val durationStr = if (durationMin >= 60) {
+            "${durationMin / 60}h ${durationMin % 60}m"
+        } else {
+            "${if (durationMin < 1) 1 else durationMin}m"
+        }
+
+        // Determine the most reliable trip distance in meters:
+        // Priority 1: Google Maps total route length (maxTripDistanceMeters) is 100% reliable and immune to OS background throttling.
+        // If GPS actively recorded distance >= 85% of Maps (e.g. detour), use the larger recorded value.
+        val effectiveMeters: Double = when {
+            maxTripDistanceMeters > 0 && totalDistanceMeters >= maxTripDistanceMeters * 0.85 -> {
+                maxOf(totalDistanceMeters, maxTripDistanceMeters.toDouble())
+            }
+            maxTripDistanceMeters > 0 -> {
+                maxTripDistanceMeters.toDouble()
+            }
+            totalDistanceMeters >= 50.0 -> {
+                totalDistanceMeters
+            }
+            else -> {
+                val fallbackMeters = lastValidNavInfo?.getLengthMeters() ?: -1
+                if (fallbackMeters > 0) fallbackMeters.toDouble() else 0.0
+            }
+        }
+
+        val distanceStr = when {
+            effectiveMeters >= 1000.0 -> {
+                String.format(java.util.Locale.US, "%.1f km", effectiveMeters / 1000.0)
+            }
+            effectiveMeters > 0.0 -> {
+                "${effectiveMeters.toInt()} m"
+            }
+            tripStartLength.isNotEmpty() -> tripStartLength
+            else -> {
+                lastValidNavInfo?.length?.takeIf { it.isNotEmpty() && it != "-" } ?: "--"
+            }
+        }
+
+        val distanceKm = effectiveMeters / 1000.0
+        val durationSec = durationMs / 1000.0
+        val hours = durationSec / 3600.0
+        val rawAvgSpeed = if (hours > 0.0 && durationSec >= 15.0 && distanceKm >= 0.05) {
+            Math.round(distanceKm / hours).toInt()
+        } else 0
+        val avgSpeedStr = if (rawAvgSpeed in 1..180) "$rawAvgSpeed km/h" else "--"
+
+        val timeFormat = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+        val startTimeStr = if (tripStartTimeMs > 0L) timeFormat.format(java.util.Date(tripStartTimeMs)) else ""
+        val endTimeStr = timeFormat.format(java.util.Date(now))
+
+        val summary = com.phucdnh.navigationiq.model.TripSummary(
+            destination = finalDest,
+            duration = durationStr,
+            distance = distanceStr,
+            avgSpeed = avgSpeedStr,
+            startTime = startTimeStr,
+            endTime = endTimeStr
+        )
+        _lastTripSummary.value = summary
+        GarminManager.sendNavigationArrived(this, summary)
+        GarminManager.addLog("[ARRIVED] Dispatched to Garmin: $finalDest ($durationStr, $distanceStr, $avgSpeedStr)")
+    }
+
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         if (sbn == null) return
         val pkg = sbn.packageName ?: return
         if (pkg == GOOGLE_MAPS_PACKAGE || pkg == OSMAND_PACKAGE) {
-            val lastInfo = _currentNavigationInfo.value
+            val lastInfo = _currentNavigationInfo.value ?: lastValidNavInfo
             val lastSigns = lastInfo?.signs ?: ""
             val lastDist = lastInfo?.distance ?: ""
             val lastArrived = lastInfo?.isArrived() ?: false
@@ -183,31 +385,35 @@ class NavNotificationService : NotificationListenerService() {
 
             // SMART ARRIVAL FALLBACK:
             // If user was near destination (e.g. ETA <= 2m, dist <= 150m, foreign language, or arrived)
-            // before notification was dismissed, dispatch Arrival to Garmin watch so the Reached screen is shown!
-            if (isNear && lastInfo != null) {
-                GarminManager.addLog("[SMART ARRIVAL] Fallback triggered! Near destination (dist=$lastDist, eta=${lastInfo.eta}). Dispatching Arrived screen.")
-                val arrivalSigns = when {
-                    lastArrived -> lastSigns
-                    lastSigns.isNotBlank() -> "Arrived · $lastSigns"
-                    else -> "Arrived"
+            // before notification was dismissed, dispatch Arrival + TripSummary to Garmin watch!
+            val shouldDispatchArrival = (isNear || lastArrived) && lastInfo != null
+            if (shouldDispatchArrival) {
+                if (!hasDispatchedArrival) {
+                    GarminManager.addLog("[SMART ARRIVAL] Fallback triggered! Near destination (dist=$lastDist, eta=${lastInfo?.eta}). Dispatching Arrived screen.")
+                    val finalDest = lastKnownDestination.ifEmpty {
+                        lastKnownStreet.ifEmpty {
+                            lastInfo?.signs?.ifEmpty { "Điểm đến" } ?: "Điểm đến"
+                        }
+                    }
+                    dispatchArrivalSummary(finalDest)
                 }
-                val arrivalInfo = lastInfo.copy(
-                    distance = "0 m",
-                    signs = arrivalSigns
-                )
-                _currentNavigationInfo.value = arrivalInfo
-                GarminManager.sendNavigationInfo(this, arrivalInfo)
-                startDuration = ""
-                OsmMapManager.stopLocationUpdates()
-                updateStatusNotification(null, false)
-                return
+            } else {
+                Log.i(TAG, "Navigation notification removed, sending end signal")
+                GarminManager.sendNavigationEnd(this)
             }
 
-            Log.i(TAG, "Navigation notification removed, sending end signal")
+            stopTripDistanceTracking()
+            hasDispatchedArrival = false
+            totalDistanceMeters = 0.0
+            maxTripDistanceMeters = 0
+            tripStartTimeMs = 0L
+            tripStartLength = ""
+            lastKnownDestination = ""
+            lastKnownStreet = ""
+            lastValidNavInfo = null
             startDuration = ""
             _currentNavigationInfo.value = null
             OsmMapManager.stopLocationUpdates()
-            GarminManager.sendNavigationEnd(this)
             updateStatusNotification(null, false)
         }
     }
@@ -215,6 +421,7 @@ class NavNotificationService : NotificationListenerService() {
     override fun onDestroy() {
         super.onDestroy()
         isConnected = false
+        stopTripDistanceTracking()
         unregisterReceiver(btReceiver)
         OsmMapManager.stopLocationUpdates()
         Log.i(TAG, "NavNotificationService destroyed")
