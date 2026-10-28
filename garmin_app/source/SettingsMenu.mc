@@ -184,6 +184,12 @@ class NavigationIQSettingsMenu extends WatchUi.Menu2 {
             mapHeadingUp = true;
         }
         addItem(new WatchUi.ToggleMenuItem("Map Orientation", { :enabled => "Heading Up", :disabled => "North Up" }, "menu_map_orient", mapHeadingUp as Boolean, {}));
+
+        var actMode = Storage.getValue("activity_mode");
+        if (actMode == null) {
+            actMode = false;
+        }
+        addItem(new WatchUi.ToggleMenuItem("Immersive Mode", { :enabled => "On (No Popups)", :disabled => "Off (Battery Save)" }, "menu_act_mode", actMode as Boolean, {}));
     }
 }
 
@@ -233,6 +239,10 @@ class NavigationIQSettingsDelegate extends WatchUi.Menu2InputDelegate {
             var isHeadingUp = toggleItem.isEnabled();
             Storage.setValue("map_heading_up", isHeadingUp);
             CommManager.setMapHeadingUp(isHeadingUp);
+        } else if (id.equals("menu_act_mode")) {
+            var toggleItem = item as WatchUi.ToggleMenuItem;
+            var isEnabled = toggleItem.isEnabled();
+            CommManager.setActivityMode(isEnabled);
         }
     }
 

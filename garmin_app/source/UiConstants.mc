@@ -5,7 +5,7 @@ import Toybox.Lang;
 // UI CONSTANTS & DESIGN SYSTEM TOKENS (Easily Configurable)
 // =============================================================================
 
-const APP_VERSION_STR = "v1.0.13";
+const APP_VERSION_STR = "v1.0.3";
 
 // 1. Device Screen
 const SCREEN_W = 320;

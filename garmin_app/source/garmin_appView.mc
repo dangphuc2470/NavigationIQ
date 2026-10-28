@@ -11,6 +11,9 @@ class NavigationIQView extends WatchUi.View {
     private var _pageTimer as Timer.Timer?;
     private var _animTick as Number = 0;
     private var _pageIndex as Number = 0;
+    private var _needsAnimRedraw as Boolean = false;
+    private var _wasToastActive as Boolean = false;
+    private var _lastDrawnMin as Number = -1;
     private var _rotation as Number = 0; // 0 = Portrait (0°), 1 = Landscape (90° Clockwise for Left-Wrist Motorbike)
     private var _fontSfStreetBold as Graphics.FontDefinition?;
     private var _fontSfStreet as Graphics.FontDefinition?;
@@ -440,7 +443,6 @@ class NavigationIQView extends WatchUi.View {
     }
 
     function onShow() as Void {
-        CommManager.start();
         if (WatchUi.View has :setClockHandPosition) {
             try {
                 setClockHandPosition({
@@ -475,6 +477,8 @@ class NavigationIQView extends WatchUi.View {
             } else if (_simTimelineTicks == 55) { // 55 * 200ms = 11.0s: Switch to Arrived
                 startArrivedPreview();
             }
+            WatchUi.requestUpdate();
+            return;
         }
         if (_isPreviewMode && !CommManager.isArrived) {
             _previewTimerTicks++;
@@ -482,16 +486,30 @@ class NavigationIQView extends WatchUi.View {
                 _previewIndex++;
                 PreviewManager.applyStep(_previewIndex);
             }
+            WatchUi.requestUpdate();
+            return;
         }
-        WatchUi.requestUpdate();
+
+        // Power-Save Smart Redraw: Only trigger GPU/CPU screen redraw when active animation/scroll/toast/clock change occurs
+        var toastNow = CommManager.isToastActive();
+        var clockMin = System.getClockTime().min;
+        if (_needsAnimRedraw || toastNow || _wasToastActive || clockMin != _lastDrawnMin) {
+            WatchUi.requestUpdate();
+        }
     }
 
     function onUpdate(dc as Dc) as Void {
+        _needsAnimRedraw = false;
+        _wasToastActive = CommManager.isToastActive();
+        _lastDrawnMin = System.getClockTime().min;
+
         if (dc has :setAntiAlias) {
             dc.setAntiAlias(true);
         }
 
-        CommManager.checkHapticUpdate();
+        if (_isPreviewMode) {
+            CommManager.checkHapticUpdate();
+        }
 
         var effectiveProfile = getEffectiveProfile(dc);
 
@@ -1024,13 +1042,13 @@ class NavigationIQView extends WatchUi.View {
         dc.fillCircle(badgeCx, badgeCy, badgeRadius);
 
         if (CommManager.isWaitingImage) {
-            VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeRadius, accentColor, _animTick);
+            _needsAnimRedraw = true; VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeRadius, accentColor, _animTick);
         } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
             VectorArrowRenderer.drawRleBitmap(dc, badgeCx, badgeCy, CommManager.rleBitmap);
         } else if (CommManager.direction != DIR_UNKNOWN) {
             VectorArrowRenderer.drawVectorArrow(dc, badgeCx, badgeCy, CommManager.direction, CommManager.exitNumber, accentColor);
         } else {
-            VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeRadius, accentColor, _animTick);
+            _needsAnimRedraw = true; VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeRadius, accentColor, _animTick);
         }
 
         var distFull = CommManager.distText;
@@ -1205,6 +1223,7 @@ class NavigationIQView extends WatchUi.View {
             dc.setClip(startX - 2, startY, maxWidth + 4, maxHeight);
         }
 
+        _needsAnimRedraw = true;
         var overflow = totalH - maxHeight + 12;
         var cycle = _animTick % 70;
         var scrollOffset = 0;
@@ -1395,6 +1414,7 @@ class NavigationIQView extends WatchUi.View {
             dc.setClip(x, y - 1, width, fontH + 2);
         }
 
+        _needsAnimRedraw = true;
         var overflow = textW - width;
         var cycle = _animTick % 45; // 45 ticks * 200ms = 9.0s cycle
         var scrollOffset = 0;
@@ -1665,11 +1685,11 @@ class NavigationIQView extends WatchUi.View {
         dc.fillCircle(badgePx, badgePy, badgeR);
 
         if (CommManager.isWaitingImage) {
-            VectorArrowRenderer.drawLoadingSpinner(dc, badgePx, badgePy, badgeR, accentColor, _animTick);
+            _needsAnimRedraw = true; VectorArrowRenderer.drawLoadingSpinner(dc, badgePx, badgePy, badgeR, accentColor, _animTick);
         } else if (CommManager.direction != DIR_UNKNOWN) {
             VectorArrowRenderer.drawVectorArrowRot90(dc, badgePx, badgePy, CommManager.direction, CommManager.exitNumber, accentColor);
         } else {
-            VectorArrowRenderer.drawLoadingSpinner(dc, badgePx, badgePy, badgeR, accentColor, _animTick);
+            _needsAnimRedraw = true; VectorArrowRenderer.drawLoadingSpinner(dc, badgePx, badgePy, badgeR, accentColor, _animTick);
         }
 
         var distFull = CommManager.distText;
@@ -1726,7 +1746,8 @@ class NavigationIQView extends WatchUi.View {
                     dc.setClip(75, 0, 124, 360);
                 }
 
-                var overflow = totalH - maxHeight + 12;
+                _needsAnimRedraw = true;
+        var overflow = totalH - maxHeight + 12;
                 var cycle = _animTick % 70;
                 var scrollOffset = 0;
 
@@ -1819,13 +1840,13 @@ class NavigationIQView extends WatchUi.View {
         dc.drawCircle(badgeCx, badgeCy, badgeR);
 
         if (CommManager.isWaitingImage) {
-            VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, Graphics.COLOR_WHITE, _animTick);
+            _needsAnimRedraw = true; VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, Graphics.COLOR_WHITE, _animTick);
         } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
             VectorArrowRenderer.drawRleBitmap(dc, badgeCx, badgeCy, CommManager.rleBitmap);
         } else if (CommManager.direction != DIR_UNKNOWN) {
             VectorArrowRenderer.drawVectorArrow(dc, badgeCx, badgeCy, CommManager.direction, CommManager.exitNumber, Graphics.COLOR_WHITE);
         } else {
-            VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, Graphics.COLOR_WHITE, _animTick);
+            _needsAnimRedraw = true; VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, Graphics.COLOR_WHITE, _animTick);
         }
 
         // 2. Top Left Area: Distance (Row 1) & ETA (Row 2) with safe left padding
@@ -1932,6 +1953,7 @@ class NavigationIQView extends WatchUi.View {
                     dc.setClip(2, textZoneTop, w - 4, textZoneH);
                 }
 
+                _needsAnimRedraw = true;
                 var overflow = totalTextH - textZoneH + 6;
                 var cycle = _animTick % 36;
                 var scrollOffset = 0;
@@ -2171,13 +2193,13 @@ class NavigationIQView extends WatchUi.View {
         dc.fillCircle(badgeCx, badgeCy, badgeR);
 
         if (CommManager.isWaitingImage) {
-            VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor, _animTick);
+            _needsAnimRedraw = true; VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor, _animTick);
         } else if (CommManager.rleBitmap != null && CommManager.rleBitmap.size() > 2) {
             VectorArrowRenderer.drawRleBitmap(dc, badgeCx, badgeCy, CommManager.rleBitmap);
         } else if (CommManager.direction != DIR_UNKNOWN) {
             VectorArrowRenderer.drawVectorArrow(dc, badgeCx, badgeCy, CommManager.direction, CommManager.exitNumber, accentColor);
         } else {
-            VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor, _animTick);
+            _needsAnimRedraw = true; VectorArrowRenderer.drawLoadingSpinner(dc, badgeCx, badgeCy, badgeR, accentColor, _animTick);
         }
 
         var distFull = CommManager.distText;
@@ -2262,6 +2284,7 @@ class NavigationIQView extends WatchUi.View {
                     dc.setClip((w * 0.06).toNumber(), minTextY, (w * 0.88).toNumber(), maxTextH);
                 }
 
+                _needsAnimRedraw = true;
                 var overflow = totalTextH - maxTextH + 8;
                 var cycle = _animTick % 50;
                 var scrollOffset = 0;

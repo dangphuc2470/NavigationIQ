@@ -53,6 +53,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.Language
@@ -81,6 +82,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -925,6 +927,14 @@ fun DashboardPage(
                                 isWatchFound -> if (isVi) "Chờ mở app đồng hồ" else "Waiting for watch app"
                                 else -> if (isVi) "Chưa tìm thấy đồng hồ" else "No watch found"
                             }, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = p.textPrimary)
+
+                            val watchBattery by com.phucdnh.navigationiq.garmin.GarminManager.watchBatteryFlow.collectAsState()
+                            val watchDrainRate by com.phucdnh.navigationiq.garmin.GarminManager.watchDrainRateFlow.collectAsState()
+                            if (watchBattery != null) {
+                                Spacer(Modifier.width(8.dp))
+                                val drainStr = if ((watchDrainRate ?: 0f) > 0f) " (-${String.format(java.util.Locale.US, "%.1f", watchDrainRate)}%/h)" else ""
+                                Text("Battery: ${watchBattery!!.toInt()}%$drainStr", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = p.blue)
+                            }
                         }
                         Spacer(Modifier.height(4.dp))
                         Text(if (isHeartbeatLive) { if (isVi) "Đã gửi $sentCount gói tin." else "$sentCount packets sent." }
@@ -949,15 +959,28 @@ fun DashboardPage(
                     if (effectiveNavInfo != null) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             val bitmap = effectiveNavInfo.bitmap
-                            if (bitmap != null) Image(bitmap.asImageBitmap(), "Turn direction", Modifier.size(48.dp))
-                            else Icon(Icons.Default.TurnRight, null, tint = p.blue, modifier = Modifier.size(42.dp))
+                            if (bitmap != null) {
+                                Image(
+                                    bitmap = bitmap.asImageBitmap(),
+                                    contentDescription = "Turn direction",
+                                    modifier = Modifier.size(48.dp),
+                                    colorFilter = ColorFilter.tint(p.blue)
+                                )
+                            } else {
+                                Icon(Icons.Default.TurnRight, null, tint = p.blue, modifier = Modifier.size(42.dp))
+                            }
                             Column(Modifier.padding(start = 12.dp)) {
                                 Text(effectiveNavInfo.distance, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = p.textPrimary)
                                 Text(effectiveNavInfo.signs, fontSize = 14.sp, color = p.textPrimary)
                             }
                         }
                         if (effectiveNavInfo.progress in 0..100) LinearProgressIndicator(progress = { effectiveNavInfo.progress / 100f }, modifier = Modifier.fillMaxWidth(), color = p.blue, trackColor = p.pillTrack)
-                        Text("${effectiveNavInfo.eta}  ·  ${effectiveNavInfo.duration}  ·  ${effectiveNavInfo.length}", color = p.textSecondary, fontSize = 12.sp)
+                        val metaParts = listOf(effectiveNavInfo.eta, effectiveNavInfo.duration, effectiveNavInfo.length)
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() && it != "." && it != "·" && it != "-" }
+                        if (metaParts.isNotEmpty()) {
+                            Text(metaParts.joinToString("  ·  "), color = p.textSecondary, fontSize = 12.sp)
+                        }
                         OutlinedButton(onClick = onClearSimulation, modifier = Modifier.fillMaxWidth(), border = BorderStroke(1.dp, p.blue)) {
                             Text(if (isVi) "Kết thúc chỉ đường" else "End navigation", color = p.blue)
                         }
@@ -1831,6 +1854,102 @@ fun SystemSettingsPage(
                             }
                         }
                     )
+
+                    HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
+
+                    // Watch Activity Session Mode Switcher Row
+                    val isActivityRecording by GarminManager.isActivityRecordingFlow.collectAsState()
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 13.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .background((if (isActivityRecording) palette.orange else palette.green).copy(alpha = 0.14f), RoundedCornerShape(8.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.DirectionsRun,
+                                    contentDescription = null,
+                                    tint = if (isActivityRecording) palette.orange else palette.green,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.padding(end = 8.dp)) {
+                                Text(
+                                    text = if (isVi) "Chế độ tập luyện đắm chìm (Immersive)" else "Immersive Workout Mode",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = palette.textPrimary
+                                )
+                                Spacer(modifier = Modifier.height(1.dp))
+                                Text(
+                                    text = if (isActivityRecording) {
+                                        if (isVi) "Đang bật • Giữ màn hình luôn sáng và tin nhắn không che toàn màn hình (Tốn pin)"
+                                        else "Enabled • Keeps screen awake and prevents full-screen notification popups (High battery)"
+                                    } else {
+                                        if (isVi) "Đang tắt (Tiết kiệm pin) • Chế độ thông thường, tối ưu pin tối đa"
+                                        else "Disabled (Battery Save) • Standard mode, maximizes battery life"
+                                    },
+                                    fontSize = 12.sp,
+                                    color = palette.textSecondary
+                                )
+                            }
+                        }
+
+                        // Pill selector: Tắt (Tiết kiệm) vs Bật (Activity)
+                        Row(
+                            modifier = Modifier
+                                .background(palette.pillTrack, RoundedCornerShape(10.dp))
+                                .padding(2.dp)
+                        ) {
+                            // Option 1: Off (Battery Save)
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = if (!isActivityRecording) palette.pillThumb else Color.Transparent,
+                                modifier = Modifier.clickable {
+                                    if (isActivityRecording) {
+                                        GarminManager.setActivityRecording(context, false)
+                                    }
+                                }
+                            ) {
+                                Text(
+                                    text = if (isVi) "Tắt" else "Off",
+                                    fontSize = 11.sp,
+                                    fontWeight = if (!isActivityRecording) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (!isActivityRecording) (if (palette.isDark) palette.bg else Color.White) else palette.textSecondary,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                )
+                            }
+                            // Option 2: On (Activity)
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = if (isActivityRecording) palette.pillThumb else Color.Transparent,
+                                modifier = Modifier.clickable {
+                                    if (!isActivityRecording) {
+                                        GarminManager.setActivityRecording(context, true)
+                                    }
+                                }
+                            ) {
+                                Text(
+                                    text = if (isVi) "Bật" else "On",
+                                    fontSize = 11.sp,
+                                    fontWeight = if (isActivityRecording) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (isActivityRecording) (if (palette.isDark) palette.bg else Color.White) else palette.textSecondary,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

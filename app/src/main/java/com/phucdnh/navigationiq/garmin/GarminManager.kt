@@ -46,8 +46,7 @@ object GarminManager {
     const val GITHUB_REPO_URL = "https://github.com/dangphuc2470/NavigationIQ"
 
     val SUPPORTED_APP_IDS = listOf(
-        NAVIQ_APP_ID,
-        NAVIQ_BETA_APP_ID
+        NAVIQ_APP_ID
     )
 
     // Max log entries shown in UI
@@ -75,6 +74,15 @@ object GarminManager {
     private val _logs = MutableStateFlow<List<String>>(emptyList())
     val logsFlow = _logs.asStateFlow()
 
+    private val _watchBattery = MutableStateFlow<Float?>(null)
+    val watchBatteryFlow = _watchBattery.asStateFlow()
+
+    private val _watchDrainRate = MutableStateFlow<Float?>(null)
+    val watchDrainRateFlow = _watchDrainRate.asStateFlow()
+
+    private val _isActivityRecording = MutableStateFlow(false)
+    val isActivityRecordingFlow = _isActivityRecording.asStateFlow()
+
     private var lastWatchRxTime = 0L
 
     // -------------------------------------------------------------------------
@@ -97,6 +105,9 @@ object GarminManager {
         private set
 
     @Volatile
+    private var lastNavInfoTime = 0L
+
+    @Volatile
     private var activeAppId: String? = null
 
     init {
@@ -111,8 +122,8 @@ object GarminManager {
      */
     fun getTargetApps(): List<IQApp> {
         val currentActive = activeAppId
-        if (currentActive != null && registeredApps.containsKey(currentActive)) {
-            return listOf(registeredApps[currentActive]!!)
+        if (currentActive != null) {
+            return listOf(registeredApps[currentActive] ?: IQApp(currentActive))
         }
         return registeredApps.values.toList().ifEmpty {
             SUPPORTED_APP_IDS.map { IQApp(it) }
@@ -147,6 +158,7 @@ object GarminManager {
     /** Init SDK. Safe to call multiple times – skips if already ready. */
     @Synchronized
     fun initSdk(context: Context, onReady: (() -> Unit)? = null) {
+        initPreferences(context)
         if (isSdkReady) {
             loadDevices(context)
             onReady?.invoke()
@@ -291,6 +303,7 @@ object GarminManager {
         appContext = context.applicationContext
         latestPendingInfo = info
         isNavigating = true
+        lastNavInfoTime = System.currentTimeMillis()
 
         if (isMapMode) {
             // Map tab is active on Garmin watch: pause detailed HUD transmission to prioritize map bandwidth
@@ -367,6 +380,37 @@ object GarminManager {
             return
         }
 
+        if (activeAppId == null && targetApps.size > 1) {
+            // First time probe: Send sequentially to candidate apps to prevent BLE collision
+            fun trySequential(index: Int) {
+                if (index >= targetApps.size) {
+                    sendTimeoutHandler.removeCallbacks(timeoutRunnable)
+                    isSending = false
+                    failedCount++
+                    return
+                }
+                val (device, app) = targetApps[index]
+                sendMessage(context, device, app, message) { success ->
+                    if (success) {
+                        activeAppId = app.applicationId
+                        context.getSharedPreferences("navigation_iq_prefs", Context.MODE_PRIVATE)
+                            .edit().putString("pref_active_app_id", app.applicationId).apply()
+                        addLog("[APP] Active watch app locked: ${app.applicationId.take(8)}...")
+                        sendTimeoutHandler.removeCallbacks(timeoutRunnable)
+                        isSending = false
+                        failedCount = 0
+                        if (latestPendingInfo != null) dispatchLatest(context)
+                    } else {
+                        trySequential(index + 1)
+                    }
+                }
+            }
+            trySequential(0)
+            _sentCount.value++
+            addLog("[SEND #${_sentCount.value}] ${info.distance} | ${info.signs} | ETA: ${info.eta}")
+            return
+        }
+
         var completedCount = 0
         var anySuccess = false
         var isUnlocked = false
@@ -374,7 +418,11 @@ object GarminManager {
             sendMessage(context, device, app, message) { success ->
                 if (success) {
                     anySuccess = true
-                    activeAppId = app.applicationId
+                    if (activeAppId != app.applicationId) {
+                        activeAppId = app.applicationId
+                        context.getSharedPreferences("navigation_iq_prefs", Context.MODE_PRIVATE)
+                            .edit().putString("pref_active_app_id", app.applicationId).apply()
+                    }
                 }
                 completedCount++
                 // UDP mode: Immediately unlock as soon as active app succeeds, or all finished
@@ -455,24 +503,24 @@ object GarminManager {
 
     private fun checkAndRegisterApps(context: Context, device: IQDevice) {
         for (appId in SUPPORTED_APP_IDS) {
+            val app = registeredApps.getOrPut(appId) { IQApp(appId) }
+            registerAppEvents(device, app)
             connectIQ?.getApplicationInfo(appId, device, object : ConnectIQ.IQApplicationInfoListener {
-                override fun onApplicationInfoReceived(app: IQApp?) {
-                    if (app != null) {
-                        registeredApps[appId] = app
+                override fun onApplicationInfoReceived(infoApp: IQApp?) {
+                    if (infoApp != null) {
+                        registeredApps[appId] = infoApp
                         isAppFound = true
                         val label = "NavigationIQ"
-                        addLog("Found $label: ${app.status}")
-                        registerAppEvents(device, app)
+                        addLog("Found $label: ${infoApp.status}")
+                        registerAppEvents(device, infoApp)
                     }
                 }
                 override fun onApplicationNotInstalled(id: String?) {
-                    if (id != null) {
-                        registeredApps.remove(id)
-                        if (activeAppId == id) activeAppId = null
-                    }
+                    // Do NOT remove from registeredApps. Sideloaded PRG binaries installed via USB
+                    // are not registered in the Garmin Connect IQ Store database and will report
+                    // onApplicationNotInstalled here. Removing them breaks sideloaded communication.
                 }
             })
-            registeredApps[appId]?.let { registerAppEvents(device, it) }
         }
     }
 
@@ -483,7 +531,12 @@ object GarminManager {
     private fun registerAppEvents(device: IQDevice, app: IQApp) {
         connectIQ?.registerForAppEvents(device, app) { _, _, messages, _ ->
             if (messages.isNullOrEmpty()) return@registerForAppEvents
-            activeAppId = app.applicationId
+            if (activeAppId != app.applicationId) {
+                activeAppId = app.applicationId
+                appContext?.getSharedPreferences("navigation_iq_prefs", Context.MODE_PRIVATE)
+                    ?.edit()?.putString("pref_active_app_id", app.applicationId)?.apply()
+                addLog("[APP] Active watch app locked from RX: ${app.applicationId.take(8)}...")
+            }
             lastWatchRxTime = System.currentTimeMillis()
             _isHeartbeatLive.value = true
             _isWatchFound.value = true
@@ -504,6 +557,17 @@ object GarminManager {
                         currentPanDx = dx
                         currentPanDy = dy
                         addLog("[MAP] Pan request: dx=$dx, dy=$dy")
+                    }
+                    "battery_stat" -> {
+                        val batPct = (first.getOrNull(1) as? Number)?.toFloat() ?: -1f
+                        val drainRate = (first.getOrNull(2) as? Number)?.toFloat() ?: 0f
+                        val isAct = (first.getOrNull(3) as? Number)?.toInt() ?: 0
+                        if (batPct >= 0f) {
+                            _watchBattery.value = batPct
+                            _watchDrainRate.value = drainRate
+                            val drainStr = if (drainRate > 0f) "-${String.format(java.util.Locale.US, "%.1f", drainRate)}%/h" else "--"
+                            addLog("[BATTERY] Pin đồng hồ: ${batPct.toInt()}% ($drainStr) | Chế độ Activity: ${if (isAct == 1) "BẬT" else "TẮT"}")
+                        }
                     }
                 }
                 return@registerForAppEvents
@@ -543,12 +607,17 @@ object GarminManager {
                 val now = System.currentTimeMillis()
                 val isAlive = (now - lastWatchRxTime < 25_000L && lastWatchRxTime > 0L)
                 _isHeartbeatLive.value = isAlive
-                // Only send ping if there is an active navigation or watch app is alive
-                if (!isMapMode && latestPendingInfo == null && isSdkReady && (isNavigating || isAlive)) {
+                // Auto-clear stuck isNavigating if no Google Maps update arrived for > 5 minutes
+                if (isNavigating && lastNavInfoTime > 0L && (now - lastNavInfoTime > 300_000L)) {
+                    isNavigating = false
+                    addLog("[WATCHDOG] Không có bản tin điều hướng mới sau 5 phút -> Ngắt ping giữ kết nối để tiết kiệm pin")
+                }
+                // Only send ping if there is an active navigation running to let watch radio deep-sleep when idle
+                if (!isMapMode && latestPendingInfo == null && isSdkReady && isNavigating) {
                     sendPing()
                 }
-                // When watch app is actively replying, ping every 15s. When idle, ping every 30s to conserve battery and avoid OS kill.
-                val pingInterval = if (isAlive) 15_000L else 30_000L
+                // When actively navigating, ping every 15s. When idle, check every 60s without pinging radio.
+                val pingInterval = if (isNavigating) 15_000L else 60_000L
                 delay(pingInterval)
             }
         }
@@ -696,6 +765,43 @@ object GarminManager {
             }
         } catch (e: Exception) {
             Log.e(TAG, "openApplication exception: ${e.message}")
+        }
+    }
+
+    fun setActivityRecording(context: Context, enabled: Boolean) {
+        _isActivityRecording.value = enabled
+        val prefs = context.getSharedPreferences("navigation_iq_prefs", Context.MODE_PRIVATE)
+        prefs.edit().putBoolean("pref_activity_recording", enabled).apply()
+        sendActivityModeSetting(enabled)
+    }
+
+    fun initPreferences(context: Context) {
+        val prefs = context.getSharedPreferences("navigation_iq_prefs", Context.MODE_PRIVATE)
+        val saved = prefs.getBoolean("pref_activity_recording", false) // Default OFF
+        _isActivityRecording.value = saved
+        val savedActiveId = prefs.getString("pref_active_app_id", null)
+        if (savedActiveId != null && SUPPORTED_APP_IDS.contains(savedActiveId)) {
+            activeAppId = savedActiveId
+            addLog("[INIT] Loaded active watch App ID: ${savedActiveId.take(8)}...")
+        }
+    }
+
+    fun sendActivityModeSetting(isEnabled: Boolean) {
+        val payload = listOf("set_activity_mode", if (isEnabled) 1 else 0)
+        if (devices.isEmpty()) {
+            devices = connectIQ?.knownDevices ?: emptyList()
+        }
+        val apps = getTargetApps()
+        for (device in devices) {
+            for (app in apps) {
+                try {
+                    connectIQ?.sendMessage(device, app, payload) { _, _, status ->
+                        if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
+                            addLog("[SETTING] Chế độ Activity đã đồng bộ sang đồng hồ: ${if (isEnabled) "BẬT" else "TẮT"}")
+                        }
+                    }
+                } catch (_: Exception) {}
+            }
         }
     }
 

@@ -115,7 +115,56 @@ module CommManager {
 
     // Automatic Activity Session (Garmin OS "During Activity" DND suppression)
     var _session as ActivityRecording.Session? = null;
-    var isAutoActivitySuppression as Boolean = true;
+    var isAutoActivitySuppression as Boolean = false; // Default OFF to save battery
+
+    // Battery Drain Tracking Telemetry
+    var _batteryStartPct as Float = -1.0;
+    var _batteryStartTimeMs as Number = 0;
+    var _lastBatteryReportTimeMs as Number = 0;
+    var _lastReportedBatInt as Number = -1;
+
+    function trackAndReportBattery() as Void {
+        var stats = System.getSystemStats();
+        if (stats == null) { return; }
+        var curBat = stats.battery;
+        var curBatInt = curBat.toNumber();
+        var now = System.getTimer();
+
+        if (_batteryStartPct < 0.0) {
+            _batteryStartPct = curBat;
+            _batteryStartTimeMs = now;
+            _lastBatteryReportTimeMs = now;
+        }
+
+        // Report battery telemetry every 60 seconds OR immediately when integer % drops
+        if (now - _lastBatteryReportTimeMs >= 60000 || curBatInt != _lastReportedBatInt) {
+            _lastBatteryReportTimeMs = now;
+            _lastReportedBatInt = curBatInt;
+            var elapsedSec = (now - _batteryStartTimeMs) / 1000.0;
+            var drainRatePerHour = 0.0;
+            if (elapsedSec >= 45.0) {
+                var drop = _batteryStartPct - curBat;
+                drainRatePerHour = (drop / (elapsedSec / 3600.0));
+            }
+            var isActRunning = (_session != null && _session.isRecording()) ? 1 : 0;
+            try {
+                Communications.transmit(["battery_stat", curBat, drainRatePerHour, isActRunning], null, new PhoneCommListener());
+            } catch (e) {}
+        }
+    }
+
+    function setActivityMode(flag as Boolean) as Void {
+        isAutoActivitySuppression = flag;
+        Application.Storage.setValue("activity_mode", flag);
+        if (flag) {
+            if (isActive) {
+                startActivitySession();
+            }
+        } else {
+            stopActivitySession();
+        }
+        WatchUi.requestUpdate();
+    }
 
     function showToastNotification(app as String, sender as String, msg as String, durSec as Number) as Void {
         toastAppName = app;
@@ -223,6 +272,15 @@ module CommManager {
         isActive    = false;
         mapRleData  = null;
         lastRxTime  = 0;
+
+        // Initialize Activity Mode setting
+        var savedAct = Application.Storage.getValue("activity_mode");
+        isAutoActivitySuppression = (savedAct != null) ? (savedAct as Boolean) : false;
+
+        // Fail-safe: ensure no abandoned session is left draining battery
+        if (!isAutoActivitySuppression) {
+            stopActivitySession();
+        }
     }
 
     function onPhoneMessage(msg as Communications.PhoneAppMessage) as Void {
@@ -233,14 +291,28 @@ module CommManager {
         if (data == null) {
             return;
         }
+        var wasConnected = isConnected();
         rxCount++;
         lastRxTime = System.getTimer();
+        trackAndReportBattery();
         System.println(">>> CommManager parsed data: " + data);
 
         // Keep-Alive Ping packet: ["ping", timestamp]
         if (data instanceof Lang.Array && data.size() >= 1) {
             if (data[0] instanceof Lang.String && data[0].equals("ping")) {
-                WatchUi.requestUpdate();
+                // Only force screen redraw if connection status pill flipped from Ready to Connected
+                if (!wasConnected) {
+                    WatchUi.requestUpdate();
+                }
+                return;
+            }
+        }
+
+        // Set Activity Session Mode from Phone: ["set_activity_mode", 1 or 0]
+        if (data instanceof Lang.Array && data.size() >= 2) {
+            if (data[0] instanceof Lang.String && data[0].equals("set_activity_mode")) {
+                var flag = (data[1] != null && (data[1] as Number) == 1);
+                setActivityMode(flag);
                 return;
             }
         }
