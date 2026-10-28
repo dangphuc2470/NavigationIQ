@@ -22,6 +22,7 @@ class NavigationIQApp extends Application.AppBase {
     }
 
     function onStop(state as Dictionary?) as Void {
+        CommManager.stopActivitySession();
     }
 
     function onPhoneMessage(msg as Communications.PhoneAppMessage) as Void {

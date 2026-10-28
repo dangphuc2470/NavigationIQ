@@ -164,6 +164,7 @@ class NavigationIQSettingsMenu extends WatchUi.Menu2 {
         addItem(new WatchUi.MenuItem("Text Size", presetSub, "menu_text_preset", {}));
 
         addItem(new WatchUi.MenuItem("Preview Mode", "Demo turn navigation", "menu_preview", {}));
+        addItem(new WatchUi.MenuItem("Test Arrival Screen", "Simulate destination arrival", "menu_test_arrived", {}));
 
         var curRot = Storage.getValue("screen_rot");
         if (curRot == null) {
@@ -177,6 +178,12 @@ class NavigationIQSettingsMenu extends WatchUi.Menu2 {
             hapticOn = true;
         }
         addItem(new WatchUi.ToggleMenuItem("Vibration Alert", { :enabled => "On", :disabled => "Off" }, "menu_haptic", hapticOn as Boolean, {}));
+
+        var mapHeadingUp = Storage.getValue("map_heading_up");
+        if (mapHeadingUp == null) {
+            mapHeadingUp = true;
+        }
+        addItem(new WatchUi.ToggleMenuItem("Map Orientation", { :enabled => "Heading Up", :disabled => "North Up" }, "menu_map_orient", mapHeadingUp as Boolean, {}));
     }
 }
 
@@ -201,6 +208,11 @@ class NavigationIQSettingsDelegate extends WatchUi.Menu2InputDelegate {
             if (_view != null) {
                 _view.startPreviewMode();
             }
+        } else if (id.equals("menu_test_arrived")) {
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+            if (_view != null) {
+                _view.startArrivedPreview();
+            }
         } else if (id.equals("menu_rotation")) {
             var curRot = Storage.getValue("screen_rot");
             if (curRot == null) {
@@ -216,6 +228,11 @@ class NavigationIQSettingsDelegate extends WatchUi.Menu2InputDelegate {
             var toggleItem = item as WatchUi.ToggleMenuItem;
             var isEnabled = toggleItem.isEnabled();
             Storage.setValue("haptic_enabled", isEnabled);
+        } else if (id.equals("menu_map_orient")) {
+            var toggleItem = item as WatchUi.ToggleMenuItem;
+            var isHeadingUp = toggleItem.isEnabled();
+            Storage.setValue("map_heading_up", isHeadingUp);
+            CommManager.setMapHeadingUp(isHeadingUp);
         }
     }
 

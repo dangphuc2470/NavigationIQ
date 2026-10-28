@@ -57,11 +57,58 @@ module CommManager {
     var mapRxCount         as Number = 0;
     var lastRxTime         as Number = 0;
 
+    // Vector Route Radar State (Cách 1: Breadcrumbs & Radial Alley Network)
+    var isVectorRouteActive as Boolean = false;
+    var mapHeadingUp       as Boolean = true;
+    var vecOriginLat       as Float = 0.0;
+    var vecOriginLon       as Float = 0.0;
+    var vecPathPoints      as Array<Number>? = null;    // [dx0, dy0, dx1, dy1, ...]
+    var vecAlleySegments   as Array<Number>? = null;    // [x1, y1, x2, y2, ...]
+    var vecDestName        as String = "";
+    var vecTotalDist       as Number = 0;
+    var vecUserDx          as Number = 0;
+    var vecUserDy          as Number = 0;
+    var vecHeading         as Number = 0;
+    var vecSpeedKmh        as Number = 0;
+    var vecNextTurnDist    as Number = 0;
+    var vecNextTurnAngle   as Number = 0;
+    var vecNextStreet      as String = "";
+    var vecStreetLabels    as Array<Object>? = null;    // [name1, x1, y1, name2, x2, y2, ...]
+
+    function isHeadingUp() as Boolean {
+        var saved = Application.Storage.getValue("map_heading_up");
+        if (saved != null) {
+            mapHeadingUp = saved as Boolean;
+        }
+        return mapHeadingUp;
+    }
+
+    function setMapHeadingUp(headingUp as Boolean) as Void {
+        mapHeadingUp = headingUp;
+        Application.Storage.setValue("map_heading_up", headingUp);
+        WatchUi.requestUpdate();
+    }
+
+    function toggleMapOrientation() as Void {
+        setMapHeadingUp(!isHeadingUp());
+    }
+
     // In-App Toast Notification Banner State
     var toastAppName   as String = "";
     var toastSender    as String = "";
     var toastMessage   as String = "";
     var toastExpiry    as Number = 0;
+
+    // Arrival / Destination Reached State
+    var isArrived          as Boolean = false;
+    var arrivedDest        as String = "";
+    var arrivedDuration    as String = "";
+    var arrivedDistance    as String = "";
+    var arrivedAvgSpeed    as String = "";
+    var arrivedStartTime   as String = "";
+    var arrivedEndTime     as String = "";
+    var arrivedTimestamp   as Number = 0;
+    var isArrivedDetail    as Boolean = false;
 
     // Text Size & Layout Preset (0=Balanced, 1=Street Focus, 2=Distance Focus, 3=Large Text)
     var textPreset     as Number = 0;
@@ -121,7 +168,9 @@ module CommManager {
                     _session.stop();
                 }
                 _session.discard();
-            } catch (e) {}
+            } catch (e) {
+                System.println("ERR stopSession: " + e.getErrorMessage());
+            }
             _session = null;
         }
     }
@@ -192,6 +241,73 @@ module CommManager {
         if (data instanceof Lang.Array && data.size() >= 1) {
             if (data[0] instanceof Lang.String && data[0].equals("ping")) {
                 WatchUi.requestUpdate();
+                return;
+            }
+        }
+
+        // 1. Vector Route definition packet:
+        // ["vec_route", originLat, originLon, pathCoords, alleyCoords, destName, totalDist]
+        if (data instanceof Lang.Array && data.size() >= 7) {
+            if (data[0] instanceof Lang.String && data[0].equals("vec_route")) {
+                if (data[1] != null) {
+                    if (data[1] instanceof Lang.Float || data[1] instanceof Lang.Double) {
+                        vecOriginLat = (data[1] as Lang.Float);
+                    } else if (data[1] instanceof Lang.Number) {
+                        vecOriginLat = (data[1] as Lang.Number).toFloat();
+                    }
+                }
+                if (data[2] != null) {
+                    if (data[2] instanceof Lang.Float || data[2] instanceof Lang.Double) {
+                        vecOriginLon = (data[2] as Lang.Float);
+                    } else if (data[2] instanceof Lang.Number) {
+                        vecOriginLon = (data[2] as Lang.Number).toFloat();
+                    }
+                }
+                if (data[3] instanceof Lang.Array) { vecPathPoints = data[3] as Array<Number>; }
+                if (data[4] instanceof Lang.Array) { vecAlleySegments = data[4] as Array<Number>; }
+                if (data[5] != null) { vecDestName = data[5] as String; }
+                if (data[6] != null) { vecTotalDist = data[6] as Number; }
+                if (data.size() >= 8 && data[7] instanceof Lang.Array) {
+                    vecStreetLabels = data[7] as Array<Object>;
+                }
+                isVectorRouteActive = true;
+                isActive = true;
+                lastRxTime = System.getTimer();
+                var app = Application.getApp();
+                if (app has :getMainView) {
+                    var v = app.getMainView();
+                    if (v != null) {
+                        v.switchToMapTab();
+                    }
+                }
+                WatchUi.requestUpdate();
+                return;
+            }
+        }
+
+        // 2. Vector Position & Telemetry packet:
+        // ["vec_pos", userDx, userDy, heading, speed, nextTurnDist, nextTurnAngle, nextStreet]
+        if (data instanceof Lang.Array && data.size() >= 8) {
+            if (data[0] instanceof Lang.String && data[0].equals("vec_pos")) {
+                if (data[1] != null) { vecUserDx = data[1] as Number; }
+                if (data[2] != null) { vecUserDy = data[2] as Number; }
+                if (data[3] != null) { vecHeading = data[3] as Number; }
+                if (data[4] != null) { vecSpeedKmh = data[4] as Number; }
+                if (data[5] != null) { vecNextTurnDist = data[5] as Number; }
+                if (data[6] != null) { vecNextTurnAngle = data[6] as Number; }
+                if (data[7] != null) { vecNextStreet = data[7] as String; }
+                lastRxTime = System.getTimer();
+                WatchUi.requestUpdate();
+                return;
+            }
+        }
+
+        // 3. Set Map Orientation packet:
+        // ["set_map_orientation", isHeadingUp (1 or 0)]
+        if (data instanceof Lang.Array && data.size() >= 2) {
+            if (data[0] instanceof Lang.String && data[0].equals("set_map_orientation")) {
+                var flag = (data[1] != null && (data[1] as Number) == 1);
+                setMapHeadingUp(flag);
                 return;
             }
         }
@@ -273,12 +389,21 @@ module CommManager {
             }
         }
 
+        // Arrived at destination signal: ["arrived", destination, duration, distance, avgSpeed, startTime, endTime]
+        if (data instanceof Lang.Array && data.size() >= 1) {
+            if (data[0] instanceof Lang.String && data[0].equals("arrived")) {
+                _handleArrived(data);
+                WatchUi.requestUpdate();
+                return;
+            }
+        }
+
         // End-of-navigation signal
         if ((data instanceof Lang.Array && data.size() == 1 && data[0] instanceof Lang.String && data[0].equals("naviend")) ||
             (data instanceof Lang.String && data.equals("naviend"))) {
             // If watch is actively showing Destination Reached screen, keep it alive so user can view it!
             // The user can dismiss it anytime by pressing the Back button.
-            if (direction == DIR_ARRIVED) {
+            if (direction == DIR_ARRIVED || isArrived) {
                 stopActivitySession();
                 WatchUi.requestUpdate();
                 return;
@@ -299,12 +424,10 @@ module CommManager {
             // Index 1: eta
             if (navData[1] != null && navData[1] instanceof Lang.String) {
                 etaText = navData[1] as String;
-                try { Application.Storage.setValue("etaText", etaText); } catch (e) {}
             }
             // Index 4: distance
             if (navData[4] != null && navData[4] instanceof Lang.String) {
                 distText = navData[4] as String;
-                try { Application.Storage.setValue("distText", distText); } catch (e) {}
             }
             // Index 5: signs / instruction
             if (navData[5] != null && navData[5] instanceof Lang.String) {
@@ -317,7 +440,6 @@ module CommManager {
                     if (rleBitmap == null) {
                         isWaitingImage = true;
                     }
-                    try { Application.Storage.setValue("navText", navText); } catch (e) {}
                 }
             }
 
@@ -326,6 +448,9 @@ module CommManager {
                     startActivitySession();
                 }
                 isActive = true;
+                if (direction != DIR_ARRIVED) {
+                    isArrived = false;
+                }
             }
         }
 
@@ -349,9 +474,80 @@ module CommManager {
         _checkHaptic();
     }
 
+    // Arrival screen stays until user presses Back or a new navigation route starts
+    function checkArrivedExpiry() as Void {
+        // No auto-dismiss: user stays on arrival summary until manual action
+    }
+
+    function getArrivedRemainingSeconds() as Number {
+        return 0;
+    }
+
+    function dismissArrived() as Void {
+        isArrived = false;
+        direction = DIR_UNKNOWN;
+        _resetNav();
+        WatchUi.requestUpdate();
+    }
+
+    function toggleArrivedDetail() as Void {
+        isArrivedDetail = !isArrivedDetail;
+        WatchUi.requestUpdate();
+    }
+
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
+
+    function _handleArrived(data as Lang.Array) as Void {
+        isArrived = true;
+        isActive = false;
+        isArrivedDetail = false;
+        arrivedTimestamp = System.getTimer();
+        stopActivitySession();
+
+        arrivedDest = (data.size() > 1 && data[1] != null) ? (data[1] as String) : (nextStreet.length() > 0 ? nextStreet : navText);
+        if (arrivedDest.length() == 0) {
+            arrivedDest = "Destination";
+        }
+        arrivedDuration = (data.size() > 2 && data[2] != null) ? (data[2] as String) : "--";
+        arrivedDistance = (data.size() > 3 && data[3] != null) ? (data[3] as String) : "--";
+        arrivedAvgSpeed = (data.size() > 4 && data[4] != null) ? (data[4] as String) : "--";
+        arrivedStartTime = (data.size() > 5 && data[5] != null) ? (data[5] as String) : "";
+        arrivedEndTime = (data.size() > 6 && data[6] != null) ? (data[6] as String) : "";
+
+        _triggerArrivalVibe();
+    }
+
+    function _fallbackToArrived() as Void {
+        isArrived = true;
+        isActive = false;
+        isArrivedDetail = false;
+        arrivedTimestamp = System.getTimer();
+        stopActivitySession();
+
+        arrivedDest = (nextStreet.length() > 0) ? nextStreet : (navText.length() > 0 ? navText : "Destination");
+        arrivedDuration = (etaText.length() > 0) ? etaText : "--";
+        arrivedDistance = (distText.length() > 0) ? distText : "--";
+        arrivedAvgSpeed = "--";
+        arrivedStartTime = "";
+        arrivedEndTime = "";
+
+        _triggerArrivalVibe();
+    }
+
+    function _triggerArrivalVibe() as Void {
+        if (Attention has :vibrate) {
+            try {
+                var vibeData = [
+                    new Attention.VibeProfile(80, 200),
+                    new Attention.VibeProfile(0, 100),
+                    new Attention.VibeProfile(100, 350)
+                ];
+                Attention.vibrate(vibeData);
+            } catch (e) {}
+        }
+    }
 
     function _resetNav() as Void {
         navText     = "";
@@ -362,6 +558,7 @@ module CommManager {
         exitNumber  = 0;
         rleBitmap   = null;
         isActive    = false;
+        isArrived   = false;
         _alertedFar  = false;
         _alertedNear = false;
         toastExpiry = 0;
@@ -378,7 +575,7 @@ module CommManager {
             return "";
         }
         var lower = text.toLower();
-        var markers = ["onto ", "vào ", "lên ", "toward ", "sang ", "hướng ", "on "];
+        var markers = ["onto ", "vào ", "lên ", "toward ", "sang ", "hướng ", "on ", "at ", "tại "];
         for (var i = 0; i < markers.size(); i++) {
             var marker = markers[i];
             var idx = lower.find(marker);
@@ -397,12 +594,16 @@ module CommManager {
         exitNumber = 0;
 
         // 0. Check Arrival / Destination Reached first
-        if (lower.find("arrived") != null || lower.find("arriving") != null || lower.find("arrival") != null ||
-            lower.find("destination") != null || lower.find("reached") != null ||
-            lower.find("đã đến") != null || lower.find("đang đến") != null || lower.find("đích đến") != null ||
-            lower.find("đã tới") != null || lower.find("điểm đến") != null || lower.find("đến nơi") != null ||
-            lower.find("tới nơi") != null) {
+        if (lower.find("arrived at") != null || lower.find("you have arrived") != null ||
+            lower.equals("arrived") || lower.find("arrived ·") != null ||
+            lower.find("bạn đã đến") != null || lower.find("đã đến nơi") != null ||
+            lower.find("đã tới nơi") != null || lower.find("đã đến điểm đến") != null ||
+            lower.find("arriving") != null || lower.find("sắp đến") != null ||
+            lower.find("sắp tới") != null || lower.find("đang đến") != null ||
+            lower.find("đang tới") != null) {
             direction = DIR_ARRIVED;
+            isArrived = true;
+            arrivedTimestamp = System.getTimer();
             // If text contains separator (· or -), extract the destination address into nextStreet
             var dotIdx = text.find("·");
             if (dotIdx != null && dotIdx + 1 < text.length()) {
@@ -421,6 +622,12 @@ module CommManager {
                         nextStreet = cand;
                     }
                 }
+            }
+            // Strip leading "at " or "tại " from nextStreet if present
+            if (nextStreet.length() > 3 && nextStreet.toLower().substring(0, 3).equals("at ")) {
+                nextStreet = nextStreet.substring(3, nextStreet.length());
+            } else if (nextStreet.length() > 4 && nextStreet.toLower().substring(0, 4).equals("tại ")) {
+                nextStreet = nextStreet.substring(4, nextStreet.length());
             }
             return;
         }
@@ -586,7 +793,9 @@ module CommManager {
             ];
         }
 
-        Attention.vibrate(vibeData);
+        try {
+            Attention.vibrate(vibeData);
+        } catch (e) {}
     }
 
     function _parseMeters(distStr as String) as Number {

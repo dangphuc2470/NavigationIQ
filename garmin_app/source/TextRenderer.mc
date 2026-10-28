@@ -103,27 +103,33 @@ class TextRenderer {
         var num = "";
         var unit = "";
         var hitSpace = false;
+        var chars = distStr.toCharArray();
 
-        for (var i = 0; i < distStr.length(); i++) {
-            var ch = distStr.substring(i, i + 1);
-            if (ch.equals(" ")) {
+        for (var i = 0; i < chars.size(); i++) {
+            var c = chars[i];
+            var code = c.toNumber();
+
+            // Treat standard space (32), non-breaking space (160), narrow NBSP (8239), tab (9), newline (10/13) as spaces
+            var isSpace = (code == 32 || code == 160 || code == 8239 || code == 9 || code == 10 || code == 13);
+            if (isSpace) {
                 if (num.length() > 0) {
                     hitSpace = true;
                 }
                 continue;
             }
 
-            var isDigit = (ch.equals("0") || ch.equals("1") || ch.equals("2") || ch.equals("3") ||
-                           ch.equals("4") || ch.equals("5") || ch.equals("6") || ch.equals("7") ||
-                           ch.equals("8") || ch.equals("9") || ch.equals(".") || ch.equals(","));
+            // Digits 0-9, dot (46), comma (44)
+            var isDigit = ((code >= 48 && code <= 57) || code == 46 || code == 44);
 
             if (isDigit && !hitSpace) {
-                num = num + ch;
+                num = num + c.toString();
             } else {
                 hitSpace = true;
-                unit = unit + ch;
+                unit = unit + c.toString();
             }
         }
+
+        unit = trim(unit);
 
         if (num.length() == 0 && unit.length() > 0) {
             num = unit;
@@ -142,21 +148,42 @@ class TextRenderer {
         return [num, unit] as Array<String>;
     }
 
+    public static function hasAlpha(str as String) as Boolean {
+        var chars = str.toCharArray();
+        for (var i = 0; i < chars.size(); i++) {
+            var code = chars[i].toNumber();
+            if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static function trim(str as String) as String {
         var len = str.length();
         if (len == 0) {
             return str;
         }
         var start = 0;
-        while (start < len && str.substring(start, start + 1).equals(" ")) {
-            start++;
+        while (start < len) {
+            var code = str.substring(start, start + 1).toCharArray()[0].toNumber();
+            if (code == 32 || code == 160 || code == 8239 || code == 9 || code == 10 || code == 13) {
+                start++;
+            } else {
+                break;
+            }
         }
         if (start == len) {
             return "";
         }
         var end = len;
-        while (end > start && str.substring(end - 1, end).equals(" ")) {
-            end--;
+        while (end > start) {
+            var code = str.substring(end - 1, end).toCharArray()[0].toNumber();
+            if (code == 32 || code == 160 || code == 8239 || code == 9 || code == 10 || code == 13) {
+                end--;
+            } else {
+                break;
+            }
         }
         return str.substring(start, end);
     }
