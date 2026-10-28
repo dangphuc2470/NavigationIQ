@@ -58,6 +58,7 @@ class NavNotificationService : NotificationListenerService() {
 
         private val _lastTripSummary = MutableStateFlow<com.phucdnh.navigationiq.model.TripSummary?>(null)
         val lastTripSummary = _lastTripSummary.asStateFlow()
+        val lastTripSummaryFlow get() = lastTripSummary
 
         fun setSimulatedTripSummary(summary: com.phucdnh.navigationiq.model.TripSummary?) {
             _lastTripSummary.value = summary

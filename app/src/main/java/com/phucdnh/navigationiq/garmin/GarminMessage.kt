@@ -17,6 +17,8 @@ class GarminMessage {
     var bitmapData: List<Int> = emptyList()
     var imageHash: String = ""
     var isNaviEnd: Boolean = false
+    var isArrived: Boolean = false
+    var tripSummary: com.phucdnh.navigationiq.model.TripSummary? = null
 
     constructor() {
         isNaviEnd = true
@@ -58,7 +60,7 @@ class GarminMessage {
     }
 
     fun isEmpty(): Boolean {
-        return !isNaviEnd &&
+        return !isNaviEnd && !isArrived &&
                 isAllNulls(settings) &&
                 isAllNulls(navigation) &&
                 bitmapData.isEmpty() &&
@@ -66,6 +68,18 @@ class GarminMessage {
     }
 
     fun toDataPayload(): List<Any?> {
+        if (isArrived && tripSummary != null) {
+            val s = tripSummary!!
+            return listOf(
+                "arrived",
+                s.destination,
+                s.duration,
+                s.distance,
+                s.avgSpeed,
+                s.startTime,
+                s.endTime
+            )
+        }
         if (isNaviEnd) {
             return listOf("naviend")
         }
@@ -83,6 +97,14 @@ class GarminMessage {
     }
 
     companion object {
+        fun createArrivedMessage(summary: com.phucdnh.navigationiq.model.TripSummary): GarminMessage {
+            return GarminMessage().apply {
+                isNaviEnd = false
+                isArrived = true
+                tripSummary = summary
+            }
+        }
+
         fun getDataHash(list: List<Int>): String {
             if (list.isEmpty()) return ""
             val buffer = ByteBuffer.allocate(list.size * 4)

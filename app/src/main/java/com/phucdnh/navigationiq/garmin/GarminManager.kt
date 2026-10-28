@@ -680,6 +680,8 @@ object GarminManager {
         }
     }
 
+    private var lastPromptTime = 0L
+
     fun promptOpenWatchApp(device: IQDevice, app: IQApp) {
         val now = System.currentTimeMillis()
         // Never prompt if watch app is already alive or was communicating recently

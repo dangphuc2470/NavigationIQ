@@ -179,7 +179,7 @@ enum class AppPage(
     val headerSubtitleVi: String,
     val icon: ImageVector
 ) {
-    COCKPIT(
+    DASHBOARD(
         titleEn = "Navigation",
         titleVi = "Điều hướng",
         headerTitleEn = "Dashboard",
@@ -251,7 +251,7 @@ fun MainScreen() {
     var currentLanguage by remember { mutableStateOf(if (savedLangCode == "vi") AppLanguage.VI else AppLanguage.EN) }
     val isVi = currentLanguage == AppLanguage.VI
 
-    var activePage by remember { mutableStateOf(AppPage.COCKPIT) }
+    var activePage by remember { mutableStateOf(AppPage.DASHBOARD) }
     val pagerState = rememberPagerState(
         initialPage = activePage.ordinal,
         pageCount = { AppPage.entries.size }
@@ -358,7 +358,7 @@ fun MainScreen() {
                             .weight(1f)
                     ) { pageIndex ->
                         when (AppPage.entries[pageIndex]) {
-                            AppPage.COCKPIT -> CockpitPage(
+                            AppPage.DASHBOARD -> DashboardPage(
                                 effectiveNavInfo = effectiveNavInfo,
                                 isLiveFromMaps = isLiveFromMaps,
                                 isHeartbeatLive = isHeartbeatLive,
@@ -817,22 +817,22 @@ private val QuickSimulationPresets = listOf(
         progress = 82
     ),
     SimulatedRoutePreset(
-        labelEn = "Arrival • Destination",
-        labelVi = "Đến nơi • Đích đến",
-        subtitleEn = "123 Nguyen Thi Minh Khai, Q.1",
-        subtitleVi = "123 Nguyễn Thị Minh Khai, Q.1",
-        distance = "22 m",
-        signsEn = "Arrived · 123 Nguyen Thi Minh Khai, Q.1",
-        signsVi = "Bạn đã đến nơi · 123 Nguyễn Thị Minh Khai, Q.1",
-        eta = "--:--",
-        duration = "0 min",
-        length = "0 km",
+        labelEn = "Arrived",
+        labelVi = "Đến nơi",
+        subtitleEn = "Lotte Mart",
+        subtitleVi = "Lotte Mart",
+        distance = "0 m",
+        signsEn = "Arrived · Lotte Mart",
+        signsVi = "Đã đến · Lotte Mart",
+        eta = "17:45",
+        duration = "22 min",
+        length = "8.4 km",
         progress = 100
     )
 )
 
 @Composable
-fun CockpitPage(
+fun DashboardPage(
     effectiveNavInfo: NavigationInfo?,
     isLiveFromMaps: Boolean = false,
     isHeartbeatLive: Boolean,
@@ -850,6 +850,7 @@ fun CockpitPage(
     val context = LocalContext.current
     val p = LocalApplePalette.current
     var alerts by remember { mutableStateOf(false) }
+    val lastTripSummary by com.phucdnh.navigationiq.service.NavNotificationService.lastTripSummaryFlow.collectAsState()
     fun send(preset: SimulatedRoutePreset) {
         onSendSimulation(NavigationInfo(isPublicTransport = true, units = "km", eta = preset.eta,
             length = preset.length, duration = preset.duration, distance = preset.distance,
@@ -857,6 +858,38 @@ fun CockpitPage(
     }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 112.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        if (lastTripSummary != null) item {
+            ExpressivePanel {
+                Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(34.dp).background(p.pillTrack, CircleShape), contentAlignment = Alignment.Center) {
+                            Icon(Icons.Default.Check, null, tint = p.blue, modifier = Modifier.size(20.dp))
+                        }
+                        Spacer(Modifier.width(10.dp))
+                        Text(if (isVi) "ĐÃ ĐẾN ĐIỂM ĐẾN" else "ARRIVED AT DESTINATION", Modifier.weight(1f), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = p.blue)
+                        IconButton(onClick = { com.phucdnh.navigationiq.service.NavNotificationService.setSimulatedTripSummary(null) }, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Default.Close, "Dismiss", tint = p.textSecondary, modifier = Modifier.size(18.dp))
+                        }
+                    }
+                    Text(lastTripSummary!!.destination, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = p.textPrimary)
+                    HorizontalDivider(color = p.separator)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Column {
+                            Text(if (isVi) "THỜI GIAN" else "TIME", fontSize = 10.sp, color = p.textSecondary, fontWeight = FontWeight.Bold)
+                            Text(lastTripSummary!!.duration, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = p.blue)
+                        }
+                        Column {
+                            Text(if (isVi) "QUÃNG ĐƯỜNG" else "DISTANCE", fontSize = 10.sp, color = p.textSecondary, fontWeight = FontWeight.Bold)
+                            Text(lastTripSummary!!.distance, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = p.textPrimary)
+                        }
+                        Column {
+                            Text(if (isVi) "TỐC ĐỘ TB" else "AVG SPEED", fontSize = 10.sp, color = p.textSecondary, fontWeight = FontWeight.Bold)
+                            Text(lastTripSummary!!.avgSpeed, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = p.textPrimary)
+                        }
+                    }
+                }
+            }
+        }
         if (!isNotificationGranted || !isBatteryOptIgnored) item {
             Surface(onClick = {
                 if (!isNotificationGranted) context.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
@@ -982,7 +1015,23 @@ fun CockpitPage(
                         } else {
                             listOf("City route", "Highway route", "Roundabout", "Arrival")[index]
                         }
-                        ExpressiveRouteRow(routeIcon, routeTitle, if (isVi) preset.subtitleVi else preset.subtitleEn) { send(preset) }
+                        ExpressiveRouteRow(routeIcon, routeTitle, if (isVi) preset.subtitleVi else preset.subtitleEn) {
+                            if (index == 3) {
+                                val mockSummary = com.phucdnh.navigationiq.model.TripSummary(
+                                    destination = "Lotte Mart",
+                                    duration = "22m",
+                                    distance = "8.4 km",
+                                    avgSpeed = "26 km/h",
+                                    startTime = "17:23",
+                                    endTime = "17:45"
+                                )
+                                com.phucdnh.navigationiq.service.NavNotificationService.setSimulatedTripSummary(mockSummary)
+                                com.phucdnh.navigationiq.garmin.GarminManager.sendNavigationArrived(context, mockSummary)
+                                send(preset)
+                            } else {
+                                send(preset)
+                            }
+                        }
                     }
                 }
             }
