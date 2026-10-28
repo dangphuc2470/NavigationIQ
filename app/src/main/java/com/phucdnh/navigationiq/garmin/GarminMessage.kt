@@ -22,7 +22,7 @@ class GarminMessage {
         isNaviEnd = true
     }
 
-    constructor(context: Context, info: NavigationInfo, cache: SentDataCache) {
+    constructor(context: Context, info: NavigationInfo, cache: SentDataCache, forceFullSync: Boolean = false) {
         isNaviEnd = false
         val defaultSettings = listOf(
             1, // isPremium
@@ -46,12 +46,13 @@ class GarminMessage {
             -257, // timeColor
             -257  // speedColor
         )
-        settings = cache.diffSettings(defaultSettings)
-        navigation = cache.diffNavigation(info.getDirectionStrings(context, true))
+        settings = if (forceFullSync) defaultSettings else cache.diffSettings(defaultSettings)
+        val rawNav = info.getDirectionStrings(context, true)
+        navigation = if (forceFullSync) rawNav else cache.diffNavigation(rawNav)
 
         val rleBytes = info.getRleBytes(context, -257, 56, 56)
         val currentHash = getDataHash(rleBytes)
-        val hasImageChanged = cache.hasImageChanged(currentHash)
+        val hasImageChanged = forceFullSync || cache.hasImageChanged(currentHash)
         bitmapData = if (hasImageChanged && rleBytes.isNotEmpty()) rleBytes else emptyList()
         imageHash = if (hasImageChanged) currentHash else ""
     }

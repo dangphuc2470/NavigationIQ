@@ -92,9 +92,30 @@ object GarminManager {
     var isAppFound = false; private set
     var isWatchAppAlive = false; private set
 
+    @Volatile
+    var isNavigating = false
+        private set
+
+    @Volatile
+    private var activeAppId: String? = null
+
     init {
-        for (appId in SUPPORTED_APP_IDS) {
-            registeredApps[appId] = IQApp(appId)
+        for (id in SUPPORTED_APP_IDS) {
+            registeredApps[id] = IQApp(id)
+        }
+    }
+
+    /**
+     * Resolves target apps installed on the watch.
+     * Prioritizes the active app that responded to avoid duplicate/blocking transmissions.
+     */
+    fun getTargetApps(): List<IQApp> {
+        val currentActive = activeAppId
+        if (currentActive != null && registeredApps.containsKey(currentActive)) {
+            return listOf(registeredApps[currentActive]!!)
+        }
+        return registeredApps.values.toList().ifEmpty {
+            SUPPORTED_APP_IDS.map { IQApp(it) }
         }
     }
 
@@ -244,16 +265,19 @@ object GarminManager {
         }
     }
 
+    private const val SEND_TIMEOUT_MS = 400L
+
     @Volatile
     private var isSending = false
     @Volatile
     private var latestPendingInfo: NavigationInfo? = null
     @Volatile
     private var sendStartTime = 0L
+
     private val sendTimeoutHandler = Handler(Looper.getMainLooper())
     private val timeoutRunnable = Runnable {
         if (isSending) {
-            addLog("[WARN] Send timeout (2.5s) – forcing unlock & dispatching latest")
+            addLog("[WARN] Send timeout (${SEND_TIMEOUT_MS}ms) – forcing unlock & dispatching latest")
             isSending = false
             latestPendingInfo?.let {
                 dispatchLatest(appContext ?: return@Runnable)
@@ -266,6 +290,8 @@ object GarminManager {
     fun sendNavigationInfo(context: Context, info: NavigationInfo) {
         appContext = context.applicationContext
         latestPendingInfo = info
+        isNavigating = true
+
         if (isMapMode) {
             // Map tab is active on Garmin watch: pause detailed HUD transmission to prioritize map bandwidth
             return
@@ -278,8 +304,8 @@ object GarminManager {
         }
 
         if (isSending) {
-            // If currently sending, check if send has timed out (>2500ms)
-            if (System.currentTimeMillis() - sendStartTime > 2500) {
+            // UDP style: if previous send is stuck beyond threshold, force unlock and dispatch latest immediately
+            if (System.currentTimeMillis() - sendStartTime > SEND_TIMEOUT_MS) {
                 sendTimeoutHandler.removeCallbacks(timeoutRunnable)
                 isSending = false
                 dispatchLatest(context)
@@ -298,7 +324,7 @@ object GarminManager {
         sendStartTime = System.currentTimeMillis()
 
         sendTimeoutHandler.removeCallbacks(timeoutRunnable)
-        sendTimeoutHandler.postDelayed(timeoutRunnable, 2500)
+        sendTimeoutHandler.postDelayed(timeoutRunnable, SEND_TIMEOUT_MS)
 
         // Refresh devices list if empty
         if (devices.isEmpty()) {
@@ -324,8 +350,9 @@ object GarminManager {
         }
 
         val targetApps = mutableListOf<Pair<IQDevice, IQApp>>()
+        val apps = getTargetApps()
         for (device in devices) {
-            for (app in registeredApps.values) {
+            for (app in apps) {
                 targetApps.add(device to app)
             }
         }
@@ -341,12 +368,30 @@ object GarminManager {
         }
 
         var completedCount = 0
+        var anySuccess = false
+        var isUnlocked = false
         for ((device, app) in targetApps) {
-            sendMessage(context, device, app, message) {
+            sendMessage(context, device, app, message) { success ->
+                if (success) {
+                    anySuccess = true
+                    activeAppId = app.applicationId
+                }
                 completedCount++
-                if (completedCount >= targetApps.size) {
+                // UDP mode: Immediately unlock as soon as active app succeeds, or all finished
+                if (!isUnlocked && (anySuccess || completedCount >= targetApps.size)) {
+                    isUnlocked = true
                     sendTimeoutHandler.removeCallbacks(timeoutRunnable)
                     isSending = false
+                    if (anySuccess) {
+                        failedCount = 0
+                    } else {
+                        failedCount++
+                        if (failedCount >= 10) {
+                            addLog("[WARN] Consecutive failures across all watch apps – restarting connection")
+                            failedCount = 0
+                            restartConnection(context)
+                        }
+                    }
                     // If a newer update arrived during transmission, send it immediately
                     if (latestPendingInfo != null) {
                         dispatchLatest(context)
@@ -359,10 +404,12 @@ object GarminManager {
     }
 
     fun sendNavigationEnd(context: Context) {
+        isNavigating = false
         latestPendingInfo = null
         val endMsg = GarminMessage()
+        val apps = getTargetApps()
         for (device in devices) {
-            for (app in registeredApps.values) {
+            for (app in apps) {
                 sendMessage(context, device, app, endMsg)
             }
         }
@@ -370,6 +417,19 @@ object GarminManager {
         addLog("[SEND] Navigation ended (naviend)")
     }
 
+    fun sendNavigationArrived(context: Context, summary: com.phucdnh.navigationiq.model.TripSummary) {
+        isNavigating = false
+        latestPendingInfo = null
+        val arrivedMsg = GarminMessage.createArrivedMessage(summary)
+        val apps = getTargetApps()
+        for (device in devices) {
+            for (app in apps) {
+                sendMessage(context, device, app, arrivedMsg)
+            }
+        }
+        cache.reset()
+        addLog("[SEND] Navigation arrived: ${summary.destination} | ${summary.duration} | ${summary.distance} | ${summary.avgSpeed}")
+    }
     // -------------------------------------------------------------------------
     // Internal helpers
     // -------------------------------------------------------------------------
@@ -406,7 +466,10 @@ object GarminManager {
                     }
                 }
                 override fun onApplicationNotInstalled(id: String?) {
-                    // Normal if only one of the two apps is installed
+                    if (id != null) {
+                        registeredApps.remove(id)
+                        if (activeAppId == id) activeAppId = null
+                    }
                 }
             })
             registeredApps[appId]?.let { registerAppEvents(device, it) }
@@ -420,6 +483,7 @@ object GarminManager {
     private fun registerAppEvents(device: IQDevice, app: IQApp) {
         connectIQ?.registerForAppEvents(device, app) { _, _, messages, _ ->
             if (messages.isNullOrEmpty()) return@registerForAppEvents
+            activeAppId = app.applicationId
             lastWatchRxTime = System.currentTimeMillis()
             _isHeartbeatLive.value = true
             _isWatchFound.value = true
@@ -479,7 +543,8 @@ object GarminManager {
                 val now = System.currentTimeMillis()
                 val isAlive = (now - lastWatchRxTime < 25_000L && lastWatchRxTime > 0L)
                 _isHeartbeatLive.value = isAlive
-                if (!isMapMode && latestPendingInfo == null && isSdkReady) {
+                // Only send ping if there is an active navigation or watch app is alive
+                if (!isMapMode && latestPendingInfo == null && isSdkReady && (isNavigating || isAlive)) {
                     sendPing()
                 }
                 // When watch app is actively replying, ping every 15s. When idle, ping every 30s to conserve battery and avoid OS kill.
@@ -500,8 +565,9 @@ object GarminManager {
             }
         }
         val payload = listOf("ping", System.currentTimeMillis())
+        val apps = getTargetApps()
         for (device in devices) {
-            for (app in registeredApps.values) {
+            for (app in apps) {
                 try {
                     connectIQ?.sendMessage(device, app, payload) { _, _, status ->
                         if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
@@ -574,8 +640,9 @@ object GarminManager {
         if (devices.isEmpty()) {
             devices = connectIQ?.knownDevices ?: emptyList()
         }
+        val apps = getTargetApps()
         for (device in devices) {
-            for (app in registeredApps.values) {
+            for (app in apps) {
                 try {
                     connectIQ?.sendMessage(device, app, payload) { _, _, status ->
                         if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
@@ -597,8 +664,9 @@ object GarminManager {
         if (devices.isEmpty()) {
             devices = connectIQ?.knownDevices ?: emptyList()
         }
+        val apps = getTargetApps()
         for (device in devices) {
-            for (app in registeredApps.values) {
+            for (app in apps) {
                 try {
                     connectIQ?.sendMessage(device, app, payload) { _, _, status ->
                         if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
@@ -612,11 +680,13 @@ object GarminManager {
         }
     }
 
-    private var lastPromptTime = 0L
-
     fun promptOpenWatchApp(device: IQDevice, app: IQApp) {
         val now = System.currentTimeMillis()
-        if (now - lastPromptTime < 8_000) return // Throttled to avoid prompt spam
+        // Never prompt if watch app is already alive or was communicating recently
+        if (isWatchAppAlive || (now - lastWatchRxTime < 30_000L && lastWatchRxTime > 0L)) {
+            return
+        }
+        if (now - lastPromptTime < 15_000L) return // Throttled to avoid prompt spam
         lastPromptTime = now
         try {
             connectIQ?.openApplication(device, app) { _, _, status ->
@@ -637,8 +707,9 @@ object GarminManager {
         }
         val payload = listOf("set_text_preset", presetId)
         var anyDispatched = false
+        val apps = getTargetApps()
         for (device in devices) {
-            for (app in registeredApps.values) {
+            for (app in apps) {
                 try {
                     connectIQ?.sendMessage(device, app, payload) { _, _, status ->
                         val success = (status == ConnectIQ.IQMessageStatus.SUCCESS)
@@ -672,8 +743,9 @@ object GarminManager {
         }
         val payload = listOf("set_layout_profile", profileId)
         var anyDispatched = false
+        val apps = getTargetApps()
         for (device in devices) {
-            for (app in registeredApps.values) {
+            for (app in apps) {
                 try {
                     connectIQ?.sendMessage(device, app, payload) { _, _, status ->
                         val success = (status == ConnectIQ.IQMessageStatus.SUCCESS)
@@ -697,28 +769,23 @@ object GarminManager {
         }
     }
 
-    private fun sendMessage(context: Context, device: IQDevice, app: IQApp, message: GarminMessage, onComplete: (() -> Unit)? = null) {
+    private fun sendMessage(context: Context, device: IQDevice, app: IQApp, message: GarminMessage, onComplete: ((Boolean) -> Unit)? = null) {
         try {
             connectIQ?.sendMessage(device, app, message.toDataPayload()) { _, _, status ->
-                if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
-                    failedCount = 0
+                val success = (status == ConnectIQ.IQMessageStatus.SUCCESS)
+                if (success) {
+                    lastWatchRxTime = System.currentTimeMillis()
+                    _isHeartbeatLive.value = true
+                    _isWatchFound.value = true
                 } else {
-                    failedCount++
                     addLog("[FAIL] Send to ${app.applicationId.take(8)}...: $status")
-                    // If watch app is not opened yet, trigger Garmin system prompt to open app
-                    promptOpenWatchApp(device, app)
-                    if (failedCount >= 10) {
-                        addLog("[WARN] Consecutive failures – restarting connection")
-                        failedCount = 0
-                        restartConnection(context)
-                    }
                 }
-                onComplete?.invoke()
+                onComplete?.invoke(success)
             }
         } catch (e: Exception) {
             addLog("[ERR] sendMessage: ${e.message}")
             Log.e(TAG, "sendMessage: ${e.message}")
-            onComplete?.invoke()
+            onComplete?.invoke(false)
         }
     }
 
