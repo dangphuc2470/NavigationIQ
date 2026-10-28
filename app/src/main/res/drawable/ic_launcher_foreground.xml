@@ -4,20 +4,19 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Navigation Arrowhead (Left Wing - Deep Forest Green) -->
+    <!-- Modern Navigation Arrow (Left Wing - Deep Forest Green) -->
     <path
         android:fillColor="#1B4332"
-        android:pathData="M 54,28 L 33,73 L 54,61.5 Z" />
+        android:pathData="M 54,34.59 Q 54,27.16 47.35,42.02 L 36.77,65.67 Q 31.56,77.32 42.75,71.18 L 45.13,69.87 Q 54,65.00 54,67.44 Z" />
 
-    <!-- Navigation Arrowhead (Right Wing - Vivid Mint Emerald) -->
+    <!-- Modern Navigation Arrow (Right Wing - Vivid Mint Emerald) -->
     <path
         android:fillColor="#10B981"
-        android:pathData="M 54,28 L 54,61.5 L 75,73 Z" />
+        android:pathData="M 54,34.59 Q 54,27.16 60.65,42.02 L 71.23,65.67 Q 76.44,77.32 65.25,71.18 L 62.87,69.87 Q 54,65.00 54,67.44 Z" />
 
-    <!-- Center Spine Divider -->
+    <!-- Center White Spine Divider (Crisp, solid white as in original) -->
     <path
         android:strokeColor="#FFFFFF"
-        android:strokeWidth="0.6"
-        android:strokeAlpha="0.7"
-        android:pathData="M 54,28 L 54,61.5" />
+        android:strokeWidth="1.6"
+        android:pathData="M 54,34.59 L 54,67.44" />
 </vector>

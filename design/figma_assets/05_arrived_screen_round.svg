@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 454 454" width="454" height="454">
+  <defs>
+    <!-- Soft, Moody Mint Ambient Radial Glow behind the compact graphite disc -->
+    <radialGradient id="moodyAmbientGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4EE49B" stop-opacity="0.32"/>
+      <stop offset="46%" stop-color="#4EE49B" stop-opacity="0.26"/>
+      <stop offset="65%" stop-color="#2D9665" stop-opacity="0.12"/>
+      <stop offset="85%" stop-color="#124028" stop-opacity="0.03"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Top Status Capsule Frosted Glass -->
+    <linearGradient id="topCapsuleGlass" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#222B36" stop-opacity="0.88"/>
+      <stop offset="100%" stop-color="#141822" stop-opacity="0.94"/>
+    </linearGradient>
+
+    <!-- Bottom Telemetry Card Frosted Glass -->
+    <linearGradient id="bottomCardGlass" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1B222E" stop-opacity="0.90"/>
+      <stop offset="100%" stop-color="#0E131A" stop-opacity="0.96"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+    .sf-bold { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif; font-weight: 700; }
+    .sf-semibold { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif; font-weight: 600; }
+    .sf-regular { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; font-weight: 400; }
+  </style>
+
+  <!-- 1. Pure Pitch-Black AMOLED Screen Background -->
+  <rect width="454" height="454" fill="#000000"/>
+
+  <!-- 2. Soft Ambient Mint Aura (Compact & Refined) -->
+  <circle cx="227" cy="142" r="88" fill="url(#moodyAmbientGlow)"/>
+
+  <!-- 3. Top Status Capsule Pill (Arrived - Compact without countdown) -->
+  <g id="Top_Status_Pill" transform="translate(169, 36)">
+    <rect width="116" height="34" rx="17" fill="url(#topCapsuleGlass)" stroke="#323C4C" stroke-width="1.2"/>
+    <path d="M 18 17 L 22.5 21.5 L 32 12" fill="none" stroke="#4EE49B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="39" y="22" class="sf-semibold" font-size="14.5" fill="#FFFFFF" letter-spacing="-0.2">Arrived</text>
+  </g>
+
+  <!-- 4. Central Solid Slate-Graphite Disc & Symmetric Aerodynamic Arrow -->
+  <g id="Center_Navigation_Pod">
+    <!-- Solid Dark Slate-Graphite Disc (Radius 40px) -->
+    <circle cx="227" cy="138" r="40" fill="#1C212B"/>
+
+    <!-- Perfectly Symmetric Aerodynamic Chevron (35 deg tilt) -->
+    <g id="Navigation_Arrow" transform="translate(227, 138)">
+      <polygon points="12,-18 4,23 -5,7 -23,4"
+               fill="#4EE49B"
+               stroke="#4EE49B"
+               stroke-width="2"
+               stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <!-- 5. Headline & Enhanced High-Glance Address Typography -->
+  <!-- Centered symmetrically between pod bottom and card top -->
+  <g id="Typography_Content">
+    <text x="227" y="204" text-anchor="middle" class="sf-semibold" font-size="17" fill="#7D8B9B" letter-spacing="-0.2">Destination Reached</text>
+    
+    <!-- Street name & District: Crisp White #FFFFFF, bold, identical size -->
+    <text x="227" y="236" text-anchor="middle" class="sf-bold" font-size="22" fill="#FFFFFF" letter-spacing="-0.3">123 Nguyen Thi Minh Khai</text>
+    <text x="227" y="264" text-anchor="middle" class="sf-bold" font-size="22" fill="#FFFFFF" letter-spacing="-0.3">Q.1</text>
+  </g>
+
+  <!-- 6. Apple Watch Workout 3-Column Telemetry Card -->
+  <!-- Shifted slightly up so it stays well clear of the round watch bezel curvature -->
+  <g id="Telemetry_Pill_Card" transform="translate(72, 302)">
+    <rect width="310" height="70" rx="35" fill="url(#bottomCardGlass)" stroke="#27313E" stroke-width="1.2"/>
+    
+    <!-- Hairline Vertical Dividers -->
+    <line x1="105" y1="14" x2="105" y2="56" stroke="#222C3A" stroke-width="1.2"/>
+    <line x1="210" y1="14" x2="210" y2="56" stroke="#222C3A" stroke-width="1.2"/>
+
+    <!-- Column 1: TIME (22m) -->
+    <g id="Col_Time">
+      <text x="52" y="37" text-anchor="middle" class="sf-bold" font-size="22" fill="#4EE49B">22<tspan font-size="15" font-family="-apple-system, sans-serif">m</tspan></text>
+      <text x="52" y="55" text-anchor="middle" class="sf-semibold" font-size="10.5" fill="#4EE49B" letter-spacing="0.8">TIME</text>
+    </g>
+
+    <!-- Column 2: DISTANCE (8.4 km) -->
+    <g id="Col_Distance">
+      <text x="157" y="37" text-anchor="middle" class="sf-bold" font-size="22" fill="#FFFFFF">8.4<tspan font-size="14" font-family="-apple-system, sans-serif">km</tspan></text>
+      <text x="157" y="55" text-anchor="middle" class="sf-semibold" font-size="10.5" fill="#758498" letter-spacing="0.8">DIST</text>
+    </g>
+
+    <!-- Column 3: AVG SPEED (26 km/h) -->
+    <g id="Col_Speed">
+      <text x="262" y="37" text-anchor="middle" class="sf-bold" font-size="22" fill="#FFFFFF">26<tspan font-size="14" font-family="-apple-system, sans-serif">km/h</tspan></text>
+      <text x="262" y="55" text-anchor="middle" class="sf-semibold" font-size="10.5" fill="#758498" letter-spacing="0.8">SPEED</text>
+    </g>
+  </g>
+</svg>

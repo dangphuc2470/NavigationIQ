@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 454 454" width="454" height="454">
+  <defs>
+    <!-- Soft Ambient Radial Glow behind the compact graphite disc -->
+    <radialGradient id="ambientGlowInit" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4EE49B" stop-opacity="0.32"/>
+      <stop offset="46%" stop-color="#4EE49B" stop-opacity="0.26"/>
+      <stop offset="65%" stop-color="#2D9665" stop-opacity="0.12"/>
+      <stop offset="85%" stop-color="#124028" stop-opacity="0.03"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Glass Pill Gradient -->
+    <linearGradient id="pillGlass" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#222B36" stop-opacity="0.88"/>
+      <stop offset="100%" stop-color="#141822" stop-opacity="0.94"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+    .sf-bold { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif; font-weight: 700; }
+    .sf-semibold { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif; font-weight: 600; }
+    .sf-regular { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; font-weight: 400; }
+  </style>
+
+  <!-- 1. Pure Pitch-Black AMOLED Screen Background -->
+  <rect width="454" height="454" fill="#000000"/>
+
+  <!-- 2. Ambient Mint Aura (Compact & Refined) -->
+  <circle cx="227" cy="142" r="88" fill="url(#ambientGlowInit)"/>
+
+  <!-- 3. Top Status Pill (Ready) -->
+  <g id="Status_Pill" transform="translate(162, 38)">
+    <rect width="130" height="38" rx="19" fill="url(#pillGlass)" stroke="#323C4C" stroke-width="1.2"/>
+    <!-- Glowing Status Dot -->
+    <circle cx="33" cy="19" r="4.5" fill="#4EE49B"/>
+    <circle cx="33" cy="19" r="7.5" fill="#4EE49B" fill-opacity="0.25"/>
+    <!-- Text -->
+    <text x="49" y="24.5" class="sf-semibold" font-size="15.5" fill="#FFFFFF" letter-spacing="-0.2">Ready</text>
+  </g>
+
+  <!-- 4. Central Solid Slate-Graphite Disc & Straight-Up Aerodynamic Arrow -->
+  <g id="Center_Navigation_Pod">
+    <!-- Solid Graphite Grey Circle (Radius 42px) -->
+    <circle cx="227" cy="142" r="42" fill="#1C212B"/>
+    
+    <!-- Perfectly Centered Aerodynamic Navigation Arrow (Pointing Straight Forward) -->
+    <g id="Navigation_Arrow" transform="translate(227, 142) scale(0.8)">
+      <path d="M 0 -25
+               C 1.5 -27 3.5 -27 5 -25
+               L 22 18
+               C 23.8 21.2 21.2 24.5 17.5 23.5
+               L 0 13
+               L -17.5 23.5
+               C -21.2 24.5 -23.8 21.2 -22 18
+               Z" 
+            fill="#4EE49B"
+            stroke="#4EE49B"
+            stroke-width="3"
+            stroke-linejoin="round"
+            stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- 5. Headline & Secondary Subtitle Typography -->
+  <g id="Typography_Content">
+    <!-- Main Headline: bold, crisp white -->
+    <text x="227" y="234" text-anchor="middle" class="sf-bold" font-size="28" fill="#FFFFFF" letter-spacing="-0.5">Navigation IQ</text>
+    <!-- Secondary Status: subtle, elegant muted slate, not competing with headline -->
+    <text x="227" y="264" text-anchor="middle" class="sf-regular" font-size="16" fill="#8C98A9" letter-spacing="-0.1">Waiting for navigation</text>
+  </g>
+
+  <!-- 6. Bottom Clock Pill (21:29) -->
+  <g id="Clock_Pill" transform="translate(172, 332)">
+    <rect width="110" height="44" rx="22" fill="url(#pillGlass)" stroke="#27313E" stroke-width="1.2"/>
+    <text x="55" y="28" text-anchor="middle" class="sf-semibold" font-size="19" fill="#FFFFFF" letter-spacing="0.2">21:29</text>
+  </g>
+</svg>

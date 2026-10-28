@@ -29,13 +29,13 @@ CONFIGS = {
     "beta": {
         "name": "Beta Edition",
         "app_id": "e24767ea-b254-4f25-9391-ff4c409a037c",
-        "output_iq": os.path.join(GARMIN_DIR, "NavigationIQ_Beta.iq"),
+        "output_iq": os.path.join(BIN_DIR, "NavigationIQ_Beta_v1.0.13.iq"),
         "description": "Garmin Connect IQ Store - Beta Testers Channel",
     },
     "release": {
         "name": "Official Release Edition",
         "app_id": "0da65dc3-6e66-4072-bd03-802b2b9c3807",
-        "output_iq": os.path.join(GARMIN_DIR, "NavigationIQ.iq"),
+        "output_iq": os.path.join(BIN_DIR, "NavigationIQ_Release_v1.0.13.iq"),
         "description": "Garmin Connect IQ Store - Production Channel",
     }
 }
@@ -135,6 +135,13 @@ def build_edition(edition_key, monkeyc_path, java_home, build_sideload_devices=N
 
     size_mb = os.path.getsize(out_iq) / (1024 * 1024)
     print(f"    [SUCCESS] Package generated: {os.path.basename(out_iq)} ({size_mb:.2f} MB)")
+    
+    artifact_dir = r"C:\Users\phucdnh\.gemini\antigravity-ide\brain\3d2eab4b-8ff7-434d-8f30-db3ed9546551"
+    if os.path.isdir(artifact_dir):
+        import shutil
+        dst = os.path.join(artifact_dir, os.path.basename(out_iq))
+        shutil.copyfile(out_iq, dst)
+        print(f"    [OK] Copied to artifact directory: {dst}")
 
     # 3. Optional: build sideload .prg for specific devices (e.g. venu2, venusq2)
     if build_sideload_devices:
