@@ -46,8 +46,37 @@ object GarminManager {
     const val GITHUB_REPO_URL = "https://github.com/dangphuc2470/NavigationIQ"
 
     val SUPPORTED_APP_IDS = listOf(
-        NAVIQ_APP_ID
+        NAVIQ_APP_ID,
+        NAVIQ_BETA_APP_ID
     )
+
+    enum class WatchAppChannel(val id: String, val label: String) {
+        RELEASE(NAVIQ_APP_ID, "Release"),
+        BETA(NAVIQ_BETA_APP_ID, "Beta")
+    }
+
+    private val _selectedChannel = MutableStateFlow(
+        if (com.phucdnh.navigationiq.BuildConfig.VERSION_NAME.contains("beta", ignoreCase = true) ||
+            com.phucdnh.navigationiq.BuildConfig.VERSION_CODE >= 10) WatchAppChannel.BETA else WatchAppChannel.RELEASE
+    )
+    val selectedChannelFlow = _selectedChannel.asStateFlow()
+    val selectedChannel get() = _selectedChannel.value
+
+    fun setWatchAppChannel(context: Context, channel: WatchAppChannel) {
+        _selectedChannel.value = channel
+        activeAppId = channel.id
+        context.getSharedPreferences("navigation_iq_prefs", Context.MODE_PRIVATE)
+            .edit()
+            .putString("pref_target_channel", channel.name)
+            .putString("pref_active_app_id", channel.id)
+            .apply()
+        addLog("[CHANNEL] Kênh gửi đồng hồ: ${channel.label} (${channel.id.take(8)}...)")
+
+        for (device in devices) {
+            val app = registeredApps.getOrPut(channel.id) { IQApp(channel.id) }
+            registerAppEvents(device, app)
+        }
+    }
 
     // Max log entries shown in UI
     private const val MAX_LOGS = 50
@@ -121,13 +150,9 @@ object GarminManager {
      * Prioritizes the active app that responded to avoid duplicate/blocking transmissions.
      */
     fun getTargetApps(): List<IQApp> {
-        val currentActive = activeAppId
-        if (currentActive != null) {
-            return listOf(registeredApps[currentActive] ?: IQApp(currentActive))
-        }
-        return registeredApps.values.toList().ifEmpty {
-            SUPPORTED_APP_IDS.map { IQApp(it) }
-        }
+        val targetId = _selectedChannel.value.id
+        val app = registeredApps.getOrPut(targetId) { IQApp(targetId) }
+        return listOf(app)
     }
 
     // -------------------------------------------------------------------------
@@ -380,36 +405,7 @@ object GarminManager {
             return
         }
 
-        if (activeAppId == null && targetApps.size > 1) {
-            // First time probe: Send sequentially to candidate apps to prevent BLE collision
-            fun trySequential(index: Int) {
-                if (index >= targetApps.size) {
-                    sendTimeoutHandler.removeCallbacks(timeoutRunnable)
-                    isSending = false
-                    failedCount++
-                    return
-                }
-                val (device, app) = targetApps[index]
-                sendMessage(context, device, app, message) { success ->
-                    if (success) {
-                        activeAppId = app.applicationId
-                        context.getSharedPreferences("navigation_iq_prefs", Context.MODE_PRIVATE)
-                            .edit().putString("pref_active_app_id", app.applicationId).apply()
-                        addLog("[APP] Active watch app locked: ${app.applicationId.take(8)}...")
-                        sendTimeoutHandler.removeCallbacks(timeoutRunnable)
-                        isSending = false
-                        failedCount = 0
-                        if (latestPendingInfo != null) dispatchLatest(context)
-                    } else {
-                        trySequential(index + 1)
-                    }
-                }
-            }
-            trySequential(0)
-            _sentCount.value++
-            addLog("[SEND #${_sentCount.value}] ${info.distance} | ${info.signs} | ETA: ${info.eta}")
-            return
-        }
+
 
         var completedCount = 0
         var anySuccess = false
@@ -779,11 +775,14 @@ object GarminManager {
         val prefs = context.getSharedPreferences("navigation_iq_prefs", Context.MODE_PRIVATE)
         val saved = prefs.getBoolean("pref_activity_recording", false) // Default OFF
         _isActivityRecording.value = saved
-        val savedActiveId = prefs.getString("pref_active_app_id", null)
-        if (savedActiveId != null && SUPPORTED_APP_IDS.contains(savedActiveId)) {
-            activeAppId = savedActiveId
-            addLog("[INIT] Loaded active watch App ID: ${savedActiveId.take(8)}...")
+        val savedChannelName = prefs.getString("pref_target_channel", null)
+        if (savedChannelName != null) {
+            try {
+                _selectedChannel.value = WatchAppChannel.valueOf(savedChannelName)
+            } catch (_: Exception) {}
         }
+        activeAppId = _selectedChannel.value.id
+        addLog("[INIT] Kênh gửi đồng hồ: ${_selectedChannel.value.label} (${_selectedChannel.value.id.take(8)}...)")
     }
 
     fun sendActivityModeSetting(isEnabled: Boolean) {

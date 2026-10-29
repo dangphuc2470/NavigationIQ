@@ -765,7 +765,7 @@ class NavigationIQView extends WatchUi.View {
 
         var leftMargin = isCrossover ? 16 : 20;
         // Left area: App Title & Connection status
-        dc.drawText(leftMargin, 22, Graphics.FONT_TINY, "Navigation IQ", Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(leftMargin, 22, Graphics.FONT_TINY, IS_BETA ? "Navigation IQ Beta" : "Navigation IQ", Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         dc.drawText(leftMargin, 46, Graphics.FONT_XTINY, statusStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
         if (isCrossover) {

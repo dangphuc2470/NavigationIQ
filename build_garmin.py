@@ -24,17 +24,28 @@ JUNGLE_FILE = os.path.join(GARMIN_DIR, "monkey.jungle")
 KEY_FILE = os.path.join(GARMIN_DIR, "developer_key.der")
 BIN_DIR = os.path.join(GARMIN_DIR, "bin")
 
+STRINGS_FILE = os.path.join(GARMIN_DIR, "resources", "strings", "strings.xml")
+UI_CONSTANTS_FILE = os.path.join(GARMIN_DIR, "source", "UiConstants.mc")
+
 # Edition Configurations
 CONFIGS = {
     "beta": {
         "name": "Beta Edition",
         "app_id": "e24767ea-b254-4f25-9391-ff4c409a037c",
-        "output_iq": os.path.join(BIN_DIR, "NavigationIQ_Beta_v1.0.4.iq"),
+        "app_name": "Navigation IQ Beta",
+        "is_beta": True,
+        "version_str": "v1.0.18 Beta",
+        "manifest_version": "1.0.18",
+        "output_iq": os.path.join(BIN_DIR, "NavigationIQ_Beta_v1.0.18.iq"),
         "description": "Garmin Connect IQ Store - Beta Testers Channel",
     },
     "release": {
         "name": "Official Release Edition",
         "app_id": "0da65dc3-6e66-4072-bd03-802b2b9c3807",
+        "app_name": "Navigation IQ",
+        "is_beta": False,
+        "version_str": "v1.0.4",
+        "manifest_version": "1.0.4",
         "output_iq": os.path.join(BIN_DIR, "NavigationIQ_Release_v1.0.4.iq"),
         "description": "Garmin Connect IQ Store - Production Channel",
     }
@@ -66,20 +77,49 @@ def resolve_garmin_sdk():
         return matches[0]
     return None
 
-def set_manifest_app_id(target_app_id):
-    """Update application id in manifest.xml while preserving XML formatting."""
+def set_manifest_app_config(target_app_id, target_version):
+    """Update application id and version in manifest.xml while preserving XML formatting."""
     with open(MANIFEST_FILE, "r", encoding="utf-8") as f:
         content = f.read()
 
-    pattern = r'(<iq:application\s+id=")[^"]+(")'
-    match = re.search(pattern, content)
-    if not match:
-        raise RuntimeError("Could not find <iq:application id=\"...\"> in manifest.xml")
+    pattern_id = r'(<iq:application\s+[^>]*?id=")[^"]+(")'
+    content = re.sub(pattern_id, rf'\g<1>{target_app_id}\g<2>', content)
 
-    updated = re.sub(pattern, rf'\g<1>{target_app_id}\g<2>', content)
+    pattern_ver = r'(<iq:application\s+[^>]*?version=")[^"]+(")'
+    content = re.sub(pattern_ver, rf'\g<1>{target_version}\g<2>', content)
+
     with open(MANIFEST_FILE, "w", encoding="utf-8") as f:
-        f.write(updated)
+        f.write(content)
     return target_app_id
+
+def set_ui_constants(is_beta, version_str):
+    """Update IS_BETA and APP_VERSION_STR in UiConstants.mc."""
+    if not os.path.exists(UI_CONSTANTS_FILE):
+        return
+    with open(UI_CONSTANTS_FILE, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    content = re.sub(r'const\s+IS_BETA\s*=\s*(true|false);', f'const IS_BETA = {"true" if is_beta else "false"};', content)
+    content = re.sub(r'const\s+APP_VERSION_STR\s*=\s*"[^"]+";', f'const APP_VERSION_STR = "{version_str}";', content)
+
+    with open(UI_CONSTANTS_FILE, "w", encoding="utf-8") as f:
+        f.write(content)
+
+def set_strings_app_name(app_name):
+    """Update AppName in strings.xml."""
+    if not os.path.exists(STRINGS_FILE):
+        return
+    with open(STRINGS_FILE, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    content = re.sub(r'<string id="AppName">[^<]+</string>', f'<string id="AppName">{app_name}</string>', content)
+
+    with open(STRINGS_FILE, "w", encoding="utf-8") as f:
+        f.write(content)
+
+def set_manifest_app_id(target_app_id):
+    """Update application id in manifest.xml while preserving XML formatting."""
+    return set_manifest_app_config(target_app_id, "1.0.4")
 
 def get_manifest_app_id():
     """Read current application id from manifest.xml."""
@@ -94,12 +134,16 @@ def build_edition(edition_key, monkeyc_path, java_home, build_sideload_devices=N
     print(f"Building: {cfg['name']}")
     print(f"Channel : {cfg['description']}")
     print(f"App UUID: {cfg['app_id']}")
+    print(f"App Name: {cfg['app_name']}")
+    print(f"Version : {cfg['version_str']} (manifest: {cfg['manifest_version']})")
     print("=" * 70)
 
-    # 1. Update manifest.xml with the target App UUID
-    print(f"[*] Applying App UUID to manifest.xml...")
-    set_manifest_app_id(cfg["app_id"])
-    print(f"    [OK] manifest.xml updated with ID: {cfg['app_id']}")
+    # 1. Update manifest.xml, strings.xml, and UiConstants.mc
+    print(f"[*] Applying build configuration...")
+    set_manifest_app_config(cfg["app_id"], cfg["manifest_version"])
+    set_ui_constants(cfg["is_beta"], cfg["version_str"])
+    set_strings_app_name(cfg["app_name"])
+    print(f"    [OK] Config applied: UUID={cfg['app_id']}, Name={cfg['app_name']}, Version={cfg['version_str']}")
 
     # Prepare environment
     env = os.environ.copy()

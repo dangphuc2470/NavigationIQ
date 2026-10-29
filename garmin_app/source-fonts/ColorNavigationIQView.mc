@@ -150,7 +150,7 @@ class ColorNavigationIQView extends NavigationIQView {
         var subTitleY = titleY + ((hBold + hStreet) / 2) + textGap;
 
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, titleY, fontBold, "Navigation IQ", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(cx, titleY, fontBold, IS_BETA ? "Navigation IQ Beta" : "Navigation IQ", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         dc.setColor(COLOR_TEXT_SILVER, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, subTitleY, fontStreet, "Waiting for navigation", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
@@ -232,9 +232,11 @@ class ColorNavigationIQView extends NavigationIQView {
         var titleY, addrY;
         var cardW, cardH, cardX, cardY, cardRx;
 
-        var arrivedStr = "Arrived";
-        var strW = dc.getTextWidthInPixels(arrivedStr, fontPill);
-        pillW = strW + (isSmall ? 22 : 36);
+        var clockTime = System.getClockTime();
+        var timeStr = Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]);
+
+        var strW = dc.getTextWidthInPixels(timeStr, fontPill);
+        pillW = strW + (isSmall ? 28 : 36);
         pillX = (w - pillW) / 2;
         pillH = (h * 0.082).toNumber();
         if (pillH < 22) { pillH = 22; }
@@ -289,24 +291,23 @@ class ColorNavigationIQView extends NavigationIQView {
         // 1. Ambient Mint Glow behind the central disc
         VectorArrowRenderer.drawAmbientGlow(dc, cx, podY, GLOW_RGB_GREEN);
 
-        // 2. Top Status Pill: Identical sizing & style with Init screen
+        // 2. Top Status Pill: Green dot + Current Time (matching Idle screen style)
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);
         dc.fillRoundedRectangle(pillX, pillY, pillW, pillH, pillH / 2);
         dc.setColor(COLOR_BORDER_CARD, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
         dc.drawRoundedRectangle(pillX, pillY, pillW, pillH, pillH / 2);
 
-        // Mint Checkmark Icon
+        // Green dot (connected indicator)
         dc.setColor(COLOR_THEME_GREEN_ACCENT, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(2);
-        var chkX = pillX + 14;
-        var chkY = pillY + (pillH / 2);
-        dc.drawLine(chkX - 5, chkY, chkX - 1, chkY + 4);
-        dc.drawLine(chkX - 1, chkY + 4, chkX + 6, chkY - 4);
+        var dotR = isSmall ? 2.5 : 3.5;
+        var dotX = pillX + (isSmall ? 10 : 13);
+        var dotY = pillY + (pillH / 2);
+        dc.fillCircle(dotX, dotY, dotR);
 
-        // Status Text (Prominent & matched with Init pill)
+        // Current Time text
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(chkX + 12, pillY + (pillH / 2), fontPill, arrivedStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(dotX + (isSmall ? 8 : 10), pillY + (pillH / 2), fontPill, timeStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // 3. Central Disc (Matched with Init screen disc)
         dc.setColor(COLOR_BG_CARD, Graphics.COLOR_TRANSPARENT);

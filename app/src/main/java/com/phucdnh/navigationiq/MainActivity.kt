@@ -1795,6 +1795,7 @@ fun SystemSettingsPage(
 ) {
     val context = LocalContext.current
     val palette = LocalApplePalette.current
+    val selectedChannel by GarminManager.selectedChannelFlow.collectAsState()
 
     LazyColumn(
         modifier = Modifier
@@ -1854,6 +1855,90 @@ fun SystemSettingsPage(
                             }
                         }
                     )
+
+                    HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
+
+                    // Watch App Target Channel Selector (Release vs Beta)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 13.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .background((if (selectedChannel == GarminManager.WatchAppChannel.BETA) palette.orange else palette.blue).copy(alpha = 0.14f), RoundedCornerShape(8.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Tune,
+                                    contentDescription = null,
+                                    tint = if (selectedChannel == GarminManager.WatchAppChannel.BETA) palette.orange else palette.blue,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.padding(end = 8.dp)) {
+                                Text(
+                                    text = if (isVi) "Kênh ứng dụng trên đồng hồ" else "Watch App Channel",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = palette.textPrimary
+                                )
+                                Spacer(modifier = Modifier.height(1.dp))
+                                Text(
+                                    text = if (selectedChannel == GarminManager.WatchAppChannel.BETA) {
+                                        if (isVi) "Bản thử nghiệm (Beta) • ${GarminManager.NAVIQ_BETA_APP_ID.take(8)}..."
+                                        else "Beta Edition • ${GarminManager.NAVIQ_BETA_APP_ID.take(8)}..."
+                                    } else {
+                                        if (isVi) "Bản chính thức (Release) • ${GarminManager.NAVIQ_APP_ID.take(8)}..."
+                                        else "Official Release • ${GarminManager.NAVIQ_APP_ID.take(8)}..."
+                                    },
+                                    fontSize = 12.sp,
+                                    color = palette.textSecondary
+                                )
+                            }
+                        }
+
+                        // Pill selector: Release vs Beta
+                        Row(
+                            modifier = Modifier
+                                .background(palette.pillTrack, RoundedCornerShape(10.dp))
+                                .padding(2.dp)
+                        ) {
+                            GarminManager.WatchAppChannel.entries.forEach { ch ->
+                                val isSelected = selectedChannel == ch
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = if (isSelected) palette.pillThumb else Color.Transparent,
+                                    modifier = Modifier.clickable {
+                                        if (!isSelected) {
+                                            GarminManager.setWatchAppChannel(context, ch)
+                                            android.widget.Toast.makeText(
+                                                context,
+                                                if (isVi) "Đã chọn kênh: ${ch.label}" else "Selected: ${ch.label}",
+                                                android.widget.Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+                                ) {
+                                    Text(
+                                        text = ch.label,
+                                        fontSize = 11.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                        color = if (isSelected) (if (palette.isDark) palette.bg else Color.White) else palette.textSecondary,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
 
                     HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
 
@@ -2078,7 +2163,7 @@ fun SystemSettingsPage(
                         icon = Icons.Default.BluetoothConnected,
                         iconTint = palette.textSecondary,
                         title = "Watch App UUID",
-                        subtitle = GarminManager.NAVIQ_APP_ID
+                        subtitle = "${selectedChannel.id} (${selectedChannel.label})"
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
