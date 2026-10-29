@@ -3,6 +3,7 @@ package com.phucdnh.navigationiq.parser
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.Icon
+import android.os.Bundle
 import android.service.notification.StatusBarNotification
 import android.util.Log
 
@@ -48,6 +49,37 @@ object NotificationParser {
             if (title.isNotEmpty()) {
                 values.texts["action-$index"] = title
             }
+        }
+
+        // Parse Android 15/16 Notification.ProgressStyle segments (Google Maps turn-by-turn segments)
+        try {
+            val progressCur = extras.getInt("android.progress", 0)
+            val rawSegments = extras.get("android.progressSegments")
+                ?: extras.get("androidx.core.app.extra.PROGRESS_SEGMENTS")
+            if (rawSegments is List<*>) {
+                var accumLength = 0
+                for (seg in rawSegments) {
+                    val segBundle = seg as? Bundle ?: continue
+                    var segLen = -1
+                    for (k in segBundle.keySet()) {
+                        val v = segBundle.get(k)
+                        if (v is Int && v > 0) {
+                            if (k.contains("length", ignoreCase = true) || segLen == -1) {
+                                segLen = v
+                            }
+                        }
+                    }
+                    if (segLen > 0) {
+                        accumLength += segLen
+                        if (accumLength > progressCur) {
+                            values.segmentDistMeters = accumLength - progressCur
+                            break
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to parse progress segments: ${e.message}")
         }
     }
 }

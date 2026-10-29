@@ -89,12 +89,51 @@ class NavNotificationService : NotificationListenerService() {
     private var latestResumeIntent: PendingIntent? = null
     private var autoResumeJob: kotlinx.coroutines.Job? = null
 
-    private fun isResumeNavigationNotification(title: String, text: String): Boolean {
-        val t = title.lowercase().trim()
-        val s = text.lowercase().trim()
-        return t.contains("resume") || t.contains("tiếp tục") || t.contains("chặng tiếp theo") ||
-               t.contains("next stop") || s.contains("resume") || s.contains("tiếp tục chuyển hướng") ||
-               s.contains("tiếp tục điều hướng")
+    private fun stripAccents(str: String): String {
+        val n = java.text.Normalizer.normalize(str, java.text.Normalizer.Form.NFD)
+        return n.replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
+            .replace('đ', 'd')
+            .replace('Đ', 'D')
+    }
+
+    private fun isResumeNavigationNotification(sbn: StatusBarNotification): Boolean {
+        // 1. Check known Google Maps Waypoint Notification ID / Tag
+        if (sbn.id == 1554 || sbn.tag == "yev") {
+            return true
+        }
+
+        val notif = sbn.notification ?: return false
+        val extras = notif.extras
+        val rawTitle = extras?.getCharSequence("android.title")?.toString() ?: ""
+        val rawText = extras?.getCharSequence("android.text")?.toString() ?: ""
+        val rawSubText = extras?.getCharSequence("android.subText")?.toString() ?: ""
+
+        val combined = "$rawTitle $rawText $rawSubText".lowercase().trim()
+        val unaccented = stripAccents(combined)
+
+        val resumeKeywords = listOf(
+            "resume", "tiep tuc", "tiếp tục", "next stop", "chặng tiếp theo", "chang tiep theo",
+            "chặng kế", "chang ke", "điểm dừng", "diem dung", "điểm dừng chân", "diem dung chan",
+            "trạm dừng", "tram dung", "tiếp tục chuyển hướng", "tiếp tục điều hướng",
+            "tiep tuc chuyen huong", "tiep tuc dieu huong"
+        )
+
+        if (resumeKeywords.any { combined.contains(it) || unaccented.contains(it) }) {
+            return true
+        }
+
+        // 2. Check Action Buttons (e.g. "Tiếp tục" / "Tiếp tục đi" / "Resume")
+        notif.actions?.forEach { action ->
+            val at = action.title?.toString()?.lowercase()?.trim() ?: ""
+            if (at.isNotEmpty()) {
+                val atUnaccented = stripAccents(at)
+                if (resumeKeywords.any { at.contains(it) || atUnaccented.contains(it) }) {
+                    return true
+                }
+            }
+        }
+
+        return false
     }
 
     fun performNextStop(): Boolean {
@@ -117,19 +156,16 @@ class NavNotificationService : NotificationListenerService() {
             activeNotifications?.forEach { sbn ->
                 if (sbn.packageName == GOOGLE_MAPS_PACKAGE) {
                     val notif = sbn.notification ?: return@forEach
-                    val extras = notif.extras
-                    val title = extras?.getCharSequence("android.title")?.toString() ?: ""
-                    val text = extras?.getCharSequence("android.text")?.toString() ?: ""
-                    if (isResumeNavigationNotification(title, text)) {
-                        GarminManager.addLog("[NEXT STOP] Tìm thấy thông báo trong activeNotifications -> contentIntent.send()")
-                        notif.contentIntent?.send()
-                        return true
-                    }
-                    notif.actions?.forEach { action ->
-                        val at = action.title?.toString()?.lowercase() ?: ""
-                        if (at.contains("resume") || at.contains("tiếp tục") || at.contains("next")) {
-                            GarminManager.addLog("[NEXT STOP] Kích hoạt ActionIntent: ${action.title}")
-                            action.actionIntent?.send()
+                    if (isResumeNavigationNotification(sbn)) {
+                        GarminManager.addLog("[NEXT STOP] Tìm thấy thông báo trong activeNotifications")
+                        val actIntent = notif.actions?.firstOrNull { action ->
+                            val at = stripAccents(action.title?.toString()?.lowercase() ?: "")
+                            at.contains("tiep tuc") || at.contains("resume") || at.contains("next")
+                        }?.actionIntent ?: notif.contentIntent ?: notif.actions?.firstOrNull()?.actionIntent
+
+                        if (actIntent != null) {
+                            GarminManager.addLog("[NEXT STOP] Kích hoạt Action/ContentIntent...")
+                            actIntent.send()
                             return true
                         }
                     }
@@ -287,13 +323,13 @@ class NavNotificationService : NotificationListenerService() {
             GarminManager.addLog("[MAPS POST] title=\"$rawTitle\" | text=\"$rawText\" | sub=\"$rawSubText\"")
 
             // Check if this is an intermediate stop (waypoint) "Resume navigation" notification
-            if (isResumeNavigationNotification(rawTitle, rawText)) {
-                latestResumeIntent = notif?.contentIntent ?: notif?.actions?.firstOrNull { action ->
-                    val at = action.title?.toString()?.lowercase() ?: ""
-                    at.contains("resume") || at.contains("tiếp tục") || at.contains("next")
-                }?.actionIntent
+            if (isResumeNavigationNotification(sbn)) {
+                latestResumeIntent = notif?.actions?.firstOrNull { action ->
+                    val at = stripAccents(action.title?.toString()?.lowercase() ?: "")
+                    at.contains("tiep tuc") || at.contains("resume") || at.contains("next")
+                }?.actionIntent ?: notif?.contentIntent ?: notif?.actions?.firstOrNull()?.actionIntent
 
-                val destName = rawText.substringBefore("•").trim().ifEmpty { "Điểm dừng tiếp theo" }
+                val destName = rawText.substringBefore("•").trim().ifEmpty { rawTitle.ifEmpty { "Điểm dừng tiếp theo" } }
                 GarminManager.addLog("[WAYPOINT] Điểm dừng trung gian: \"$rawTitle\" -> \"$destName\"")
                 GarminManager.addLog("[WAYPOINT] Tự động đi tiếp sau 7 giây, hoặc bấm nút trên đồng hồ...")
 

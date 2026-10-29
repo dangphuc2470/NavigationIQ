@@ -11,4 +11,5 @@ class NotificationValues {
     val texts: MutableMap<String, String> = HashMap()
     val drawables: MutableMap<String, Drawable?> = HashMap()
     val buttons: MutableMap<String, Button?> = HashMap()
+    var segmentDistMeters: Int? = null
 }

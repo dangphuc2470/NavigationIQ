@@ -179,16 +179,49 @@ object GoogleMapsParser {
         val maxStr = values.texts["android-progressMax"]
         val curStr = values.texts["android-progress"]
         val maxMeters = maxStr?.toIntOrNull()
+        val curMeters = curStr?.toIntOrNull() ?: 0
         if (maxMeters != null && maxMeters > 0) {
+            val remainingMeters = (maxMeters - curMeters).coerceAtLeast(0)
             if (info.length.isEmpty() || info.length == "-") {
-                info.length = if (maxMeters >= 1000) {
-                    String.format(java.util.Locale.US, "%.1f km", maxMeters / 1000.0)
+                info.length = if (remainingMeters >= 1000) {
+                    String.format(java.util.Locale.US, "%.1f km", remainingMeters / 1000.0)
                 } else {
-                    "$maxMeters m"
+                    "$remainingMeters m"
                 }
             }
             if (info.units.isEmpty()) {
                 info.units = "km/h"
+            }
+        }
+        // If distance to next turn is empty, apply segment distance or remaining route distance
+        if (info.distance.isEmpty()) {
+            val segDist = values.segmentDistMeters
+            if (segDist != null && segDist >= 0) {
+                info.distance = if (segDist >= 1000) {
+                    String.format(java.util.Locale.US, "%.1f km", segDist / 1000.0)
+                } else {
+                    "$segDist m"
+                }
+            } else if (maxMeters != null && maxMeters > 0) {
+                val rem = (maxMeters - curMeters).coerceAtLeast(0)
+                info.distance = if (rem >= 1000) {
+                    String.format(java.util.Locale.US, "%.1f km", rem / 1000.0)
+                } else {
+                    "$rem m"
+                }
+            }
+        }
+        // If duration is empty but ETA exists, compute remaining duration
+        if (info.duration.isEmpty() && info.eta.isNotEmpty()) {
+            val diff = info.getEtaDifferenceMinutes()
+            if (diff != null && diff >= 0) {
+                info.duration = if (diff >= 60) {
+                    val h = diff / 60
+                    val m = diff % 60
+                    if (m > 0) "$h h $m min" else "$h h"
+                } else {
+                    "$diff min"
+                }
             }
         }
     }
