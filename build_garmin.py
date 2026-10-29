@@ -29,13 +29,13 @@ CONFIGS = {
     "beta": {
         "name": "Beta Edition",
         "app_id": "e24767ea-b254-4f25-9391-ff4c409a037c",
-        "output_iq": os.path.join(BIN_DIR, "NavigationIQ_Beta_v1.0.3.iq"),
+        "output_iq": os.path.join(BIN_DIR, "NavigationIQ_Beta_v1.0.4.iq"),
         "description": "Garmin Connect IQ Store - Beta Testers Channel",
     },
     "release": {
         "name": "Official Release Edition",
         "app_id": "0da65dc3-6e66-4072-bd03-802b2b9c3807",
-        "output_iq": os.path.join(BIN_DIR, "NavigationIQ_Release_v1.0.3.iq"),
+        "output_iq": os.path.join(BIN_DIR, "NavigationIQ_Release_v1.0.4.iq"),
         "description": "Garmin Connect IQ Store - Production Channel",
     }
 }

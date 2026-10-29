@@ -125,7 +125,6 @@ module CommManager {
 
     function trackAndReportBattery() as Void {
         var stats = System.getSystemStats();
-        if (stats == null) { return; }
         var curBat = stats.battery;
         var curBatInt = curBat.toNumber();
         var now = System.getTimer();

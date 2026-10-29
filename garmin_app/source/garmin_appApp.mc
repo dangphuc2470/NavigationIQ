@@ -19,6 +19,8 @@ class NavigationIQApp extends Application.AppBase {
             Communications.registerForPhoneAppMessages(method(:onPhoneMessage));
         }
         CommManager.start();
+        var stats = System.getSystemStats();
+        System.println("=== NavigationIQ launched! Heap: " + stats.usedMemory + "/" + stats.totalMemory + " bytes ===");
     }
 
     function onStop(state as Dictionary?) as Void {
@@ -33,7 +35,7 @@ class NavigationIQApp extends Application.AppBase {
     private var _mainView as NavigationIQView? = null;
 
     function getInitialView() as [Views] or [Views, InputDelegates] {
-        _mainView = new NavigationIQView();
+        _mainView = ViewFactory.createView();
         return [ _mainView, new NavigationIQDelegate(_mainView) ];
     }
 

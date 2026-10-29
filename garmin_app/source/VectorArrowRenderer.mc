@@ -376,6 +376,9 @@ class VectorArrowRenderer {
     // Concentric Ambient Glow Radial Gradient (Signature App Bloom into Pure Black)
     // -------------------------------------------------------------------------
     public static function drawAmbientGlow(dc as Dc, cx as Number, cy as Number, srcRGB as Array<Number>) as Void {
+        if (dc.getWidth() <= 200 || srcRGB == null) {
+            return;
+        }
         var bgR = 0x00;
         var bgG = 0x00;
         var bgB = 0x00;

@@ -1,1 +1,19 @@
 project.manifest = manifest.xml
+
+# Default (AMOLED, High-Memory & Color Devices)
+base.sourcePath = source;source-fonts
+base.resourcePath = resources;resources-fonts
+
+# Instinct 2 Series (Ultra-low 96KB memory & 1-bit monochrome MIP)
+# Uses native Garmin system fonts with zero font RAM footprint
+instinct2.sourcePath = source;source-lowmem
+instinct2.resourcePath = resources
+
+instinct2s.sourcePath = source;source-lowmem
+instinct2s.resourcePath = resources
+
+instinct2x.sourcePath = source;source-lowmem
+instinct2x.resourcePath = resources
+
+instinctcrossover.sourcePath = source;source-lowmem
+instinctcrossover.resourcePath = resources

@@ -31,8 +31,18 @@ class TextRenderer {
     // -------------------------------------------------------------------------
     // Strip Vietnamese Accents Helper (Full Unicode to ASCII standard)
     // -------------------------------------------------------------------------
+    public static function hasNonAscii(str as String) as Boolean {
+        var chars = str.toCharArray();
+        for (var i = 0; i < chars.size(); i++) {
+            if (chars[i].toNumber() > 127) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static function stripAccents(str as String) as String {
-        if (str.length() == 0) {
+        if (str.length() == 0 || !hasNonAscii(str)) {
             return str;
         }
 
