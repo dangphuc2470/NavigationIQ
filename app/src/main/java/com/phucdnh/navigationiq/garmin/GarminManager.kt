@@ -541,6 +541,10 @@ object GarminManager {
             if (first is List<*> && first.isNotEmpty()) {
                 val action = first[0]?.toString()
                 when (action) {
+                    "next_stop", "resume_nav" -> {
+                        addLog("[WATCH ACTION] Nhận lệnh Next Stop từ nút trên đồng hồ!")
+                        com.phucdnh.navigationiq.service.NavNotificationService.triggerNextStop()
+                    }
                     "map_zoom" -> {
                         val zoom = (first.getOrNull(1) as? Number)?.toInt() ?: 16
                         currentMapZoom = zoom
@@ -572,6 +576,10 @@ object GarminManager {
             val msg = first?.toString() ?: return@registerForAppEvents
             addLog("[RECV from watch] $msg")
             when (msg) {
+                "next_stop", "resume_nav" -> {
+                    addLog("[WATCH ACTION] Nhận lệnh Next Stop từ nút trên đồng hồ!")
+                    com.phucdnh.navigationiq.service.NavNotificationService.triggerNextStop()
+                }
                 "reset", "alive", "pong" -> {
                     cache.reset()
                     isWatchAppAlive = true

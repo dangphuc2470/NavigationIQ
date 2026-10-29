@@ -566,6 +566,19 @@ module CommManager {
         WatchUi.requestUpdate();
     }
 
+    function sendNextStop() as Void {
+        try {
+            Communications.transmit("next_stop", null, new PhoneCommListener());
+            arrivedDest = "Resuming...";
+            if (Attention has :vibrate) {
+                Attention.vibrate([new Attention.VibeProfile(60, 100)]);
+            }
+            WatchUi.requestUpdate();
+        } catch (e) {
+            // Ignore
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------

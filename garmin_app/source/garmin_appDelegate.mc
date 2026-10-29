@@ -31,10 +31,10 @@ class NavigationIQDelegate extends WatchUi.BehaviorDelegate {
         return true;
     }
 
-    // Single press on Select / Action button (Top button) -> Toggle Arrived Detail or Recenter map or Open Settings
+    // Single press on Select / Action button (Top button) -> Next stop if arrived, or Recenter map, or Open Settings
     function onSelect() as Boolean {
         if (CommManager.isArrived) {
-            CommManager.toggleArrivedDetail();
+            CommManager.sendNextStop();
             return true;
         }
         if (_view != null) {
@@ -138,7 +138,7 @@ class NavigationIQDelegate extends WatchUi.BehaviorDelegate {
         var key = keyEvent.getKey();
         if (key == WatchUi.KEY_ENTER || key == WatchUi.KEY_START) {
             if (CommManager.isArrived) {
-                CommManager.toggleArrivedDetail();
+                CommManager.sendNextStop();
                 return true;
             }
             if (_view != null) {

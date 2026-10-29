@@ -32,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
@@ -63,6 +64,13 @@ class NavNotificationService : NotificationListenerService() {
         fun setSimulatedTripSummary(summary: com.phucdnh.navigationiq.model.TripSummary?) {
             _lastTripSummary.value = summary
         }
+
+        var instance: NavNotificationService? = null
+            private set
+
+        fun triggerNextStop(): Boolean {
+            return instance?.performNextStop() ?: false
+        }
     }
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -78,6 +86,60 @@ class NavNotificationService : NotificationListenerService() {
     private var lastGpsLocation: Location? = null
     private var isTrackingGps: Boolean = false
     private var locationManager: LocationManager? = null
+    private var latestResumeIntent: PendingIntent? = null
+    private var autoResumeJob: kotlinx.coroutines.Job? = null
+
+    private fun isResumeNavigationNotification(title: String, text: String): Boolean {
+        val t = title.lowercase().trim()
+        val s = text.lowercase().trim()
+        return t.contains("resume") || t.contains("tiếp tục") || t.contains("chặng tiếp theo") ||
+               t.contains("next stop") || s.contains("resume") || s.contains("tiếp tục chuyển hướng") ||
+               s.contains("tiếp tục điều hướng")
+    }
+
+    fun performNextStop(): Boolean {
+        autoResumeJob?.cancel()
+        autoResumeJob = null
+
+        val intent = latestResumeIntent
+        if (intent != null) {
+            try {
+                GarminManager.addLog("[NEXT STOP] Đang gửi PendingIntent tiếp tục chuyển hướng Google Maps...")
+                intent.send()
+                latestResumeIntent = null
+                return true
+            } catch (e: Exception) {
+                GarminManager.addLog("[NEXT STOP ERROR] Gửi PendingIntent thất bại: ${e.message}")
+            }
+        }
+
+        try {
+            activeNotifications?.forEach { sbn ->
+                if (sbn.packageName == GOOGLE_MAPS_PACKAGE) {
+                    val notif = sbn.notification ?: return@forEach
+                    val extras = notif.extras
+                    val title = extras?.getCharSequence("android.title")?.toString() ?: ""
+                    val text = extras?.getCharSequence("android.text")?.toString() ?: ""
+                    if (isResumeNavigationNotification(title, text)) {
+                        GarminManager.addLog("[NEXT STOP] Tìm thấy thông báo trong activeNotifications -> contentIntent.send()")
+                        notif.contentIntent?.send()
+                        return true
+                    }
+                    notif.actions?.forEach { action ->
+                        val at = action.title?.toString()?.lowercase() ?: ""
+                        if (at.contains("resume") || at.contains("tiếp tục") || at.contains("next")) {
+                            GarminManager.addLog("[NEXT STOP] Kích hoạt ActionIntent: ${action.title}")
+                            action.actionIntent?.send()
+                            return true
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            GarminManager.addLog("[NEXT STOP ERROR] Quét activeNotifications thất bại: ${e.message}")
+        }
+        return false
+    }
 
     private val tripLocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
@@ -138,6 +200,7 @@ class NavNotificationService : NotificationListenerService() {
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         Log.i(TAG, "NavNotificationService created")
 
         createNotificationChannel()
@@ -222,6 +285,28 @@ class NavNotificationService : NotificationListenerService() {
             val rawText = extras?.getCharSequence("android.text")?.toString() ?: ""
             val rawSubText = extras?.getCharSequence("android.subText")?.toString() ?: ""
             GarminManager.addLog("[MAPS POST] title=\"$rawTitle\" | text=\"$rawText\" | sub=\"$rawSubText\"")
+
+            // Check if this is an intermediate stop (waypoint) "Resume navigation" notification
+            if (isResumeNavigationNotification(rawTitle, rawText)) {
+                latestResumeIntent = notif?.contentIntent ?: notif?.actions?.firstOrNull { action ->
+                    val at = action.title?.toString()?.lowercase() ?: ""
+                    at.contains("resume") || at.contains("tiếp tục") || at.contains("next")
+                }?.actionIntent
+
+                val destName = rawText.substringBefore("•").trim().ifEmpty { "Điểm dừng tiếp theo" }
+                GarminManager.addLog("[WAYPOINT] Điểm dừng trung gian: \"$rawTitle\" -> \"$destName\"")
+                GarminManager.addLog("[WAYPOINT] Tự động đi tiếp sau 7 giây, hoặc bấm nút trên đồng hồ...")
+
+                autoResumeJob?.cancel()
+                autoResumeJob = serviceScope.launch {
+                    kotlinx.coroutines.delay(7000L)
+                    if (isActive) {
+                        GarminManager.addLog("[AUTO-RESUME] Đã hết 7s -> Tự động kích hoạt Google Maps đi tiếp chặng sau!")
+                        performNextStop()
+                    }
+                }
+                return
+            }
 
             serviceScope.launch {
                 try {
@@ -377,6 +462,11 @@ class NavNotificationService : NotificationListenerService() {
         if (sbn == null) return
         val pkg = sbn.packageName ?: return
         if (pkg == GOOGLE_MAPS_PACKAGE || pkg == OSMAND_PACKAGE) {
+            if (sbn.id == 1554 || sbn.tag == "yev") {
+                GarminManager.addLog("[MAPS REMOVED] Resume notification removed (id=${sbn.id}) -> Chặng mới tiếp tục")
+                return
+            }
+
             val lastInfo = _currentNavigationInfo.value ?: lastValidNavInfo
             val lastSigns = lastInfo?.signs ?: ""
             val lastDist = lastInfo?.distance ?: ""
@@ -421,6 +511,9 @@ class NavNotificationService : NotificationListenerService() {
 
     override fun onDestroy() {
         super.onDestroy()
+        autoResumeJob?.cancel()
+        autoResumeJob = null
+        if (instance == this) instance = null
         isConnected = false
         stopTripDistanceTracking()
         unregisterReceiver(btReceiver)
