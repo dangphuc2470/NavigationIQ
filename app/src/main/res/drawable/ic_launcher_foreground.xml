@@ -7,16 +7,17 @@
     <!-- Modern Navigation Arrow (Left Wing - Deep Forest Green) -->
     <path
         android:fillColor="#1B4332"
-        android:pathData="M 54,34.59 Q 54,27.16 47.35,42.02 L 36.77,65.67 Q 31.56,77.32 42.75,71.18 L 45.13,69.87 Q 54,65.00 54,67.44 Z" />
+        android:pathData="M 54,28.5 Q 50.5,33.5 47.35,42.02 L 36.77,65.67 Q 31.56,77.32 42.75,71.18 L 45.13,69.87 Q 54,65.00 54,67.44 Z" />
 
     <!-- Modern Navigation Arrow (Right Wing - Vivid Mint Emerald) -->
     <path
         android:fillColor="#10B981"
-        android:pathData="M 54,34.59 Q 54,27.16 60.65,42.02 L 71.23,65.67 Q 76.44,77.32 65.25,71.18 L 62.87,69.87 Q 54,65.00 54,67.44 Z" />
+        android:pathData="M 54,28.5 Q 57.5,33.5 60.65,42.02 L 71.23,65.67 Q 76.44,77.32 65.25,71.18 L 62.87,69.87 Q 54,65.00 54,67.44 Z" />
 
-    <!-- Center White Spine Divider (Crisp, solid white as in original) -->
+    <!-- Center White Spine Divider (Crisp, solid white extending from apex to notch) -->
     <path
         android:strokeColor="#FFFFFF"
         android:strokeWidth="1.6"
-        android:pathData="M 54,34.59 L 54,67.44" />
+        android:strokeLineCap="round"
+        android:pathData="M 54,28.0 L 54,67.44" />
 </vector>
