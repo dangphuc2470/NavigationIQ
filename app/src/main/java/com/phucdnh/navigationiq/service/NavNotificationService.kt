@@ -1,6 +1,7 @@
 package com.phucdnh.navigationiq.service
 
 import android.Manifest
+import android.app.ActivityOptions
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -14,6 +15,7 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
+import android.os.PowerManager
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
@@ -178,37 +180,71 @@ class NavNotificationService : NotificationListenerService() {
         return false
     }
 
+    private fun wakeScreenBriefly(durationMs: Long = 5000L) {
+        try {
+            val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager ?: return
+            if (!pm.isInteractive) {
+                GarminManager.addLog("[WAKE] Màn hình đang tắt -> Bật sáng màn hình ${durationMs / 1000}s để Google Maps tiếp tục chặng...")
+                @Suppress("DEPRECATION")
+                val wakeLock = pm.newWakeLock(
+                    PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE,
+                    "NavigationIQ:WaypointWakeUp"
+                )
+                wakeLock.acquire(durationMs)
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "WakeLock error: ${e.message}")
+        }
+    }
+
+    private fun sendPendingIntentWithBal(intent: PendingIntent): Boolean {
+        return try {
+            val options = ActivityOptions.makeBasic()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                options.setPendingIntentBackgroundActivityStartMode(
+                    ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
+                )
+            }
+            intent.send(this, 0, null, null, null, null, options.toBundle())
+            true
+        } catch (e: Exception) {
+            GarminManager.addLog("[NEXT STOP ERROR] Gửi PendingIntent thất bại: ${e.message}")
+            false
+        }
+    }
+
     fun performNextStop(): Boolean {
         autoResumeJob?.cancel()
         autoResumeJob = null
         hasWaypointAhead = false
 
+        // 1. Đánh thức màn hình sáng lên để Google Maps thoát trạng thái ngủ/Doze
+        wakeScreenBriefly(5000L)
+
+        // 2. Ưu tiên gửi PendingIntent đã lưu kèm quyền BAL (Background Activity Launch)
         val intent = latestResumeIntent
         if (intent != null) {
-            try {
-                GarminManager.addLog("[NEXT STOP] Đang gửi PendingIntent tiếp tục chuyển hướng Google Maps...")
-                intent.send()
+            GarminManager.addLog("[NEXT STOP] Đang gửi PendingIntent tiếp tục chuyển hướng Google Maps...")
+            if (sendPendingIntentWithBal(intent)) {
                 latestResumeIntent = null
                 return true
-            } catch (e: Exception) {
-                GarminManager.addLog("[NEXT STOP ERROR] Gửi PendingIntent thất bại: ${e.message}")
             }
         }
 
+        // 3. Quét thông báo đang hoạt động tìm action tiếp tục
         try {
             activeNotifications?.forEach { sbn ->
                 if (sbn.packageName == GOOGLE_MAPS_PACKAGE) {
                     val notif = sbn.notification ?: return@forEach
-                    if (isResumeNavigationNotification(sbn)) {
+                    if (isResumeNavigationNotification(sbn) || isIntermediateStopNotification(sbn, null)) {
                         GarminManager.addLog("[NEXT STOP] Tìm thấy thông báo trong activeNotifications")
                         val actIntent = notif.actions?.firstOrNull { action ->
                             val at = stripAccents(action.title?.toString()?.lowercase() ?: "")
                             at.contains("tiep tuc") || at.contains("resume") || at.contains("next")
                         }?.actionIntent ?: notif.contentIntent ?: notif.actions?.firstOrNull()?.actionIntent
 
-                        if (actIntent != null) {
-                            GarminManager.addLog("[NEXT STOP] Kích hoạt Action/ContentIntent...")
-                            actIntent.send()
+                        if (actIntent != null && sendPendingIntentWithBal(actIntent)) {
+                            GarminManager.addLog("[NEXT STOP] Kích hoạt Action/ContentIntent thành công")
                             return true
                         }
                     }
@@ -217,6 +253,26 @@ class NavNotificationService : NotificationListenerService() {
         } catch (e: Exception) {
             GarminManager.addLog("[NEXT STOP ERROR] Quét activeNotifications thất bại: ${e.message}")
         }
+
+        // 4. Fallback: Đưa Google Maps lên Foreground để kích hoạt tiếp tục chặng
+        try {
+            val launchIntent = packageManager.getLaunchIntentForPackage(GOOGLE_MAPS_PACKAGE)
+            if (launchIntent != null) {
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                val options = ActivityOptions.makeBasic()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    options.setPendingIntentBackgroundActivityStartMode(
+                        ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
+                    )
+                }
+                startActivity(launchIntent, options.toBundle())
+                GarminManager.addLog("[NEXT STOP] Kích hoạt lại Google Maps qua LaunchIntent")
+                return true
+            }
+        } catch (e: Exception) {
+            GarminManager.addLog("[NEXT STOP ERROR] LaunchIntent thất bại: ${e.message}")
+        }
+
         return false
     }
 
@@ -391,7 +447,8 @@ class NavNotificationService : NotificationListenerService() {
                 }?.actionIntent ?: notif?.contentIntent ?: notif?.actions?.firstOrNull()?.actionIntent
 
                 val destName = rawText.substringBefore("•").trim().ifEmpty { rawTitle.ifEmpty { "Điểm dừng tiếp theo" } }
-                GarminManager.addLog("[WAYPOINT] Điểm dừng trung gian: \"$rawTitle\" -> \"$destName\"")
+                wakeScreenBriefly(5000L)
+                GarminManager.addLog("[WAYPOINT] Điểm dừng trung gian: \"$rawTitle\" -> \"$destName\" (Đã bật sáng màn hình)")
                 GarminManager.addLog("[WAYPOINT] Tự động đi tiếp sau 7 giây, hoặc bấm nút trên đồng hồ...")
 
                 if (!hasDispatchedArrival) {
@@ -462,6 +519,24 @@ class NavNotificationService : NotificationListenerService() {
                                 }
                             }
                             val isIntermediate = isIntermediateStopNotification(sbn, navInfo)
+                            if (isIntermediate) {
+                                latestResumeIntent = notif?.actions?.firstOrNull { action ->
+                                    val at = stripAccents(action.title?.toString()?.lowercase() ?: "")
+                                    at.contains("tiep tuc") || at.contains("resume") || at.contains("next")
+                                }?.actionIntent ?: notif?.contentIntent ?: notif?.actions?.firstOrNull()?.actionIntent
+
+                                wakeScreenBriefly(5000L)
+                                GarminManager.addLog("[WAYPOINT] Đến trạm dừng: \"$finalDest\" -> Sáng màn hình 5s, tự động đi tiếp sau 7s...")
+
+                                autoResumeJob?.cancel()
+                                autoResumeJob = serviceScope.launch {
+                                    kotlinx.coroutines.delay(7000L)
+                                    if (isActive) {
+                                        GarminManager.addLog("[AUTO-RESUME] Đã hết 7s -> Tự động kích hoạt Google Maps đi tiếp chặng sau!")
+                                        performNextStop()
+                                    }
+                                }
+                            }
                             if (!hasDispatchedArrival) {
                                 hasDispatchedArrival = true
                                 dispatchArrivalSummary(finalDest, isIntermediate = isIntermediate)
@@ -713,7 +788,12 @@ class NavNotificationService : NotificationListenerService() {
                     startForeground(NOTIFICATION_ID, notification, fgsType)
                 } catch (e: Exception) {
                     Log.w(TAG, "startForeground with types failed, fallback: ${e.message}")
-                    startForeground(NOTIFICATION_ID, notification)
+                    try {
+                        startForeground(NOTIFICATION_ID, notification)
+                    } catch (e2: Exception) {
+                        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+                        nm?.notify(NOTIFICATION_ID, notification)
+                    }
                 }
             } else {
                 startForeground(NOTIFICATION_ID, notification)
