@@ -88,6 +88,7 @@ class NavNotificationService : NotificationListenerService() {
     private var locationManager: LocationManager? = null
     private var latestResumeIntent: PendingIntent? = null
     private var autoResumeJob: kotlinx.coroutines.Job? = null
+    private var hasWaypointAhead: Boolean = false
 
     private fun stripAccents(str: String): String {
         val n = java.text.Normalizer.normalize(str, java.text.Normalizer.Form.NFD)
@@ -136,9 +137,51 @@ class NavNotificationService : NotificationListenerService() {
         return false
     }
 
+    private fun isIntermediateStopNotification(sbn: StatusBarNotification, navInfo: NavigationInfo?): Boolean {
+        if (sbn.id == 1554 || sbn.tag == "yev") return true
+        val notif = sbn.notification ?: return false
+        val extras = notif.extras
+        val rawTitle = extras?.getCharSequence("android.title")?.toString() ?: ""
+        val rawText = extras?.getCharSequence("android.text")?.toString() ?: ""
+        val rawSubText = extras?.getCharSequence("android.subText")?.toString() ?: ""
+        val combined = "$rawTitle $rawText $rawSubText".lowercase().trim()
+        val unaccented = stripAccents(combined)
+
+        val waypointKeywords = listOf(
+            "diem dung", "điểm dừng", "tram dung", "trạm dừng",
+            "next stop", "chặng tiếp theo", "chang tiep theo",
+            "chặng kế", "chang ke", "tiep tuc", "tiếp tục", "resume"
+        )
+        if (waypointKeywords.any { combined.contains(it) || unaccented.contains(it) }) {
+            return true
+        }
+
+        notif.actions?.forEach { action ->
+            val at = action.title?.toString()?.lowercase()?.trim() ?: ""
+            if (at.isNotEmpty()) {
+                val atUnaccented = stripAccents(at)
+                val actionKeywords = listOf(
+                    "skip", "bo qua", "bỏ qua", "stop",
+                    "diem dung", "điểm dừng", "tram dung", "trạm dừng",
+                    "tiep tuc", "tiếp tục", "resume", "next"
+                )
+                if (actionKeywords.any { at.contains(it) || atUnaccented.contains(it) }) {
+                    return true
+                }
+            }
+        }
+
+        if (hasWaypointAhead) {
+            return true
+        }
+
+        return false
+    }
+
     fun performNextStop(): Boolean {
         autoResumeJob?.cancel()
         autoResumeJob = null
+        hasWaypointAhead = false
 
         val intent = latestResumeIntent
         if (intent != null) {
@@ -322,6 +365,24 @@ class NavNotificationService : NotificationListenerService() {
             val rawSubText = extras?.getCharSequence("android.subText")?.toString() ?: ""
             GarminManager.addLog("[MAPS POST] title=\"$rawTitle\" | text=\"$rawText\" | sub=\"$rawSubText\"")
 
+            // Track whether route has waypoints/intermediate stops ahead
+            val notifActions = notif?.actions
+            val hasSkipStopAction = notifActions?.any { action ->
+                val at = stripAccents(action.title?.toString()?.lowercase() ?: "")
+                at.contains("skip") || at.contains("bo qua") || (at.contains("stop") && !at.contains("navigation") && !at.contains("dung chi duong"))
+            } ?: false
+            val combinedText = "$rawTitle $rawText $rawSubText".lowercase()
+            val unaccCombined = stripAccents(combinedText)
+            val textHasWaypoint = listOf("diem dung", "tram dung", "next stop", "waypoint").any {
+                unaccCombined.contains(it)
+            }
+            if (hasSkipStopAction || textHasWaypoint) {
+                hasWaypointAhead = true
+            } else if (notifActions != null && notifActions.isNotEmpty() && !hasSkipStopAction) {
+                // If notification has actions but none of them is skip stop, we are on the final destination leg
+                hasWaypointAhead = false
+            }
+
             // Check if this is an intermediate stop (waypoint) "Resume navigation" notification
             if (isResumeNavigationNotification(sbn)) {
                 latestResumeIntent = notif?.actions?.firstOrNull { action ->
@@ -332,6 +393,11 @@ class NavNotificationService : NotificationListenerService() {
                 val destName = rawText.substringBefore("•").trim().ifEmpty { rawTitle.ifEmpty { "Điểm dừng tiếp theo" } }
                 GarminManager.addLog("[WAYPOINT] Điểm dừng trung gian: \"$rawTitle\" -> \"$destName\"")
                 GarminManager.addLog("[WAYPOINT] Tự động đi tiếp sau 7 giây, hoặc bấm nút trên đồng hồ...")
+
+                if (!hasDispatchedArrival) {
+                    hasDispatchedArrival = true
+                    dispatchArrivalSummary(destName, isIntermediate = true)
+                }
 
                 autoResumeJob?.cancel()
                 autoResumeJob = serviceScope.launch {
@@ -395,9 +461,10 @@ class NavNotificationService : NotificationListenerService() {
                                     rawSigns.ifEmpty { "Điểm đến" }
                                 }
                             }
+                            val isIntermediate = isIntermediateStopNotification(sbn, navInfo)
                             if (!hasDispatchedArrival) {
                                 hasDispatchedArrival = true
-                                dispatchArrivalSummary(finalDest)
+                                dispatchArrivalSummary(finalDest, isIntermediate = isIntermediate)
                             }
                             _currentNavigationInfo.value = navInfo
                             updateStatusNotification(navInfo, true)
@@ -426,7 +493,7 @@ class NavNotificationService : NotificationListenerService() {
         }
     }
 
-    private fun dispatchArrivalSummary(finalDest: String) {
+    private fun dispatchArrivalSummary(finalDest: String, isIntermediate: Boolean = false) {
         stopTripDistanceTracking()
         val now = System.currentTimeMillis()
         val durationMs = if (tripStartTimeMs > 0L) (now - tripStartTimeMs) else 0L
@@ -437,45 +504,56 @@ class NavNotificationService : NotificationListenerService() {
             "${if (durationMin < 1) 1 else durationMin}m"
         }
 
-        // Determine the most reliable trip distance in meters:
-        // Priority 1: Google Maps total route length (maxTripDistanceMeters) is 100% reliable and immune to OS background throttling.
-        // If GPS actively recorded distance >= 85% of Maps (e.g. detour), use the larger recorded value.
-        val effectiveMeters: Double = when {
-            maxTripDistanceMeters > 0 && totalDistanceMeters >= maxTripDistanceMeters * 0.85 -> {
-                maxOf(totalDistanceMeters, maxTripDistanceMeters.toDouble())
-            }
-            maxTripDistanceMeters > 0 -> {
-                maxTripDistanceMeters.toDouble()
-            }
-            totalDistanceMeters >= 50.0 -> {
-                totalDistanceMeters
-            }
-            else -> {
-                val fallbackMeters = lastValidNavInfo?.getLengthMeters() ?: -1
-                if (fallbackMeters > 0) fallbackMeters.toDouble() else 0.0
-            }
-        }
+        val distanceStr: String
+        val avgSpeedStr: String
 
-        val distanceStr = when {
-            effectiveMeters >= 1000.0 -> {
-                String.format(java.util.Locale.US, "%.1f km", effectiveMeters / 1000.0)
+        if (isIntermediate) {
+            // Intermediate stop (waypoint): User requested NOT to show distance and speed (set to "--")
+            distanceStr = "--"
+            avgSpeedStr = "--"
+            GarminManager.addLog("[WAYPOINT ARRIVAL] Điểm dừng trung gian: $finalDest -> ẩn khoảng cách và vận tốc (-- / -)")
+        } else {
+            // Determine the most reliable trip distance in meters:
+            // Priority 1: If GPS actively recorded distance >= 70% of Maps, use the larger value
+            // Priority 2: If GPS recorded actual travel distance (>= 50m), use totalDistanceMeters
+            // Priority 3: Fallback to Maps maxTripDistanceMeters or last valid length
+            val effectiveMeters: Double = when {
+                maxTripDistanceMeters > 0 && totalDistanceMeters >= maxTripDistanceMeters * 0.7 -> {
+                    maxOf(totalDistanceMeters, maxTripDistanceMeters.toDouble())
+                }
+                totalDistanceMeters >= 50.0 -> {
+                    totalDistanceMeters
+                }
+                maxTripDistanceMeters > 0 -> {
+                    maxTripDistanceMeters.toDouble()
+                }
+                else -> {
+                    val fallbackMeters = lastValidNavInfo?.getLengthMeters() ?: -1
+                    if (fallbackMeters > 0) fallbackMeters.toDouble() else 0.0
+                }
             }
-            effectiveMeters > 0.0 -> {
-                "${effectiveMeters.toInt()} m"
-            }
-            tripStartLength.isNotEmpty() -> tripStartLength
-            else -> {
-                lastValidNavInfo?.length?.takeIf { it.isNotEmpty() && it != "-" } ?: "--"
-            }
-        }
 
-        val distanceKm = effectiveMeters / 1000.0
-        val durationSec = durationMs / 1000.0
-        val hours = durationSec / 3600.0
-        val rawAvgSpeed = if (hours > 0.0 && durationSec >= 15.0 && distanceKm >= 0.05) {
-            Math.round(distanceKm / hours).toInt()
-        } else 0
-        val avgSpeedStr = if (rawAvgSpeed in 1..180) "$rawAvgSpeed km/h" else "--"
+            distanceStr = when {
+                effectiveMeters >= 1000.0 -> {
+                    String.format(java.util.Locale.US, "%.1f km", effectiveMeters / 1000.0)
+                }
+                effectiveMeters > 0.0 -> {
+                    "${effectiveMeters.toInt()} m"
+                }
+                tripStartLength.isNotEmpty() -> tripStartLength
+                else -> {
+                    lastValidNavInfo?.length?.takeIf { it.isNotEmpty() && it != "-" } ?: "--"
+                }
+            }
+
+            val distanceKm = effectiveMeters / 1000.0
+            val durationSec = durationMs / 1000.0
+            val hours = durationSec / 3600.0
+            val rawAvgSpeed = if (hours > 0.0 && durationSec >= 15.0 && distanceKm >= 0.05) {
+                Math.round(distanceKm / hours).toInt()
+            } else 0
+            avgSpeedStr = if (rawAvgSpeed in 1..180) "$rawAvgSpeed km/h" else "--"
+        }
 
         val timeFormat = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
         val startTimeStr = if (tripStartTimeMs > 0L) timeFormat.format(java.util.Date(tripStartTimeMs)) else ""
@@ -491,7 +569,7 @@ class NavNotificationService : NotificationListenerService() {
         )
         _lastTripSummary.value = summary
         GarminManager.sendNavigationArrived(this, summary)
-        GarminManager.addLog("[ARRIVED] Dispatched to Garmin: $finalDest ($durationStr, $distanceStr, $avgSpeedStr)")
+        GarminManager.addLog("[ARRIVED] Dispatched to Garmin: $finalDest ($durationStr, $distanceStr, $avgSpeedStr, isIntermediate=$isIntermediate)")
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
@@ -513,7 +591,7 @@ class NavNotificationService : NotificationListenerService() {
             // SMART ARRIVAL FALLBACK:
             // If user was near destination (e.g. ETA <= 2m, dist <= 150m, foreign language, or arrived)
             // before notification was dismissed, dispatch Arrival + TripSummary to Garmin watch!
-            val shouldDispatchArrival = (isNear || lastArrived) && lastInfo != null
+            val shouldDispatchArrival = isNear || lastArrived
             if (shouldDispatchArrival) {
                 if (!hasDispatchedArrival) {
                     GarminManager.addLog("[SMART ARRIVAL] Fallback triggered! Near destination (dist=$lastDist, eta=${lastInfo?.eta}). Dispatching Arrived screen.")
@@ -522,7 +600,8 @@ class NavNotificationService : NotificationListenerService() {
                             lastInfo?.signs?.ifEmpty { "Điểm đến" } ?: "Điểm đến"
                         }
                     }
-                    dispatchArrivalSummary(finalDest)
+                    val isIntermediate = isIntermediateStopNotification(sbn, lastInfo) || hasWaypointAhead
+                    dispatchArrivalSummary(finalDest, isIntermediate = isIntermediate)
                 }
             } else {
                 Log.i(TAG, "Navigation notification removed, sending end signal")
