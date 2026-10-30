@@ -107,7 +107,7 @@ object GoogleMapsParser {
         if (d == "0 m" || d == "0 km" || d == "0") return true
         val hasDigit = d.any { it.isDigit() }
         val hasUnit = d.contains("m") || d.contains("km") || d.contains("ft") || d.contains("mi") || d.contains("yd")
-        return hasDigit && (hasUnit || d.length <= 10)
+        return hasDigit && hasUnit
     }
 
     private fun parseCar(values: NotificationValues): NavigationInfo? {
@@ -137,7 +137,7 @@ object GoogleMapsParser {
         }
 
         if (title.isNotEmpty() && subText != null) {
-            parseDistanceSigns(title, info)
+            parseDistanceSigns(title, info, text)
             parseEtaLengthDuration(subText, info)
             applyProgressInfo(values, info)
             return info
@@ -153,7 +153,7 @@ object GoogleMapsParser {
                 applyProgressInfo(values, info)
                 return info
             }
-            parseDistanceSigns(mainColumnTitle, info)
+            parseDistanceSigns(mainColumnTitle, info, text)
             info.eta = parseEtaOnly(subText)
             applyProgressInfo(values, info)
             return info
@@ -193,23 +193,10 @@ object GoogleMapsParser {
                 info.units = "km/h"
             }
         }
-        // If distance to next turn is empty, apply segment distance or remaining route distance
-        if (info.distance.isEmpty()) {
-            val segDist = values.segmentDistMeters
-            if (segDist != null && segDist >= 0) {
-                info.distance = if (segDist >= 1000) {
-                    String.format(java.util.Locale.US, "%.1f km", segDist / 1000.0)
-                } else {
-                    "$segDist m"
-                }
-            } else if (maxMeters != null && maxMeters > 0) {
-                val rem = (maxMeters - curMeters).coerceAtLeast(0)
-                info.distance = if (rem >= 1000) {
-                    String.format(java.util.Locale.US, "%.1f km", rem / 1000.0)
-                } else {
-                    "$rem m"
-                }
-            }
+        // Never overwrite info.distance with route remainder or segment distance!
+        // Maneuver distance is solely distance to next turn (e.g. "130 m", "0 m").
+        if (info.distance.isEmpty() && info.signs.isNotEmpty()) {
+            info.distance = "0 m"
         }
         // If duration is empty but ETA exists, compute remaining duration
         if (info.duration.isEmpty() && info.eta.isNotEmpty()) {
@@ -261,13 +248,33 @@ object GoogleMapsParser {
         return null
     }
 
-    private fun parseDistanceSigns(rawTitle: String, info: NavigationInfo) {
+    private fun parseDistanceSigns(rawTitle: String, info: NavigationInfo, textFallback: String = "") {
         val split = rawTitle.split(" · ", " • ", " – ", " - ", " – ", " - ", " – ", " - ")
         if (split.size >= 2) {
-            info.distance = split[0].trim()
-            info.signs = split[1].trim()
+            val candDist = split[0].trim()
+            if (isValidDistance(candDist)) {
+                info.distance = candDist
+                info.signs = split.drop(1).joinToString(" - ") { it.trim() }
+            } else {
+                info.signs = rawTitle.trim()
+            }
         } else if (split.size == 1) {
-            info.signs = split[0].trim()
+            val single = split[0].trim()
+            if (isValidDistance(single)) {
+                info.distance = single
+                if (textFallback.isNotEmpty()) {
+                    info.signs = textFallback.trim()
+                }
+            } else {
+                info.signs = single
+            }
+        }
+        if (info.signs.isEmpty() && textFallback.isNotEmpty()) {
+            info.signs = textFallback.trim()
+        }
+        // If title has no distance prefix (immediate maneuver at turn), set distance to "0 m"
+        if (info.distance.isEmpty() && info.signs.isNotEmpty()) {
+            info.distance = "0 m"
         }
     }
 
