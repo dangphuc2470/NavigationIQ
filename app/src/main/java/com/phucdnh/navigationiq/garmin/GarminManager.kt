@@ -56,8 +56,11 @@ object GarminManager {
     }
 
     private val _selectedChannel = MutableStateFlow(
-        if (com.phucdnh.navigationiq.BuildConfig.VERSION_NAME.contains("beta", ignoreCase = true) ||
-            com.phucdnh.navigationiq.BuildConfig.VERSION_CODE >= 10) WatchAppChannel.BETA else WatchAppChannel.RELEASE
+        if (com.phucdnh.navigationiq.BuildConfig.VERSION_NAME.contains("beta", ignoreCase = true)) {
+            WatchAppChannel.BETA
+        } else {
+            WatchAppChannel.RELEASE
+        }
     )
     val selectedChannelFlow = _selectedChannel.asStateFlow()
     val selectedChannel get() = _selectedChannel.value

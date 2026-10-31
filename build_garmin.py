@@ -44,9 +44,9 @@ CONFIGS = {
         "app_id": "0da65dc3-6e66-4072-bd03-802b2b9c3807",
         "app_name": "Navigation IQ",
         "is_beta": False,
-        "version_str": "v1.0.4",
-        "manifest_version": "1.0.4",
-        "output_iq": os.path.join(BIN_DIR, "NavigationIQ_Release_v1.0.4.iq"),
+        "version_str": "v1.0.5",
+        "manifest_version": "1.0.5",
+        "output_iq": os.path.join(BIN_DIR, "NavigationIQ_Release_v1.0.5.iq"),
         "description": "Garmin Connect IQ Store - Production Channel",
     }
 }
