@@ -484,8 +484,7 @@ fun MainScreen() {
                             updateInfo = null
                         },
                         onUpdateNow = {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(info.apkDownloadUrl))
-                            context.startActivity(intent)
+                            UpdateChecker.openPlayStore(context)
                             updateInfo = null
                         }
                     )
@@ -2621,7 +2620,7 @@ fun UpdateDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = if (isVi) "Tải trực tiếp file APK từ GitHub Releases" else "Direct APK download from GitHub Releases",
+                    text = if (isVi) "Cập nhật chính thức qua Google Play Store" else "Official update via Google Play Store",
                     fontSize = 11.sp,
                     color = palette.textTertiary
                 )

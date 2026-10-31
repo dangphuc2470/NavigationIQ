@@ -1,6 +1,8 @@
 package com.phucdnh.navigationiq.update
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import com.phucdnh.navigationiq.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -134,5 +136,20 @@ object UpdateChecker {
             .map { it.trim() }
             .filter { it.isNotEmpty() && !it.startsWith("#") }
             .joinToString("\n")
+    }
+
+    fun openPlayStore(context: Context) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${context.packageName}")).apply {
+                setPackage("com.android.vending")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=${context.packageName}")).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(webIntent)
+        }
     }
 }

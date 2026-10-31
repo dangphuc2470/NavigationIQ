@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Navigation IQ</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #5f6368;
+            --accent-blue: #1a73e8;
+            --border-color: #e0e0e0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #121212;
+                --card-bg: #1e1e1e;
+                --text-primary: #e8eaed;
+                --text-secondary: #9aa0a6;
+                --accent-blue: #8ab4f8;
+                --border-color: #333333;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 24px 16px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .header {
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(26, 115, 232, 0.12);
+            color: var(--accent-blue);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 999px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .meta {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 28px;
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        ul {
+            margin-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background: rgba(26, 115, 232, 0.06);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+
+        .highlight-box p {
+            margin-bottom: 0;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="badge">Legal & Privacy</span>
+            <h1>Privacy Policy for Navigation IQ</h1>
+            <p class="meta">Effective Date: October 31, 2026 | Last Updated: October 31, 2026</p>
+        </div>
+
+        <div class="highlight-box">
+            <p>Summary: Navigation IQ operates strictly on your local device as a companion bridge. We do NOT collect, store, sell, or transmit any personal data or location coordinates to any remote server.</p>
+        </div>
+
+        <h2>1. Overview</h2>
+        <p>Navigation IQ is developed by <strong>PhucDNH</strong> ("we", "us", or "our") as a companion utility application designed to mirror turn-by-turn navigation guidance from navigation apps (such as Google Maps and OsmAnd) onto paired Garmin smartwatches via Bluetooth.</p>
+
+        <h2>2. Information We Access and How It Is Used</h2>
+        <p>To provide turn-by-turn navigation alerts on your Garmin smartwatch, Navigation IQ requires access to certain Android device capabilities:</p>
+        <ul>
+            <li><strong>Notification Access (NotificationListenerService):</strong> Navigation IQ listens exclusively for active navigation notifications published by supported navigation apps (Google Maps and OsmAnd). The application parses navigation text, distance countdowns, and turn maneuver icons directly in memory on your phone. This information is packaged and immediately forwarded to your Garmin smartwatch over Bluetooth. The contents of these notifications are never written to permanent storage and are never transmitted to any third-party or remote server.</li>
+            <li><strong>Bluetooth & Nearby Devices (BLUETOOTH_CONNECT, BLUETOOTH_SCAN):</strong> Required by the official Garmin Connect IQ Mobile SDK to locate, connect, and stream navigation packets to your paired Garmin smartwatch.</li>
+            <li><strong>Foreground Service (FOREGROUND_SERVICE_CONNECTED_DEVICE):</strong> Used to maintain an uninterrupted Bluetooth communication bridge while active navigation is underway, preventing the operating system from terminating the connection while your phone screen is turned off.</li>
+            <li><strong>Battery Optimization Exemption:</strong> Requested optionally so your phone's power manager does not pause background BLE transmission while you are driving or riding.</li>
+        </ul>
+
+        <h2>3. Data Collection and Storage</h2>
+        <p>Navigation IQ does <strong>NOT</strong> collect, save, or upload any personal information. Specifically:</p>
+        <ul>
+            <li>We do NOT collect your name, phone number, email, or address.</li>
+            <li>We do NOT track, record, or store your GPS locations, routes, or trip history.</li>
+            <li>We do NOT operate any user registration, account system, or cloud storage.</li>
+        </ul>
+
+        <h2>4. Third-Party Services and Advertising</h2>
+        <p>Navigation IQ integrates with the following third-party developer services:</p>
+        <ul>
+            <li><strong>Garmin Connect IQ SDK:</strong> Used strictly for device pairing and data transmission between your Android smartphone and Garmin wearable device. Subject to <a href="https://www.garmin.com/en-US/privacy/global/" target="_blank" rel="noopener">Garmin's Privacy Policy</a>.</li>
+            <li><strong>Google Play Services & Firebase (Crashlytics / Analytics):</strong> May collect anonymous diagnostic information (such as crash logs, app lifecycle events, and device hardware specifications) to help us troubleshoot errors and improve app stability.</li>
+            <li><strong>Google AdMob:</strong> When advertising is active, Google AdMob may use pseudonymous advertising identifiers (such as the Google Advertising ID) and device information to display relevant banner ads. You can review Google's advertising practices in the <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy & Terms</a>.</li>
+        </ul>
+
+        <h2>5. Children's Privacy</h2>
+        <p>Navigation IQ is not intended for use by children under the age of 13. We do not knowingly collect any personal identifiable information from children.</p>
+
+        <h2>6. Security</h2>
+        <p>Because all data parsing occurs locally in temporary volatile memory (RAM) and communication with your watch is conducted via authenticated Bluetooth connections, your navigation data remains entirely within your personal control.</p>
+
+        <h2>7. Changes to This Privacy Policy</h2>
+        <p>We may update this Privacy Policy from time to time. Any revisions will be reflected on this page with an updated effective date. We encourage you to review this page periodically.</p>
+
+        <h2>8. Contact Information</h2>
+        <p>If you have any questions, feedback, or concerns regarding this Privacy Policy or your data privacy while using Navigation IQ, please contact us at:</p>
+        <p><strong>Developer:</strong> PhucDNH<br>
+        <strong>Email:</strong> <a href="mailto:dangnguyenhoangphuc1@gmail.com">dangnguyenhoangphuc1@gmail.com</a><br>
+        <strong>GitHub:</strong> <a href="https://github.com/dangphuc2470/NavigationIQ" target="_blank" rel="noopener">https://github.com/dangphuc2470/NavigationIQ</a></p>
+
+        <div class="footer">
+            <p>&copy; 2026 Navigation IQ. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
