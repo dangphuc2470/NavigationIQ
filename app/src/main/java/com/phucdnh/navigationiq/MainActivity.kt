@@ -98,6 +98,10 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.phucdnh.navigationiq.garmin.GarminManager
 import com.phucdnh.navigationiq.model.NavigationInfo
 import com.phucdnh.navigationiq.service.NavNotificationService
+import com.phucdnh.navigationiq.update.AppUpdateInfo
+import com.phucdnh.navigationiq.update.UpdateChecker
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -259,6 +263,14 @@ fun MainScreen() {
         pageCount = { AppPage.entries.size }
     )
     val coroutineScope = rememberCoroutineScope()
+    var updateInfo by remember { mutableStateOf<AppUpdateInfo?>(null) }
+
+    LaunchedEffect(Unit) {
+        val info = UpdateChecker.checkForUpdate(context, isManualCheck = false)
+        if (info != null) {
+            updateInfo = info
+        }
+    }
 
     LaunchedEffect(pagerState.currentPage) {
         activePage = AppPage.entries[pagerState.currentPage]
@@ -399,6 +411,9 @@ fun MainScreen() {
                                 onSelectLanguage = { lang ->
                                     currentLanguage = lang
                                     sharedPrefs.edit().putString("app_language", lang.code).apply()
+                                },
+                                onTriggerUpdate = { info ->
+                                    updateInfo = info
                                 }
                             )
 
@@ -454,6 +469,24 @@ fun MainScreen() {
                                 simulatedNavInfo = quickMock
                                 GarminManager.sendNavigationInfo(context, quickMock)
                             }
+                        }
+                    )
+                }
+
+                if (updateInfo != null) {
+                    val info = updateInfo!!
+                    UpdateDialog(
+                        updateInfo = info,
+                        isVi = isVi,
+                        onDismiss = { updateInfo = null },
+                        onSkipVersion = {
+                            UpdateChecker.setSkippedVersion(context, info.versionName)
+                            updateInfo = null
+                        },
+                        onUpdateNow = {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(info.apkDownloadUrl))
+                            context.startActivity(intent)
+                            updateInfo = null
                         }
                     )
                 }
@@ -1791,7 +1824,8 @@ fun SystemSettingsPage(
     sentCount: Int,
     currentLanguage: AppLanguage,
     isVi: Boolean,
-    onSelectLanguage: (AppLanguage) -> Unit
+    onSelectLanguage: (AppLanguage) -> Unit,
+    onTriggerUpdate: (AppUpdateInfo) -> Unit = {}
 ) {
     val context = LocalContext.current
     val palette = LocalApplePalette.current
@@ -2179,6 +2213,39 @@ fun SystemSettingsPage(
                             context.startActivity(intent)
                         }
                     )
+
+                    HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
+
+                    var isCheckingUpdate by remember { mutableStateOf(false) }
+                    val settingsScope = rememberCoroutineScope()
+                    AppleSettingsRow(
+                        icon = Icons.Default.Refresh,
+                        iconTint = palette.blue,
+                        title = if (isVi) "Kiểm tra bản cập nhật mới" else "Check for Updates",
+                        subtitle = if (isVi) "Phiên bản hiện tại: v${BuildConfig.VERSION_NAME}" else "Current version: v${BuildConfig.VERSION_NAME}",
+                        badgeText = if (isCheckingUpdate) (if (isVi) "ĐANG KIỂM TRA" else "CHECKING") else null,
+                        badgeColor = palette.blue,
+                        showChevron = true,
+                        onClick = {
+                            if (!isCheckingUpdate) {
+                                settingsScope.launch {
+                                    isCheckingUpdate = true
+                                    val info = UpdateChecker.checkForUpdate(context, isManualCheck = true)
+                                    isCheckingUpdate = false
+                                    if (info != null) {
+                                        onTriggerUpdate(info)
+                                    } else {
+                                        android.widget.Toast.makeText(
+                                            context,
+                                            if (isVi) "Bạn đang ở phiên bản mới nhất (v${BuildConfig.VERSION_NAME})"
+                                            else "You are on the latest version (v${BuildConfig.VERSION_NAME})",
+                                            android.widget.Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -2475,6 +2542,117 @@ fun AppleSectionHeader(title: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 12.dp, bottom = 6.dp)
+    )
+}
+
+@Composable
+fun UpdateDialog(
+    updateInfo: AppUpdateInfo,
+    isVi: Boolean,
+    onDismiss: () -> Unit,
+    onSkipVersion: () -> Unit,
+    onUpdateNow: () -> Unit
+) {
+    val palette = LocalApplePalette.current
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(26.dp),
+        containerColor = palette.card,
+        tonalElevation = 6.dp,
+        icon = {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(palette.blue.copy(alpha = 0.12f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Download,
+                    contentDescription = null,
+                    tint = palette.blue,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
+        },
+        title = {
+            Text(
+                text = if (isVi) "Phiên bản mới: v${updateInfo.versionName}" else "New Version: v${updateInfo.versionName}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = palette.textPrimary,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (updateInfo.whatsNew.isNotBlank()) {
+                    Text(
+                        text = if (isVi) "Có gì mới:" else "What's new:",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = palette.textSecondary
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 160.dp)
+                            .background(palette.bg, RoundedCornerShape(12.dp))
+                            .padding(10.dp)
+                    ) {
+                        Text(
+                            text = updateInfo.whatsNew,
+                            fontSize = 12.sp,
+                            color = palette.textPrimary,
+                            lineHeight = 17.sp,
+                            modifier = Modifier.verticalScroll(rememberScrollState())
+                        )
+                    }
+                } else {
+                    Text(
+                        text = if (isVi) "Đã có bản cập nhật mới trên GitHub với nhiều cải tiến và sửa lỗi." else "A new update is available on GitHub with performance improvements and bug fixes.",
+                        fontSize = 13.sp,
+                        color = palette.textSecondary
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = if (isVi) "Tải trực tiếp file APK từ GitHub Releases" else "Direct APK download from GitHub Releases",
+                    fontSize = 11.sp,
+                    color = palette.textTertiary
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onUpdateNow,
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = palette.blue,
+                    contentColor = if (palette.isDark) palette.bg else Color.White
+                )
+            ) {
+                Text(
+                    text = if (isVi) "Cập nhật ngay" else "Update Now",
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onSkipVersion,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(
+                    text = if (isVi) "Bỏ qua bản này" else "Skip this version",
+                    color = palette.textTertiary
+                )
+            }
+        }
     )
 }
 
