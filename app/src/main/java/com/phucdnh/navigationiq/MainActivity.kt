@@ -2556,7 +2556,7 @@ fun UpdateDialog(
     val palette = LocalApplePalette.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(26.dp),
+        shape = RoundedCornerShape(28.dp),
         containerColor = palette.card,
         tonalElevation = 6.dp,
         icon = {
@@ -2628,31 +2628,42 @@ fun UpdateDialog(
             }
         },
         confirmButton = {
-            Button(
-                onClick = onUpdateNow,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = palette.blue,
-                    contentColor = if (palette.isDark) palette.bg else Color.White
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = if (isVi) "Cập nhật ngay" else "Update Now",
-                    fontWeight = FontWeight.Bold
-                )
+                TextButton(
+                    onClick = onSkipVersion,
+                    shape = ButtonDefaults.shape,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = palette.blue
+                    )
+                ) {
+                    Text(
+                        text = if (isVi) "Bỏ qua bản này" else "Skip this version",
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Button(
+                    onClick = onUpdateNow,
+                    shape = ButtonDefaults.shape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = palette.blue,
+                        contentColor = if (palette.isDark) palette.bg else Color.White
+                    )
+                ) {
+                    Text(
+                        text = if (isVi) "Cập nhật" else "Update",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         },
-        dismissButton = {
-            TextButton(
-                onClick = onSkipVersion,
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = if (isVi) "Bỏ qua bản này" else "Skip this version",
-                    color = palette.textTertiary
-                )
-            }
-        }
+        dismissButton = null
     )
 }
 
