@@ -46,7 +46,6 @@ class NavNotificationService : NotificationListenerService() {
     companion object {
         private const val TAG = "NavNotificationService"
         const val GOOGLE_MAPS_PACKAGE = "com.google.android.apps.maps"
-        const val OSMAND_PACKAGE = "net.osmand"
         private const val NOTIFICATION_CHANNEL_ID = "navigation_iq_service_channel"
         private const val NOTIFICATION_ID = 2470
 
@@ -412,8 +411,8 @@ class NavNotificationService : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (sbn == null) return
         val pkg = sbn.packageName ?: return
-        // 1. Navigation notification handling (Google Maps, OsmAnd)
-        if (pkg == GOOGLE_MAPS_PACKAGE || pkg == OSMAND_PACKAGE || pkg == "com.google.android.apps.mapslite") {
+        // 1. Navigation notification handling (Google Maps)
+        if (pkg == GOOGLE_MAPS_PACKAGE || pkg == "com.google.android.apps.mapslite") {
             val notif = sbn.notification
             val extras = notif?.extras
             val rawTitle = extras?.getCharSequence("android.title")?.toString() ?: ""
@@ -650,7 +649,7 @@ class NavNotificationService : NotificationListenerService() {
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         if (sbn == null) return
         val pkg = sbn.packageName ?: return
-        if (pkg == GOOGLE_MAPS_PACKAGE || pkg == OSMAND_PACKAGE) {
+        if (pkg == GOOGLE_MAPS_PACKAGE || pkg == "com.google.android.apps.mapslite") {
             if (sbn.id == 1554 || sbn.tag == "yev") {
                 GarminManager.addLog("[MAPS REMOVED] Resume notification removed (id=${sbn.id}) -> Chặng mới tiếp tục")
                 return

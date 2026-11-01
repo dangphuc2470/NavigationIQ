@@ -19,7 +19,6 @@
 
     <queries>
         <package android:name="com.google.android.apps.maps" />
-        <package android:name="net.osmand" />
         <package android:name="com.garmin.android.apps.connectmobile" />
     </queries>
 

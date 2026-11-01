@@ -2082,8 +2082,8 @@ fun SystemSettingsPage(
                         iconTint = if (isNotificationGranted) palette.green else palette.orange,
                         title = if (isVi) "Quyền đọc thông báo" else "Notification Access",
                         subtitle = if (isNotificationGranted) {
-                            if (isVi) "Đã bật • Đang lắng nghe chỉ đường từ Google Maps & OsmAnd"
-                            else "Enabled • Capturing directions from Google Maps & OsmAnd"
+                            if (isVi) "Đã bật • Đang lắng nghe chỉ đường từ Google Maps"
+                            else "Enabled • Capturing directions from Google Maps"
                         } else {
                             if (isVi) "Chưa cấp quyền • Bấm để mở cài đặt hệ thống"
                             else "Not granted • Tap to open system settings"

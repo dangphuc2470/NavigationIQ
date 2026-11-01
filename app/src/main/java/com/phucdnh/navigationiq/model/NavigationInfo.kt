@@ -19,7 +19,7 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Data model for turn-by-turn navigation state extracted from Google Maps / OsmAnd.
+ * Data model for turn-by-turn navigation state extracted from Google Maps.
  * Directly ported from HeadUpNav com.navigationparser.lib.Parsing.NavigationInfo.
  */
 data class NavigationInfo(
