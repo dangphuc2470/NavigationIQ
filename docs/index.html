@@ -4,24 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy - Navigation IQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #5f6368;
-            --accent-blue: #1a73e8;
-            --border-color: #e0e0e0;
+            /* Material Design 3 Green Palette (Light) */
+            --md-sys-color-primary: #006d44;
+            --md-sys-color-on-primary: #ffffff;
+            --md-sys-color-primary-container: #b9f3cf;
+            --md-sys-color-on-primary-container: #002111;
+            --md-sys-color-surface: #f6faf4;
+            --md-sys-color-surface-container: #ffffff;
+            --md-sys-color-surface-container-high: #e9f0e8;
+            --md-sys-color-surface-container-highest: #dde5db;
+            --md-sys-color-on-surface: #171d18;
+            --md-sys-color-on-surface-variant: #404941;
+            --md-sys-color-outline: #717970;
+            --md-sys-color-outline-variant: #c0c9bf;
+            --md-sys-color-tertiary-container: #c4e7ff;
+            --md-sys-color-on-tertiary-container: #001e30;
+            --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.08);
+            --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+            --radius-xs: 8px;
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-full: 9999px;
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
-                --bg-color: #121212;
-                --card-bg: #1e1e1e;
-                --text-primary: #e8eaed;
-                --text-secondary: #9aa0a6;
-                --accent-blue: #8ab4f8;
-                --border-color: #333333;
+                /* Material Design 3 Green Palette (Dark) */
+                --md-sys-color-primary: #52dc98;
+                --md-sys-color-on-primary: #003920;
+                --md-sys-color-primary-container: #005232;
+                --md-sys-color-on-primary-container: #b9f3cf;
+                --md-sys-color-surface: #0e1511;
+                --md-sys-color-surface-container: #161e18;
+                --md-sys-color-surface-container-high: #202922;
+                --md-sys-color-surface-container-highest: #2b352d;
+                --md-sys-color-on-surface: #dfe5dd;
+                --md-sys-color-on-surface-variant: #bfc8be;
+                --md-sys-color-outline: #899389;
+                --md-sys-color-outline-variant: #404941;
+                --md-sys-color-tertiary-container: #004d72;
+                --md-sys-color-on-tertiary-container: #c4e7ff;
+                --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.2);
+                --shadow-2: 0 6px 16px rgba(0, 0, 0, 0.35);
             }
         }
 
@@ -32,169 +62,393 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            line-height: 1.6;
-            padding: 24px 16px;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--md-sys-color-surface);
+            color: var(--md-sys-color-on-surface);
+            line-height: 1.65;
+            padding: 32px 16px;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .container {
-            max-width: 800px;
+        .main-wrapper {
+            max-width: 820px;
             margin: 0 auto;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 40px 32px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
         }
 
-        .header {
-            margin-bottom: 32px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 24px;
+        /* Top Brand Bar */
+        .brand-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding: 0 8px;
         }
 
-        .badge {
-            display: inline-block;
-            background: rgba(26, 115, 232, 0.12);
-            color: var(--accent-blue);
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            background: var(--md-sys-color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--md-sys-color-on-primary);
+            box-shadow: var(--shadow-1);
+        }
+
+        .brand-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+        }
+
+        .brand-title {
+            font-size: 19px;
+            font-weight: 800;
+            color: var(--md-sys-color-on-surface);
+            letter-spacing: -0.3px;
+        }
+
+        .brand-badge {
+            margin-left: auto;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            background: var(--md-sys-color-surface-container-highest);
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        /* Hero / Header Card */
+        .hero-card {
+            background: var(--md-sys-color-surface-container);
+            border: 1px solid var(--md-sys-color-outline-variant);
+            border-radius: var(--radius-lg);
+            padding: 36px 32px;
+            box-shadow: var(--shadow-2);
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--md-sys-color-primary), #22c55e);
+        }
+
+        .pill-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             font-size: 12px;
             font-weight: 700;
-            padding: 4px 12px;
-            border-radius: 999px;
-            margin-bottom: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            background: var(--md-sys-color-primary-container);
+            color: var(--md-sys-color-on-primary-container);
+            margin-bottom: 14px;
+        }
+
+        .pill-tag svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
         }
 
         h1 {
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 800;
-            color: var(--text-primary);
-            margin-bottom: 8px;
+            line-height: 1.25;
+            letter-spacing: -0.6px;
+            color: var(--md-sys-color-on-surface);
+            margin-bottom: 10px;
         }
 
-        .meta {
-            font-size: 14px;
-            color: var(--text-secondary);
+        .meta-text {
+            font-size: 13.5px;
+            color: var(--md-sys-color-on-surface-variant);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
         }
 
-        h2 {
-            font-size: 20px;
+        /* Summary Banner */
+        .summary-card {
+            background: var(--md-sys-color-primary-container);
+            color: var(--md-sys-color-on-primary-container);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            margin-top: 24px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .summary-icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            margin-top: 2px;
+            fill: currentColor;
+        }
+
+        .summary-card p {
+            font-size: 14.5px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        /* Content Sections */
+        .section-card {
+            background: var(--md-sys-color-surface-container);
+            border: 1px solid var(--md-sys-color-outline-variant);
+            border-radius: var(--radius-md);
+            padding: 28px 28px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-1);
+        }
+
+        .section-card h2 {
+            font-size: 18.5px;
             font-weight: 700;
-            color: var(--text-primary);
-            margin-top: 28px;
-            margin-bottom: 12px;
+            color: var(--md-sys-color-on-surface);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        p {
-            font-size: 15px;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
+        .section-card h2 svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--md-sys-color-primary);
         }
 
-        ul {
-            margin-left: 20px;
-            margin-bottom: 16px;
+        .section-card p {
+            font-size: 14.5px;
+            color: var(--md-sys-color-on-surface-variant);
+            margin-bottom: 14px;
         }
 
-        li {
-            font-size: 15px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
+        .section-card ul {
+            list-style: none;
+            padding-left: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
-        .highlight-box {
-            background: rgba(26, 115, 232, 0.06);
-            border-left: 4px solid var(--accent-blue);
-            border-radius: 8px;
-            padding: 16px;
-            margin: 20px 0;
+        .section-card li {
+            font-size: 14px;
+            color: var(--md-sys-color-on-surface-variant);
+            background: var(--md-sys-color-surface-container-high);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            line-height: 1.55;
+            border-left: 3px solid var(--md-sys-color-primary);
         }
 
-        .highlight-box p {
-            margin-bottom: 0;
-            color: var(--text-primary);
-            font-weight: 500;
+        .section-card li strong {
+            color: var(--md-sys-color-on-surface);
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
         }
 
+        /* Clean Link */
         a {
-            color: var(--accent-blue);
+            color: var(--md-sys-color-primary);
             text-decoration: none;
+            font-weight: 600;
         }
 
         a:hover {
             text-decoration: underline;
         }
 
+        /* Contact Details */
+        .contact-box {
+            background: var(--md-sys-color-surface-container-high);
+            border-radius: var(--radius-sm);
+            padding: 18px 20px;
+            font-size: 14px;
+            color: var(--md-sys-color-on-surface);
+            line-height: 1.8;
+            margin-top: 10px;
+        }
+
+        .contact-box strong {
+            display: inline-block;
+            width: 100px;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        /* Footer */
         .footer {
-            margin-top: 40px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 20px;
-            font-size: 13px;
-            color: var(--text-secondary);
             text-align: center;
+            padding: 32px 16px 16px;
+            font-size: 13px;
+            color: var(--md-sys-color-outline);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <span class="badge">Legal & Privacy</span>
+    <div class="main-wrapper">
+        <!-- Top Brand Bar -->
+        <div class="brand-bar">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>
+            </div>
+            <div class="brand-title">Navigation IQ</div>
+            <div class="brand-badge">Official Policy</div>
+        </div>
+
+        <!-- Hero Header -->
+        <div class="hero-card">
+            <span class="pill-tag">
+                <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                Privacy & Data Security
+            </span>
             <h1>Privacy Policy for Navigation IQ</h1>
-            <p class="meta">Effective Date: October 31, 2026 | Last Updated: October 31, 2026</p>
+            <div class="meta-text">
+                <span><strong>Effective Date:</strong> October 31, 2026</span>
+                <span>•</span>
+                <span><strong>Last Updated:</strong> October 31, 2026</span>
+            </div>
+
+            <div class="summary-card">
+                <svg class="summary-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                <p>Summary: Navigation IQ operates strictly on your local device as an offline companion bridge. We do NOT collect, store, sell, or transmit any personal data or location coordinates to any remote server.</p>
+            </div>
         </div>
 
-        <div class="highlight-box">
-            <p>Summary: Navigation IQ operates strictly on your local device as a companion bridge. We do NOT collect, store, sell, or transmit any personal data or location coordinates to any remote server.</p>
+        <!-- 1. Overview -->
+        <div class="section-card">
+            <h2>
+                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                1. Overview
+            </h2>
+            <p>Navigation IQ is developed by <strong>PhucDNH</strong> ("we", "us", or "our") as a companion utility application designed to mirror turn-by-turn navigation guidance from navigation apps (such as Google Maps and OsmAnd) onto paired Garmin smartwatches via Bluetooth.</p>
         </div>
 
-        <h2>1. Overview</h2>
-        <p>Navigation IQ is developed by <strong>PhucDNH</strong> ("we", "us", or "our") as a companion utility application designed to mirror turn-by-turn navigation guidance from navigation apps (such as Google Maps and OsmAnd) onto paired Garmin smartwatches via Bluetooth.</p>
+        <!-- 2. Device Capabilities & Permissions -->
+        <div class="section-card">
+            <h2>
+                <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                2. Information We Access and How It Is Used
+            </h2>
+            <p>To provide turn-by-turn navigation alerts on your Garmin smartwatch, Navigation IQ requires access to certain Android device capabilities:</p>
+            <ul>
+                <li>
+                    <strong>Notification Access (NotificationListenerService)</strong>
+                    Navigation IQ listens exclusively for active navigation notifications published by supported navigation apps (Google Maps and OsmAnd). The application parses navigation text, distance countdowns, and turn maneuver icons directly in volatile memory (RAM) on your phone. This information is packaged and immediately forwarded to your Garmin smartwatch over Bluetooth. The contents of these notifications are never written to permanent storage and are never transmitted to any third-party or remote server.
+                </li>
+                <li>
+                    <strong>Bluetooth & Nearby Devices (BLUETOOTH_CONNECT, BLUETOOTH_SCAN)</strong>
+                    Required by the official Garmin Connect IQ Mobile SDK to locate, connect, and stream navigation packets to your paired Garmin smartwatch.
+                </li>
+                <li>
+                    <strong>Foreground Service (FOREGROUND_SERVICE_CONNECTED_DEVICE)</strong>
+                    Used to maintain an uninterrupted Bluetooth communication bridge while active navigation is underway, preventing the operating system from terminating the connection while your phone screen is turned off.
+                </li>
+                <li>
+                    <strong>Battery Optimization Exemption</strong>
+                    Requested optionally so your phone's power manager does not pause background BLE transmission while you are driving or riding.
+                </li>
+            </ul>
+        </div>
 
-        <h2>2. Information We Access and How It Is Used</h2>
-        <p>To provide turn-by-turn navigation alerts on your Garmin smartwatch, Navigation IQ requires access to certain Android device capabilities:</p>
-        <ul>
-            <li><strong>Notification Access (NotificationListenerService):</strong> Navigation IQ listens exclusively for active navigation notifications published by supported navigation apps (Google Maps and OsmAnd). The application parses navigation text, distance countdowns, and turn maneuver icons directly in memory on your phone. This information is packaged and immediately forwarded to your Garmin smartwatch over Bluetooth. The contents of these notifications are never written to permanent storage and are never transmitted to any third-party or remote server.</li>
-            <li><strong>Bluetooth & Nearby Devices (BLUETOOTH_CONNECT, BLUETOOTH_SCAN):</strong> Required by the official Garmin Connect IQ Mobile SDK to locate, connect, and stream navigation packets to your paired Garmin smartwatch.</li>
-            <li><strong>Foreground Service (FOREGROUND_SERVICE_CONNECTED_DEVICE):</strong> Used to maintain an uninterrupted Bluetooth communication bridge while active navigation is underway, preventing the operating system from terminating the connection while your phone screen is turned off.</li>
-            <li><strong>Battery Optimization Exemption:</strong> Requested optionally so your phone's power manager does not pause background BLE transmission while you are driving or riding.</li>
-        </ul>
+        <!-- 3. Data Collection and Storage -->
+        <div class="section-card">
+            <h2>
+                <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.94 6 12 6c2.62 0 4.88 1.86 5.39 4.43l.3 1.5 1.53.11c1.56.1 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3z"/></svg>
+                3. Data Collection and Storage
+            </h2>
+            <p>Navigation IQ does <strong>NOT</strong> collect, save, or upload any personal information. Specifically:</p>
+            <ul>
+                <li>
+                    <strong>No Personal Identifiers:</strong> We do NOT collect your name, phone number, email, or physical address.
+                </li>
+                <li>
+                    <strong>No Location Tracking:</strong> We do NOT track, record, or store your GPS locations, routes, or trip history.
+                </li>
+                <li>
+                    <strong>No Cloud Accounts:</strong> We do NOT operate any user registration, account system, or cloud database.
+                </li>
+            </ul>
+        </div>
 
-        <h2>3. Data Collection and Storage</h2>
-        <p>Navigation IQ does <strong>NOT</strong> collect, save, or upload any personal information. Specifically:</p>
-        <ul>
-            <li>We do NOT collect your name, phone number, email, or address.</li>
-            <li>We do NOT track, record, or store your GPS locations, routes, or trip history.</li>
-            <li>We do NOT operate any user registration, account system, or cloud storage.</li>
-        </ul>
+        <!-- 4. Third-Party Services -->
+        <div class="section-card">
+            <h2>
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                4. Third-Party Services and Advertising
+            </h2>
+            <p>Navigation IQ integrates with the following third-party developer services:</p>
+            <ul>
+                <li>
+                    <strong>Garmin Connect IQ SDK:</strong> Used strictly for device pairing and data transmission between your Android smartphone and Garmin wearable device. Subject to <a href="https://www.garmin.com/en-US/privacy/global/" target="_blank" rel="noopener">Garmin's Privacy Policy</a>.
+                </li>
+                <li>
+                    <strong>Google Play Services & Firebase (Crashlytics / Analytics):</strong> May collect anonymous diagnostic information (such as crash logs, app lifecycle events, and device hardware specifications) to help us troubleshoot errors and improve app stability.
+                </li>
+                <li>
+                    <strong>Google AdMob:</strong> When advertising is active, Google AdMob may use pseudonymous advertising identifiers (such as the Google Advertising ID) and device information to display relevant banner ads. You can review Google's advertising practices in the <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy & Terms</a>.
+                </li>
+            </ul>
+        </div>
 
-        <h2>4. Third-Party Services and Advertising</h2>
-        <p>Navigation IQ integrates with the following third-party developer services:</p>
-        <ul>
-            <li><strong>Garmin Connect IQ SDK:</strong> Used strictly for device pairing and data transmission between your Android smartphone and Garmin wearable device. Subject to <a href="https://www.garmin.com/en-US/privacy/global/" target="_blank" rel="noopener">Garmin's Privacy Policy</a>.</li>
-            <li><strong>Google Play Services & Firebase (Crashlytics / Analytics):</strong> May collect anonymous diagnostic information (such as crash logs, app lifecycle events, and device hardware specifications) to help us troubleshoot errors and improve app stability.</li>
-            <li><strong>Google AdMob:</strong> When advertising is active, Google AdMob may use pseudonymous advertising identifiers (such as the Google Advertising ID) and device information to display relevant banner ads. You can review Google's advertising practices in the <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy & Terms</a>.</li>
-        </ul>
+        <!-- 5. Children's Privacy -->
+        <div class="section-card">
+            <h2>
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                5. Children's Privacy
+            </h2>
+            <p>Navigation IQ is not intended for use by children under the age of 13. We do not knowingly collect any personal identifiable information from children.</p>
+        </div>
 
-        <h2>5. Children's Privacy</h2>
-        <p>Navigation IQ is not intended for use by children under the age of 13. We do not knowingly collect any personal identifiable information from children.</p>
+        <!-- 6. Security -->
+        <div class="section-card">
+            <h2>
+                <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+                6. Security
+            </h2>
+            <p>Because all data parsing occurs locally in temporary volatile memory (RAM) and communication with your watch is conducted via authenticated Bluetooth connections, your navigation data remains entirely within your personal control.</p>
+        </div>
 
-        <h2>6. Security</h2>
-        <p>Because all data parsing occurs locally in temporary volatile memory (RAM) and communication with your watch is conducted via authenticated Bluetooth connections, your navigation data remains entirely within your personal control.</p>
+        <!-- 7. Changes to Policy -->
+        <div class="section-card">
+            <h2>
+                <svg viewBox="0 0 24 24"><path d="M11 17h2v-6h-2v6zm1-15C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                7. Changes to This Privacy Policy
+            </h2>
+            <p>We may update this Privacy Policy from time to time. Any revisions will be reflected on this page with an updated effective date. We encourage you to review this page periodically.</p>
+        </div>
 
-        <h2>7. Changes to This Privacy Policy</h2>
-        <p>We may update this Privacy Policy from time to time. Any revisions will be reflected on this page with an updated effective date. We encourage you to review this page periodically.</p>
+        <!-- 8. Contact Information -->
+        <div class="section-card">
+            <h2>
+                <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                8. Contact Information
+            </h2>
+            <p>If you have any questions, feedback, or concerns regarding this Privacy Policy or your data privacy while using Navigation IQ, please contact us at:</p>
+            <div class="contact-box">
+                <div><strong>Developer:</strong> PhucDNH</div>
+                <div><strong>Email:</strong> <a href="mailto:dangnguyenhoangphuc1@gmail.com">dangnguyenhoangphuc1@gmail.com</a></div>
+                <div><strong>GitHub:</strong> <a href="https://github.com/dangphuc2470/NavigationIQ" target="_blank" rel="noopener">https://github.com/dangphuc2470/NavigationIQ</a></div>
+            </div>
+        </div>
 
-        <h2>8. Contact Information</h2>
-        <p>If you have any questions, feedback, or concerns regarding this Privacy Policy or your data privacy while using Navigation IQ, please contact us at:</p>
-        <p><strong>Developer:</strong> PhucDNH<br>
-        <strong>Email:</strong> <a href="mailto:dangnguyenhoangphuc1@gmail.com">dangnguyenhoangphuc1@gmail.com</a><br>
-        <strong>GitHub:</strong> <a href="https://github.com/dangphuc2470/NavigationIQ" target="_blank" rel="noopener">https://github.com/dangphuc2470/NavigationIQ</a></p>
-
+        <!-- Footer -->
         <div class="footer">
-            <p>&copy; 2026 Navigation IQ. All rights reserved.</p>
+            <p>&copy; 2026 Navigation IQ. Designed with Material Design 3. All rights reserved.</p>
         </div>
     </div>
 </body>

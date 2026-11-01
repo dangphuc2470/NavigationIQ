@@ -50,6 +50,7 @@ bg.save(out_comp)
 print(f"Saved {out_comp}")
 
 # Also copy to artifact dir
-art_comp = r"C:\Users\phucdnh\.gemini\antigravity-ide\brain\857623ae-ec7a-4ce3-8dfa-5fd821ab13e6\arrived_showcase.png"
+art_comp = r"C:\Users\phucdnh\.gemini\antigravity-ide\brain\3d2eab4b-8ff7-434d-8f30-db3ed9546551\arrived_showcase.png"
 bg.save(art_comp)
 print(f"Saved {art_comp}")
+

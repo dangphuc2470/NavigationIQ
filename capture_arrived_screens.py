@@ -4,6 +4,7 @@ import subprocess
 import time
 import ctypes
 from ctypes import wintypes
+import shutil
 
 user32 = ctypes.windll.user32
 WM_SETTEXT = 0x000C
@@ -22,9 +23,11 @@ jungle = os.path.join(garmin_app, 'monkey.jungle')
 key = os.path.join(garmin_app, 'developer_key.der')
 bin_dir = os.path.join(garmin_app, 'bin')
 screenshots_dir = os.path.join(project_root, 'screenshots')
+artifact_dir = r'C:\Users\phucdnh\.gemini\antigravity-ide\brain\3d2eab4b-8ff7-434d-8f30-db3ed9546551'
 
 os.makedirs(bin_dir, exist_ok=True)
 os.makedirs(screenshots_dir, exist_ok=True)
+os.makedirs(artifact_dir, exist_ok=True)
 
 env = os.environ.copy()
 env['PATH'] = java_bin + ';' + env.get('PATH', '')
@@ -40,6 +43,11 @@ devices = [
         'id': 'venusq2',
         'out_png': os.path.join(screenshots_dir, 'arrived_venusq2.png'),
         'desc': 'Square AMOLED 320x360 (Venu Sq 2)'
+    },
+    {
+        'id': 'fr965',
+        'out_png': os.path.join(screenshots_dir, 'arrived_fr965.png'),
+        'desc': 'Round AMOLED 454x454 (Forerunner 965)'
     }
 ]
 
@@ -142,6 +150,9 @@ def capture_sim_screenshot(sim_proc, target_png):
 
     if os.path.exists(abs_target) and os.path.getsize(abs_target) > 500:
         print(f"  [V] Captured {abs_target} ({os.path.getsize(abs_target)} bytes)", flush=True)
+        # Also copy to artifacts dir
+        art_dst = os.path.join(artifact_dir, os.path.basename(abs_target))
+        shutil.copyfile(abs_target, art_dst)
         return True
     else:
         print(f"  [!] Failed to save {abs_target}", flush=True)
@@ -150,28 +161,45 @@ def capture_sim_screenshot(sim_proc, target_png):
 def main():
     print("=== STARTING ARRIVED SCREENSHOT CAPTURE ===", flush=True)
 
-    # Temporary swap step 0 in PreviewManager.mc to DIR_ARRIVED
-    pm_file = os.path.join(garmin_app, 'source', 'PreviewManager.mc')
-    with open(pm_file, 'r', encoding='utf-8') as f:
-        orig_pm = f.read()
+    color_view_file = os.path.join(garmin_app, 'source-fonts', 'ColorNavigationIQView.mc')
+    with open(color_view_file, 'r', encoding='utf-8') as f:
+        orig_view = f.read()
 
-    arrived_pm = orig_pm.replace(
-        'DIR_STRAIGHT,\n            "2.8 km",\n            "Continue straight on Highway 1 towards City Center",\n            "17:48",\n            0',
-        'DIR_ARRIVED,\n            "22 m",\n            "123 Nguyen Thi Minh Khai, Q.1",\n            "Arrived",\n            0'
-    )
-    with open(pm_file, 'w', encoding='utf-8') as f:
-        f.write(arrived_pm)
+    orig_block = """        // Arrived at destination summary screen
+        if (CommManager.isArrived || CommManager.direction == DIR_ARRIVED) {
+            _drawArrivedScreen(dc);
+            if (CommManager.isToastActive()) {
+                _drawToastOverlay(dc, effectiveProfile);
+            }
+            return;
+        }"""
 
+    inject_block = """        // Arrived at destination summary screen (Force render for screenshot capture)
+        CommManager.arrivedDest = "123 Nguyen Thi Minh Khai, Q.1";
+        CommManager.arrivedDuration = "22m";
+        CommManager.arrivedDistance = "8.4km";
+        CommManager.arrivedAvgSpeed = "26km/h";
+        _drawArrivedScreen(dc);
+        return;"""
+
+    if orig_block not in orig_view:
+        print("[ERROR] Could not find orig_block in ColorNavigationIQView.mc!")
+        return
+
+    arrived_view = orig_view.replace(orig_block, inject_block)
+    with open(color_view_file, 'w', encoding='utf-8') as f:
+        f.write(arrived_view)
+
+    compiled_prgs = {}
     try:
         # 1. Compile PRGs
-        compiled_prgs = {}
         for d in devices:
             prg = compile_device(d['id'])
             if prg:
                 compiled_prgs[d['id']] = prg
     finally:
-        with open(pm_file, 'w', encoding='utf-8') as f:
-            f.write(orig_pm)
+        with open(color_view_file, 'w', encoding='utf-8') as f:
+            f.write(orig_view)
 
     # 2. Run simulator & capture each
     for d in devices:
