@@ -43,6 +43,12 @@ The Connect IQ watch app is available on the [Garmin Connect IQ Store](https://a
 | ![Venu Sq 2 Square HUD](screenshots/01_venu_sq2_square_hud.png) | ![Forerunner 965 Round HUD](screenshots/02_fr965_fenix7_round_hud.png) | ![Instinct Crossover Dual-Zone](screenshots/03_instinct_crossover_dualzone_hud.png) |
 | Optimized for square aspect ratio with large, prominent distance typography | Symmetrical radial layout with center-focused readability for running and cycling | Dual-zone partitioning engineered to prevent physical watch hands obstruction |
 
+### Destination Reached & Trip Summary
+
+When you arrive at your destination, Navigation IQ automatically transitions to a dedicated trip summary screen displaying the destination address, travel duration, total distance covered, and average speed:
+
+![Destination Reached Showcase](screenshots/arrived_showcase.png)
+
 ---
 
 ## Supported Garmin Hardware Fleet (By Series)
@@ -168,6 +174,7 @@ NavigationIQ/
 │   ├── 06_android_tab_watch_studio.png
 │   ├── 07_android_tab_settings.png
 │   ├── 08_android_tab_logs.png
+│   ├── arrived_showcase.png                     # Destination reached & trip summary showcase
 │   └── gallery/                                 # Full fleet HUD screenshots (53 Garmin devices)
 │       ├── fenix_epix_enduro/                   # Fenix 8/7, Epix, Enduro series
 │       ├── forerunner/                          # Forerunner 965/955/265/255/165/55
