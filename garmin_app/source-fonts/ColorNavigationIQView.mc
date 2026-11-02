@@ -89,8 +89,9 @@ class ColorNavigationIQView extends NavigationIQView {
             fontStreet = isSfFontActive() ? ((_fontSfStreet != null) ? _fontSfStreet : Graphics.FONT_SMALL) : Graphics.FONT_SMALL;
         }
 
+        var hasAnalogHands = (WatchUi.View has :setClockHandPosition);
         var cx = w / 2;
-        var cy = (h * (isSmall ? 0.35 : 0.38)).toNumber();
+        var cy = hasAnalogHands ? (h * 0.25).toNumber() : (h * (isSmall ? 0.35 : 0.38)).toNumber();
         var r = (w * (isSmall ? 0.11 : 0.13)).toNumber();
         if (r < 22) { r = 22; }
         if (r > 50) { r = 50; }
@@ -146,8 +147,17 @@ class ColorNavigationIQView extends NavigationIQView {
         var hBold = dc.getFontHeight(fontBold);
         var hStreet = dc.getFontHeight(fontStreet);
         var textGap = isSmall ? 4 : (isRound ? 10 : 14);
-        var titleY = cy + r + (h * (isSmall ? 0.05 : (isRound ? 0.07 : 0.08))).toNumber();
-        var subTitleY = titleY + ((hBold + hStreet) / 2) + textGap;
+        var titleY = hasAnalogHands ? (h * 0.58).toNumber() : (cy + r + (h * (isSmall ? 0.05 : (isRound ? 0.07 : 0.08))).toNumber());
+        var subTitleY = hasAnalogHands ? (h * 0.69).toNumber() : (titleY + ((hBold + hStreet) / 2) + textGap);
+
+        if (hasAnalogHands) {
+            var divY1 = (h * 0.44).toNumber();
+            var divY2 = (h * 0.53).toNumber();
+            dc.setColor(borderCardColor, Graphics.COLOR_TRANSPARENT);
+            dc.setPenWidth(1);
+            dc.drawLine((w * 0.18).toNumber(), divY1, (w * 0.82).toNumber(), divY1);
+            dc.drawLine((w * 0.18).toNumber(), divY2, (w * 0.82).toNumber(), divY2);
+        }
 
         dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, titleY, fontBold, IS_BETA ? "Navigation IQ Beta" : "Navigation IQ", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
@@ -163,7 +173,9 @@ class ColorNavigationIQView extends NavigationIQView {
         var bottomH = pillH;
         var bottomX = (w - bottomW) / 2;
         var bottomY;
-        if (isSmall) {
+        if (hasAnalogHands) {
+            bottomY = (h * 0.81).toNumber();
+        } else if (isSmall) {
             bottomY = (h * 0.77).toNumber();
         } else if (isRound) {
             bottomY = (h * 0.77).toNumber();
@@ -1406,7 +1418,11 @@ class ColorNavigationIQView extends NavigationIQView {
             if (badgeCy < 28) { badgeCy = 28; }
         }
 
+        var hasAnalogHands = (WatchUi.View has :setClockHandPosition);
         var badgeCx = w / 2;
+        if (hasAnalogHands) {
+            badgeCy = (h * 0.14).toNumber();
+        }
 
         VectorArrowRenderer.drawAmbientGlow(dc, badgeCx, badgeCy, glowRGB);
 
@@ -1444,7 +1460,7 @@ class ColorNavigationIQView extends NavigationIQView {
             var totalDistW = numW + gap + unitW;
             var startDistX = (w - totalDistW) / 2;
 
-            distYVal = isTiny ? (badgeCy + badgeR + 13) : (badgeCy + badgeR + (h * 0.075).toNumber());
+            distYVal = hasAnalogHands ? (h * 0.32).toNumber() : (isTiny ? (badgeCy + badgeR + 13) : (badgeCy + badgeR + (h * 0.075).toNumber()));
             dc.setColor(COLOR_TEXT_WHITE, Graphics.COLOR_TRANSPARENT);
             dc.drawText(startDistX, distYVal, numFont, distNum, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
@@ -1458,11 +1474,20 @@ class ColorNavigationIQView extends NavigationIQView {
             }
         }
 
+        if (hasAnalogHands) {
+            var divY1 = (h * 0.44).toNumber();
+            var divY2 = (h * 0.55).toNumber();
+            dc.setColor(COLOR_DIVIDER, Graphics.COLOR_TRANSPARENT);
+            dc.setPenWidth(1);
+            dc.drawLine((w * 0.15).toNumber(), divY1, (w * 0.85).toNumber(), divY1);
+            dc.drawLine((w * 0.15).toNumber(), divY2, (w * 0.85).toNumber(), divY2);
+        }
+
         var streetText = CommManager.navText;
         if (distYVal == 0) {
-            distYVal = badgeCy + badgeR + (h * 0.075).toNumber();
+            distYVal = hasAnalogHands ? (h * 0.32).toNumber() : (badgeCy + badgeR + (h * 0.075).toNumber());
         }
-        var minTextY = isTiny ? (distYVal + 18) : (isMid ? (distYVal + (h * 0.095).toNumber()) : (distYVal + (h * 0.080).toNumber()));
+        var minTextY = hasAnalogHands ? (h * 0.58).toNumber() : (isTiny ? (distYVal + 18) : (isMid ? (distYVal + (h * 0.095).toNumber()) : (distYVal + (h * 0.080).toNumber())));
         var maxTextH = pillY - (isTiny ? 4 : 6) - minTextY;
         if (maxTextH < 16) { maxTextH = 16; }
 

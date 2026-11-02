@@ -436,7 +436,7 @@ class NavigationIQView extends WatchUi.View {
             }
         }
         if (isRunningInSimulator()) {
-            startPreviewMode();
+            startNavPreview();
         }
         if (_pageTimer != null) {
             _pageTimer.start(method(:onTimerTick), 200, true);

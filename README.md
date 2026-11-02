@@ -37,6 +37,120 @@ The Connect IQ watch app is available on the [Garmin Connect IQ Store](https://a
 
 ---
 
+## Supported Garmin Hardware Fleet (By Series)
+
+> Navigation IQ is actively compiled, tested, and individually pixel-tuned for **over 50+ Garmin watch models** across 5 distinct hardware series.
+
+<details>
+<summary><b>Instinct Series (Rugged Monochrome & AMOLED) (10 Models)</b></summary>
+
+
+*Built for extreme outdoors. Dual-zone layout with dedicated directional sub-window.*
+
+| Device | Display & Architecture | Live Navigation HUD |
+| :--- | :--- | :---: |
+| **Instinct 3 Solar (45mm)**<br><code>instinct3solar45mm</code> | 176x176 1-bit MIP | <img src="screenshots/gallery/instinct/instinct3solar45mm.png" alt="Instinct 3 Solar (45mm)" width="160" /> |
+| **Instinct 3 AMOLED (45mm)**<br><code>instinct3amoled45mm</code> | 390x390 AMOLED | <img src="screenshots/gallery/instinct/instinct3amoled45mm.png" alt="Instinct 3 AMOLED (45mm)" width="160" /> |
+| **Instinct 3 AMOLED (50mm)**<br><code>instinct3amoled50mm</code> | 416x416 AMOLED | <img src="screenshots/gallery/instinct/instinct3amoled50mm.png" alt="Instinct 3 AMOLED (50mm)" width="160" /> |
+| **Instinct E (40mm)**<br><code>instincte40mm</code> | 166x166 1-bit MIP | <img src="screenshots/gallery/instinct/instincte40mm.png" alt="Instinct E (40mm)" width="160" /> |
+| **Instinct E (45mm)**<br><code>instincte45mm</code> | 176x176 1-bit MIP | <img src="screenshots/gallery/instinct/instincte45mm.png" alt="Instinct E (45mm)" width="160" /> |
+| **Instinct Crossover (45mm)**<br><code>instinctcrossover</code> | 176x176 MIP Hybrid | <img src="screenshots/gallery/instinct/instinctcrossover.png" alt="Instinct Crossover (45mm)" width="160" /> |
+| **Instinct Crossover AMOLED**<br><code>instinctcrossoveramoled</code> | 390x390 AMOLED Hybrid | <img src="screenshots/gallery/instinct/instinctcrossoveramoled.png" alt="Instinct Crossover AMOLED" width="160" /> |
+| **Instinct 2 (45mm)**<br><code>instinct2</code> | 176x176 1-bit MIP | <img src="screenshots/gallery/instinct/instinct2.png" alt="Instinct 2 (45mm)" width="160" /> |
+| **Instinct 2S (40mm)**<br><code>instinct2s</code> | 156x156 1-bit MIP | <img src="screenshots/gallery/instinct/instinct2s.png" alt="Instinct 2S (40mm)" width="160" /> |
+| **Instinct 2X Solar (50mm)**<br><code>instinct2x</code> | 176x176 1-bit MIP | <img src="screenshots/gallery/instinct/instinct2x.png" alt="Instinct 2X Solar (50mm)" width="160" /> |
+
+</details>
+
+<details>
+<summary><b>Forerunner Series (Running Flagships & Essentials) (8 Models)</b></summary>
+
+
+*Optimized glanceability while running, high contrast distance numbers and turn alerts.*
+
+| Device | Display & Architecture | Live Navigation HUD |
+| :--- | :--- | :---: |
+| **Forerunner 965**<br><code>fr965</code> | 454x454 AMOLED | <img src="screenshots/gallery/forerunner/fr965.png" alt="Forerunner 965" width="160" /> |
+| **Forerunner 955**<br><code>fr955</code> | 260x260 MIP | <img src="screenshots/gallery/forerunner/fr955.png" alt="Forerunner 955" width="160" /> |
+| **Forerunner 265**<br><code>fr265</code> | 416x416 AMOLED | <img src="screenshots/gallery/forerunner/fr265.png" alt="Forerunner 265" width="160" /> |
+| **Forerunner 265S**<br><code>fr265s</code> | 360x360 AMOLED | <img src="screenshots/gallery/forerunner/fr265s.png" alt="Forerunner 265S" width="160" /> |
+| **Forerunner 255**<br><code>fr255</code> | 260x260 MIP | <img src="screenshots/gallery/forerunner/fr255.png" alt="Forerunner 255" width="160" /> |
+| **Forerunner 255S**<br><code>fr255s</code> | 218x218 MIP | <img src="screenshots/gallery/forerunner/fr255s.png" alt="Forerunner 255S" width="160" /> |
+| **Forerunner 165**<br><code>fr165</code> | 390x390 AMOLED | <img src="screenshots/gallery/forerunner/fr165.png" alt="Forerunner 165" width="160" /> |
+| **Forerunner 55**<br><code>fr55</code> | 240x240 MIP | <img src="screenshots/gallery/forerunner/fr55.png" alt="Forerunner 55" width="160" /> |
+
+</details>
+
+<details>
+<summary><b>Fenix, Epix & Enduro Series (Outdoor Multi-Sport Flagships) (15 Models)</b></summary>
+
+
+*Premium multi-sport watches with adaptive solar MIP and ultra-bright AMOLED graphics.*
+
+| Device | Display & Architecture | Live Navigation HUD |
+| :--- | :--- | :---: |
+| **fēnix 8 47mm**<br><code>fenix847mm</code> | 454x454 AMOLED | <img src="screenshots/gallery/fenix_epix_enduro/fenix847mm.png" alt="fēnix 8 47mm" width="160" /> |
+| **fēnix 8 43mm**<br><code>fenix843mm</code> | 416x416 AMOLED | <img src="screenshots/gallery/fenix_epix_enduro/fenix843mm.png" alt="fēnix 8 43mm" width="160" /> |
+| **fēnix 8 Solar 47mm**<br><code>fenix8solar47mm</code> | 260x260 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix8solar47mm.png" alt="fēnix 8 Solar 47mm" width="160" /> |
+| **fēnix 8 Solar 51mm**<br><code>fenix8solar51mm</code> | 280x280 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix8solar51mm.png" alt="fēnix 8 Solar 51mm" width="160" /> |
+| **fēnix 8 Pro 47mm**<br><code>fenix8pro47mm</code> | 454x454 AMOLED | <img src="screenshots/gallery/fenix_epix_enduro/fenix8pro47mm.png" alt="fēnix 8 Pro 47mm" width="160" /> |
+| **fēnix E**<br><code>fenixe</code> | 416x416 AMOLED | <img src="screenshots/gallery/fenix_epix_enduro/fenixe.png" alt="fēnix E" width="160" /> |
+| **epix Pro (Gen 2) 51mm**<br><code>epix2pro51mm</code> | 454x454 AMOLED | <img src="screenshots/gallery/fenix_epix_enduro/epix2pro51mm.png" alt="epix Pro (Gen 2) 51mm" width="160" /> |
+| **epix Pro (Gen 2) 47mm**<br><code>epix2pro47mm</code> | 416x416 AMOLED | <img src="screenshots/gallery/fenix_epix_enduro/epix2pro47mm.png" alt="epix Pro (Gen 2) 47mm" width="160" /> |
+| **epix Pro (Gen 2) 42mm**<br><code>epix2pro42mm</code> | 390x390 AMOLED | <img src="screenshots/gallery/fenix_epix_enduro/epix2pro42mm.png" alt="epix Pro (Gen 2) 42mm" width="160" /> |
+| **epix (Gen 2)**<br><code>epix2</code> | 416x416 AMOLED | <img src="screenshots/gallery/fenix_epix_enduro/epix2.png" alt="epix (Gen 2)" width="160" /> |
+| **fēnix 7X (51mm)**<br><code>fenix7x</code> | 280x280 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix7x.png" alt="fēnix 7X (51mm)" width="160" /> |
+| **fēnix 7 (47mm)**<br><code>fenix7</code> | 260x260 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix7.png" alt="fēnix 7 (47mm)" width="160" /> |
+| **fēnix 7S (42mm)**<br><code>fenix7s</code> | 240x240 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix7s.png" alt="fēnix 7S (42mm)" width="160" /> |
+| **Enduro 3**<br><code>enduro3</code> | 280x280 MIP | <img src="screenshots/gallery/fenix_epix_enduro/enduro3.png" alt="Enduro 3" width="160" /> |
+| **Enduro**<br><code>enduro</code> | 280x280 MIP | <img src="screenshots/gallery/fenix_epix_enduro/enduro.png" alt="Enduro" width="160" /> |
+
+</details>
+
+<details>
+<summary><b>Venu & Vivoactive Series (Lifestyle, Square & Round) (9 Models)</b></summary>
+
+
+*Tailored for daily commutes and urban rides with both Squircle and Round layouts.*
+
+| Device | Display & Architecture | Live Navigation HUD |
+| :--- | :--- | :---: |
+| **Venu Sq 2**<br><code>venusq2</code> | 320x360 AMOLED Square | <img src="screenshots/gallery/venu_vivoactive/venusq2.png" alt="Venu Sq 2" width="160" /> |
+| **Venu Sq**<br><code>venusq</code> | 240x240 LCD Square | <img src="screenshots/gallery/venu_vivoactive/venusq.png" alt="Venu Sq" width="160" /> |
+| **Venu 3**<br><code>venu3</code> | 454x454 AMOLED | <img src="screenshots/gallery/venu_vivoactive/venu3.png" alt="Venu 3" width="160" /> |
+| **Venu 3S**<br><code>venu3s</code> | 390x390 AMOLED | <img src="screenshots/gallery/venu_vivoactive/venu3s.png" alt="Venu 3S" width="160" /> |
+| **Venu 2 Plus**<br><code>venu2plus</code> | 416x416 AMOLED | <img src="screenshots/gallery/venu_vivoactive/venu2plus.png" alt="Venu 2 Plus" width="160" /> |
+| **Venu 2**<br><code>venu2</code> | 416x416 AMOLED | <img src="screenshots/gallery/venu_vivoactive/venu2.png" alt="Venu 2" width="160" /> |
+| **Venu 2S**<br><code>venu2s</code> | 360x360 AMOLED | <img src="screenshots/gallery/venu_vivoactive/venu2s.png" alt="Venu 2S" width="160" /> |
+| **Venu X1**<br><code>venux1</code> | 416x416 AMOLED | <img src="screenshots/gallery/venu_vivoactive/venux1.png" alt="Venu X1" width="160" /> |
+| **vívoactive 5**<br><code>vivoactive5</code> | 390x390 AMOLED | <img src="screenshots/gallery/venu_vivoactive/vivoactive5.png" alt="vívoactive 5" width="160" /> |
+
+</details>
+
+<details>
+<summary><b>Specialty Series (Golf, Diving, Aviator & Luxury) (11 Models)</b></summary>
+
+
+*Dedicated hardware adaptations for Approach golf watches, Descent dive computers, and D2 aviator models.*
+
+| Device | Display & Architecture | Live Navigation HUD |
+| :--- | :--- | :---: |
+| **Approach S70 47mm (Golf)**<br><code>approachs7047mm</code> | 454x454 AMOLED | <img src="screenshots/gallery/specialty/approachs7047mm.png" alt="Approach S70 47mm (Golf)" width="160" /> |
+| **Approach S70 42mm (Golf)**<br><code>approachs7042mm</code> | 390x390 AMOLED | <img src="screenshots/gallery/specialty/approachs7042mm.png" alt="Approach S70 42mm (Golf)" width="160" /> |
+| **Descent Mk3i 51mm (Diving)**<br><code>descentmk351mm</code> | 454x454 AMOLED | <img src="screenshots/gallery/specialty/descentmk351mm.png" alt="Descent Mk3i 51mm (Diving)" width="160" /> |
+| **Descent Mk3 43mm (Diving)**<br><code>descentmk343mm</code> | 390x390 AMOLED | <img src="screenshots/gallery/specialty/descentmk343mm.png" alt="Descent Mk3 43mm (Diving)" width="160" /> |
+| **Descent G1 / Solar (Diving)**<br><code>descentg1</code> | 176x176 1-bit MIP | <img src="screenshots/gallery/specialty/descentg1.png" alt="Descent G1 / Solar (Diving)" width="160" /> |
+| **Descent G2 (Diving)**<br><code>descentg2</code> | 390x390 AMOLED | <img src="screenshots/gallery/specialty/descentg2.png" alt="Descent G2 (Diving)" width="160" /> |
+| **D2 Mach 2 (Aviator)**<br><code>d2mach2</code> | 454x454 AMOLED | <img src="screenshots/gallery/specialty/d2mach2.png" alt="D2 Mach 2 (Aviator)" width="160" /> |
+| **D2 Mach 2 Pro (Aviator)**<br><code>d2mach2pro</code> | 454x454 AMOLED | <img src="screenshots/gallery/specialty/d2mach2pro.png" alt="D2 Mach 2 Pro (Aviator)" width="160" /> |
+| **D2 Mach 1 (Aviator)**<br><code>d2mach1</code> | 416x416 AMOLED | <img src="screenshots/gallery/specialty/d2mach1.png" alt="D2 Mach 1 (Aviator)" width="160" /> |
+| **MARQ (Gen 2)**<br><code>marq2</code> | 390x390 AMOLED | <img src="screenshots/gallery/specialty/marq2.png" alt="MARQ (Gen 2)" width="160" /> |
+| **MARQ (Gen 2) Aviator**<br><code>marq2aviator</code> | 390x390 AMOLED | <img src="screenshots/gallery/specialty/marq2aviator.png" alt="MARQ (Gen 2) Aviator" width="160" /> |
+
+</details>
+
+---
+
 ## Project Overview
 
 Navigation IQ integrates two core architectural pillars:
