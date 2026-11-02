@@ -52,21 +52,21 @@ def round_polygon(vertices, radii, num_points=32):
             new_points.append(pt)
     return new_points
 
-def generate_master_icon(size=2048):
+def generate_master_icon(size=2048, is_full_square=False):
     # Render at 2048x2048 with supersampling for ultra-crisp antialiasing
     scale = size / 1000.0
     
-    # 1. Base canvas & Background rounded squircle
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    bg_mask = Image.new("L", (size, size), 0)
-    bg_draw = ImageDraw.Draw(bg_mask)
-    # Squircle radius ~22.5% (Garmin / iOS standard)
-    radius = int(225 * scale)
-    bg_draw.rounded_rectangle([0, 0, size, size], radius=radius, fill=255)
-    
-    # Clean pure white background with subtle depth
-    bg = Image.new("RGBA", (size, size), (255, 255, 255, 255))
-    img.paste(bg, (0, 0), bg_mask)
+    # 1. Base canvas & Background
+    img = Image.new("RGBA", (size, size), (255, 255, 255, 255))
+    if not is_full_square:
+        # Squircle radius ~22.5% for Garmin watch drawables
+        bg_mask = Image.new("L", (size, size), 0)
+        bg_draw = ImageDraw.Draw(bg_mask)
+        radius = int(225 * scale)
+        bg_draw.rounded_rectangle([0, 0, size, size], radius=radius, fill=255)
+        rounded_img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        rounded_img.paste(img, (0, 0), bg_mask)
+        img = rounded_img
     
     # 2. Navigation Arrow geometry (modern proportions, slightly centered)
     # Proportions in 1000x1000 space
@@ -136,21 +136,23 @@ def generate_master_icon(size=2048):
     return img, smooth_pts
 
 if __name__ == "__main__":
-    master, pts = generate_master_icon(2048)
     os.makedirs(r"d:\Project\APKMod\NavigationIQ\scratch", exist_ok=True)
-    master.save(r"d:\Project\APKMod\NavigationIQ\scratch\modern_icon_2048.png", "PNG")
-    
-    # Export 512x512 Store icon
-    store_512 = master.resize((512, 512), Image.Resampling.LANCZOS)
+
+    # 1. Google Play Store Icon (Full Square 512x512, solid white background, NO pre-rounded corners)
+    master_square, _ = generate_master_icon(2048, is_full_square=True)
+    store_512 = master_square.resize((512, 512), Image.Resampling.LANCZOS)
+    play_store_path = r"d:\Project\APKMod\NavigationIQ\playstore_icon_512.png"
+    store_512.save(play_store_path, "PNG")
     store_path = r"d:\Project\APKMod\NavigationIQ\garmin_app\garmin_store_icon_512.png"
     store_512.save(store_path, "PNG")
-    print(f"STORE ICON CREATED: {store_path}")
-    
-    # Export Garmin Watch Drawables
+    print(f"GOOGLE PLAY STORE ICON (FULL SQUARE): {play_store_path}")
+
+    # 2. Garmin Watch Drawables (with Garmin squircle radius)
+    master_rounded, _ = generate_master_icon(2048, is_full_square=False)
     garmin_drawables = r"d:\Project\APKMod\NavigationIQ\garmin_app\resources\drawables"
-    g_40 = master.resize((40, 40), Image.Resampling.LANCZOS)
+    g_40 = master_rounded.resize((40, 40), Image.Resampling.LANCZOS)
     g_40.save(os.path.join(garmin_drawables, "launcher_icon_40.png"), "PNG")
     
-    g_33 = master.resize((33, 33), Image.Resampling.LANCZOS)
+    g_33 = master_rounded.resize((33, 33), Image.Resampling.LANCZOS)
     g_33.save(os.path.join(garmin_drawables, "launcher_icon_33.png"), "PNG")
     print("GARMIN WATCH ICONS (40x40, 33x33) UPDATED!")
