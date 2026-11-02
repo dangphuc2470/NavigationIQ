@@ -51,6 +51,34 @@ class NavNotificationService : NotificationListenerService() {
 
         const val ACTION_STOP_NAVIGATION = "com.phucdnh.navigationiq.action.STOP_NAVIGATION"
         const val ACTION_EXIT_APP = "com.phucdnh.navigationiq.action.EXIT_APP"
+        const val ACTION_RESUME = "com.phucdnh.navigationiq.action.RESUME"
+        private const val PREFS_NAME = "navigation_iq_prefs"
+        private const val PREF_USER_EXITED = "is_user_exited"
+
+        fun isUserExited(context: Context): Boolean {
+            return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(PREF_USER_EXITED, false)
+        }
+
+        fun setUserExited(context: Context, exited: Boolean) {
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(PREF_USER_EXITED, exited)
+                .commit()
+        }
+
+        fun resumeService(context: Context, force: Boolean = false) {
+            if (!isUserExited(context) && !force) return
+            setUserExited(context, false)
+            try {
+                val intent = Intent(context, NavNotificationService::class.java).apply {
+                    action = ACTION_RESUME
+                }
+                context.startService(intent)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to resume NavNotificationService: ${e.message}")
+            }
+        }
 
         var isConnected: Boolean = false
             private set
@@ -346,6 +374,19 @@ class NavNotificationService : NotificationListenerService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
+            ACTION_RESUME -> {
+                Log.i(TAG, "ACTION_RESUME received")
+                setUserExited(this, false)
+                isConnected = true
+                GarminManager.initSdk(this)
+                val currentNav = _currentNavigationInfo.value
+                updateStatusNotification(currentNav, currentNav != null)
+                try {
+                    activeNotifications?.forEach { sbn -> onNotificationPosted(sbn) }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error iterating active notifications: ${e.message}")
+                }
+            }
             ACTION_STOP_NAVIGATION -> {
                 Log.i(TAG, "ACTION_STOP_NAVIGATION received")
                 GarminManager.addLog("[ACTION] Navigation ended from notification")
@@ -360,6 +401,8 @@ class NavNotificationService : NotificationListenerService() {
             }
             ACTION_EXIT_APP -> {
                 Log.i(TAG, "ACTION_EXIT_APP received")
+                setUserExited(this, true)
+                isConnected = false
                 GarminManager.addLog("[ACTION] App exited from notification")
                 stopTripDistanceTracking()
                 totalDistanceMeters = 0.0
@@ -384,6 +427,11 @@ class NavNotificationService : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         Log.i(TAG, "NavNotificationService connected")
+        if (isUserExited(this)) {
+            Log.i(TAG, "User previously exited app. Suppressing background auto-start.")
+            isConnected = false
+            return
+        }
         isConnected = true
 
         // Initialize (or re-use) the Garmin SDK on listener connect
@@ -410,6 +458,7 @@ class NavNotificationService : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (sbn == null) return
+        if (isUserExited(this)) return
         val pkg = sbn.packageName ?: return
         // 1. Navigation notification handling (Google Maps)
         if (pkg == GOOGLE_MAPS_PACKAGE || pkg == "com.google.android.apps.mapslite") {
@@ -705,7 +754,9 @@ class NavNotificationService : NotificationListenerService() {
         if (instance == this) instance = null
         isConnected = false
         stopTripDistanceTracking()
-        unregisterReceiver(btReceiver)
+        try {
+            unregisterReceiver(btReceiver)
+        } catch (_: Exception) {}
         OsmMapManager.stopLocationUpdates()
         Log.i(TAG, "NavNotificationService destroyed")
     }

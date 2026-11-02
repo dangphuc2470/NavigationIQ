@@ -237,6 +237,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        NavNotificationService.resumeService(this)
         GarminManager.initSdk(this)
         setContent {
             MainScreen()
@@ -245,6 +246,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        NavNotificationService.resumeService(this)
         GarminManager.loadDevices(this)
     }
 }
