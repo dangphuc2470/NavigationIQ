@@ -53,7 +53,7 @@ When you arrive at your destination, Navigation IQ automatically transitions to 
 
 ## Supported Garmin Hardware Fleet (By Series)
 
-> Navigation IQ is actively compiled, tested, and individually pixel-tuned for **over 65+ Garmin watch models** across 5 distinct hardware series.
+> Navigation IQ is actively compiled, tested, and individually pixel-tuned for **86 Garmin device targets** across all Standard, Music, Pro, Sapphire, LTE & Solar editions (showcasing 65 distinct hardware models across 5 series below).
 
 <details>
 <summary><b>Fenix, Epix & Enduro Series (Outdoor Multi-Sport Flagships) (18 Models)</b></summary>
@@ -73,13 +73,13 @@ When you arrive at your destination, Navigation IQ automatically transitions to 
 | **epix Pro (Gen 2) 47mm**<br><code>epix2pro47mm</code> | 416x416 AMOLED | <img src="screenshots/gallery/fenix_epix_enduro/epix2pro47mm.png" alt="epix Pro (Gen 2) 47mm" width="160" /> |
 | **epix Pro (Gen 2) 42mm**<br><code>epix2pro42mm</code> | 390x390 AMOLED | <img src="screenshots/gallery/fenix_epix_enduro/epix2pro42mm.png" alt="epix Pro (Gen 2) 42mm" width="160" /> |
 | **epix (Gen 2)**<br><code>epix2</code> | 416x416 AMOLED | <img src="screenshots/gallery/fenix_epix_enduro/epix2.png" alt="epix (Gen 2)" width="160" /> |
-| **fēnix 7X (51mm)**<br><code>fenix7x</code> | 280x280 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix7x.png" alt="fēnix 7X (51mm)" width="160" /> |
-| **fēnix 7 (47mm)**<br><code>fenix7</code> | 260x260 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix7.png" alt="fēnix 7 (47mm)" width="160" /> |
-| **fēnix 7S (42mm)**<br><code>fenix7s</code> | 240x240 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix7s.png" alt="fēnix 7S (42mm)" width="160" /> |
+| **fēnix 7X / 7X Pro (51mm)**<br><code>fenix7x</code> | 280x280 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix7x.png" alt="fēnix 7X / 7X Pro" width="160" /> |
+| **fēnix 7 / 7 Pro (47mm)**<br><code>fenix7</code> | 260x260 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix7.png" alt="fēnix 7 / 7 Pro" width="160" /> |
+| **fēnix 7S / 7S Pro (42mm)**<br><code>fenix7s</code> | 240x240 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix7s.png" alt="fēnix 7S / 7S Pro" width="160" /> |
 | **Enduro**<br><code>enduro</code> | 280x280 MIP | <img src="screenshots/gallery/fenix_epix_enduro/enduro.png" alt="Enduro" width="160" /> |
-| **fēnix 6X Pro (51mm)**<br><code>fenix6xpro</code> | 280x280 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix6xpro.png" alt="fēnix 6X Pro" width="160" /> |
-| **fēnix 6 (47mm)**<br><code>fenix6</code> | 260x260 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix6.png" alt="fēnix 6" width="160" /> |
-| **fēnix 6S (42mm)**<br><code>fenix6s</code> | 240x240 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix6s.png" alt="fēnix 6S" width="160" /> |
+| **fēnix 6X Pro / Sapphire (51mm)**<br><code>fenix6xpro</code> | 280x280 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix6xpro.png" alt="fēnix 6X Pro" width="160" /> |
+| **fēnix 6 / 6 Pro (47mm)**<br><code>fenix6</code> | 260x260 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix6.png" alt="fēnix 6 / 6 Pro" width="160" /> |
+| **fēnix 6S / 6S Pro (42mm)**<br><code>fenix6s</code> | 240x240 MIP | <img src="screenshots/gallery/fenix_epix_enduro/fenix6s.png" alt="fēnix 6S / 6S Pro" width="160" /> |
 
 </details>
 
@@ -92,14 +92,14 @@ When you arrive at your destination, Navigation IQ automatically transitions to 
 | :--- | :--- | :---: |
 | **Forerunner 965**<br><code>fr965</code> | 454x454 AMOLED | <img src="screenshots/gallery/forerunner/fr965.png" alt="Forerunner 965" width="160" /> |
 | **Forerunner 955**<br><code>fr955</code> | 260x260 MIP | <img src="screenshots/gallery/forerunner/fr955.png" alt="Forerunner 955" width="160" /> |
-| **Forerunner 945**<br><code>fr945</code> | 240x240 MIP | <img src="screenshots/gallery/forerunner/fr945.png" alt="Forerunner 945" width="160" /> |
+| **Forerunner 945 / 945 LTE**<br><code>fr945</code> | 240x240 MIP | <img src="screenshots/gallery/forerunner/fr945.png" alt="Forerunner 945" width="160" /> |
 | **Forerunner 745**<br><code>fr745</code> | 240x240 MIP | <img src="screenshots/gallery/forerunner/fr745.png" alt="Forerunner 745" width="160" /> |
 | **Forerunner 265**<br><code>fr265</code> | 416x416 AMOLED | <img src="screenshots/gallery/forerunner/fr265.png" alt="Forerunner 265" width="160" /> |
 | **Forerunner 265S**<br><code>fr265s</code> | 360x360 AMOLED | <img src="screenshots/gallery/forerunner/fr265s.png" alt="Forerunner 265S" width="160" /> |
-| **Forerunner 255**<br><code>fr255</code> | 260x260 MIP | <img src="screenshots/gallery/forerunner/fr255.png" alt="Forerunner 255" width="160" /> |
-| **Forerunner 255S**<br><code>fr255s</code> | 218x218 MIP | <img src="screenshots/gallery/forerunner/fr255s.png" alt="Forerunner 255S" width="160" /> |
-| **Forerunner 245**<br><code>fr245</code> | 240x240 MIP | <img src="screenshots/gallery/forerunner/fr245.png" alt="Forerunner 245" width="160" /> |
-| **Forerunner 165**<br><code>fr165</code> | 390x390 AMOLED | <img src="screenshots/gallery/forerunner/fr165.png" alt="Forerunner 165" width="160" /> |
+| **Forerunner 255 / 255 Music**<br><code>fr255</code> | 260x260 MIP | <img src="screenshots/gallery/forerunner/fr255.png" alt="Forerunner 255" width="160" /> |
+| **Forerunner 255S / 255S Music**<br><code>fr255s</code> | 218x218 MIP | <img src="screenshots/gallery/forerunner/fr255s.png" alt="Forerunner 255S" width="160" /> |
+| **Forerunner 245 / 245 Music**<br><code>fr245</code> | 240x240 MIP | <img src="screenshots/gallery/forerunner/fr245.png" alt="Forerunner 245" width="160" /> |
+| **Forerunner 165 / 165 Music**<br><code>fr165</code> | 390x390 AMOLED | <img src="screenshots/gallery/forerunner/fr165.png" alt="Forerunner 165" width="160" /> |
 | **Forerunner 55**<br><code>fr55</code> | 240x240 MIP | <img src="screenshots/gallery/forerunner/fr55.png" alt="Forerunner 55" width="160" /> |
 
 </details>
@@ -116,9 +116,9 @@ When you arrive at your destination, Navigation IQ automatically transitions to 
 | **Venu 2 Plus**<br><code>venu2plus</code> | 416x416 AMOLED | <img src="screenshots/gallery/venu_vivoactive/venu2plus.png" alt="Venu 2 Plus" width="160" /> |
 | **Venu 2**<br><code>venu2</code> | 416x416 AMOLED | <img src="screenshots/gallery/venu_vivoactive/venu2.png" alt="Venu 2" width="160" /> |
 | **Venu 2S**<br><code>venu2s</code> | 360x360 AMOLED | <img src="screenshots/gallery/venu_vivoactive/venu2s.png" alt="Venu 2S" width="160" /> |
-| **Venu Sq 2**<br><code>venusq2</code> | 320x360 AMOLED Square | <img src="screenshots/gallery/venu_vivoactive/venusq2.png" alt="Venu Sq 2" width="160" /> |
-| **Venu Sq**<br><code>venusq</code> | 240x240 LCD Square | <img src="screenshots/gallery/venu_vivoactive/venusq.png" alt="Venu Sq" width="160" /> |
-| **Venu**<br><code>venu</code> | 390x390 AMOLED | <img src="screenshots/gallery/venu_vivoactive/venu.png" alt="Venu" width="160" /> |
+| **Venu Sq 2 / Sq 2 Music**<br><code>venusq2</code> | 320x360 AMOLED Square | <img src="screenshots/gallery/venu_vivoactive/venusq2.png" alt="Venu Sq 2" width="160" /> |
+| **Venu Sq / Sq Music**<br><code>venusq</code> | 240x240 LCD Square | <img src="screenshots/gallery/venu_vivoactive/venusq.png" alt="Venu Sq" width="160" /> |
+| **Venu / Mercedes-Benz**<br><code>venu</code> | 390x390 AMOLED | <img src="screenshots/gallery/venu_vivoactive/venu.png" alt="Venu" width="160" /> |
 | **Venu X1**<br><code>venux1</code> | 416x416 AMOLED | <img src="screenshots/gallery/venu_vivoactive/venux1.png" alt="Venu X1" width="160" /> |
 | **vívoactive 5**<br><code>vivoactive5</code> | 390x390 AMOLED | <img src="screenshots/gallery/venu_vivoactive/vivoactive5.png" alt="vívoactive 5" width="160" /> |
 | **vívoactive 4**<br><code>vivoactive4</code> | 260x260 MIP | <img src="screenshots/gallery/venu_vivoactive/vivoactive4.png" alt="vívoactive 4" width="160" /> |
@@ -157,7 +157,7 @@ When you arrive at your destination, Navigation IQ automatically transitions to 
 | **Approach S70 42mm (Golf)**<br><code>approachs7042mm</code> | 390x390 AMOLED | <img src="screenshots/gallery/specialty/approachs7042mm.png" alt="Approach S70 42mm (Golf)" width="160" /> |
 | **Descent Mk3i 51mm (Diving)**<br><code>descentmk351mm</code> | 454x454 AMOLED | <img src="screenshots/gallery/specialty/descentmk351mm.png" alt="Descent Mk3i 51mm (Diving)" width="160" /> |
 | **Descent Mk3 43mm (Diving)**<br><code>descentmk343mm</code> | 390x390 AMOLED | <img src="screenshots/gallery/specialty/descentmk343mm.png" alt="Descent Mk3 43mm (Diving)" width="160" /> |
-| **Descent Mk2 (Diving)**<br><code>descentmk2</code> | 280x280 MIP | <img src="screenshots/gallery/specialty/descentmk2.png" alt="Descent Mk2 (Diving)" width="160" /> |
+| **Descent Mk2 / Mk2S (Diving)**<br><code>descentmk2</code> | 280x280 MIP | <img src="screenshots/gallery/specialty/descentmk2.png" alt="Descent Mk2 (Diving)" width="160" /> |
 | **Descent G2 (Diving)**<br><code>descentg2</code> | 390x390 AMOLED | <img src="screenshots/gallery/specialty/descentg2.png" alt="Descent G2 (Diving)" width="160" /> |
 | **Descent G1 / Solar (Diving)**<br><code>descentg1</code> | 176x176 1-bit MIP | <img src="screenshots/gallery/specialty/descentg1.png" alt="Descent G1 / Solar (Diving)" width="160" /> |
 | **D2 Mach 2 Pro (Aviator)**<br><code>d2mach2pro</code> | 454x454 AMOLED | <img src="screenshots/gallery/specialty/d2mach2pro.png" alt="D2 Mach 2 Pro (Aviator)" width="160" /> |
@@ -166,7 +166,7 @@ When you arrive at your destination, Navigation IQ automatically transitions to 
 | **D2 Air X10 (Aviator)**<br><code>d2airx10</code> | 416x416 AMOLED | <img src="screenshots/gallery/specialty/d2airx10.png" alt="D2 Air X10 (Aviator)" width="160" /> |
 | **MARQ (Gen 2) Aviator**<br><code>marq2aviator</code> | 390x390 AMOLED | <img src="screenshots/gallery/specialty/marq2aviator.png" alt="MARQ (Gen 2) Aviator" width="160" /> |
 | **MARQ (Gen 2)**<br><code>marq2</code> | 390x390 AMOLED | <img src="screenshots/gallery/specialty/marq2.png" alt="MARQ (Gen 2)" width="160" /> |
-| **MARQ Athlete (Gen 1)**<br><code>marqathlete</code> | 240x240 MIP | <img src="screenshots/gallery/specialty/marqathlete.png" alt="MARQ Athlete" width="160" /> |
+| **MARQ Gen 1 Series**<br><code>marqathlete</code> | 240x240 MIP | <img src="screenshots/gallery/specialty/marqathlete.png" alt="MARQ Gen 1 Series" width="160" /> |
 
 </details>
 
@@ -187,7 +187,7 @@ NavigationIQ/
 │   ├── 07_android_tab_settings.png
 │   ├── 08_android_tab_logs.png
 │   ├── arrived_showcase.png                     # Destination reached & trip summary showcase
-│   └── gallery/                                 # Full fleet HUD screenshots (65 Garmin devices)
+│   └── gallery/                                 # Full fleet HUD screenshots (65 distinct hardware models / 86 device targets)
 │       ├── fenix_epix_enduro/                   # Fenix 8/7, Epix, Enduro series
 │       ├── forerunner/                          # Forerunner 965/955/265/255/165/55
 │       ├── venu_vivoactive/                     # Venu 3/2, Venu Sq, vívoactive 5
