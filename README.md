@@ -99,7 +99,7 @@ When you arrive at your destination, Navigation IQ automatically transitions to 
 </details>
 
 <details>
-<summary><b>Venu & vívoactive Series (Lifestyle, Square & Round) (9 Models)</b></summary>
+<summary><b>Venu & vívoactive Series (Lifestyle, Square & Round) (11 Models)</b></summary>
 
 *Tailored for daily commutes and urban rides with both Squircle and Round layouts.*
 
@@ -114,6 +114,8 @@ When you arrive at your destination, Navigation IQ automatically transitions to 
 | **Venu Sq**<br><code>venusq</code> | 240x240 LCD Square | <img src="screenshots/gallery/venu_vivoactive/venusq.png" alt="Venu Sq" width="160" /> |
 | **Venu X1**<br><code>venux1</code> | 416x416 AMOLED | <img src="screenshots/gallery/venu_vivoactive/venux1.png" alt="Venu X1" width="160" /> |
 | **vívoactive 5**<br><code>vivoactive5</code> | 390x390 AMOLED | <img src="screenshots/gallery/venu_vivoactive/vivoactive5.png" alt="vívoactive 5" width="160" /> |
+| **vívoactive 4**<br><code>vivoactive4</code> | 260x260 MIP | <img src="screenshots/gallery/venu_vivoactive/vivoactive4.png" alt="vívoactive 4" width="160" /> |
+| **vívoactive 4S**<br><code>vivoactive4s</code> | 218x218 MIP | <img src="screenshots/gallery/venu_vivoactive/vivoactive4s.png" alt="vívoactive 4S" width="160" /> |
 
 </details>
 
@@ -175,7 +177,7 @@ NavigationIQ/
 │   ├── 07_android_tab_settings.png
 │   ├── 08_android_tab_logs.png
 │   ├── arrived_showcase.png                     # Destination reached & trip summary showcase
-│   └── gallery/                                 # Full fleet HUD screenshots (53 Garmin devices)
+│   └── gallery/                                 # Full fleet HUD screenshots (55 Garmin devices)
 │       ├── fenix_epix_enduro/                   # Fenix 8/7, Epix, Enduro series
 │       ├── forerunner/                          # Forerunner 965/955/265/255/165/55
 │       ├── venu_vivoactive/                     # Venu 3/2, Venu Sq, vívoactive 5
