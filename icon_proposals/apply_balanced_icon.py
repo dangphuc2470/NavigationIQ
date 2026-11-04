@@ -52,8 +52,8 @@ mono_xml = """<?xml version="1.0" encoding="utf-8"?>
 with open(os.path.join(RES_DIR, "drawable", "ic_launcher_monochrome.xml"), "w", encoding="utf-8") as f:
     f.write(mono_xml)
 
-# 2. Generate Master Bitmap (1024x1024)
-SIZE = 1024
+# 2. Generate Master Bitmap (2048x2048 with supersampling)
+SIZE = 2048
 SCALE = SIZE / 108.0
 cx = 54.0 * SCALE
 tip = (cx, 28.0 * SCALE)
@@ -65,7 +65,15 @@ master = Image.new("RGBA", (SIZE, SIZE), (255, 255, 255, 255))
 draw = ImageDraw.Draw(master)
 draw.polygon([tip, l_wing, notch], fill="#1B4332")
 draw.polygon([tip, notch, r_wing], fill="#10B981")
-draw.line([tip, notch], fill=(255, 255, 255, 160), width=int(0.6 * SCALE))
+draw.line([tip, notch], fill=(255, 255, 255, 180), width=max(2, int(0.6 * SCALE)))
+
+# Master high-res
+master.save(r"d:\Project\APKMod\NavigationIQ\scratch\modern_icon_2048.png", "PNG")
+
+# 512x512 Store Icons (Full Square with solid white background)
+store_512 = master.resize((512, 512), Image.Resampling.LANCZOS)
+store_512.save(r"d:\Project\APKMod\NavigationIQ\playstore_icon_512.png", "PNG")
+store_512.save(r"d:\Project\APKMod\NavigationIQ\garmin_app\garmin_store_icon_512.png", "PNG")
 
 # Circular version for round mipmap
 circle_img = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
@@ -93,9 +101,10 @@ for folder, dim in legacy_sizes.items():
 
 # 3. Garmin Icons
 garmin_svg = """<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="40" height="40" rx="8" fill="#0C1C14"/>
-    <path d="M 20 9 L 12 27.5 L 20 23 Z" fill="#FFFFFF"/>
-    <path d="M 20 9 L 20 23 L 28 27.5 Z" fill="#10B981"/>
+    <rect width="40" height="40" rx="8" fill="#FFFFFF"/>
+    <path d="M 20 10.37 L 12.22 27.04 L 20 22.78 Z" fill="#1B4332"/>
+    <path d="M 20 10.37 L 20 22.78 L 27.78 27.04 Z" fill="#10B981"/>
+    <line x1="20" y1="10.37" x2="20" y2="22.78" stroke="#FFFFFF" stroke-width="0.3" stroke-opacity="0.8"/>
 </svg>
 """
 with open(os.path.join(GARMIN_DIR, "launcher_icon.svg"), "w", encoding="utf-8") as f:
@@ -106,4 +115,5 @@ g_40.save(os.path.join(GARMIN_DIR, "launcher_icon_40.png"), "PNG")
 g_33 = master.resize((33, 33), Image.Resampling.LANCZOS)
 g_33.save(os.path.join(GARMIN_DIR, "launcher_icon_33.png"), "PNG")
 
-print("SUCCESS: Lowered arrow by another 1dp (tip=28, wings=73, notch=61.5)!")
+print("SUCCESS: Clean, crisp navigation arrow icons generated across all stores, drawables, and mipmaps!")
+

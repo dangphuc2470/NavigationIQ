@@ -49,14 +49,6 @@ def render_selected_option_3():
     SIZE = 2048
     scale = SIZE / 1000.0
 
-    # Base Canvas with Rounded Squircle (Garmin / iOS standard ~22.5%)
-    img = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
-    mask = Image.new("L", (SIZE, SIZE), 0)
-    mdraw = ImageDraw.Draw(mask)
-    mdraw.rounded_rectangle([0, 0, SIZE, SIZE], radius=int(SIZE * 0.225), fill=255)
-    bg = Image.new("RGBA", (SIZE, SIZE), (255, 255, 255, 255))
-    img.paste(bg, (0, 0), mask)
-
     # Ambient drop shadow
     poly_scaled = [(p[0]*scale, p[1]*scale) for p in full_arrow]
     shadow = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
@@ -64,7 +56,6 @@ def render_selected_option_3():
     shadow_pts = [(p[0], p[1] + 28*scale) for p in poly_scaled]
     sdraw.polygon(shadow_pts, fill=(16, 50, 35, 45))
     shadow = shadow.filter(ImageFilter.GaussianBlur(radius=int(22 * scale)))
-    img = Image.alpha_composite(img, shadow)
 
     # Crisp split between Left Wing (#1B4332) and Right Wing (#10B981)
     arrow_mask = Image.new("L", (SIZE, SIZE), 0)
@@ -90,7 +81,7 @@ def render_selected_option_3():
     wings_layer.paste(left_color, (0, 0), left_arrow_mask)
     wings_layer.paste(right_color, (0, 0), right_arrow_mask)
 
-    # Crisp, bold white spine line running from very top of tip to bottom notch!
+    # Crisp, bold white spine line running from very top of tip to bottom notch
     spine_layer = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
     sp_draw = ImageDraw.Draw(spine_layer)
     top_y = (np.min(arc0[:, 1]) - 10) * scale
@@ -103,26 +94,69 @@ def render_selected_option_3():
     spine_clipped.paste(spine_layer, (0, 0), arrow_mask)
     wings_layer = Image.alpha_composite(wings_layer, spine_clipped)
 
-    img = Image.alpha_composite(img, wings_layer)
+    # Composite arrow + shadow
+    arrow_composition = Image.alpha_composite(shadow, wings_layer)
 
-    # 2. Export 512x512 Store icon
-    store_512 = img.resize((512, 512), Image.Resampling.LANCZOS)
-    store_path = os.path.join(GARMIN_ROOT, "garmin_store_icon_512.png")
-    store_512.save(store_path, "PNG")
-    print(f"[OK] Garmin Store 512x512 saved: {store_path}")
+    # 1. Full White Solid Canvas (No rounded corners, pure #FFFFFF to all 4 edges)
+    img_fullwhite = Image.new("RGBA", (SIZE, SIZE), (255, 255, 255, 255))
+    img_fullwhite = Image.alpha_composite(img_fullwhite, arrow_composition)
 
-    # Copy to Artifact directory for instant user access
-    if os.path.isdir(ARTIFACT_DIR):
-        artifact_store = os.path.join(ARTIFACT_DIR, "garmin_store_icon_512.png")
-        shutil.copyfile(store_path, artifact_store)
-        print(f"[OK] Copied to artifact directory: {artifact_store}")
+    # 2. Rounded Squircle Canvas (Garmin / iOS standard ~22.5%)
+    img_squircle = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
+    sq_mask = Image.new("L", (SIZE, SIZE), 0)
+    sq_draw = ImageDraw.Draw(sq_mask)
+    sq_draw.rounded_rectangle([0, 0, SIZE, SIZE], radius=int(SIZE * 0.225), fill=255)
+    bg = Image.new("RGBA", (SIZE, SIZE), (255, 255, 255, 255))
+    img_squircle.paste(bg, (0, 0), sq_mask)
+    img_squircle = Image.alpha_composite(img_squircle, arrow_composition)
 
-    # 3. Export Garmin Watch drawables with dedicated high-contrast spine for tiny screens
+    # 3. Export Master 2048x2048 & Store 512x512 Icons
+    scratch_dir = r"d:\Project\APKMod\NavigationIQ\scratch"
+    os.makedirs(scratch_dir, exist_ok=True)
+    img_fullwhite.save(os.path.join(scratch_dir, "modern_icon_2048.png"), "PNG")
+
+    # Google Play Store (Full Square solid white 512x512)
+    play_store_path = r"d:\Project\APKMod\NavigationIQ\playstore_icon_512.png"
+    img_fullwhite.resize((512, 512), Image.Resampling.LANCZOS).save(play_store_path, "PNG")
+    print(f"[OK] Google Play Store 512x512 (FULL WHITE SQUARE): {play_store_path}")
+
+    # Garmin Connect IQ Store: Save both full white and squircle
+    garmin_store_path = os.path.join(GARMIN_ROOT, "garmin_store_icon_512.png")
+    img_fullwhite.resize((512, 512), Image.Resampling.LANCZOS).save(garmin_store_path, "PNG")
+    garmin_squircle_path = os.path.join(GARMIN_ROOT, "garmin_store_icon_512_squircle.png")
+    img_squircle.resize((512, 512), Image.Resampling.LANCZOS).save(garmin_squircle_path, "PNG")
+    print(f"[OK] Garmin Store 512x512 (Full White): {garmin_store_path}")
+    print(f"[OK] Garmin Store 512x512 (Squircle): {garmin_squircle_path}")
+
+    # Transparent Arrow (512x512)
+    trans_dir = r"d:\Project\APKMod\NavigationIQ\icon_proposals"
+    os.makedirs(trans_dir, exist_ok=True)
+    arrow_composition.resize((512, 512), Image.Resampling.LANCZOS).save(os.path.join(trans_dir, "icon_transparent_512.png"), "PNG")
+
+    # 4. Export Android WebP Mipmaps
+    circle_img = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
+    c_mask = Image.new("L", (SIZE, SIZE), 0)
+    cdraw = ImageDraw.Draw(c_mask)
+    cdraw.ellipse([0, 0, SIZE, SIZE], fill=255)
+    circle_img.paste(img_fullwhite, (0, 0), c_mask)
+
+    legacy_sizes = {
+        "mipmap-mdpi": 48,
+        "mipmap-hdpi": 72,
+        "mipmap-xhdpi": 96,
+        "mipmap-xxhdpi": 144,
+        "mipmap-xxxhdpi": 192,
+    }
+    for folder, dim in legacy_sizes.items():
+        t_dir = os.path.join(ANDROID_RES, folder)
+        img_fullwhite.resize((dim, dim), Image.Resampling.LANCZOS).save(os.path.join(t_dir, "ic_launcher.webp"), "WEBP")
+        circle_img.resize((dim, dim), Image.Resampling.LANCZOS).save(os.path.join(t_dir, "ic_launcher_round.webp"), "WEBP")
+    print("[OK] Android WebP mipmaps updated (square & round)")
+
+    # 5. Export Garmin Watch drawables with dedicated high-contrast spine for tiny screens
     def render_watch_icon(target_size):
-        # Render at 4x target size for perfect anti-aliasing
         hi_size = target_size * 4
-        hi_img = img.resize((hi_size, hi_size), Image.Resampling.LANCZOS)
-        # Overlay crisp spine tailored for watch display
+        hi_img = img_squircle.resize((hi_size, hi_size), Image.Resampling.LANCZOS)
         overlay = Image.new("RGBA", (hi_size, hi_size), (0, 0, 0, 0))
         od = ImageDraw.Draw(overlay)
         y1 = ((0.25*s0[1] + 0.5*195. + 0.25*e0[1]) / 1000.0) * hi_size
@@ -136,6 +170,7 @@ def render_selected_option_3():
     g_33 = render_watch_icon(33)
     g_33.save(os.path.join(GARMIN_DRAWABLES, "launcher_icon_33.png"), "PNG")
     print(f"[OK] Garmin watch icons (40x40, 33x33) saved with crisp high-contrast spine")
+
 
     # 4. Generate clean, semantic SVG with straight lines and quadratic corner curves (40x40)
     sc40 = 0.04

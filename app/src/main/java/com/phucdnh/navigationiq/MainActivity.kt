@@ -67,9 +67,12 @@ import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.PersonOutline
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Route
@@ -108,6 +111,14 @@ import com.phucdnh.navigationiq.update.AppUpdateInfo
 import com.phucdnh.navigationiq.update.UpdateChecker
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -204,7 +215,7 @@ enum class AppPage(
         titleEn = "Watch",
         titleVi = "Đồng hồ",
         headerTitleEn = "Watch Studio",
-        headerTitleVi = "Watch Studio",
+        headerTitleVi = "Mặt đồng hồ",
         headerSubtitleEn = "Watch face layout & typography",
         headerSubtitleVi = "Tùy biến mặt đồng hồ & Cỡ chữ Garmin",
         icon = Icons.Default.Watch
@@ -265,6 +276,26 @@ fun MainScreen() {
     var currentLanguage by remember { mutableStateOf(if (savedLangCode == "vi") AppLanguage.VI else AppLanguage.EN) }
     val isVi = currentLanguage == AppLanguage.VI
 
+    val isInstalledFromPlayStore = remember {
+        try {
+            val installer = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                context.packageManager.getInstallSourceInfo(context.packageName).installingPackageName
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getInstallerPackageName(context.packageName)
+            }
+            installer == "com.android.vending"
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    var showTesterInviteDialog by remember {
+        mutableStateOf(
+            !isInstalledFromPlayStore && !sharedPrefs.getBoolean("has_seen_tester_invite_v107", false)
+        )
+    }
+
     var activePage by remember { mutableStateOf(AppPage.DASHBOARD) }
     val pagerState = rememberPagerState(
         initialPage = activePage.ordinal,
@@ -280,8 +311,8 @@ fun MainScreen() {
         }
     }
 
-    LaunchedEffect(pagerState.currentPage) {
-        activePage = AppPage.entries[pagerState.currentPage]
+    LaunchedEffect(pagerState.settledPage) {
+        activePage = AppPage.entries[pagerState.settledPage]
     }
 
     val navigateToPage: (AppPage) -> Unit = { targetPage ->
@@ -411,7 +442,9 @@ fun MainScreen() {
                                     GarminManager.sendNavigationEnd(context)
                                 },
                                 onNavigateToSystem = { navigateToPage(AppPage.SYSTEM) },
-                                onNavigateToWatchStudio = { navigateToPage(AppPage.WATCH_STUDIO) }
+                                onNavigateToWatchStudio = { navigateToPage(AppPage.WATCH_STUDIO) },
+                                isInstalledFromPlayStore = isInstalledFromPlayStore,
+                                onOpenTesterInvite = { showTesterInviteDialog = true }
                             )
 
                             AppPage.WATCH_STUDIO -> WatchStudioPage(
@@ -434,7 +467,9 @@ fun MainScreen() {
                                 },
                                 onTriggerUpdate = { info ->
                                     updateInfo = info
-                                }
+                                },
+                                isInstalledFromPlayStore = isInstalledFromPlayStore,
+                                onOpenTesterInvite = { showTesterInviteDialog = true }
                             )
 
                             AppPage.CONSOLE -> ConsoleLogPage(
@@ -462,7 +497,7 @@ fun MainScreen() {
                             )
                         )
                         .navigationBarsPadding()
-                        .padding(horizontal = 4.dp, vertical = 0.dp)
+                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 6.dp)
                 ) {
                     AppleFloatingBottomBar(
                         activePage = activePage,
@@ -504,8 +539,41 @@ fun MainScreen() {
                             updateInfo = null
                         },
                         onUpdateNow = {
-                            UpdateChecker.openPlayStore(context)
+                            val isPlayStore = try {
+                                val installer = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                    context.packageManager.getInstallSourceInfo(context.packageName).installingPackageName
+                                } else {
+                                    @Suppress("DEPRECATION")
+                                    context.packageManager.getInstallerPackageName(context.packageName)
+                                }
+                                installer == "com.android.vending"
+                            } catch (e: Exception) {
+                                false
+                            }
+
+                            if (isPlayStore) {
+                                UpdateChecker.openPlayStore(context)
+                            } else {
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(info.apkDownloadUrl)).apply {
+                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    }
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {
+                                    UpdateChecker.openPlayStore(context)
+                                }
+                            }
                             updateInfo = null
+                        }
+                    )
+                }
+
+                if (showTesterInviteDialog && updateInfo == null) {
+                    TesterInviteDialog(
+                        isVi = isVi,
+                        onDismiss = {
+                            sharedPrefs.edit().putBoolean("has_seen_tester_invite_v107", true).apply()
+                            showTesterInviteDialog = false
                         }
                     )
                 }
@@ -629,8 +697,21 @@ fun AppleFloatingHeader(
         Column(Modifier.weight(1f)) {
             Text("NAVIGATION IQ", fontSize = 9.sp, letterSpacing = 3.sp,
                 fontWeight = FontWeight.Bold, color = palette.blue)
-            Text(page.headerTitle(isVi), fontSize = 34.sp, lineHeight = 40.sp,
-                fontWeight = FontWeight.ExtraBold, color = palette.textPrimary)
+            AnimatedContent(
+                targetState = page.headerTitle(isVi),
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(220)) togetherWith fadeOut(animationSpec = tween(180))
+                },
+                label = "header_title"
+            ) { titleText ->
+                Text(
+                    text = titleText,
+                    fontSize = 34.sp,
+                    lineHeight = 40.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = palette.textPrimary
+                )
+            }
         }
         Box {
             FilledTonalIconButton(onClick = { menu = true },
@@ -677,7 +758,7 @@ fun AppleFloatingBottomBar(
             indicatorOffset.animateTo(
                 targetValue = activePage.ordinal.toFloat(),
                 animationSpec = spring(
-                    dampingRatio = 0.85f,
+                    dampingRatio = Spring.DampingRatioNoBouncy,
                     stiffness = Spring.StiffnessMediumLow
                 )
             )
@@ -688,9 +769,9 @@ fun AppleFloatingBottomBar(
 
     Surface(
         color = palette.card,
-        shape = RoundedCornerShape(28.dp),
+        shape = RoundedCornerShape(36.dp),
         border = BorderStroke(0.8.dp, palette.separator),
-        shadowElevation = 8.dp
+        shadowElevation = 3.dp
     ) {
         BoxWithConstraints(
             modifier = Modifier
@@ -710,32 +791,21 @@ fun AppleFloatingBottomBar(
                             val change = event.changes.firstOrNull { it.id == down.id } ?: break
                             if (!change.pressed) {
                                 // Thả ngón tay ra!
-                                if (isDrag) {
-                                    isBarDragging = false
-                                    val targetIndex = (lastX / tabWidthPx).toInt().coerceIn(0, pageCount - 1)
-                                    onSelectPage(pages[targetIndex])
-                                    coroutineScope.launch {
-                                        indicatorOffset.animateTo(
-                                            targetValue = targetIndex.toFloat(),
-                                            animationSpec = spring(
-                                                dampingRatio = 0.85f,
-                                                stiffness = Spring.StiffnessMediumLow
-                                            )
-                                        )
-                                    }
+                                val targetIndex = if (isDrag) {
+                                    kotlin.math.round(indicatorOffset.value).toInt().coerceIn(0, pageCount - 1)
                                 } else {
-                                    // Chạm nhẹ (Tap)
-                                    val targetIndex = (downX / tabWidthPx).toInt().coerceIn(0, pageCount - 1)
-                                    onSelectPage(pages[targetIndex])
-                                    coroutineScope.launch {
-                                        indicatorOffset.animateTo(
-                                            targetValue = targetIndex.toFloat(),
-                                            animationSpec = spring(
-                                                dampingRatio = 0.85f,
-                                                stiffness = Spring.StiffnessMediumLow
-                                            )
+                                    (downX / tabWidthPx).toInt().coerceIn(0, pageCount - 1)
+                                }
+                                isBarDragging = false
+                                onSelectPage(pages[targetIndex])
+                                coroutineScope.launch {
+                                    indicatorOffset.animateTo(
+                                        targetValue = targetIndex.toFloat(),
+                                        animationSpec = spring(
+                                            dampingRatio = Spring.DampingRatioNoBouncy,
+                                            stiffness = Spring.StiffnessMediumLow
                                         )
-                                    }
+                                    )
                                 }
                                 break
                             } else {
@@ -899,11 +969,16 @@ fun DashboardPage(
     onSendSimulation: (NavigationInfo) -> Unit,
     onClearSimulation: () -> Unit,
     onNavigateToSystem: () -> Unit,
-    onNavigateToWatchStudio: () -> Unit
+    onNavigateToWatchStudio: () -> Unit,
+    isInstalledFromPlayStore: Boolean = false,
+    onOpenTesterInvite: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val p = LocalApplePalette.current
-    var alerts by remember { mutableStateOf(false) }
+    val sharedPrefs = remember { context.getSharedPreferences("navigation_iq_prefs", Context.MODE_PRIVATE) }
+    var isTesterCardDismissed by remember {
+        mutableStateOf(sharedPrefs.getBoolean("hide_tester_card", false))
+    }
     val lastTripSummary by com.phucdnh.navigationiq.service.NavNotificationService.lastTripSummaryFlow.collectAsState()
     fun send(preset: SimulatedRoutePreset) {
         onSendSimulation(NavigationInfo(isPublicTransport = true, units = "km", eta = preset.eta,
@@ -959,6 +1034,59 @@ fun DashboardPage(
                             else { if (isVi) "Giữ kết nối đồng hồ khi tắt màn hình." else "Keep your watch connected in the background." }, fontSize = 11.sp, color = p.textSecondary)
                     }
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = p.orange)
+                }
+            }
+        }
+        if (!isInstalledFromPlayStore && !isTesterCardDismissed) item {
+            Surface(
+                onClick = onOpenTesterInvite,
+                color = if (p.isDark) Color(0xFF1E2D24) else Color(0xFFE2F0D9),
+                shape = RoundedCornerShape(24.dp),
+                border = BorderStroke(0.8.dp, p.green.copy(alpha = 0.35f))
+            ) {
+                Row(
+                    Modifier.fillMaxWidth().padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        Modifier.size(36.dp).background(p.green.copy(alpha = 0.16f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Verified,
+                            contentDescription = null,
+                            tint = p.green,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            text = if (isVi) "Tham gia thử nghiệm Google Play" else "Join Google Play Testing",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = p.textPrimary
+                        )
+                        Text(
+                            text = if (isVi) "Nhận cập nhật tự động & hỗ trợ duyệt CH Play" else "Get auto-updates & support Play Store release",
+                            fontSize = 11.sp,
+                            color = p.textSecondary
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            isTesterCardDismissed = true
+                            sharedPrefs.edit().putBoolean("hide_tester_card", true).apply()
+                        },
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "Dismiss",
+                            tint = p.textSecondary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
             }
         }
@@ -1033,8 +1161,13 @@ fun DashboardPage(
                         if (metaParts.isNotEmpty()) {
                             Text(metaParts.joinToString("  ·  "), color = p.textSecondary, fontSize = 12.sp)
                         }
-                        OutlinedButton(onClick = onClearSimulation, modifier = Modifier.fillMaxWidth(), border = BorderStroke(1.dp, p.blue)) {
-                            Text(if (isVi) "Kết thúc chỉ đường" else "End navigation", color = p.blue)
+                        OutlinedButton(
+                            onClick = onClearSimulation,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            shape = CircleShape,
+                            border = BorderStroke(1.dp, p.blue)
+                        ) {
+                            Text(if (isVi) "Kết thúc chỉ đường" else "End navigation", color = p.blue, fontWeight = FontWeight.Bold)
                         }
                     } else {
                         Text(if (isVi) "Gửi chỉ đường thẳng đến cổ tay bạn." else "Send directions straight to your wrist.", fontSize = 13.sp, color = p.textSecondary)
@@ -1048,7 +1181,12 @@ fun DashboardPage(
                             Spacer(Modifier.width(12.dp))
                             Text(if (isVi) "Mở Google Maps" else "Open Google Maps", fontWeight = FontWeight.Bold)
                         }
-                        OutlinedButton(onClick = { send(QuickSimulationPresets.first()) }, modifier = Modifier.fillMaxWidth().heightIn(min = 40.dp), border = BorderStroke(1.dp, p.blue)) {
+                        OutlinedButton(
+                            onClick = { send(QuickSimulationPresets.first()) },
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            shape = CircleShape,
+                            border = BorderStroke(1.dp, p.blue)
+                        ) {
                             Icon(Icons.Default.PlayArrow, null, tint = p.blue, modifier = Modifier.size(20.dp))
                             Spacer(Modifier.width(8.dp))
                             Text(if (isVi) "Thử lộ trình" else "Test a route", color = p.blue, fontWeight = FontWeight.Bold)
@@ -1060,52 +1198,42 @@ fun DashboardPage(
         item {
             ExpressivePanel {
                 Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(if (isVi) "Mô phỏng" else "Simulator", Modifier.weight(1f), fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = p.textPrimary)
-                    Row(Modifier.background(p.pillTrack, CircleShape).padding(4.dp)) {
-                        listOf(false, true).forEach { tab ->
-                            Box(Modifier.clip(CircleShape).background(if (alerts == tab) p.blue else Color.Transparent)
-                                .clickable { alerts = tab }.padding(horizontal = 16.dp, vertical = 9.dp)) {
-                                Text(if (tab) { if (isVi) "Tin nhắn" else "Alerts" } else { if (isVi) "Lộ trình" else "Routes" },
-                                    fontSize = 11.sp, fontWeight = FontWeight.Bold, color = if (alerts == tab) (if (p.isDark) p.bg else Color.White) else p.textSecondary)
-                            }
-                        }
-                    }
+                    Text(
+                        text = if (isVi) "Mô phỏng lộ trình" else "Route Simulation",
+                        modifier = Modifier.weight(1f),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = p.textPrimary
+                    )
                 }
-                if (alerts) {
-                    ExpressiveRouteRow(Icons.AutoMirrored.Filled.Message, if (isVi) "Tin nhắn thử" else "Test chat alert",
-                        if (isVi) "Biểu ngữ trên đồng hồ" else "Message banner on your watch") {
-                        GarminManager.sendToastNotification(appName = "Chat", sender = "Alex", message = if (isVi) "Đang đến ngã tư!" else "Heading to the next crossroads now!", durationSec = 5)
+                QuickSimulationPresets.forEachIndexed { index, preset ->
+                    if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp), color = p.separator)
+                    val routeIcon = when (index) {
+                        0 -> Icons.Default.TurnRight
+                        1 -> Icons.Default.ArrowUpward
+                        2 -> Icons.Default.Route
+                        else -> Icons.Default.Check
                     }
-                } else {
-                    QuickSimulationPresets.forEachIndexed { index, preset ->
-                        if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp), color = p.separator)
-                        val routeIcon = when (index) {
-                            0 -> Icons.Default.TurnRight
-                            1 -> Icons.Default.ArrowUpward
-                            2 -> Icons.Default.Route
-                            else -> Icons.Default.Check
-                        }
-                        val routeTitle = if (isVi) {
-                            listOf("Nội đô", "Cao tốc", "Vòng xuyến", "Đến nơi")[index]
+                    val routeTitle = if (isVi) {
+                        listOf("Nội đô", "Cao tốc", "Vòng xuyến", "Đến nơi")[index]
+                    } else {
+                        listOf("City route", "Highway route", "Roundabout", "Arrival")[index]
+                    }
+                    ExpressiveRouteRow(routeIcon, routeTitle, if (isVi) preset.subtitleVi else preset.subtitleEn) {
+                        if (index == 3) {
+                            val mockSummary = com.phucdnh.navigationiq.model.TripSummary(
+                                destination = "Lotte Mart",
+                                duration = "22m",
+                                distance = "8.4 km",
+                                avgSpeed = "26 km/h",
+                                startTime = "17:23",
+                                endTime = "17:45"
+                            )
+                            com.phucdnh.navigationiq.service.NavNotificationService.setSimulatedTripSummary(mockSummary)
+                            com.phucdnh.navigationiq.garmin.GarminManager.sendNavigationArrived(context, mockSummary)
+                            send(preset)
                         } else {
-                            listOf("City route", "Highway route", "Roundabout", "Arrival")[index]
-                        }
-                        ExpressiveRouteRow(routeIcon, routeTitle, if (isVi) preset.subtitleVi else preset.subtitleEn) {
-                            if (index == 3) {
-                                val mockSummary = com.phucdnh.navigationiq.model.TripSummary(
-                                    destination = "Lotte Mart",
-                                    duration = "22m",
-                                    distance = "8.4 km",
-                                    avgSpeed = "26 km/h",
-                                    startTime = "17:23",
-                                    endTime = "17:45"
-                                )
-                                com.phucdnh.navigationiq.service.NavNotificationService.setSimulatedTripSummary(mockSummary)
-                                com.phucdnh.navigationiq.garmin.GarminManager.sendNavigationArrived(context, mockSummary)
-                                send(preset)
-                            } else {
-                                send(preset)
-                            }
+                            send(preset)
                         }
                     }
                 }
@@ -1215,9 +1343,9 @@ enum class WatchLayoutProfile(
     val subtitleVi: String
 ) {
     AUTO(0, "Auto", "Tự động", "Detect from device", "Nhận diện từ thiết bị"),
-    RECT(1, "Square", "Square Watch", "Venu Sq, Venu 2 Sq, Venu X1", "Venu Sq, Venu 2 sq, Venu X1"),
-    ROUND(2, "Round", "Tròn (Fenix)", "Sports round display", "Mặt tròn thể thao"),
-    INSTINCT(3, "Instinct", "Instinct", "Monochrome / Rugged", "Đơn sắc / Gồ ghề");
+    RECT(1, "Square", "Mặt vuông", "Venu Sq, Venu 2 Sq, Venu X1", "Venu Sq, Venu 2 sq, Venu X1"),
+    ROUND(2, "Round", "Mặt tròn", "Sports round display", "Mặt tròn thể thao"),
+    INSTINCT(3, "Instinct", "Mặt Instinct", "Monochrome / Rugged", "Đơn sắc / Gồ ghề");
 
     fun title(isVi: Boolean) = if (isVi) titleVi else titleEn
     fun subtitle(isVi: Boolean) = if (isVi) subtitleVi else subtitleEn
@@ -1265,9 +1393,9 @@ fun WatchAppearanceCard(
     val previewDistUnit = distTokens.getOrNull(1)?.takeIf { it.isNotEmpty() } ?: "km"
     val previewEta = previewNavInfo?.eta?.takeIf { it.isNotEmpty() } ?: "17:48"
     val previewAction = if (!previewNavInfo?.signs.isNullOrBlank()) {
-        previewNavInfo?.signs?.take(22) ?: "Continue straight"
+        previewNavInfo?.signs?.take(22) ?: (if (isVi) "Đi thẳng" else "Continue straight")
     } else {
-        "Continue straight"
+        if (isVi) "Đi thẳng" else "Continue straight"
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -1426,13 +1554,13 @@ fun WatchAppearanceCard(
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
-                                    text = "on Highway 1 towards",
+                                    text = if (isVi) "vào Quốc lộ 1A hướng" else "on Highway 1 towards",
                                     fontSize = currentPreset.streetSp.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFFE4E4E7)
                                 )
                                 Text(
-                                    text = "City Center",
+                                    text = if (isVi) "Trung tâm thành phố" else "City Center",
                                     fontSize = (currentPreset.streetSp - 1).sp,
                                     fontWeight = FontWeight.Normal,
                                     color = Color(0xFFA1A1AA)
@@ -1572,7 +1700,7 @@ fun WatchAppearanceCard(
                                     color = Color.White
                                 )
                                 Text(
-                                    text = "towards City Center",
+                                    text = if (isVi) "hướng Trung tâm TP" else "towards City Center",
                                     fontSize = 10.sp,
                                     fontFamily = FontFamily.Monospace,
                                     color = Color(0xFFCCCCCC)
@@ -1660,13 +1788,13 @@ fun WatchAppearanceCard(
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
-                                    text = "on Highway 1 towards",
+                                    text = if (isVi) "vào Quốc lộ 1A hướng" else "on Highway 1 towards",
                                     fontSize = currentPreset.streetSp.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFFE4E4E7)
                                 )
                                 Text(
-                                    text = "City Center",
+                                    text = if (isVi) "Trung tâm thành phố" else "City Center",
                                     fontSize = (currentPreset.streetSp - 1).sp,
                                     fontWeight = FontWeight.Normal,
                                     color = Color(0xFFA1A1AA)
@@ -1844,7 +1972,9 @@ fun SystemSettingsPage(
     currentLanguage: AppLanguage,
     isVi: Boolean,
     onSelectLanguage: (AppLanguage) -> Unit,
-    onTriggerUpdate: (AppUpdateInfo) -> Unit = {}
+    onTriggerUpdate: (AppUpdateInfo) -> Unit = {},
+    isInstalledFromPlayStore: Boolean = false,
+    onOpenTesterInvite: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val palette = LocalApplePalette.current
@@ -1857,6 +1987,59 @@ fun SystemSettingsPage(
         contentPadding = PaddingValues(top = 6.dp, bottom = 112.dp, start = 16.dp, end = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Top Banner: Google Play Closed Testing Program (Only for APK / non-PlayStore installs)
+        if (!isInstalledFromPlayStore) item {
+            Surface(
+                onClick = onOpenTesterInvite,
+                color = if (palette.isDark) Color(0xFF1E2D24) else Color(0xFFE2F0D9),
+                shape = RoundedCornerShape(22.dp),
+                border = BorderStroke(0.8.dp, palette.green.copy(alpha = 0.35f))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .background(palette.green.copy(alpha = 0.16f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Science,
+                            contentDescription = null,
+                            tint = palette.green,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = if (isVi) "Tham gia thử nghiệm Google Play" else "Join Google Play Testing",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = palette.textPrimary
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = if (isVi) "Nhận cập nhật tự động & hỗ trợ duyệt CH Play" else "Get auto-updates & support Play Store release",
+                            fontSize = 11.sp,
+                            color = palette.textSecondary,
+                            lineHeight = 15.sp
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = palette.green,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        }
+
         // Section 1: Garmin Connect IQ
         item {
             AppleSectionHeader(title = if (isVi) "THIẾT BỊ GARMIN & CONNECT IQ SDK" else "GARMIN DEVICE & CONNECT IQ SDK")
@@ -2565,6 +2748,68 @@ fun AppleSectionHeader(title: String) {
 }
 
 @Composable
+fun ClickableLinkText(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color,
+    linkColor: Color,
+    fontSize: androidx.compose.ui.unit.TextUnit = 12.sp,
+    lineHeight: androidx.compose.ui.unit.TextUnit = 17.sp
+) {
+    val uriHandler = LocalUriHandler.current
+    val urlRegex = remember {
+        Regex("(https?://[^\\s]+|[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+/[^\\s]*)")
+    }
+
+    val annotatedString = remember(text, color, linkColor) {
+        buildAnnotatedString {
+            var lastIndex = 0
+            val matches = urlRegex.findAll(text)
+            for (match in matches) {
+                append(text.substring(lastIndex, match.range.first))
+                val rawUrl = match.value
+                val fullUrl = if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) rawUrl else "https://$rawUrl"
+                pushStringAnnotation(tag = "URL", annotation = fullUrl)
+                withStyle(
+                    style = SpanStyle(
+                        color = linkColor,
+                        fontWeight = FontWeight.SemiBold,
+                        textDecoration = TextDecoration.Underline
+                    )
+                ) {
+                    append(rawUrl)
+                }
+                pop()
+                lastIndex = match.range.last + 1
+            }
+            if (lastIndex < text.length) {
+                append(text.substring(lastIndex))
+            }
+        }
+    }
+
+    ClickableText(
+        text = annotatedString,
+        modifier = modifier,
+        style = TextStyle(
+            color = color,
+            fontSize = fontSize,
+            lineHeight = lineHeight
+        ),
+        onClick = { offset ->
+            annotatedString.getStringAnnotations(tag = "URL", start = offset, end = offset)
+                .firstOrNull()?.let { annotation ->
+                    try {
+                        uriHandler.openUri(annotation.item)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+        }
+    )
+}
+
+@Composable
 fun UpdateDialog(
     updateInfo: AppUpdateInfo,
     isVi: Boolean,
@@ -2622,13 +2867,16 @@ fun UpdateDialog(
                             .background(palette.bg, RoundedCornerShape(12.dp))
                             .padding(10.dp)
                     ) {
-                        Text(
-                            text = updateInfo.whatsNew,
-                            fontSize = 12.sp,
-                            color = palette.textPrimary,
-                            lineHeight = 17.sp,
-                            modifier = Modifier.verticalScroll(rememberScrollState())
-                        )
+                        SelectionContainer {
+                            ClickableLinkText(
+                                text = updateInfo.whatsNew,
+                                color = palette.textPrimary,
+                                linkColor = palette.blue,
+                                fontSize = 12.sp,
+                                lineHeight = 17.sp,
+                                modifier = Modifier.verticalScroll(rememberScrollState())
+                            )
+                        }
                     }
                 } else {
                     Text(
@@ -2640,7 +2888,7 @@ fun UpdateDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = if (isVi) "Cập nhật chính thức qua Google Play Store" else "Official update via Google Play Store",
+                    text = if (isVi) "Tải APK mới từ GitHub (hoặc tham gia Closed Beta Google Play)" else "Direct APK download from GitHub (or join Google Play Closed Beta)",
                     fontSize = 11.sp,
                     color = palette.textTertiary
                 )
@@ -2680,6 +2928,231 @@ fun UpdateDialog(
                         fontWeight = FontWeight.Bold
                     )
                 }
+            }
+        },
+        dismissButton = null
+    )
+}
+
+@Composable
+fun TesterInviteDialog(
+    isVi: Boolean,
+    onDismiss: () -> Unit
+) {
+    val palette = LocalApplePalette.current
+    val uriHandler = LocalUriHandler.current
+
+    val googleGroupUrl = "https://groups.google.com/g/navigation-iq-testers"
+    val playStoreOptInUrl = "https://play.google.com/apps/testing/com.phucdnh.navigationiq"
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(28.dp),
+        containerColor = palette.card,
+        tonalElevation = 6.dp,
+        icon = {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(palette.blue.copy(alpha = 0.12f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Science,
+                    contentDescription = null,
+                    tint = palette.blue,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
+        },
+        title = {
+            Text(
+                text = if (isVi) "Tham gia thử nghiệm Google Play" else "Join Google Play Testing",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = palette.textPrimary,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    text = if (isVi)
+                        "Navigation IQ đang trong giai đoạn thử nghiệm kín 14 ngày trên Google Play. Tham gia để nhận cập nhật tự động mượt mà trực tiếp từ CH Play!"
+                    else
+                        "Navigation IQ is currently in 14-day closed testing on Google Play. Join our testing group to receive seamless automatic updates directly from the Play Store!",
+                    fontSize = 12.sp,
+                    color = palette.textSecondary,
+                    lineHeight = 17.sp
+                )
+
+                // Step 1 Button
+                Surface(
+                    onClick = {
+                        try {
+                            uriHandler.openUri(googleGroupUrl)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    },
+                    color = palette.bg,
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(0.8.dp, palette.separator)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .background(palette.blue.copy(alpha = 0.12f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "1",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = palette.blue
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = if (isVi) "Tham gia Google Group" else "Join Google Group",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = palette.textPrimary
+                            )
+                            Text(
+                                text = if (isVi) "Bắt buộc tham gia nhóm trước" else "Required first step",
+                                fontSize = 11.sp,
+                                color = palette.textSecondary
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Default.OpenInNew,
+                            contentDescription = null,
+                            tint = palette.blue,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+
+                // Step 2 Button
+                Surface(
+                    onClick = {
+                        try {
+                            uriHandler.openUri(playStoreOptInUrl)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    },
+                    color = palette.bg,
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(0.8.dp, palette.separator)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .background(palette.green.copy(alpha = 0.12f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "2",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = palette.green
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = if (isVi) "Nhận quyền tải trên Google Play" else "Opt-in on Google Play",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = palette.textPrimary
+                            )
+                            Text(
+                                text = if (isVi) "Tải/cập nhật qua CH Play" else "Install & update via Play Store",
+                                fontSize = 11.sp,
+                                color = palette.textSecondary
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Default.OpenInNew,
+                            contentDescription = null,
+                            tint = palette.green,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+
+                // Propagation note
+                Surface(
+                    color = if (palette.isDark) Color(0xFF2C2216) else Color(0xFFFFF8EE),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(0.8.dp, palette.orange.copy(alpha = 0.35f))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = palette.orange,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (isVi)
+                                "Sau khi tham gia nhóm (Bước 1), Google Play có thể mất 5 - 10 phút để cập nhật quyền truy cập. Nếu Bước 2 báo 'Không tìm thấy ứng dụng', bạn đợi vài phút rồi bấm lại nhé."
+                            else
+                                "Google Play may take 5–10 minutes to sync access after Step 1. If Step 2 says 'App not available', please wait a few minutes and try again.",
+                            fontSize = 11.sp,
+                            color = if (palette.isDark) Color(0xFFFFD8A8) else Color(0xFF8A5300),
+                            lineHeight = 15.sp
+                        )
+                    }
+                }
+
+                Text(
+                    text = if (isVi)
+                        "Lưu ý: Bắt buộc dùng cùng tài khoản Google trên CH Play khi tham gia nhóm."
+                    else
+                        "Note: Use the same Google account as your Google Play Store to join.",
+                    fontSize = 10.sp,
+                    color = palette.textTertiary,
+                    lineHeight = 14.sp
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onDismiss,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = palette.blue
+                )
+            ) {
+                Text(
+                    text = if (isVi) "Đã hiểu / Để sau" else "Got it / Later",
+                    fontWeight = FontWeight.Bold
+                )
             }
         },
         dismissButton = null
