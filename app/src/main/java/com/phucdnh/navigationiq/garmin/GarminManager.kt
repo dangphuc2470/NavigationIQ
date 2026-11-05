@@ -276,13 +276,22 @@ object GarminManager {
         }
     }
 
+    fun getSafeKnownDevices(): List<IQDevice> {
+        if (!isSdkReady) return emptyList()
+        val ciq = connectIQ ?: return emptyList()
+        return try {
+            ciq.knownDevices ?: emptyList()
+        } catch (e: Exception) {
+            Log.w(TAG, "getKnownDevices failed: ${e.message}")
+            emptyList()
+        }
+    }
+
     fun loadDevices(context: Context) {
         appContext = context.applicationContext
-        if (!isSdkReady) return
         val ciq = connectIQ ?: return
         try {
-            val known = ciq.knownDevices ?: emptyList()
-            devices = known
+            devices = getSafeKnownDevices()
             if (devices.isNotEmpty()) {
                 _isWatchFound.value = true
                 val first = devices.first()
@@ -369,10 +378,7 @@ object GarminManager {
 
         // Refresh devices list if empty
         if (devices.isEmpty()) {
-            val ciq = connectIQ
-            if (ciq != null) {
-                devices = ciq.knownDevices ?: emptyList()
-            }
+            devices = getSafeKnownDevices()
         }
 
         if (devices.isEmpty()) {
@@ -632,9 +638,11 @@ object GarminManager {
 
     fun sendPing(context: Context? = null) {
         val ctx = context ?: appContext
+        if (!isSdkReady) return
         if (devices.isEmpty()) {
-            devices = connectIQ?.knownDevices ?: emptyList()
+            devices = getSafeKnownDevices()
         }
+        if (devices.isEmpty()) return
         if (registeredApps.isEmpty() && devices.isNotEmpty() && ctx != null) {
             for (dev in devices) {
                 checkAndRegisterApps(ctx, dev)
@@ -713,9 +721,11 @@ object GarminManager {
             packet.rleData,
             packet.palette
         )
+        if (!isSdkReady) return
         if (devices.isEmpty()) {
-            devices = connectIQ?.knownDevices ?: emptyList()
+            devices = getSafeKnownDevices()
         }
+        if (devices.isEmpty()) return
         val apps = getTargetApps()
         for (device in devices) {
             for (app in apps) {
@@ -737,9 +747,11 @@ object GarminManager {
 
     fun sendToastNotification(appName: String, sender: String, message: String, durationSec: Int = 5) {
         val payload = listOf("toast", appName, sender, message, durationSec)
+        if (!isSdkReady) return
         if (devices.isEmpty()) {
-            devices = connectIQ?.knownDevices ?: emptyList()
+            devices = getSafeKnownDevices()
         }
+        if (devices.isEmpty()) return
         val apps = getTargetApps()
         for (device in devices) {
             for (app in apps) {
@@ -798,9 +810,11 @@ object GarminManager {
 
     fun sendActivityModeSetting(isEnabled: Boolean) {
         val payload = listOf("set_activity_mode", if (isEnabled) 1 else 0)
+        if (!isSdkReady) return
         if (devices.isEmpty()) {
-            devices = connectIQ?.knownDevices ?: emptyList()
+            devices = getSafeKnownDevices()
         }
+        if (devices.isEmpty()) return
         val apps = getTargetApps()
         for (device in devices) {
             for (app in apps) {
@@ -820,8 +834,16 @@ object GarminManager {
      * 0 = Balanced, 1 = Street Focus, 2 = Distance Focus, 3 = Large Text
      */
     fun sendTextPreset(presetId: Int, onComplete: ((Boolean) -> Unit)? = null) {
+        if (!isSdkReady) {
+            onComplete?.invoke(false)
+            return
+        }
         if (devices.isEmpty()) {
-            devices = connectIQ?.knownDevices ?: emptyList()
+            devices = getSafeKnownDevices()
+        }
+        if (devices.isEmpty()) {
+            onComplete?.invoke(false)
+            return
         }
         val payload = listOf("set_text_preset", presetId)
         var anyDispatched = false
@@ -856,8 +878,16 @@ object GarminManager {
      * 0 = Auto Detect, 1 = Rect (Venu Sq / X1), 2 = Round (Fenix / Venu 2), 3 = Instinct Crossover
      */
     fun sendLayoutProfile(profileId: Int, onComplete: ((Boolean) -> Unit)? = null) {
+        if (!isSdkReady) {
+            onComplete?.invoke(false)
+            return
+        }
         if (devices.isEmpty()) {
-            devices = connectIQ?.knownDevices ?: emptyList()
+            devices = getSafeKnownDevices()
+        }
+        if (devices.isEmpty()) {
+            onComplete?.invoke(false)
+            return
         }
         val payload = listOf("set_layout_profile", profileId)
         var anyDispatched = false

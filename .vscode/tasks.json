@@ -14,6 +14,18 @@
             "problemMatcher": []
         },
         {
+            "label": "Run Android Emulator (Cold Boot)",
+            "type": "shell",
+            "command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}/.vscode/run_emulator.ps1\" -ColdBoot",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "focus": false,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Run Garmin Simulator",
             "type": "shell",
             "command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}/.vscode/run_emulator.ps1\" -Garmin",

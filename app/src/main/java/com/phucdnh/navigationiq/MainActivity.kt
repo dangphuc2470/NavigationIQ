@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.text.TextUtils
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -1461,7 +1462,11 @@ fun WatchAppearanceCard(
                                 .clickable {
                                     selectedProfileId = profile.id
                                     sharedPrefs.edit().putInt("watch_layout_profile", profile.id).apply()
-                                    GarminManager.sendLayoutProfile(profile.id)
+                                    try {
+                                        GarminManager.sendLayoutProfile(profile.id)
+                                    } catch (e: Exception) {
+                                        Log.w("MainActivity", "Failed to send layout profile: ${e.message}")
+                                    }
                                 }
                         ) {
                             Text(
@@ -1855,7 +1860,11 @@ fun WatchAppearanceCard(
                             .clickable {
                                 selectedPresetId = preset.id
                                 sharedPrefs.edit().putInt("watch_text_preset", preset.id).apply()
-                                GarminManager.sendTextPreset(preset.id)
+                                try {
+                                    GarminManager.sendTextPreset(preset.id)
+                                } catch (e: Exception) {
+                                    Log.w("MainActivity", "Failed to send text preset: ${e.message}")
+                                }
                             }
                             .padding(horizontal = 16.dp, vertical = 14.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -1910,19 +1919,24 @@ fun WatchAppearanceCard(
             onClick = {
                 isSyncing = true
                 syncStatusText = if (isVi) "Đang gửi cấu hình sang đồng hồ..." else "Syncing configuration with watch..."
-                GarminManager.sendLayoutProfile(selectedProfileId)
-                GarminManager.sendTextPreset(selectedPresetId) { success ->
-                    scope.launch {
-                        isSyncing = false
-                        syncStatusText = if (success) {
-                            if (isVi) "Đã đồng bộ giao diện sang đồng hồ thành công!" else "Successfully synced layout to watch!"
-                        } else {
-                            if (isVi) "Không thể kết nối đồng hồ hoặc ứng dụng trên đồng hồ chưa mở"
-                            else "Unable to connect to watch or watch app is closed"
+                try {
+                    GarminManager.sendLayoutProfile(selectedProfileId)
+                    GarminManager.sendTextPreset(selectedPresetId) { success ->
+                        scope.launch {
+                            isSyncing = false
+                            syncStatusText = if (success) {
+                                if (isVi) "Đã đồng bộ giao diện sang đồng hồ thành công!" else "Successfully synced layout to watch!"
+                            } else {
+                                if (isVi) "Không thể kết nối đồng hồ hoặc ứng dụng trên đồng hồ chưa mở"
+                                else "Unable to connect to watch or watch app is closed"
+                            }
+                            delay(4000L)
+                            syncStatusText = null
                         }
-                        delay(4000L)
-                        syncStatusText = null
                     }
+                } catch (e: Exception) {
+                    isSyncing = false
+                    syncStatusText = if (isVi) "Không thể kết nối đồng hồ hoặc ứng dụng trên đồng hồ chưa mở" else "Unable to connect to watch or watch app is closed"
                 }
             },
             shape = RoundedCornerShape(14.dp),

@@ -1,6 +1,7 @@
 param(
     [string]$AvdName = "",
-    [switch]$Garmin = $false
+    [switch]$Garmin = $false,
+    [switch]$ColdBoot = $false
 )
 
 $ErrorActionPreference = "Stop"
@@ -109,6 +110,12 @@ if (-not $AvdName) {
     }
 }
 
-Write-Host "Starting AVD: $AvdName in background..." -ForegroundColor Green
-Start-Process -FilePath $emulatorExe -ArgumentList "-avd", $AvdName
+$emuArgs = @("-avd", $AvdName)
+if ($ColdBoot) {
+    Write-Host "Starting AVD: $AvdName with Cold Boot (-no-snapshot-load) in background..." -ForegroundColor Green
+    $emuArgs += "-no-snapshot-load"
+} else {
+    Write-Host "Starting AVD: $AvdName in background..." -ForegroundColor Green
+}
+Start-Process -FilePath $emulatorExe -ArgumentList $emuArgs
 Write-Host "Emulator '$AvdName' started successfully!" -ForegroundColor Green

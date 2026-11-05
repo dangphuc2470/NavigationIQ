@@ -14,6 +14,12 @@
             "command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}/.vscode/run_emulator.ps1\""
         },
         {
+            "name": "Run Android Emulator (Cold Boot)",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}/.vscode/run_emulator.ps1\" -ColdBoot"
+        },
+        {
             "name": "Run Garmin Simulator",
             "type": "node-terminal",
             "request": "launch",
