@@ -99,7 +99,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -1502,264 +1504,41 @@ fun WatchAppearanceCard(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                // Watch Hardware Bezel Preview
-                val isInstinct = (selectedProfileId == WatchLayoutProfile.INSTINCT.id)
-                val isRound = (selectedProfileId == WatchLayoutProfile.ROUND.id)
+                // Watch Hardware Bezel Preview (Isolate fontScale to accurately simulate Garmin watch hardware display)
+                CompositionLocalProvider(
+                    LocalDensity provides Density(
+                        density = LocalDensity.current.density,
+                        fontScale = 1.0f
+                    )
+                ) {
+                    val isInstinct = (selectedProfileId == WatchLayoutProfile.INSTINCT.id)
+                    val isRound = (selectedProfileId == WatchLayoutProfile.ROUND.id)
 
-                if (isRound) {
-                    Box(
-                        modifier = Modifier
-                            .size(240.dp)
-                            .background(Color.Black, CircleShape)
-                            .border(2.dp, Color(0xFF3A3A3C), CircleShape)
-                            .padding(horizontal = 14.dp, vertical = 14.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.SpaceBetween,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                    if (isRound) {
+                        Box(
+                            modifier = Modifier
+                                .size(240.dp)
+                                .clip(CircleShape)
+                                .background(Color.Black, CircleShape)
+                                .border(2.dp, Color(0xFF3A3A3C), CircleShape)
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(42.dp)
-                                    .background(Color(0xFF143B42), CircleShape)
-                                    .padding(4.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(34.dp)
-                                        .background(Color(0xFF4A8B99), CircleShape),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.ArrowUpward,
-                                        contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                            }
-
-                            Row(
-                                verticalAlignment = Alignment.Bottom,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = previewDistNumber,
-                                    fontSize = (currentPreset.distSp * 0.85f).sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White,
-                                    lineHeight = (currentPreset.distSp * 0.85f).sp
-                                )
-                                Spacer(modifier = Modifier.width(3.dp))
-                                Text(
-                                    text = previewDistUnit,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF94A3B8),
-                                    modifier = Modifier.padding(bottom = 2.dp)
-                                )
-                            }
-
                             Column(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.SpaceBetween,
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(
-                                    text = previewAction,
-                                    fontSize = currentPreset.actionSp.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = if (isVi) "vào Quốc lộ 1A hướng" else "on Highway 1 towards",
-                                    fontSize = currentPreset.streetSp.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFFE4E4E7)
-                                )
-                                Text(
-                                    text = if (isVi) "Trung tâm thành phố" else "City Center",
-                                    fontSize = (currentPreset.streetSp - 1).sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = Color(0xFFA1A1AA)
-                                )
-                            }
-
-                            Surface(
-                                shape = RoundedCornerShape(50),
-                                color = Color(0xFF1A242B),
-                                border = BorderStroke(1.dp, Color(0xFF2E3D47)),
-                                modifier = Modifier.padding(bottom = 2.dp)
-                            ) {
-                                Text(
-                                    text = "ETA $previewEta • 12:09",
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White,
-                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp)
-                                )
-                            }
-                        }
-                    }
-                } else if (isInstinct) {
-                    Box(
-                        modifier = Modifier
-                            .size(236.dp)
-                            .background(Color.Black, RoundedCornerShape(26.dp))
-                            .border(3.dp, Color(0xFF384238), RoundedCornerShape(26.dp))
-                            .padding(horizontal = 12.dp, vertical = 10.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.SpaceBetween,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column {
-                                    Row(verticalAlignment = Alignment.Bottom) {
-                                        Text(
-                                            text = previewDistNumber,
-                                            fontSize = 24.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            fontFamily = FontFamily.Monospace,
-                                            color = Color.White
-                                        )
-                                        Spacer(modifier = Modifier.width(2.dp))
-                                        Text(
-                                            text = previewDistUnit,
-                                            fontSize = 13.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            fontFamily = FontFamily.Monospace,
-                                            color = Color.White
-                                        )
-                                    }
-                                    Text(
-                                        text = "ETA $previewEta",
-                                        fontSize = 11.sp,
-                                        fontFamily = FontFamily.Monospace,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
-                                }
-
                                 Box(
                                     modifier = Modifier
-                                        .size(42.dp)
-                                        .background(Color.Black, CircleShape)
-                                        .border(2.dp, Color.White, CircleShape),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.ArrowUpward,
-                                        contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                }
-                            }
-
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(Color.White)
-                            )
-
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(26.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth(0.9f)
-                                        .height(10.dp)
-                                        .background(Color(0xFF666666).copy(alpha = 0.5f), RoundedCornerShape(2.dp))
-                                        .border(1.dp, Color(0xFF888888), RoundedCornerShape(2.dp))
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .size(24.dp)
-                                        .background(Color(0xFF333333), CircleShape)
-                                        .border(1.dp, Color(0xFFAAAAAA), CircleShape)
-                                )
-                            }
-
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(Color.White)
-                            )
-
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = previewAction,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = FontFamily.Monospace,
-                                    color = Color.White,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Text(
-                                    text = "on Highway 1",
-                                    fontSize = 11.sp,
-                                    fontFamily = FontFamily.Monospace,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = if (isVi) "hướng Trung tâm TP" else "towards City Center",
-                                    fontSize = 10.sp,
-                                    fontFamily = FontFamily.Monospace,
-                                    color = Color(0xFFCCCCCC)
-                                )
-                            }
-                        }
-                    }
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .size(width = 220.dp, height = 248.dp)
-                            .background(Color.Black, RoundedCornerShape(28.dp))
-                            .border(2.dp, Color(0xFF3A3A3C), RoundedCornerShape(28.dp))
-                            .padding(horizontal = 14.dp, vertical = 12.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.SpaceBetween,
-                            horizontalAlignment = Alignment.Start
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Start
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(42.dp)
+                                        .size(38.dp)
                                         .background(Color(0xFF143B42), CircleShape)
-                                    .padding(4.dp),
+                                        .padding(3.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Box(
                                         modifier = Modifier
-                                            .size(34.dp)
+                                            .size(30.dp)
                                             .background(Color(0xFF4A8B99), CircleShape),
                                         contentAlignment = Alignment.Center
                                     ) {
@@ -1767,97 +1546,357 @@ fun WatchAppearanceCard(
                                             imageVector = Icons.Default.ArrowUpward,
                                             contentDescription = null,
                                             tint = Color.White,
-                                            modifier = Modifier.size(20.dp)
+                                            modifier = Modifier.size(18.dp)
                                         )
                                     }
                                 }
 
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                Row(verticalAlignment = Alignment.Bottom) {
+                                Row(
+                                    verticalAlignment = Alignment.Bottom,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
                                     Text(
                                         text = previewDistNumber,
-                                        fontSize = currentPreset.distSp.sp,
+                                        fontSize = (currentPreset.distSp * 0.85f).sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White,
-                                        lineHeight = currentPreset.distSp.sp
+                                        lineHeight = (currentPreset.distSp * 0.85f).sp
                                     )
                                     Spacer(modifier = Modifier.width(3.dp))
                                     Text(
                                         text = previewDistUnit,
-                                        fontSize = 15.sp,
+                                        fontSize = 13.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF94A3B8),
-                                        modifier = Modifier.padding(bottom = 3.dp)
+                                        modifier = Modifier.padding(bottom = 2.dp)
+                                    )
+                                }
+
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = previewAction,
+                                        fontSize = currentPreset.actionSp.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = if (isVi) "vào Quốc lộ 1A" else "on Highway 1",
+                                        fontSize = currentPreset.streetSp.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Color(0xFFE4E4E7),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    Text(
+                                        text = if (isVi) "hướng Trung tâm TP" else "towards City Center",
+                                        fontSize = (currentPreset.streetSp - 1).sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color(0xFFA1A1AA),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+
+                                Surface(
+                                    shape = RoundedCornerShape(50),
+                                    color = Color(0xFF1A242B),
+                                    border = BorderStroke(1.dp, Color(0xFF2E3D47)),
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                ) {
+                                    Text(
+                                        text = "ETA $previewEta • 12:09",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 3.dp)
                                     )
                                 }
                             }
-
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(Color(0xFF27272A))
-                            )
-
-                            Column(modifier = Modifier.fillMaxWidth()) {
-                                Text(
-                                    text = previewAction,
-                                    fontSize = currentPreset.actionSp.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = if (isVi) "vào Quốc lộ 1A hướng" else "on Highway 1 towards",
-                                    fontSize = currentPreset.streetSp.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFFE4E4E7)
-                                )
-                                Text(
-                                    text = if (isVi) "Trung tâm thành phố" else "City Center",
-                                    fontSize = (currentPreset.streetSp - 1).sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = Color(0xFFA1A1AA)
-                                )
-                            }
-
-                            Surface(
-                                shape = RoundedCornerShape(16.dp),
-                                color = Color(0xFF1A242B),
-                                border = BorderStroke(1.dp, Color(0xFF2E3D47)),
-                                modifier = Modifier.fillMaxWidth()
+                        }
+                    } else if (isInstinct) {
+                        Box(
+                            modifier = Modifier
+                                .size(236.dp)
+                                .clip(RoundedCornerShape(26.dp))
+                                .background(Color.Black, RoundedCornerShape(26.dp))
+                                .border(3.dp, Color(0xFF384238), RoundedCornerShape(26.dp))
+                                .padding(horizontal = 12.dp, vertical = 10.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.SpaceBetween,
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 8.dp, vertical = 5.dp),
+                                    modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Surface(
-                                        shape = RoundedCornerShape(50),
-                                        color = Color(0xFF163238),
-                                        border = BorderStroke(1.dp, Color(0xFF2EC4B6))
-                                    ) {
+                                    Column {
+                                        Row(verticalAlignment = Alignment.Bottom) {
+                                            Text(
+                                                text = previewDistNumber,
+                                                fontSize = 24.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                fontFamily = FontFamily.Monospace,
+                                                color = Color.White
+                                            )
+                                            Spacer(modifier = Modifier.width(2.dp))
+                                            Text(
+                                                text = previewDistUnit,
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                fontFamily = FontFamily.Monospace,
+                                                color = Color.White
+                                            )
+                                        }
                                         Text(
                                             text = "ETA $previewEta",
-                                            fontSize = 10.sp,
+                                            fontSize = 11.sp,
+                                            fontFamily = FontFamily.Monospace,
                                             fontWeight = FontWeight.Bold,
-                                            color = Color.White,
-                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                            color = Color.White
                                         )
                                     }
 
+                                    Box(
+                                        modifier = Modifier
+                                            .size(42.dp)
+                                            .background(Color.Black, CircleShape)
+                                            .border(2.dp, Color.White, CircleShape),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.ArrowUpward,
+                                            contentDescription = null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                }
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(1.dp)
+                                        .background(Color.White)
+                                )
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(26.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth(0.9f)
+                                            .height(10.dp)
+                                            .background(Color(0xFF666666).copy(alpha = 0.5f), RoundedCornerShape(2.dp))
+                                            .border(1.dp, Color(0xFF888888), RoundedCornerShape(2.dp))
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .background(Color(0xFF333333), CircleShape)
+                                            .border(1.dp, Color(0xFFAAAAAA), CircleShape)
+                                    )
+                                }
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(1.dp)
+                                        .background(Color.White)
+                                )
+
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
                                     Text(
-                                        text = "•   12:09",
+                                        text = previewAction,
                                         fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = FontFamily.Monospace,
+                                        color = Color.White,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    Text(
+                                        text = "on Highway 1",
+                                        fontSize = 11.sp,
+                                        fontFamily = FontFamily.Monospace,
+                                        color = Color.White,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    Text(
+                                        text = if (isVi) "hướng Trung tâm TP" else "towards City Center",
+                                        fontSize = 10.sp,
+                                        fontFamily = FontFamily.Monospace,
+                                        color = Color(0xFFCCCCCC),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(width = 220.dp, height = 248.dp)
+                                .clip(RoundedCornerShape(28.dp))
+                                .background(Color.Black, RoundedCornerShape(28.dp))
+                                .border(2.dp, Color(0xFF3A3A3C), RoundedCornerShape(28.dp))
+                                .padding(horizontal = 14.dp, vertical = 12.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.SpaceBetween,
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Start
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .background(Color(0xFF143B42), CircleShape)
+                                            .padding(3.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(32.dp)
+                                                .background(Color(0xFF4A8B99), CircleShape),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.ArrowUpward,
+                                                contentDescription = null,
+                                                tint = Color.White,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                    }
+
+                                    Spacer(modifier = Modifier.width(10.dp))
+
+                                    Row(verticalAlignment = Alignment.Bottom) {
+                                        Text(
+                                            text = previewDistNumber,
+                                            fontSize = currentPreset.distSp.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White,
+                                            lineHeight = currentPreset.distSp.sp
+                                        )
+                                        Spacer(modifier = Modifier.width(3.dp))
+                                        Text(
+                                            text = previewDistUnit,
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFF94A3B8),
+                                            modifier = Modifier.padding(bottom = 3.dp)
+                                        )
+                                    }
+                                }
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(1.dp)
+                                        .background(Color(0xFF27272A))
+                                )
+
+                                Column(modifier = Modifier.fillMaxWidth()) {
+                                    Text(
+                                        text = previewAction,
+                                        fontSize = currentPreset.actionSp.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = if (isVi) "vào Quốc lộ 1A" else "on Highway 1",
+                                        fontSize = currentPreset.streetSp.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = Color(0xFFE4E4E7),
-                                        modifier = Modifier.padding(end = 6.dp)
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
+                                    Text(
+                                        text = if (isVi) "hướng Trung tâm TP" else "towards City Center",
+                                        fontSize = (currentPreset.streetSp - 1).sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color(0xFFA1A1AA),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+
+                                Surface(
+                                    shape = RoundedCornerShape(16.dp),
+                                    color = Color(0xFF1A242B),
+                                    border = BorderStroke(1.dp, Color(0xFF2E3D47)),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 8.dp, vertical = 5.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Surface(
+                                            shape = RoundedCornerShape(50),
+                                            color = Color(0xFF163238),
+                                            border = BorderStroke(1.dp, Color(0xFF2EC4B6))
+                                        ) {
+                                            Text(
+                                                text = "ETA $previewEta",
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.White,
+                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                            )
+                                        }
+
+                                        Text(
+                                            text = "•   12:09",
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = Color(0xFFE4E4E7),
+                                            modifier = Modifier.padding(end = 6.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
