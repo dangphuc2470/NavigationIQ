@@ -6,7 +6,7 @@ import Toybox.Lang;
 // =============================================================================
 
 const IS_BETA = false;
-const APP_VERSION_STR = "v1.0.7";
+const APP_VERSION_STR = "v1.0.8";
 
 // 1. Device Screen
 const SCREEN_W = 320;
