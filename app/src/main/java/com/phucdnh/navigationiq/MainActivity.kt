@@ -96,6 +96,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -767,10 +768,17 @@ fun AppleFloatingBottomBar(
     }
 
     val currentPosition = indicatorOffset.value.coerceIn(0f, (pageCount - 1).toFloat())
+    val fontScale = LocalDensity.current.fontScale
+    val barHeight = if (fontScale > 1.05f) {
+        (52f + (fontScale - 1f) * 22f).coerceAtMost(62f).dp
+    } else {
+        52.dp
+    }
+    val pillRadius = barHeight / 2
 
     Surface(
         color = palette.card,
-        shape = RoundedCornerShape(36.dp),
+        shape = RoundedCornerShape(if (fontScale > 1.05f) (barHeight / 2 + 6.dp) else 36.dp),
         border = BorderStroke(0.8.dp, palette.separator),
         shadowElevation = 3.dp
     ) {
@@ -836,9 +844,9 @@ fun AppleFloatingBottomBar(
                 modifier = Modifier
                     .offset(x = pillOffset)
                     .width(tabWidth)
-                    .height(52.dp)
+                    .height(barHeight)
                     .padding(horizontal = 2.dp)
-                    .clip(RoundedCornerShape(26.dp))
+                    .clip(RoundedCornerShape(pillRadius))
                     .background(palette.blue)
             )
 
@@ -846,7 +854,7 @@ fun AppleFloatingBottomBar(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
+                    .height(barHeight),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 pages.forEachIndexed { index, page ->
@@ -859,7 +867,7 @@ fun AppleFloatingBottomBar(
                     Column(
                         modifier = Modifier
                             .weight(1f)
-                            .padding(vertical = 4.dp),
+                            .padding(vertical = if (fontScale > 1.05f) 2.dp else 4.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
@@ -867,15 +875,17 @@ fun AppleFloatingBottomBar(
                             imageVector = page.icon,
                             contentDescription = null,
                             tint = foreground,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(if (fontScale > 1.15f) 21.dp else 24.dp)
                         )
-                        Spacer(modifier = Modifier.height(2.dp))
+                        Spacer(modifier = Modifier.height(if (fontScale > 1.15f) 1.dp else 2.dp))
                         Text(
                             text = page.title(isVi),
                             color = foreground,
                             fontSize = 10.sp,
+                            lineHeight = 12.sp,
                             fontWeight = if (activeFraction > 0.45f) FontWeight.Bold else FontWeight.Medium,
-                            maxLines = 1
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
                 }
@@ -1413,7 +1423,10 @@ fun WatchAppearanceCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.weight(1f, fill = false),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Icon(
                             imageVector = Icons.Default.FormatSize,
                             contentDescription = null,
@@ -1425,9 +1438,12 @@ fun WatchAppearanceCard(
                             text = if (isVi) "Mô phỏng HUD thực tế" else "Live HUD Preview",
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp,
-                            color = palette.textPrimary
+                            color = palette.textPrimary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
+                    Spacer(modifier = Modifier.width(8.dp))
                     Surface(
                         shape = RoundedCornerShape(50),
                         color = palette.blue.copy(alpha = 0.12f)
@@ -1437,6 +1453,8 @@ fun WatchAppearanceCard(
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = palette.blue,
+                            maxLines = 1,
+                            softWrap = false,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                         )
                     }
