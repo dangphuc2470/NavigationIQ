@@ -180,14 +180,20 @@ def build_edition(edition_key, monkeyc_path, java_home, build_sideload_devices=N
     size_mb = os.path.getsize(out_iq) / (1024 * 1024)
     print(f"    [SUCCESS] Package generated: {os.path.basename(out_iq)} ({size_mb:.2f} MB)")
     
+    import shutil
+    # Also update the canonical .iq in GARMIN_DIR
+    canonical_iq_name = "NavigationIQ_Beta.iq" if edition_key == "beta" else "NavigationIQ.iq"
+    canonical_iq_path = os.path.join(GARMIN_DIR, canonical_iq_name)
+    shutil.copyfile(out_iq, canonical_iq_path)
+    print(f"    [OK] Copied to canonical location: {canonical_iq_path}")
+
     artifact_dir = r"C:\Users\phucdnh\.gemini\antigravity-ide\brain\3d2eab4b-8ff7-434d-8f30-db3ed9546551"
     if os.path.isdir(artifact_dir):
-        import shutil
         dst = os.path.join(artifact_dir, os.path.basename(out_iq))
         shutil.copyfile(out_iq, dst)
         print(f"    [OK] Copied to artifact directory: {dst}")
 
-    # 3. Optional: build sideload .prg for specific devices (e.g. venu2, venusq2)
+    # 3. Optional: build sideload .prg for specific devices (e.g. venu2, venusq2, instinctcrossover)
     if build_sideload_devices:
         print(f"\n[*] Compiling sideload binaries (.prg)...")
         for dev_id in build_sideload_devices:
@@ -204,6 +210,9 @@ def build_edition(edition_key, monkeyc_path, java_home, build_sideload_devices=N
             if r.returncode == 0:
                 p_size = os.path.getsize(out_prg) / 1024
                 print(f"    [+] {dev_id:10} -> {os.path.basename(out_prg)} ({p_size:.1f} KB)")
+                # Also copy to root of garmin_app
+                canonical_prg = os.path.join(GARMIN_DIR, f"navigation_iq_{dev_id}{suffix}.prg")
+                shutil.copyfile(out_prg, canonical_prg)
             else:
                 print(f"    [-] Failed to compile .prg for {dev_id}")
 
@@ -232,7 +241,7 @@ def main():
     print(f"  MonkeyC   : {monkeyc_path}")
     print(f"  Current ID: {get_manifest_app_id()}\n")
 
-    sideload_devs = ["venu2", "venusq2"] if args.sideload else None
+    sideload_devs = ["venu2", "venusq2", "venux1", "instinctcrossover"] if args.sideload else None
 
     if args.target == "all":
         targets = ["beta", "release"]
