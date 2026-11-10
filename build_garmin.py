@@ -34,9 +34,9 @@ CONFIGS = {
         "app_id": "e24767ea-b254-4f25-9391-ff4c409a037c",
         "app_name": "Navigation IQ Beta",
         "is_beta": True,
-        "version_str": "v1.0.18 Beta",
-        "manifest_version": "1.0.18",
-        "output_iq": os.path.join(BIN_DIR, "NavigationIQ_Beta_v1.0.18.iq"),
+        "version_str": "v1.0.20 Beta",
+        "manifest_version": "1.0.20",
+        "output_iq": os.path.join(BIN_DIR, "NavigationIQ_Beta_v1.0.20.iq"),
         "description": "Garmin Connect IQ Store - Beta Testers Channel",
     },
     "release": {
