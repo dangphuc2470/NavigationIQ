@@ -5,26 +5,22 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.System;
 
+(:glance, :typecheck(disableGlanceCheck))
 class NavigationIQApp extends Application.AppBase {
+
+    private var _isFullAppRunning as Lang.Boolean = false;
 
     function initialize() {
         AppBase.initialize();
-        if (Communications has :registerForPhoneAppMessages) {
-            Communications.registerForPhoneAppMessages(method(:onPhoneMessage));
-        }
     }
 
     function onStart(state as Dictionary?) as Void {
-        if (Communications has :registerForPhoneAppMessages) {
-            Communications.registerForPhoneAppMessages(method(:onPhoneMessage));
-        }
-        CommManager.start();
-        var stats = System.getSystemStats();
-        System.println("=== NavigationIQ launched! Heap: " + stats.usedMemory + "/" + stats.totalMemory + " bytes ===");
     }
 
     function onStop(state as Dictionary?) as Void {
-        CommManager.stopActivitySession();
+        if (_isFullAppRunning) {
+            CommManager.stopActivitySession();
+        }
     }
 
     function onPhoneMessage(msg as Communications.PhoneAppMessage) as Void {
@@ -35,6 +31,13 @@ class NavigationIQApp extends Application.AppBase {
     private var _mainView as NavigationIQView? = null;
 
     function getInitialView() as [Views] or [Views, InputDelegates] {
+        _isFullAppRunning = true;
+        if (Communications has :registerForPhoneAppMessages) {
+            Communications.registerForPhoneAppMessages(method(:onPhoneMessage));
+        }
+        CommManager.start();
+        var stats = System.getSystemStats();
+        System.println("=== NavigationIQ launched! Heap: " + stats.usedMemory + "/" + stats.totalMemory + " bytes ===");
         _mainView = ViewFactory.createView();
         return [ _mainView, new NavigationIQDelegate(_mainView) ];
     }
@@ -43,8 +46,13 @@ class NavigationIQApp extends Application.AppBase {
         return _mainView;
     }
 
+    function getGlanceView() {
+        return [ new NavigationIQGlanceView() ];
+    }
+
 }
 
+(:glance)
 function getApp() as NavigationIQApp {
     return Application.getApp() as NavigationIQApp;
 }
