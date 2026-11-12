@@ -11,5 +11,6 @@ data class TripSummary(
     val distance: String,
     val avgSpeed: String,
     val startTime: String = "",
-    val endTime: String = ""
+    val endTime: String = "",
+    val timestamp: Long = System.currentTimeMillis()
 ) : Serializable

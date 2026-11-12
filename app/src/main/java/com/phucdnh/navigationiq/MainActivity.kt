@@ -63,6 +63,7 @@ import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.FormatSize
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Map
@@ -109,6 +110,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.phucdnh.navigationiq.garmin.GarminManager
+import com.phucdnh.navigationiq.history.TripHistoryManager
 import com.phucdnh.navigationiq.model.NavigationInfo
 import com.phucdnh.navigationiq.service.NavNotificationService
 import com.phucdnh.navigationiq.update.AppUpdateInfo
@@ -211,8 +213,8 @@ enum class AppPage(
         titleVi = "Điều hướng",
         headerTitleEn = "Dashboard",
         headerTitleVi = "Bảng điều khiển",
-        headerSubtitleEn = "Turn-by-turn HUD & route simulation",
-        headerSubtitleVi = "Trung tâm chỉ đường & Mô phỏng lộ trình",
+        headerSubtitleEn = "Turn-by-turn HUD & trip history",
+        headerSubtitleVi = "Trung tâm chỉ đường & Lịch sử chuyến đi",
         icon = Icons.Default.Navigation
     ),
     WATCH_STUDIO(
@@ -254,6 +256,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         NavNotificationService.resumeService(this)
         GarminManager.initSdk(this)
+        TripHistoryManager.init(this)
         setContent {
             MainScreen()
         }
@@ -473,7 +476,11 @@ fun MainScreen() {
                                     updateInfo = info
                                 },
                                 isInstalledFromPlayStore = isInstalledFromPlayStore,
-                                onOpenTesterInvite = { showTesterInviteDialog = true }
+                                onOpenTesterInvite = { showTesterInviteDialog = true },
+                                onSendSimulation = { mock ->
+                                    simulatedNavInfo = mock
+                                    GarminManager.sendNavigationInfo(context, mock)
+                                }
                             )
 
                             AppPage.CONSOLE -> ConsoleLogPage(
@@ -1209,46 +1216,272 @@ fun DashboardPage(
             }
         }
         item {
+            val isHistoryEnabled by TripHistoryManager.isEnabledFlow.collectAsState()
+            val tripHistory by TripHistoryManager.historyFlow.collectAsState()
+
             ExpressivePanel {
-                Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .background(p.blue.copy(alpha = 0.14f), CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.History,
+                                    contentDescription = null,
+                                    tint = p.blue,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    text = if (isVi) "Lịch sử di chuyển" else "Trip History",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = p.textPrimary
+                                )
+                                Text(
+                                    text = if (isVi) "Lưu cục bộ trên thiết bị" else "Stored locally on device",
+                                    fontSize = 11.sp,
+                                    color = p.textSecondary
+                                )
+                            }
+                        }
+                        if (isHistoryEnabled && tripHistory.isNotEmpty()) {
+                            Surface(
+                                shape = CircleShape,
+                                color = p.pillTrack
+                            ) {
+                                Text(
+                                    text = if (isVi) "${tripHistory.size} chuyến" else "${tripHistory.size} trips",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = p.blue,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    if (!isHistoryEnabled) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = if (isVi)
+                                "Ghi lại thời gian, quãng đường và tốc độ mỗi khi bạn hoàn thành chuyến đi với Google Maps. Mặc định tắt để đảm bảo tính riêng tư."
+                            else
+                                "Records duration, distance, and average speed whenever you arrive with Google Maps. Disabled by default for privacy.",
+                            fontSize = 12.sp,
+                            color = p.textSecondary,
+                            lineHeight = 16.sp
+                        )
+                        Spacer(modifier = Modifier.height(14.dp))
+                        Button(
+                            onClick = { TripHistoryManager.setHistoryEnabled(context, true) },
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp),
+                            shape = CircleShape,
+                            colors = ButtonDefaults.buttonColors(containerColor = p.blue, contentColor = if (p.isDark) p.bg else Color.White)
+                        ) {
+                            Icon(Icons.Default.Check, null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(if (isVi) "Bật lưu lịch sử di chuyển" else "Enable Trip History", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        }
+                    } else if (tripHistory.isEmpty()) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.DirectionsCar,
+                                contentDescription = null,
+                                tint = p.textSecondary.copy(alpha = 0.5f),
+                                modifier = Modifier.size(36.dp)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = if (isVi) "Chưa có chuyến đi nào được lưu" else "No trips recorded yet",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = p.textPrimary
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = if (isVi)
+                                    "Khi bạn dẫn đường với Google Maps và đến nơi, tóm tắt chuyến đi sẽ tự động xuất hiện tại đây."
+                                else
+                                    "When you navigate with Google Maps and arrive, your trip summary will automatically appear here.",
+                                fontSize = 12.sp,
+                                color = p.textSecondary,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 16.sp,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.height(14.dp))
+                        tripHistory.forEachIndexed { index, trip ->
+                            if (index > 0) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = 10.dp),
+                                    color = p.separator,
+                                    thickness = 0.5.dp
+                                )
+                            }
+                            TripHistoryItemRow(
+                                trip = trip,
+                                isVi = isVi,
+                                onDelete = { TripHistoryManager.deleteTrip(context, index) }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TripHistoryItemRow(
+    trip: com.phucdnh.navigationiq.model.TripSummary,
+    isVi: Boolean,
+    onDelete: () -> Unit
+) {
+    val p = LocalApplePalette.current
+    val dateStr = remember(trip.timestamp) {
+        val sdf = java.text.SimpleDateFormat("dd/MM HH:mm", java.util.Locale.getDefault())
+        sdf.format(java.util.Date(trip.timestamp))
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(26.dp)
+                        .background(p.green.copy(alpha = 0.16f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        tint = p.green,
+                        modifier = Modifier.size(15.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = if (isVi) "Mô phỏng lộ trình" else "Route Simulation",
-                        modifier = Modifier.weight(1f),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.ExtraBold,
+                        text = trip.destination.ifBlank { if (isVi) "Điểm đến" else "Destination" },
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = p.textPrimary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = dateStr,
+                        fontSize = 11.sp,
+                        color = p.textSecondary
+                    )
+                }
+            }
+            IconButton(
+                onClick = onDelete,
+                modifier = Modifier.size(28.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Delete",
+                    tint = p.textSecondary,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Surface(
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(10.dp),
+                color = p.pillTrack
+            ) {
+                Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)) {
+                    Text(
+                        text = if (isVi) "THỜI GIAN" else "TIME",
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = p.textSecondary
+                    )
+                    Text(
+                        text = trip.duration.ifBlank { "--" },
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = p.blue
+                    )
+                }
+            }
+            Surface(
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(10.dp),
+                color = p.pillTrack
+            ) {
+                Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)) {
+                    Text(
+                        text = if (isVi) "QUÃNG ĐƯỜNG" else "DISTANCE",
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = p.textSecondary
+                    )
+                    Text(
+                        text = trip.distance.ifBlank { "--" },
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
                         color = p.textPrimary
                     )
                 }
-                QuickSimulationPresets.forEachIndexed { index, preset ->
-                    if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp), color = p.separator)
-                    val routeIcon = when (index) {
-                        0 -> Icons.Default.TurnRight
-                        1 -> Icons.Default.ArrowUpward
-                        2 -> Icons.Default.Route
-                        else -> Icons.Default.Check
-                    }
-                    val routeTitle = if (isVi) {
-                        listOf("Nội đô", "Cao tốc", "Vòng xuyến", "Đến nơi")[index]
-                    } else {
-                        listOf("City route", "Highway route", "Roundabout", "Arrival")[index]
-                    }
-                    ExpressiveRouteRow(routeIcon, routeTitle, if (isVi) preset.subtitleVi else preset.subtitleEn) {
-                        if (index == 3) {
-                            val mockSummary = com.phucdnh.navigationiq.model.TripSummary(
-                                destination = "Lotte Mart",
-                                duration = "22m",
-                                distance = "8.4 km",
-                                avgSpeed = "26 km/h",
-                                startTime = "17:23",
-                                endTime = "17:45"
-                            )
-                            com.phucdnh.navigationiq.service.NavNotificationService.setSimulatedTripSummary(mockSummary)
-                            com.phucdnh.navigationiq.garmin.GarminManager.sendNavigationArrived(context, mockSummary)
-                            send(preset)
-                        } else {
-                            send(preset)
-                        }
-                    }
+            }
+            Surface(
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(10.dp),
+                color = p.pillTrack
+            ) {
+                Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)) {
+                    Text(
+                        text = if (isVi) "TỐC ĐỘ TB" else "AVG SPEED",
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = p.textSecondary
+                    )
+                    Text(
+                        text = trip.avgSpeed.ifBlank { "--" },
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = p.textPrimary
+                    )
                 }
             }
         }
@@ -2045,7 +2278,8 @@ fun SystemSettingsPage(
     onSelectLanguage: (AppLanguage) -> Unit,
     onTriggerUpdate: (AppUpdateInfo) -> Unit = {},
     isInstalledFromPlayStore: Boolean = false,
-    onOpenTesterInvite: () -> Unit = {}
+    onOpenTesterInvite: () -> Unit = {},
+    onSendSimulation: ((NavigationInfo) -> Unit)? = null
 ) {
     val context = LocalContext.current
     val palette = LocalApplePalette.current
@@ -2519,6 +2753,174 @@ fun SystemSettingsPage(
                             }
                         }
                     )
+                }
+            }
+        }
+
+        // Section 4: Trip History (Local & Private)
+        item {
+            val isHistoryEnabled by TripHistoryManager.isEnabledFlow.collectAsState()
+            val tripHistory by TripHistoryManager.historyFlow.collectAsState()
+            AppleSectionHeader(title = if (isVi) "LỊCH SỬ CHUYẾN ĐI (RIÊNG TƯ)" else "TRIP HISTORY (LOCAL & PRIVATE)")
+            AppleFlatCard {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 13.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .background(palette.blue.copy(alpha = 0.14f), RoundedCornerShape(8.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.History,
+                                    contentDescription = null,
+                                    tint = palette.blue,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.padding(end = 8.dp)) {
+                                Text(
+                                    text = if (isVi) "Lưu lịch sử di chuyển" else "Save Trip History",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = palette.textPrimary
+                                )
+                                Spacer(modifier = Modifier.height(1.dp))
+                                Text(
+                                    text = if (isHistoryEnabled) {
+                                        if (isVi) "Đang bật • Tự động ghi lại khi đến nơi" else "Enabled • Automatically logs on arrival"
+                                    } else {
+                                        if (isVi) "Đang tắt (Mặc định) • Không lưu lịch sử" else "Disabled (Default) • History not recorded"
+                                    },
+                                    fontSize = 12.sp,
+                                    color = palette.textSecondary
+                                )
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .background(palette.pillTrack, RoundedCornerShape(10.dp))
+                                .padding(2.dp)
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = if (!isHistoryEnabled) palette.pillThumb else Color.Transparent,
+                                modifier = Modifier.clickable {
+                                    if (isHistoryEnabled) TripHistoryManager.setHistoryEnabled(context, false)
+                                }
+                            ) {
+                                Text(
+                                    text = if (isVi) "Tắt" else "Off",
+                                    fontSize = 11.sp,
+                                    fontWeight = if (!isHistoryEnabled) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (!isHistoryEnabled) (if (palette.isDark) palette.bg else Color.White) else palette.textSecondary,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                )
+                            }
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = if (isHistoryEnabled) palette.pillThumb else Color.Transparent,
+                                modifier = Modifier.clickable {
+                                    if (!isHistoryEnabled) TripHistoryManager.setHistoryEnabled(context, true)
+                                }
+                            ) {
+                                Text(
+                                    text = if (isVi) "Bật" else "On",
+                                    fontSize = 11.sp,
+                                    fontWeight = if (isHistoryEnabled) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (isHistoryEnabled) (if (palette.isDark) palette.bg else Color.White) else palette.textSecondary,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    if (tripHistory.isNotEmpty()) {
+                        HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
+                        AppleSettingsRow(
+                            icon = Icons.Default.Close,
+                            iconTint = palette.orange,
+                            title = if (isVi) "Xóa toàn bộ lịch sử" else "Clear All History",
+                            subtitle = if (isVi) "Đang lưu ${tripHistory.size} chuyến đi trên máy" else "Storing ${tripHistory.size} trips on device",
+                            showChevron = false,
+                            onClick = {
+                                TripHistoryManager.clearHistory(context)
+                                android.widget.Toast.makeText(
+                                    context,
+                                    if (isVi) "Đã xóa toàn bộ lịch sử chuyến đi" else "Trip history cleared",
+                                    android.widget.Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // Section 5: Route Simulation (Tester & Dev)
+        if (onSendSimulation != null) item {
+            AppleSectionHeader(title = if (isVi) "MÔ PHỎNG LỘ TRÌNH (TESTER & DEV)" else "ROUTE SIMULATION (TESTER & DEV)")
+            AppleFlatCard {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    QuickSimulationPresets.forEachIndexed { index, preset ->
+                        if (index > 0) HorizontalDivider(modifier = Modifier.padding(start = 58.dp), thickness = 0.5.dp, color = palette.separator)
+                        val routeIcon = when (index) {
+                            0 -> Icons.Default.TurnRight
+                            1 -> Icons.Default.ArrowUpward
+                            2 -> Icons.Default.Route
+                            else -> Icons.Default.Check
+                        }
+                        val routeTitle = if (isVi) {
+                            listOf("Nội đô", "Cao tốc", "Vòng xuyến", "Đến nơi")[index]
+                        } else {
+                            listOf("City route", "Highway route", "Roundabout", "Arrival")[index]
+                        }
+                        AppleSettingsRow(
+                            icon = routeIcon,
+                            iconTint = palette.blue,
+                            title = routeTitle,
+                            subtitle = if (isVi) preset.subtitleVi else preset.subtitleEn,
+                            showChevron = true,
+                            onClick = {
+                                if (index == 3) {
+                                    val mockSummary = com.phucdnh.navigationiq.model.TripSummary(
+                                        destination = "Lotte Mart",
+                                        duration = "22m",
+                                        distance = "8.4 km",
+                                        avgSpeed = "26 km/h",
+                                        startTime = "17:23",
+                                        endTime = "17:45"
+                                    )
+                                    com.phucdnh.navigationiq.service.NavNotificationService.setSimulatedTripSummary(mockSummary)
+                                    com.phucdnh.navigationiq.garmin.GarminManager.sendNavigationArrived(context, mockSummary)
+                                }
+                                onSendSimulation(
+                                    NavigationInfo(
+                                        isPublicTransport = true,
+                                        units = "km",
+                                        eta = preset.eta,
+                                        length = preset.length,
+                                        duration = preset.duration,
+                                        distance = preset.distance,
+                                        signs = if (isVi) preset.signsVi else preset.signsEn,
+                                        progress = preset.progress
+                                    )
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }

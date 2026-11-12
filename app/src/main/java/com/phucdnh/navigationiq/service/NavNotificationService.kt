@@ -691,6 +691,7 @@ class NavNotificationService : NotificationListenerService() {
             endTime = endTimeStr
         )
         _lastTripSummary.value = summary
+        com.phucdnh.navigationiq.history.TripHistoryManager.addTrip(this, summary)
         GarminManager.sendNavigationArrived(this, summary)
         GarminManager.addLog("[ARRIVED] Dispatched to Garmin: $finalDest ($durationStr, $distanceStr, $avgSpeedStr, isIntermediate=$isIntermediate)")
     }
